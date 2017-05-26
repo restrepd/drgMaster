@@ -1,6 +1,5 @@
 function drgBehaviorbyBlock(handles)
 
-
 [perCorr, encoding_trials, retrieval_trials, encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
 
 
@@ -28,6 +27,7 @@ hold on
 ylim([40 100]);
 exnobl = nobl(end)+1;
 xlim([0 exnobl]);
+set(gca,'xtick',[0:1:exnobl]);
 xlabel('Block number')
 ylabel('Percent correct')
 title('% correct vs block number')
