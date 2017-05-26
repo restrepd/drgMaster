@@ -186,7 +186,7 @@ function openDrg_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-[FileName,PathName] = uigetfile('*.*','Select . drg file to open');
+[FileName,PathName] = uigetfile('jt_times*.*','Select . drg file to open');
 handles.fullName=[PathName,FileName];
 handles.FileName=FileName;
 handles.PathName=PathName;
