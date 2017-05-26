@@ -1,5 +1,4 @@
 function drgBehaviorbyBlock(handles)
-disp('justin debug');
 
 [perCorr, encoding_trials, retrieval_trials, encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
 
