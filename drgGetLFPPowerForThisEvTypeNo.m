@@ -92,8 +92,13 @@ for trNo=firstTr:lastTr
                     P_ref=P(:,(times>=handles.startRef+handles.time_pad)&(times<=handles.endRef-handles.time_pad));
                     all_Power_ref(no_trials,1:length(f))=mean(P_ref,2);
                 end
-                perCorr_pertr(no_trials)=perCorr(find(abs(handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo)-handles.drg.session(sessionNo).events(2).times)...
+                switch handles.drg.drta_p.which_c_program
+                    case {2,10}
+                        perCorr_pertr(no_trials)=perCorr(find(abs(handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo)-handles.drg.session(sessionNo).events(2).times)...
                             <= handles.max_dt_between_events,1,'first'));
+                    otherwise
+                        perCorr_pertr(no_trials)=100;
+                end
                 if handles.displayData==0
                     for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
                         if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
