@@ -837,7 +837,7 @@ function openJt_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 
-[jtFileName,jtPathName] = uigetfile('*.*','Select jt_times file to open');
+[jtFileName,jtPathName] = uigetfile('jt_times*.mat','Select jt_times file to open');
 handles.jtfullName=[jtPathName,jtFileName];
 handles.jtFileName=jtFileName;
 handles.jtPathName=jtPathName;
