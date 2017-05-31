@@ -1,8 +1,8 @@
-function drgDoSpikeLFPAnal(handles)
+function handles=drgDoSpikeLFPAnal(handles)
 
 switch handles.analysisNoOsc
     case 1
         drgLFPspikeTrigPerTr(handles)
     case 2
-        drgSpikePhase(handles)
+        handles=drgSpikePhase(handles);
 end

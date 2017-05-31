@@ -94,9 +94,7 @@ for trNo=firstTr:lastTr
                 
                 
                 num_plotted=num_plotted+1;
-                if num_plotted>length(handles.drg.session(handles.drg.unit(handles.unitNo).sessionNo).events(handles.evTypeNo).times)
-                    num_plotted=noTr+1;
-                end
+
             end
         end
         

@@ -815,7 +815,9 @@ function whichSpikeLFP_Callback(hObject, eventdata, handles)
 % Hints: contents = cellstr(get(hObject,'String')) returns whichSpikeLFP contents as cell array
 %        contents{get(hObject,'Value')} returns selected item from whichSpikeLFP
 handles.analysisNoOsc=get(handles.whichSpikeLFP,'Value');
-drgDoSpikeLFPAnal(handles)
+handles=drgDoSpikeLFPAnal(handles);
+% Update the handles structure
+guidata(hObject, handles);
 
 % --- Executes during object creation, after setting all properties.
 function whichSpikeLFP_CreateFcn(hObject, eventdata, handles)

@@ -1,9 +1,13 @@
-function data_this_trial = drgGetThisTrial(handles,evNo)
+function data_this_trial = drgGetThisTrial(handles,evNo,evTypeNo)
 %This function gets the data for all channels for this trial
+
+if nargin==2
+    evTypeNo=handles.evTypeNo;
+end
 
 sessionNo=handles.sessionNo;
 
-trialNo=find(handles.drg.session(sessionNo).trial_start<handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),1,'last');
+trialNo=find(handles.drg.session(sessionNo).trial_start<handles.drg.session(sessionNo).events(evTypeNo).times(evNo),1,'last');
 
 switch handles.drg.session(sessionNo).draq_p.dgordra
     

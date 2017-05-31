@@ -19,4 +19,6 @@ switch handles.analysisNoSpikes
         drgLick_vs_PreFR(handles);
     case 9
         drgPlotPSTHEv1vs2Fct(handles)
+    case 10
+        drgPlotPSTH_in_phase_Ev1vs2Fct(handles)
 end

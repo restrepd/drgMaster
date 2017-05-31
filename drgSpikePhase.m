@@ -1,4 +1,4 @@
-function drgSpikePhase(handles)
+function handles=drgSpikePhase(handles)
 
 %Generates a phase histogram
 
@@ -97,11 +97,15 @@ end
 
 %Calculate the modulation index
 norm_phase_histo=phase_histo/sum(phase_histo);
+handles.sp_phase=phase;
+
 mean_prob=mean(norm_phase_histo)*ones(1,length(norm_phase_histo));
 DKL=sum(norm_phase_histo(1:end-1).*log(norm_phase_histo(1:end-1)./mean_prob(1:end-1)));
 MI_Tort=DKL/log(no_bins)
 
 phase_histo(no_bins+1)=phase_histo(1);
+norm_phase_histo(no_bins+1)=norm_phase_histo(1);
+handles.norm_phase_histo=norm_phase_histo;
 for ii=1:no_bins
     mean_theta_wave(ii)=mean(theta_wave(ii,1:n_wave(ii)),2);
     std_theta_wave(ii)=std(theta_wave(ii,1:n_wave(ii)),0,2);
@@ -120,10 +124,10 @@ hFig1 = figure(1);
 set(hFig1, 'units','normalized','position',[.02 .4 .5 .5])
 
 subplot(2,1,2)
-bar(phase,phase_histo)
+bar(phase,norm_phase_histo)
 xlim([0 360])
 xlabel('degrees')
-ylabel('No spikes')
+ylabel('Probability')
 title('Spike phase')
 
 

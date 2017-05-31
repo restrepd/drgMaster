@@ -121,8 +121,8 @@ for trNo=firstTr:lastTr
                 end
                 switch handles.drg.drta_p.which_c_program
                     case {2,10}
-                        perCorr_pertr(no_trials)=perCorr(abs(handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo)-handles.drg.session(sessionNo).events(2).times)...
-                            <= handles.max_dt_between_events);
+                        perCorr_pertr(no_trials)=perCorr(find(abs(handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo)-handles.drg.session(sessionNo).events(2).times)...
+                            <= handles.max_dt_between_events,1,'first'));
                     otherwise
                         perCorr_pertr(no_trials)=100;
                 end
