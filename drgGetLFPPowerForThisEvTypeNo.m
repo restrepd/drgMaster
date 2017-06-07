@@ -65,9 +65,6 @@ for trNo=firstTr:lastTr
                 max_t=handles.time_end-handles.time_pad;
             end
             
-if evNo==45
-    pfft=1
-end
                 
             [LFP, trialNo, can_read] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
 %             load('/Users/restrepd/Documents/Projects/Ethan/MEA to dg/thisLFP.mat')
