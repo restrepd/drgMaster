@@ -54,34 +54,6 @@ drg.draq_p=draq_p;
 drg.drta_p=drta_p;
 
 
-% %First weed out all event labels that have no events
-% nEventTypes=0;
-% drg.nEventTypes=draq_d.nEventTypes;
-% eventLookup=zeros(1,draq_d.nEventTypes);
-% for evTypeNo=1:draq_d.nEventTypes
-%     if draq_d.nEvPerType(evTypeNo)~=0
-%         nEventTypes=nEventTypes+1;
-%         eventLookup(evTypeNo)=nEventTypes;
-%         drg.session(filNum).eventlabels{nEventTypes}=draq_d.eventlabels{evTypeNo};
-%     end
-% end
-%
-% eventType=zeros(1,draq_d.noEvents);
-% for evNo=1:draq_d.noEvents
-%     eventType(evNo)=eventLookup(draq_d.eventType(evNo));
-% end
-%
-% %Now save the times for each event
-% %Assumes the events are already sorted in ascending order
-% noEvs=zeros(1,nEventTypes);
-%
-% for evNo=1:draq_d.noEvents
-%     noEvs(eventType(evNo))=noEvs(eventType(evNo))+1;
-%     drg.session(filNum).events(eventType(evNo)).times(noEvs(eventType(evNo)))=draq_d.events(evNo);
-%     drg.session(filNum).events(eventType(evNo)).noTimes=noEvs(eventType(evNo));
-% end
-
-
 %Enter events in drg
 drg.nEventTypes=draq_d.nEventTypes;
 nEventTypes=draq_d.nEventTypes;
@@ -252,23 +224,13 @@ else
             if drta_p.tetr_processed(chNo)==1
                 max_clusNo=max(cluster_class_per_file(offset_for_chan(chNo)+1:offset_for_chan(chNo)+noSpikes(chNo)));
                 for clusNo=1:max_clusNo
-                    %if ~((clusNo==0)&strcmp('Yes',exclude_invs))
-                    %                         if clusNo==0
-                    %                             clusNo
-                    %                         end
                     this_clus=find(cluster_class_per_file(offset_for_chan(chNo)+1:offset_for_chan(chNo)+noSpikes(chNo))==clusNo);
                     if ~isempty(this_clus)
                         szts=size(this_clus);
                         numUnits=numUnits+1;
                         drg.session(filNum).noUnits=drg.session(filNum).noUnits+1;
                         
-                        %                             drg.spikes(numUnits+drg.noUnits).time=all_timestamp_per_file(this_clus+offset_for_chan(chNo));
-                        %                             drg.ch_un{numUnits+drg.noUnits}=['ch' num2str(drta_p.which_display) 'u' num2str(clusNo)];
-                        %                             drg.channel(numUnits+drg.noUnits)=chNo;
-                        %                             drg.unitinch(numUnits+drg.noUnits)=clusNo;
-                        %                             drg.array(numUnits+drg.noUnits)=floor((chNo-1)/8);       %Assumes the arrays are eight channel arrays
-                        %                             drg.sessionNo(numUnits+drg.noUnits)=filNum;
-                        
+
                         %Really, this should be specified per unit
                         drg.unit(numUnits+drg.noUnits).spike_times=all_timestamp_per_file(this_clus+offset_for_chan(chNo));
                         drg.unit(numUnits+drg.noUnits).ch_un=['ch' num2str(chNo) 'u' num2str(clusNo)];
@@ -295,8 +257,7 @@ else
             end
         end
     end
-    %Note: this may not work for files other than spm
-%     drg = drgExcludeBadLFP(drg,filNum);
+
 end
 
 %Save the user choices for which trials, channels, trialsxchannel to
