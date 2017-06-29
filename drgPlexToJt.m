@@ -22,7 +22,7 @@ function varargout = drgPlexToJt(varargin)
 
 % Edit the above text to modify the response to help drgPlexToJt
 
-% Last Modified by GUIDE v2.5 27-Jun-2017 02:25:47
+% Last Modified by GUIDE v2.5 29-Jun-2017 06:29:26
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -56,6 +56,7 @@ function drgPlexToJt_OpeningFcn(hObject, eventdata, handles, varargin)
 handles.output = hObject;
 handles.which_experiment=1;
 handles.draq_p.plx.FileNameLFP='no_file.mat';
+handles.threshold=0.5;
 % Update handles structure
 guidata(hObject, handles);
 
@@ -117,7 +118,7 @@ fprintf(1, 'Reading plexon files...\n');
 
 %Initialize draq_p
 draq_p.sec_before_trigger=4;
-draq_p.sec_per_trigger=9;
+draq_p.sec_per_trigger=10;
 draq_p.pre_gain=0;
 draq_p.scaling=1;
 draq_p.offset=0;
@@ -142,7 +143,7 @@ set(hFig1, 'units','normalized','position',[.05 .75 .35 .15])
 eval(['draq_p.plx.srate_odorOn=1/' handles.draq_p.plx.FileNameOdorOn(1:end-4) '_ts_step;'])
 eval(['odorOn=' handles.draq_p.plx.FileNameOdorOn(1:end-4) ';'])
 plot(odorOn)
-threshold=0.5*(max(odorOn)-min(odorOn))+min(odorOn);
+threshold=handles.threshold*(max(odorOn)-min(odorOn))+min(odorOn);
 hold on
 plot([1 length(odorOn)],[threshold threshold],'-r')
 
@@ -514,3 +515,28 @@ function openLFP_Callback(hObject, eventdata, handles)
 set(handles.LFPfile,'String',handles.draq_p.plx.FileNameLFP);
 % Update handles structure
 guidata(hObject, handles);
+
+
+
+function threshold_Callback(hObject, eventdata, handles)
+% hObject    handle to threshold (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of threshold as text
+%        str2double(get(hObject,'String')) returns contents of threshold as a double
+handles.threshold=str2double(get(hObject,'String'));
+% Update handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function threshold_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to threshold (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

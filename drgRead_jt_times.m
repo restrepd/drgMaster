@@ -179,14 +179,9 @@ if drg.session(filNum).dgordra==1
     %this is dra
     drg.draq_p.no_chans=16;
     drg.session(filNum).noUnits=0;
-    for chNo=1:(draq_p.no_spike_ch-1)
+    for chNo=1:length(noSpikes)
         if drta_p.ch_processed(chNo)==1
             for clusNo=1:max(cluster_class_per_file(offset_for_chan(chNo)+1:offset_for_chan(chNo)+noSpikes(chNo)));
-                %if ~((clusNo==0)&strcmp('Yes',exclude_invs))
-                %if ~(clusNo==0)
-                %                     if clusNo==0
-                %                         clusNo
-                %                     end
                 this_clus=find(cluster_class_per_file(offset_for_chan(chNo)+1:offset_for_chan(chNo)+noSpikes(chNo))==clusNo);
                 if ~isempty(this_clus)
                     szts=size(this_clus);
