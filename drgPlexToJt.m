@@ -197,7 +197,7 @@ if trials_to_sort(1,1)>draq_p.sec_per_trigger+draq_p.sec_before_trigger
     trials_to_sort(draq_d.noTrials,2)=2;
 end
 
-%Empty trials between tirals
+%Empty trials between trials
 for ii=2:last_trial
     if (trials_to_sort(ii,1)-trials_to_sort(ii-1,1)-draq_p.sec_per_trigger)>draq_p.sec_per_trigger
         
@@ -439,6 +439,13 @@ for tetNo=1:4
     end
 end
 
+%Get LFP acquisition rate
+
+eval(['draq_p.ActualRate=1/TET' handles.draq_p.plx.FileNameLFP(1:end-4) '_ts_step;'])
+
+%Save jt_times
+draq_p.dgordra=4;
+draq_p.no_chans=16; %This is what is used for diego's recording, it is not needed for Anan's data, but it has to be entered
 par.doBehavior=0;
 
 jt_times_file=[handles.draq_p.plx.PathNameEvents 'jt_times_' handles.draq_p.plx.FileNameEvents(1:end-3) 'mat'];

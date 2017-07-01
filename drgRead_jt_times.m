@@ -175,57 +175,27 @@ drg.session(filNum).draq_p=draq_p;
 drg.session(filNum).draq_d=draq_d;
 
 numUnits=0;
-if drg.session(filNum).dgordra==1
-    %this is dra
-    drg.draq_p.no_chans=16;
-    drg.session(filNum).noUnits=0;
-    for chNo=1:length(noSpikes)
-        if drta_p.ch_processed(chNo)==1
-            for clusNo=1:max(cluster_class_per_file(offset_for_chan(chNo)+1:offset_for_chan(chNo)+noSpikes(chNo)));
-                this_clus=find(cluster_class_per_file(offset_for_chan(chNo)+1:offset_for_chan(chNo)+noSpikes(chNo))==clusNo);
-                if ~isempty(this_clus)
-                    szts=size(this_clus);
-                    numUnits=numUnits+1;
-                    drg.session(filNum).noUnits=drg.session(filNum).noUnits+1;
-                    %                             drg.spikes(numUnits+drg.noUnits).time=all_timestamp_per_file(this_clus+offset_for_chan(chNo));
-                    %                             drg.ch_un{numUnits+drg.noUnits}=['ch' num2str(chNo) 'u' num2str(clusNo)];
-                    %                             drg.channel(numUnits+drg.noUnits)=chNo;
-                    %                             drg.unitinch(numUnits+drg.noUnits)=clusNo;
-                    %                             drg.array(numUnits+drg.noUnits)=floor((chNo-1)/8);       %Assumes the arrays are eight channel arrays
-                    %                             drg.sessionNo(numUnits+drg.noUnits)=filNum;
-                    
-                    %Really, this should be specified per unit
-                    drg.unit(numUnits+drg.noUnits).spike_times=all_timestamp_per_file(this_clus+offset_for_chan(chNo));
-                    drg.unit(numUnits+drg.noUnits).ch_un=['ch' num2str(chNo) 'u' num2str(clusNo)];
-                    drg.unit((numUnits+drg.noUnits)).channel=chNo;
-                    drg.unit(numUnits+drg.noUnits).unitinch=clusNo;
-                    drg.unit(numUnits+drg.noUnits).array=floor((chNo-1)/8);       %Assumes the arrays are eight channel arrays
-                    drg.unit(numUnits+drg.noUnits).sessionNo=filNum;
-                    drg.unit(numUnits+drg.noUnits).dgordra=1;
-                    drg.unit(numUnits+drg.noUnits).blocks=draq_d.blocks;
-                    
-                end
-                %end
-            end
-        end
-    end
-    
-else
-    %this is dg
-    drg.session(filNum).noUnits=0;
-    for chNo=1:4
-        if isfield(drta_p,'tetr_processed')
-            spikes_processed=1;
-            if drta_p.tetr_processed(chNo)==1
-                max_clusNo=max(cluster_class_per_file(offset_for_chan(chNo)+1:offset_for_chan(chNo)+noSpikes(chNo)));
-                for clusNo=1:max_clusNo
+
+switch drg.session(filNum).dgordra
+    case {1,4}
+        %this is dra or Plexon
+        drg.draq_p.no_chans=16;
+        drg.session(filNum).noUnits=0;
+        for chNo=1:length(noSpikes)
+            if drta_p.ch_processed(chNo)==1
+                for clusNo=1:max(cluster_class_per_file(offset_for_chan(chNo)+1:offset_for_chan(chNo)+noSpikes(chNo)));
                     this_clus=find(cluster_class_per_file(offset_for_chan(chNo)+1:offset_for_chan(chNo)+noSpikes(chNo))==clusNo);
                     if ~isempty(this_clus)
                         szts=size(this_clus);
                         numUnits=numUnits+1;
                         drg.session(filNum).noUnits=drg.session(filNum).noUnits+1;
+                        %                             drg.spikes(numUnits+drg.noUnits).time=all_timestamp_per_file(this_clus+offset_for_chan(chNo));
+                        %                             drg.ch_un{numUnits+drg.noUnits}=['ch' num2str(chNo) 'u' num2str(clusNo)];
+                        %                             drg.channel(numUnits+drg.noUnits)=chNo;
+                        %                             drg.unitinch(numUnits+drg.noUnits)=clusNo;
+                        %                             drg.array(numUnits+drg.noUnits)=floor((chNo-1)/8);       %Assumes the arrays are eight channel arrays
+                        %                             drg.sessionNo(numUnits+drg.noUnits)=filNum;
                         
-
                         %Really, this should be specified per unit
                         drg.unit(numUnits+drg.noUnits).spike_times=all_timestamp_per_file(this_clus+offset_for_chan(chNo));
                         drg.unit(numUnits+drg.noUnits).ch_un=['ch' num2str(chNo) 'u' num2str(clusNo)];
@@ -233,26 +203,59 @@ else
                         drg.unit(numUnits+drg.noUnits).unitinch=clusNo;
                         drg.unit(numUnits+drg.noUnits).array=floor((chNo-1)/8);       %Assumes the arrays are eight channel arrays
                         drg.unit(numUnits+drg.noUnits).sessionNo=filNum;
-                        drg.unit(numUnits+drg.noUnits).dgordra=0;
+                        drg.unit(numUnits+drg.noUnits).dgordra=1;
                         drg.unit(numUnits+drg.noUnits).blocks=draq_d.blocks;
-                        try
-                            if (clusNo<=max_clusNo)&exist('units_per_tet','var')
-                                drg.unit(numUnits+drg.noUnits).Lratio=units_per_tet(chNo).Lratio(clusNo+1);
-                                drg.unit(numUnits+drg.noUnits).IsolDist=units_per_tet(chNo).IsolDist(clusNo+1);
-                            else
-                                drg.unit(numUnits+drg.noUnits).Lratio=NaN;
-                                drg.unit(numUnits+drg.noUnits).IsolDist=NaN;
-                            end
-                        catch
-                        end
                         
                     end
                     %end
                 end
             end
         end
-    end
-
+        
+    case {2,3}
+        %this is dg or rhd
+        drg.session(filNum).noUnits=0;
+        for chNo=1:4
+            if isfield(drta_p,'tetr_processed')
+                spikes_processed=1;
+                if drta_p.tetr_processed(chNo)==1
+                    max_clusNo=max(cluster_class_per_file(offset_for_chan(chNo)+1:offset_for_chan(chNo)+noSpikes(chNo)));
+                    for clusNo=1:max_clusNo
+                        this_clus=find(cluster_class_per_file(offset_for_chan(chNo)+1:offset_for_chan(chNo)+noSpikes(chNo))==clusNo);
+                        if ~isempty(this_clus)
+                            szts=size(this_clus);
+                            numUnits=numUnits+1;
+                            drg.session(filNum).noUnits=drg.session(filNum).noUnits+1;
+                            
+                            
+                            %Really, this should be specified per unit
+                            drg.unit(numUnits+drg.noUnits).spike_times=all_timestamp_per_file(this_clus+offset_for_chan(chNo));
+                            drg.unit(numUnits+drg.noUnits).ch_un=['ch' num2str(chNo) 'u' num2str(clusNo)];
+                            drg.unit((numUnits+drg.noUnits)).channel=chNo;
+                            drg.unit(numUnits+drg.noUnits).unitinch=clusNo;
+                            drg.unit(numUnits+drg.noUnits).array=floor((chNo-1)/8);       %Assumes the arrays are eight channel arrays
+                            drg.unit(numUnits+drg.noUnits).sessionNo=filNum;
+                            drg.unit(numUnits+drg.noUnits).dgordra=0;
+                            drg.unit(numUnits+drg.noUnits).blocks=draq_d.blocks;
+                            try
+                                if (clusNo<=max_clusNo)&exist('units_per_tet','var')
+                                    drg.unit(numUnits+drg.noUnits).Lratio=units_per_tet(chNo).Lratio(clusNo+1);
+                                    drg.unit(numUnits+drg.noUnits).IsolDist=units_per_tet(chNo).IsolDist(clusNo+1);
+                                else
+                                    drg.unit(numUnits+drg.noUnits).Lratio=NaN;
+                                    drg.unit(numUnits+drg.noUnits).IsolDist=NaN;
+                                end
+                            catch
+                            end
+                            
+                        end
+                        %end
+                    end
+                end
+            end
+        end
+    
+        
 end
 
 %Save the user choices for which trials, channels, trialsxchannel to

@@ -48,7 +48,16 @@ switch handles.drg.session(sessionNo).draq_p.dgordra
         end
         
     case 3
+        %rhd
         data_this_trial=drgGetThisTrialRHD(handles,trialNo);
+    case 4
+        %Anan's Plexon
+        data_this_trial=zeros(floor(handles.drg.session(sessionNo).draq_p.ActualRate*handles.drg.session(sessionNo).draq_p.sec_per_trigger),handles.drg.session(sessionNo).draq_p.no_chans);
+        load([handles.drg.session(sessionNo).draq_p.plx.PathNameLFP handles.drg.session(sessionNo).draq_p.plx.FileNameLFP])
+        eval(['LFP=TET' handles.drg.session(sessionNo).draq_p.plx.FileNameLFP(1:end-4) ';'])
+        ii_start=floor(handles.drg.session(sessionNo).draq_d.t_trial(trialNo)*handles.drg.session(sessionNo).draq_p.ActualRate);
+        ii_end=ii_start+floor(handles.drg.session(sessionNo).draq_p.ActualRate*handles.drg.session(sessionNo).draq_p.sec_per_trigger)-1;
+        data_this_trial(:,1)=LFP(ii_start:ii_end);
 end
 
 
