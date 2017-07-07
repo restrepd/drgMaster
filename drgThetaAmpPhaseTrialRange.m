@@ -28,16 +28,6 @@ if handles.displayData==1
     set(hFig1, 'units','normalized','position',[.55 .27 .35 .15])
 end
 
-% %Plot the percent correct
-% trials=1:length(perCorr);
-% plot(trials,perCorr,'o','MarkerEdgeColor',[0.7 0.7 0.7],'MarkerFaceColor',[0.7 0.7 0.7])
-% hold on
-% plot(trials(encoding_trials),perCorr(encoding_trials),'ob')
-% plot(trials(retrieval_trials),perCorr(retrieval_trials),'or')
-% ylim([40 110]);
-% xlabel('Trial No')
-% ylabel('Percent correct')
-% title('% correct vs trial number, blue=encoding, red=retrieval')
 
 %Now get the phase of gamma bursts witin theta
 no_encoding_trials=0;

@@ -98,10 +98,10 @@ for lfpodNo=1:no_lfpevpairs
                         mi_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno))=...
                             mean(these_mi_values);
                         
-                        %Use a break here ti find high MI values
+                        %Use a break here to find high MI values
                         if (mean(these_mi_values)>0.02)&(PACno==3)&(percent_bin==3)&(groupNo==1)
                             fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo
-                            LFPno=handles_drgb.drgb.lfpevpair(lfpodNo).lfpNo
+                            LFPno=handles_drgb.drgb.lfpevpair(lfpodNo).elecNo
                             FileName=handles_drgb.drgb.file(fileNo).FileName
                             pffft=1;
                         end
@@ -619,7 +619,8 @@ for PACno=1:handles_drgb.no_PACpeaks
 end
 
 %Now plot the PAC probability histogram
-phase=handles_drgb.drgb.PAC.phase;
+no_bins=sz_all_phase(2)-1;
+phase=[0:360/no_bins:360];
 for PACno=1:handles_drgb.no_PACpeaks
     try
         close(PACno+3*handles_drgb.no_PACpeaks)
@@ -653,7 +654,10 @@ for PACno=1:handles_drgb.no_PACpeaks
                     
                     phase_histo=zeros(no_values(eventType,winNo,grNo,per_bin,PACno),sz_all_phase(2));
                     phase_histo(:,:)=all_phase_histo(eventType,winNo,grNo,per_bin,PACno,1:no_values(eventType,winNo,grNo,per_bin,PACno),1:sz_all_phase(2));
-                    shadedErrorBar(phase,mean(phase_histo,1),std(phase_histo,0,1),these_lines{no_sub})
+                    pct5=prctile(phase_histo,5);
+                    pct95=prctile(phase_histo,95);
+                    pctiles=[pct95;pct5];
+                    shadedErrorBar(phase,mean(phase_histo,1),pctiles,these_lines{no_sub})
                     hold on
                      
                     if (PACno==3)&(per_bin==3)&(evTN==1)&(grNo==1)

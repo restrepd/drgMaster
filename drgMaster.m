@@ -100,7 +100,7 @@ handles.minLogP=-0.3;
 handles.perTetrode=0;
 handles.max_dt_between_events=3.5; %Maximum time between events (odorOn to reinforcement)
 handles.read_entire_file=0;
-handles.corr_window=0.0004;
+handles.corr_window=0.00025;
 handles.analysisSync=1;
 
 
