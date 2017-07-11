@@ -3,6 +3,11 @@ function handles=drgbChoicesLFPexample
 handles.drgb.outFileName='acetoethylben_electrodetest.mat';
 handles.drgb.outPathName='C:\Users\Daniel\Desktop\acetotheylben\';
 
+%Number of LFP electrodes
+% Anan: please enter handles.drgbchoices.no_LFP_elect=1;
+% Restrepo lab enter handles.drgbchoices.no_LFP_elect=16;
+handles.drgbchoices.no_LFP_elect=16;
+
 %test the batch? 1=yes, 0=no
 handles.drgbchoices.test_batch=0;
 

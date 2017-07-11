@@ -13,8 +13,8 @@ winNo=2;
 % evTypeLabels={'Hit','Miss','CR','FA'};
 
 %Analyze S+ S-
-evTypeNos=[3 6];
-evTypeLabels={'S+','S-'};
+evTypeNos=[2 5];
+evTypeLabels={'Hit','CR'};
 
 
 

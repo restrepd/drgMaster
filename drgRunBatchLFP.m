@@ -125,7 +125,7 @@ for filNum=first_file:handles.drgbchoices.no_files
         end
         
         %Now run the analysis for each lfp
-        for lfpNo=1:16
+        for lfpNo=1:handles.drgbchoices.no_LFP_elect
             
             
             handles.peakLFPNo=lfpNo;

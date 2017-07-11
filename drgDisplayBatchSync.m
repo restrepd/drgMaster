@@ -51,7 +51,6 @@ SingleUnit=[];
 SingleUnit_Fee=[];
 perViol=[];
 for unitNo=1:handles_drgb.drgb.unit_no
-
        basalFR=[basalFR handles_drgb.drgb.unit(unitNo).basalFR];
        groupNoU=[groupNoU handles_drgb.drgb.unit(unitNo).groupNo];
        SingleUnit=[SingleUnit handles_drgb.drgb.unit(unitNo).SingleUnit];

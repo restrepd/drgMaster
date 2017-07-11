@@ -91,7 +91,7 @@ for trNo=firstTr:lastTr
                 enc_phase_histo(no_encoding_trials,1:n_phase_bins+1)=phase_histo;
                 MI_enc=[MI_enc mod_indx(no_trials)];
                 
-                if handles.displayData==0
+                if handles.save_drgb==1
                     for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
                         if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
                             handles.drgb.PAC.which_event(evTypeNo,no_trials)=1;

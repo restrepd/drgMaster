@@ -24,7 +24,7 @@ warning('off')
 
 %THESE VALUES ARE IMPORTANT
 %VERY IMPORTANT: This is the index for this event in your handles.drgbchoices.evTypeNos
-eventType=[2 5];
+eventType=[2 5]; %Hit and CR
 no_event_types=2;
 %eventType=1;
 %no_event_types=1;
