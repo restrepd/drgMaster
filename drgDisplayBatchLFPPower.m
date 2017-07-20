@@ -4,7 +4,7 @@ function drgDisplayBatchLFPPower(handles)
 %data
 
 %Choose the format for the display
-which_display=2;
+which_display=1;
 
 % 1 Show the difference between events for each group/ percent correct
 %  bin in a separate graph
@@ -276,15 +276,18 @@ switch which_display
                 
                 %First draw lines and add legends
                 this_legend=[];
+                plot_handles=[];
                 for evTN1=1:length(eventType)
                     this_dB_p_v1_mean=zeros(1,length(handles_drgb.drgb.freq_for_LFPpower));
                     this_dB_p_v1_mean(1,:)=dB_p_v1_mean(per_bin,evTN1,:);
-                    plot(frequency,this_dB_p_v1_mean, these_lines{evTN1});
+                    eval(['p' num2str(evTN1) '=plot(frequency,this_dB_p_v1_mean, these_lines{evTN1});'])
+                    %plot(frequency,this_dB_p_v1_mean, these_lines{evTN1});
+                    plot_handles=[plot_handles 'p' num2str(evTN1) ' '];
                     this_legend=[this_legend '''' evTypeLabels{evTN1} '''' ','];
                 end
                 
-                this_legend=['legend(' this_legend(1:end-1) ')'];
-                eval(this_legend)
+                this_legend=['legend([' plot_handles(1:end-1) '],' this_legend(1:end-1) ')'];
+                
                 
                 
                 %Now do the bounded lines and the significance points
@@ -310,15 +313,17 @@ switch which_display
                     
                 end
                 
-                ylim([-6 10])
-                
-                
-                
+                max_y=max(dB_p_v1_mean(:)+abs(dB_p_v1_ci(:)))+0.05*(max(dB_p_v1_mean(:)+abs(dB_p_v1_ci(:)))-min(dB_p_v1_mean(:)-abs(dB_p_v1_ci(:))));
+                min_y=min(dB_p_v1_mean(:)-abs(dB_p_v1_ci(:)))-0.05*(max(dB_p_v1_mean(:)+abs(dB_p_v1_ci(:)))-min(dB_p_v1_mean(:)-abs(dB_p_v1_ci(:))));
+                ylim([min_y max_y])
+                   
                 if subtractRef==0
                     title(['Power (dB) for percent correct' percent_bin_legend{per_bin} ' group: ' handles_drgb.drgbchoices.group_no_names{grNo}])
                 else
                     title(['delta Power (dB) for percent correct' percent_bin_legend{per_bin} ' group: ' handles_drgb.drgbchoices.group_no_names{grNo}])
                 end
+                
+                eval(this_legend)
             end
         end
         
