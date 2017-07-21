@@ -32,6 +32,11 @@ no_event_types=2;
 evTypeLabels={'Hit';'CR'};
 %evTypeLabels={'tstart'};
 
+eventType=[9 10 11 12 13 14 15];
+no_event_types=7;
+evTypeLabels={'Hi1','Hi2','Hi3','Lo4','Lo5','Lo6','Inter'};
+
+
 %Which percent correct bins do you want to use?
 percent_low=[45 65 80];
 percent_high=[65 80 100];
@@ -304,7 +309,7 @@ switch which_display
                     if calc_pval(evTN1)==1
                         for ifreq=1:length(frequency)
                             
-                            if p_vals(grNo,per_bin,evTN1,ifreq)<=pFDR(grNo,per_bin,evTN1)
+                            if p_vals(grNo,per_bin,evTN1,ifreq)<=pFDR(grNo,per_bin)
                                 plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{evTN1})
                             end
                             
