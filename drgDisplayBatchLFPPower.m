@@ -26,11 +26,12 @@ warning('off')
 %VERY IMPORTANT: This is the index for this event in your handles.drgbchoices.evTypeNos
 eventType=[2 5]; %Hit and CR
 no_event_types=2;
-%eventType=1;
-%no_event_types=1;
-
 evTypeLabels={'Hit';'CR'};
-%evTypeLabels={'tstart'};
+
+% eventType=[9 10 11 12 13 14]; %Hit and CR
+% no_event_types=6;
+% evTypeLabels={'Hi Od1';'Hi Od 2';'Hi Od 3';'Low Od1';'Low Od 2';'Low Od 3'};
+
 
 %Which percent correct bins do you want to use?
 percent_low=[45 65 80];
@@ -304,18 +305,22 @@ switch which_display
                     if calc_pval(evTN1)==1
                         for ifreq=1:length(frequency)
                             
-                            if p_vals(grNo,per_bin,evTN1,ifreq)<=pFDR(grNo,per_bin,evTN1)
+                            
+                            if p_vals(grNo,per_bin,evTN1,ifreq)<=pFDR(grNo,per_bin)
                                 plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{evTN1})
                             end
+                        
                             
                         end
                     end
                     
                 end
                 
+        
                 max_y=max(dB_p_v1_mean(:)+abs(dB_p_v1_ci(:)))+0.05*(max(dB_p_v1_mean(:)+abs(dB_p_v1_ci(:)))-min(dB_p_v1_mean(:)-abs(dB_p_v1_ci(:))));
                 min_y=min(dB_p_v1_mean(:)-abs(dB_p_v1_ci(:)))-0.05*(max(dB_p_v1_mean(:)+abs(dB_p_v1_ci(:)))-min(dB_p_v1_mean(:)-abs(dB_p_v1_ci(:))));
                 ylim([min_y max_y])
+              
                    
                 if subtractRef==0
                     title(['Power (dB) for percent correct' percent_bin_legend{per_bin} ' group: ' handles_drgb.drgbchoices.group_no_names{grNo}])

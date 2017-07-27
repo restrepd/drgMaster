@@ -35,6 +35,10 @@ handles.drgbchoices.referenceEvent=2;
 handles.drgbchoices.evTypeNos=[2 3 5 7 9 11 13]; 
 %OdorOn, Hit, S+, Miss, CR, S-, FA
 
+%For dropc_conc
+% handles.drgbchoices.evTypeNos=[2 3 5 7 9 11 13 15 16 17 18 19 20 21 23]; 
+%OdorOn, Hit, S+, Miss, CR, S-, FA
+
 %Which time windows do you want to be evaluated?
 %For example if you want -2 to 0 and 0 to 2 sec:
 % handles.drgbchoices.timeStart=[-2 0];

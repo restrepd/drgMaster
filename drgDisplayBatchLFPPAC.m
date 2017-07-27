@@ -10,7 +10,7 @@ warning('off')
 %THESE VALUES ARE IMPORTANT
 
 %Choose the format for the display
-which_PA_display=1;
+which_PA_display=6;
 
 % 1 Show the cumulative histograms for peak angles for the difference between events
 %   for each group/ percent correct bin in a separate graph
@@ -22,6 +22,9 @@ which_PA_display=1;
 % 4 show the boxplots for the MI
 %
 % 5 Show the cumulative histos for the MI
+%
+% 6 Show the cumulative histograms for mean phase angles for the difference between events
+%   for each group/ percent correct bin in a separate graph 
 
 %For the moment let's only do the odor window
 winNo=2;
@@ -87,6 +90,7 @@ max_trials=max(no_trials(:));
 noWindows=handles_drgb.drgbchoices.noWindows;
 mi_values=zeros(no_events,noWindows,no_groups,no_percent_bins,no_PACpeaks,no_lfpevpairs);
 pa_values=zeros(no_events,noWindows,no_groups,no_percent_bins,no_PACpeaks,no_lfpevpairs);
+mva_values=zeros(no_events,noWindows,no_groups,no_percent_bins,no_PACpeaks,no_lfpevpairs);
 
 
 
@@ -119,10 +123,15 @@ for lfpodNo=1:no_lfpevpairs
                         
                
                         these_pa_values=zeros(no_trials,1);
-                        these_pa_values=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(PACno).meanVectorAngle(trials_in_event&trials_in_perbin);
+                        these_pa_values=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(PACno).peakAngle(trials_in_event&trials_in_perbin);
                         pa_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno))=...
                             mean(these_pa_values);
                         
+                        these_mva_values=zeros(no_trials,1);
+                        these_mva_values=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(PACno).meanVectorAngle(trials_in_event&trials_in_perbin);
+                        mva_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno))=...
+                            mean(these_mva_values);
+                         
                         this_all_phase_histo=zeros(no_trials,sz_all_phase(2));
                         this_all_phase_histo=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(PACno).all_phase_histo(trials_in_event&trials_in_perbin,1:sz_all_phase(2));
                         all_phase_histo(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno),1:sz_all_phase(2))=...
@@ -466,7 +475,7 @@ switch which_PA_display
                     end
                     this_legend=['legend(' this_legend(1:end-1) ')'];
                     eval(this_legend)
-                    title(['Phase angle for ' handles_drgb.PACnames{PACno} '. Percent correct from ' num2str(percent_low(per_bin))...
+                    title(['Peak phase angle for ' handles_drgb.PACnames{PACno} '. Percent correct from ' num2str(percent_low(per_bin))...
                         ' to ' num2str(percent_high(per_bin)) ', group No: ' handles_drgb.drgbchoices.group_no_names{grNo}])
                     
                     %Do the KS test
@@ -477,7 +486,7 @@ switch which_PA_display
                         pa_ref=zeros(1,no_values(eventType,winNo,grNo,per_bin,PACno));
                         pa_ref(1,1:no_values(eventType,winNo,grNo,per_bin,PACno))=...
                             pa_values(eventType,winNo,grNo,per_bin,PACno,1:no_values(eventType,winNo,grNo,per_bin,PACno));
-                        fprintf(1,['KS p values for phase angle cumulative probability for ' handles_drgb.PACnames{PACno} '. Percent correct from ' num2str(percent_low(per_bin))...
+                        fprintf(1,['KS p values for peak phase angle cumulative probability for ' handles_drgb.PACnames{PACno} '. Percent correct from ' num2str(percent_low(per_bin))...
                             ' to ' num2str(percent_high(per_bin)) ', group No: ' handles_drgb.drgbchoices.group_no_names{grNo} '\n'])
                         
                         for evTN=1:length(evTypeNos)
@@ -493,7 +502,7 @@ switch which_PA_display
                                 end
                             end
                         end
-                         
+                        
                         if length(p_vals)>1
                             fprintf(1, 'pFDR= = %d\n',drsFDRpval(p_vals));
                         end
@@ -501,8 +510,8 @@ switch which_PA_display
                     end
                     
                 end
+            end
         end
-end
         
     case 2
         %Now do the rose plots for peak angles
@@ -797,8 +806,80 @@ end
             title(['MI for ' handles_drgb.PACnames{PACno} '. Percent correct from ' num2str(percent_low(per_bin)) ' to ' num2str(percent_high(per_bin))])
             
         end
+    case 6
+        %Cumulative histogram for the mean phase angle
+        figNo=0;
+         
+        for PACno=1:handles_drgb.no_PACpeaks
+            for per_bin=1:no_percent_bins
+                for grNo=1:no_groups
+                    figNo=figNo+1;
+                    try
+                        close(figNo)
+                    catch
+                    end
+                    hFig=figure(figNo);
+                    set(hFig, 'units','normalized','position',[.05 .05 .7 .7])
+                    
+                    this_legend=[];
+                    hold on
+                    n_cum=0;
+                    
+                    for evTN=1:length(evTypeNos)
+                        eventType=evTypeNos(evTN);
+                        
+                        if no_values(eventType,winNo,grNo,per_bin,PACno)>1
+                            mva_v=zeros(1,no_values(eventType,winNo,grNo,per_bin,PACno));
+                            mva_v(1,1:no_values(eventType,winNo,grNo,per_bin,PACno))=...
+                                mva_values(eventType,winNo,grNo,per_bin,PACno,1:no_values(eventType,winNo,grNo,per_bin,PACno));
+                            [f_mva_v,x_mva_v] = drg_ecdf(mva_v);
+                            n_cum=n_cum+1;
+                            plot(x_mva_v,f_mva_v,these_lines{n_cum})
+                            this_legend=[this_legend '''' evTypeLabels{evTN} '''' ','];
+                        end
+                    end
+                    this_legend=['legend(' this_legend(1:end-1) ')'];
+                    eval(this_legend)
+                    title(['Mean phase angle for ' handles_drgb.PACnames{PACno} '. Percent correct from ' num2str(percent_low(per_bin))...
+                        ' to ' num2str(percent_high(per_bin)) ', group No: ' handles_drgb.drgbchoices.group_no_names{grNo}])
+                    
+                    %Do the KS test
+                    evTN=ev_to_test_against;
+                    eventType=evTypeNos(evTN);
+                    p_vals=[];
+                    if no_values(eventType,winNo,grNo,per_bin,PACno)>1
+                        mva_ref=zeros(1,no_values(eventType,winNo,grNo,per_bin,PACno));
+                        mva_ref(1,1:no_values(eventType,winNo,grNo,per_bin,PACno))=...
+                            mva_values(eventType,winNo,grNo,per_bin,PACno,1:no_values(eventType,winNo,grNo,per_bin,PACno));
+                        fprintf(1,['KS p values for mean phase angle cumulative probability for ' handles_drgb.PACnames{PACno} '. Percent correct from ' num2str(percent_low(per_bin))...
+                            ' to ' num2str(percent_high(per_bin)) ', group No: ' handles_drgb.drgbchoices.group_no_names{grNo} '\n'])
+                        
+                        for evTN=1:length(evTypeNos)
+                            if evTN~=ev_to_test_against
+                                eventType=evTypeNos(evTN);
+                                if no_values(eventType,winNo,grNo,per_bin,PACno)>1
+                                    mva_v=zeros(1,no_values(eventType,winNo,grNo,per_bin,PACno));
+                                    mva_v(1,1:no_values(eventType,winNo,grNo,per_bin,PACno))=...
+                                        mva_values(eventType,winNo,grNo,per_bin,PACno,1:no_values(eventType,winNo,grNo,per_bin,PACno));
+                                    [h,p]=kstest2(mva_v,mva_ref);
+                                    p_vals=[p_vals p];
+                                    fprintf(1, [evTypeLabels{evTN} ' vs. ' evTypeLabels{ev_to_test_against} '= %d\n'],p);
+                                end
+                            end
+                        end
+                        
+                        if length(p_vals)>1
+                            fprintf(1, 'pFDR= = %d\n',drsFDRpval(p_vals));
+                        end
+                        fprintf(1, '\n');
+                    end
+                    
+                end
+            end
+        end
+        
 end
 
 save([handles.PathName handles.drgb.outFileName(1:end-4) '_out.mat'])
- 
+
 pffft=1

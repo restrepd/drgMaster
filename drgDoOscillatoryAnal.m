@@ -17,4 +17,6 @@ switch handles.analysisNoOsc
         drgThetaAmpPhaseLick(handles)
     case 8
         drgLFPwaveTimecourse(handles)
+    case 9 
+        drgComparePhases(handles)
 end
