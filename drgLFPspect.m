@@ -54,12 +54,27 @@ for trNo=firstTr:lastTr
                     [S,f,t,P_ref]=spectrogram(detrend(double(LFPhigh_ref)),window,noverlap,freq,handles.drg.session(handles.sessionNo).draq_p.ActualRate);
                 end
                 
-                
-                no_trials=no_trials+1;
-                log_all_Power(no_trials,:)=mean(10*log10(P),2);
-                if (handles.subtractRef==1)
-                    log_all_Power_ref(no_trials,:)=mean(10*log10(P_ref),2);
+                %Sometimes the power is zero
+                not_inf=1;
+                if sum(isinf(mean(10*log10(P),2)))>0
+                    not_inf=0;
                 end
+                
+                
+                if (handles.subtractRef==1)
+                    if sum(isinf(mean(10*log10(P_ref),2)))>0
+                        not_inf=0;
+                    end
+                end   
+
+                if not_inf==1
+                    no_trials=no_trials+1;
+                    log_all_Power(no_trials,:)=mean(10*log10(P),2);
+                    if (handles.subtractRef==1)
+                        log_all_Power_ref(no_trials,:)=mean(10*log10(P_ref),2);
+                    end
+                end
+                
             end
             
         end

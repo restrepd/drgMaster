@@ -116,9 +116,7 @@ for lfpodNo=1:no_lfpevpairs
                         mean(this_dB_power,1);
                     experimentNo(evTypeNo,timeWindow,groupNo,percent_bin,no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1)=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
                     no_values(evTypeNo,timeWindow,groupNo,percent_bin)=no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1;
-                    if (timeWindow==2)&((evTypeNo==2)||(evTypeNo==5))&(percent_bin==3)&(groupNo==1)
-                        pffft=1
-                    end
+
                     
                 end
             end
@@ -376,9 +374,14 @@ switch which_display
                             
                             %Calculate whether this this_dB_p_v1 is significantly
                             %different from reference
-                            for ifreq=1:length(frequency)
-                                p_vals(grNo,per_bin,evTN1,ifreq)=ranksum(this_dB_p_v1(:,ifreq),this_dB_p_v1ref(:,ifreq));
-                                these_p_vals=[these_p_vals ranksum(this_dB_p_v1(:,ifreq),this_dB_p_v1ref(:,ifreq))];
+                            try
+                            if subtractRef==1
+                                for ifreq=1:length(frequency)
+                                    p_vals(grNo,per_bin,evTN1,ifreq)=ranksum(this_dB_p_v1(:,ifreq),this_dB_p_v1ref(:,ifreq));
+                                    these_p_vals=[these_p_vals ranksum(this_dB_p_v1(:,ifreq),this_dB_p_v1ref(:,ifreq))];
+                                end
+                            end
+                            catch
                             end
                             
                         else
@@ -441,7 +444,7 @@ switch which_display
                 
                 %Plot the lines
                 this_legend=[];
-                
+                plot_handles=[];
                 for grNo=max(handles_drgb.drgbchoices.group_no):-1:1
                     
                     
@@ -454,18 +457,18 @@ switch which_display
                     this_dB_p_v1_ci=zeros(1,length(handles_drgb.drgb.freq_for_LFPpower));
                     this_dB_p_v1_ci(1,:)=dB_p_v1_ci(per_bin,grNo,:);
                     
-                    plot(frequency,this_dB_p_v1_mean, these_lines{grNo});
-                    
+                    %plot(frequency,this_dB_p_v1_mean, these_lines{grNo});
+                    eval(['p' num2str(grNo) '=plot(frequency,this_dB_p_v1_mean, these_lines{grNo});'])
                     
                     
                     this_legend=[this_legend '''' handles_drgb.drgbchoices.group_no_names{grNo} '''' ' ,'];
+                    plot_handles=[plot_handles 'p' num2str(grNo) ' '];
                     
                 end
                 
+                this_legend=['legend([' plot_handles(1:end-1) '],' this_legend(1:end-1) ')'];
                 
-                
-                this_legend=['legend(' this_legend(1:end-1) ')'];
-                eval(this_legend)
+              
                 
                 
                 %Now plot the bounded lines
@@ -481,21 +484,26 @@ switch which_display
                     
                     [hl, hp] = boundedline(frequency,this_dB_p_v1_mean, this_dB_p_v1_ci, these_colors{grNo});
                     
-                    
-                    if calc_pval(grNo)==1
-                        for ifreq=1:length(frequency)
-                            
-                            if p_vals(grNo,per_bin,evTN1,ifreq)<=pFDR(evTN1,per_bin)
-                                plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{grNo})
+                    if subtractRef==1
+                        if calc_pval(grNo)==1
+                            for ifreq=1:length(frequency)
+                                
+                                if p_vals(grNo,per_bin,evTN1,ifreq)<=pFDR(evTN1,per_bin)
+                                    plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{grNo})
+                                end
+                                
                             end
-                            
                         end
                     end
                     
                     
                 end
                 
-                ylim([-8 8])
+                eval(this_legend)
+                
+                max_y=max(dB_p_v1_mean(:)+abs(dB_p_v1_ci(:)))+0.05*(max(dB_p_v1_mean(:)+abs(dB_p_v1_ci(:)))-min(dB_p_v1_mean(:)-abs(dB_p_v1_ci(:))));
+                min_y=min(dB_p_v1_mean(:)-abs(dB_p_v1_ci(:)))-0.05*(max(dB_p_v1_mean(:)+abs(dB_p_v1_ci(:)))-min(dB_p_v1_mean(:)-abs(dB_p_v1_ci(:))));
+                ylim([min_y max_y])
                 
                 
                 
@@ -511,4 +519,3 @@ switch which_display
         
 end
 
-pffft=0

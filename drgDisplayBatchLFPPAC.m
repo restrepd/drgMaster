@@ -10,7 +10,7 @@ warning('off')
 %THESE VALUES ARE IMPORTANT
 
 %Choose the format for the display
-which_PA_display=6;
+which_PA_display=5;
 
 % 1 Show the cumulative histograms for peak angles for the difference between events
 %   for each group/ percent correct bin in a separate graph
@@ -33,7 +33,7 @@ winNo=2;
 % evTypeNos=[2 4 5 7];
 % evTypeLabels={'Hit','Miss','CR','FA'};
 
-%Analyze S+ S-
+%Analyze Hit CR
 evTypeNos=[2 5];
 evTypeLabels={'Hit','CR'};
 
@@ -668,99 +668,61 @@ switch which_PA_display
             hFig=figure(PACno);
             set(hFig, 'units','normalized','position',[.05 .05 .7 .7])
             
-            %Are these normal distributions?
-            if all_normal(1,PACno)==1
-                %Normal distributions
-                for per_bin=1:no_percent_bins
-                    this_legend=[];
-                    no_bars=0;
-                    subplot(no_percent_bins,1,per_bin)
-                    hold on
-                    
-                    XTicks=[];
-                    
-                    for evTN=1:length(evTypeNos)
-                        eventType=evTypeNos(evTN);
-                        for grNo=1:no_groups
-                            
-                            if no_values(eventType,winNo,grNo,per_bin,PACno)>1
-                                barNo=(no_groups+1)*(evTN-1)+evTN;
-                                mi_v=zeros(1,no_values(eventType,winNo,grNo,per_bin,PACno));
-                                mi_v(1,1:no_values(eventType,winNo,grNo,per_bin,PACno))=mi_values(eventType,winNo,grNo,per_bin,PACno,1:no_values(eventType,winNo,grNo,per_bin,PACno));
-                                
-                                bar(barNo,mean(mi_v),these_bars{grNo})
-                                errorbar(barNo,mean(mi_v),std(mi_v)/sqrt(length(mi_v)),'.k')
-                            end
-                        end
-                        XTcks=[XTicks (((no_groups+1)*(evTN-1)+no_groups)/2)];
-                    end
-                    
-                    legend(legend_bar)
-                    
-                    ax=gca;
-                    ax.XTick=XTicks;
-                    ax.xTickLabel=evTypeLabels;
-                    title(['MI for ' handles_drgb.PACnames{PACno} '. Percent correct from ' num2str(percent_low(per_bin)) ' to ' num2str(percent_high(per_bin))])
-                    
-                    
-                end
+            
+            %Non-parametric
+            %Normal distributions
+            for per_bin=1:no_percent_bins
+                MIs=[];
+                MIgroups=[];
+                ii_groups=0;
+                
+                subplot(no_percent_bins,1,per_bin)
                 
                 
-            else
-                %Non-parametric
-                %Normal distributions
-                for per_bin=1:no_percent_bins
-                    MIs=[];
-                    MIgroups=[];
-                    ii_groups=0;
-                    
-                    subplot(no_percent_bins,1,per_bin)
-                    
-                    
-                    XTicks=[];
-                    
-                    for evTN=1:length(evTypeNos)
-                        eventType=evTypeNos(evTN);
-                        for grNo=1:no_groups
-                            
-                            if no_values(evTN,winNo,grNo,per_bin,PACno)>1
-                                
-                                mi_v=zeros(1,no_values(eventType,winNo,grNo,per_bin,PACno));
-                                mi_v(1,1:no_values(eventType,winNo,grNo,per_bin,PACno))=mi_values(eventType,winNo,grNo,per_bin,PACno,1:no_values(eventType,winNo,grNo,per_bin,PACno));
-                                
-                                
-                                MIs=[MIs mi_v];
-                                
-                                this_gr=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evTN} ' ' num2str(length(mi_v))];
-                                for ii=1:no_values(eventType,winNo,grNo,per_bin,PACno)
-                                    ii_groups=ii_groups+1;
-                                    MIgroups{ii_groups}=this_gr;
-                                end
-                                
-                            else
-                                %                         mi_v=zeros(1,5);
-                                %                         MIs=[MIs mi_v];
-                                %                         for ii=1:5
-                                %                             ii_groups=ii_groups+1;
-                                %                             MIgroups{ii_groups}=[' '];
-                                %                         end
-                                %
-                            end
-                        end
+                XTicks=[];
+                
+                for evTN=1:length(evTypeNos)
+                    eventType=evTypeNos(evTN);
+                    for grNo=1:no_groups
                         
+                        if no_values(evTN,winNo,grNo,per_bin,PACno)>1
+                            
+                            mi_v=zeros(1,no_values(eventType,winNo,grNo,per_bin,PACno));
+                            mi_v(1,1:no_values(eventType,winNo,grNo,per_bin,PACno))=mi_values(eventType,winNo,grNo,per_bin,PACno,1:no_values(eventType,winNo,grNo,per_bin,PACno));
+                            
+                            
+                            MIs=[MIs mi_v];
+                            
+                            this_gr=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evTN} ' ' num2str(length(mi_v))];
+                            for ii=1:no_values(eventType,winNo,grNo,per_bin,PACno)
+                                ii_groups=ii_groups+1;
+                                MIgroups{ii_groups}=this_gr;
+                            end
+                            
+                        else
+                            %                         mi_v=zeros(1,5);
+                            %                         MIs=[MIs mi_v];
+                            %                         for ii=1:5
+                            %                             ii_groups=ii_groups+1;
+                            %                             MIgroups{ii_groups}=[' '];
+                            %                         end
+                            %
+                        end
                     end
                     
-                    boxplot(MIs,MIgroups,'symbol','k')
-                    
-                    title(['MI for ' handles_drgb.PACnames{PACno} '. Percent correct from ' num2str(percent_low(per_bin)) ' to ' num2str(percent_high(per_bin))])
-                    
-                    
                 end
+                
+                boxplot(MIs,MIgroups,'symbol','k')
+                
+                title(['MI for ' handles_drgb.PACnames{PACno} '. Percent correct from ' num2str(percent_low(per_bin)) ' to ' num2str(percent_high(per_bin))])
                 
                 
             end
             
+            
         end
+        
+        
     case 5
         %Display the cumulative probabilities
         for PACno=1:handles_drgb.no_PACpeaks
