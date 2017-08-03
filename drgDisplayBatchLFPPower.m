@@ -4,7 +4,7 @@ function drgDisplayBatchLFPPower(handles)
 %data
 
 %Choose the format for the display
-which_display=1;
+which_display=2;
 
 % 1 Show the difference between events for each group/ percent correct
 %  bin in a separate graph

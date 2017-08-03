@@ -48,7 +48,7 @@ for filNum=first_file:handles.drgbchoices.no_files
         if handles.drgbchoices.group_no(filNum)==1
             handles.data_vs_simulate=1;
         else
-            handles.data_vs_simulate=4;
+            handles.data_vs_simulate=2;
         end
     end
     
@@ -113,7 +113,7 @@ for filNum=first_file:handles.drgbchoices.no_files
         
         if sum(handles.drgbchoices.analyses==1)>0
             for ii=1:handles.no_PACpeaks
-                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).no_trials=0;
+                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).no_trials=0;
                 handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).meanVectorLength=[];
                 handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).meanVectorAngle=[];
                 handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).peakAngle=[];
@@ -151,6 +151,8 @@ for filNum=first_file:handles.drgbchoices.no_files
                 perCorr=[];
                 which_event=[];
                 
+                %Please note this is the same function called in drgMaster
+                %when you choose LFP Power Timecourse Trial Range, which calls drgLFPspectTimecourse
                 [t,f,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo, perCorr,which_event]=drgGetLFPPowerForThisEvTypeNo(handles);
                 
                 if (filNum==1)&(lfpNo==1)
@@ -183,21 +185,25 @@ for filNum=first_file:handles.drgbchoices.no_files
                     handles.peakHighF=handles.PACpeakHighF;
                     handles.burstLowF=handles.PACburstLowF(ii);
                     handles.burstHighF=handles.PACburstHighF(ii);
-                    %handles=drgThetaAmpPhaseNew(handles);
+                    
+                    
+                    %Please note this is the same function called by
+                    %drgMaster when the user chooses Phase Amplitude
+                    %Coupling
                     handles=drgThetaAmpPhaseTrialRange(handles);
                     
                     %Enter the per LFP values
-                    handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).no_trials=handles.drgb.PAC.no_trials;
+                    handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).no_trials=handles.drgb.PAC.no_trials;
                     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).meanVectorLength=handles.drgb.PAC.meanVectorLength;
                     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).meanVectorAngle=handles.drgb.PAC.meanVectorAngle;
                     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).peakAngle=handles.drgb.PAC.peakAngle;
                     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).mod_indx=handles.drgb.PAC.mod_indx;
                     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).all_phase_histo=handles.drgb.PAC.all_phase_histo;
-                    handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).perCorrPAC=handles.drgb.PAC.perCorr;
-                    handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).which_eventPAC=handles.drgb.PAC.which_event;
+                    handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).perCorrPAC=handles.drgb.PAC.perCorr;
+                    handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).which_eventPAC=handles.drgb.PAC.which_event;
                     
                     %Enter the per experiment values
-                    handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).no_trials=handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).no_trials+handles.drgb.PAC.no_trials;
+                    handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).no_trials=handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).no_trials+handles.drgb.PAC.no_trials;
                     handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).meanVectorLength=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).meanVectorLength handles.drgb.PAC.meanVectorLength];
                     handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).meanVectorAngle=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).meanVectorAngle handles.drgb.PAC.meanVectorAngle];
                     handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).peakAngle=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).peakAngle handles.drgb.PAC.peakAngle];

@@ -99,29 +99,39 @@ no_values=zeros(no_events,noWindows,no_groups,no_percent_bins,no_PACpeaks);
 sz_all_phase=size(handles_drgb.drgb.lfp_per_exp(1).PAC(1).all_phase_histo);
 all_phase_histo=zeros(no_events,noWindows,no_groups,no_percent_bins,no_PACpeaks,no_lfpevpairs,sz_all_phase(2));
 
+if isfield(handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC,'perCorrPAC')==0
+    length_perC=length(handles_drgb.drgb.lfp_per_exp(lfpodNo).perCorrPAC);
+    for lfpodNo=1:no_lfpevpairs
+        for PACno=1:handles_drgb.no_PACpeaks
+            handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC(PACno).perCorrPAC=handles_drgb.drgb.lfp_per_exp(lfpodNo).perCorrPAC(1,1:length_perC/handles_drgb.no_PACpeaks);
+            handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC(PACno).which_eventPAC=handles_drgb.drgb.lfp_per_exp(lfpodNo).which_eventPAC(:,1:length_perC/handles_drgb.no_PACpeaks);
+        end
+    end
+end
 
 %Sort out all the MI and phase angle values into the matrix
 for lfpodNo=1:no_lfpevpairs
     fileNo=handles_drgb.drgb.lfp_per_exp(lfpodNo).fileNo;
     groupNo=handles_drgb.drgbchoices.group_no(fileNo);
     timeWindow=handles_drgb.drgb.lfp_per_exp(lfpodNo).timeWindow;
-    for evTypeNo=1:no_events
-        trials_in_event=handles_drgb.drgb.lfp_per_exp(lfpodNo).which_eventPAC(evTypeNo,:)==1;
-        if sum(trials_in_event)>0
-            for percent_bin=1:no_percent_bins
-                trials_in_perbin=(handles_drgb.drgb.lfp_per_exp(lfpodNo).perCorrPAC>percent_low(percent_bin))&(handles_drgb.drgb.lfp_per_exp(lfpodNo).perCorrPAC<=percent_high(percent_bin));
-                if sum(trials_in_event&trials_in_perbin)>0
-                    for PACno=1:handles_drgb.no_PACpeaks
+    for PACno=1:handles_drgb.no_PACpeaks
+        for evTypeNo=1:no_events
+            trials_in_event=handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC(PACno).which_eventPAC(evTypeNo,:)==1;
+            if sum(trials_in_event)>0
+                for percent_bin=1:no_percent_bins
+                    trials_in_perbin=(handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC(PACno).perCorrPAC>percent_low(percent_bin))&(handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC(PACno).perCorrPAC<=percent_high(percent_bin));
+                    if sum(trials_in_event&trials_in_perbin)>0
+                        
                         
                         no_trials=sum(trials_in_event&trials_in_perbin);
                         no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno)=no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno)+1;
-                        
+                         
                         these_mi_values=zeros(no_trials,1);
                         these_mi_values=handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC(PACno).mod_indx(trials_in_event&trials_in_perbin);
                         mi_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno))=...
                             mean(these_mi_values);
                         
-               
+                        
                         these_pa_values=zeros(no_trials,1);
                         these_pa_values=handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC(PACno).peakAngle(trials_in_event&trials_in_perbin);
                         pa_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno))=...
@@ -131,7 +141,7 @@ for lfpodNo=1:no_lfpevpairs
                         these_mva_values=handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC(PACno).meanVectorAngle(trials_in_event&trials_in_perbin);
                         mva_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno))=...
                             mean(these_mva_values);
-                         
+                        
                         this_all_phase_histo=zeros(no_trials,sz_all_phase(2));
                         this_all_phase_histo=handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC(PACno).all_phase_histo(trials_in_event&trials_in_perbin,1:sz_all_phase(2));
                         all_phase_histo(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno),1:sz_all_phase(2))=...
