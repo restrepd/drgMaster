@@ -132,6 +132,19 @@ colormap hot
 caxis([0 3.3]);
 title('Null reposnes for unit odor pairs')
 
+try
+    close 4
+catch
+end
 
+hFig4 = figure(4);
+set(hFig4, 'units','normalized','position',[.76 .1 .05 .3])
+
+prain=[0:3.3/99:3.3];
+pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
+colormap hot
+shading interp
+ax=gca;
+set(ax,'XTickLabel','')
 
 pffft=1

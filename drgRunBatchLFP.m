@@ -119,8 +119,8 @@ for filNum=first_file:handles.drgbchoices.no_files
                 handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).peakAngle=[];
                 handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).mod_indx=[];
                 handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).all_phase_histo=[];
-                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).perCorrPAC=[];
-                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).which_eventPAC=[];
+                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).perCorrPAC=[];
+                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).which_eventPAC=[];
             end
         end
         
@@ -203,8 +203,8 @@ for filNum=first_file:handles.drgbchoices.no_files
                     handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).peakAngle=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).peakAngle handles.drgb.PAC.peakAngle];
                     handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).mod_indx=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).mod_indx handles.drgb.PAC.mod_indx];
                     handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).all_phase_histo=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).all_phase_histo handles.drgb.PAC.all_phase_histo'];
-                    handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).perCorrPAC=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).perCorrPAC handles.drgb.PAC.perCorr];
-                    handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).which_eventPAC=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).which_eventPAC handles.drgb.PAC.which_event];
+                    handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).perCorrPAC=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).perCorrPAC handles.drgb.PAC.perCorr];
+                    handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).which_eventPAC=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).which_eventPAC handles.drgb.PAC.which_event];
                     
                     
                     %handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).percent_lick=handles.drgb.PAC.percent_lick;
