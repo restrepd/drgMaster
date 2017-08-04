@@ -191,6 +191,10 @@ for filNum=first_file:handles.drgbchoices.no_files
                     %drgMaster when the user chooses Phase Amplitude
                     %Coupling
                     handles=drgThetaAmpPhaseTrialRange(handles);
+                     
+                    if winNo==2
+                        pffft=1;
+                    end
                     
                     %Enter the per LFP values
                     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).no_trials=handles.drgb.PAC.no_trials;

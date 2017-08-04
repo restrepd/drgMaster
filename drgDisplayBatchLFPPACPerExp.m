@@ -135,12 +135,12 @@ for lfpodNo=1:no_lfpevpairs
                         these_pa_values=zeros(no_trials,1);
                         these_pa_values=handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC(PACno).peakAngle(trials_in_event&trials_in_perbin);
                         pa_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno))=...
-                            mean(these_pa_values);
+                            circ_rad2ang(circ_mean(circ_ang2rad(these_pa_values')))+180;
                         
                         these_mva_values=zeros(no_trials,1);
                         these_mva_values=handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC(PACno).meanVectorAngle(trials_in_event&trials_in_perbin);
                         mva_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno))=...
-                            mean(these_mva_values);
+                            circ_rad2ang(circ_mean(circ_ang2rad(these_mva_values')))+180;
                         
                         this_all_phase_histo=zeros(no_trials,sz_all_phase(2));
                         this_all_phase_histo=handles_drgb.drgb.lfp_per_exp(lfpodNo).PAC(PACno).all_phase_histo(trials_in_event&trials_in_perbin,1:sz_all_phase(2));

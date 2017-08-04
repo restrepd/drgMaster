@@ -10,6 +10,14 @@ highF2=handles.burstHighF;
 pad_time=handles.time_pad;
 n_phase_bins=handles.n_phase_bins;
 
+%Empty vectors
+handles.drgb.PAC.meanVectorLength=[];;
+handles.drgb.PAC.meanVectorAngle=[];
+handles.drgb.PAC.peakAngle=[];
+handles.drgb.PAC.mod_indx=[];
+handles.drgb.PAC.all_phase_histo=[];
+handles.drgb.PAC.all_theta_wave=[];
+
 %Enter trials
 firstTr=handles.trialNo;
 lastTr=handles.lastTrialNo;
@@ -79,6 +87,7 @@ for trNo=firstTr:lastTr
                 handles.drgb.PAC.perCorr(no_trials)=perCorr(find(abs(handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo)-handles.drg.session(sessionNo).events(2).times)...
                     <= handles.max_dt_between_events,1,'first'));
                 catch
+                    pffft=1
                 end
                 
                 

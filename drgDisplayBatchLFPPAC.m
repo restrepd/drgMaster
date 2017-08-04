@@ -10,7 +10,7 @@ warning('off')
 %THESE VALUES ARE IMPORTANT
 
 %Choose the format for the display
-which_PA_display=3;
+which_PA_display=1;
 
 % 1 Show the cumulative histograms for peak angles for the difference between events
 %   for each group/ percent correct bin in a separate graph
@@ -65,9 +65,11 @@ no_PACpeaks=handles_drgb.no_PACpeaks;
 no_trials=zeros(length(handles_drgb.drgbchoices.evTypeNos),handles_drgb.drgbchoices.noWindows,max(handles_drgb.drgbchoices.group_no),no_percent_bins,handles_drgb.no_PACpeaks);
 
 %In the previous versions of the code these variables were not defined
-for lfpodNo=1:no_lfpevpairs
-    handles_drgb.drgb.lfpevpair(lfpodNo).which_eventPAC=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).which_eventPAC;
-    handles_drgb.drgb.lfpevpair(lfpodNo).perCorrPAC=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).perCorrPAC;
+if isfield(handles_drgb.drgb.lfpevpair,'which_eventPAC')==0
+    for lfpodNo=1:no_lfpevpairs
+        handles_drgb.drgb.lfpevpair(lfpodNo).which_eventPAC=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).which_eventPAC;
+        handles_drgb.drgb.lfpevpair(lfpodNo).perCorrPAC=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).perCorrPAC;
+    end
 end
 
 for lfpodNo=1:no_lfpevpairs
@@ -121,7 +123,11 @@ for lfpodNo=1:no_lfpevpairs
                         no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno)=no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno)+1;
                         
                         these_mi_values=zeros(no_trials,1);
-                        these_mi_values=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(PACno).mod_indx(trials_in_event&trials_in_perbin);
+                        try
+                        these_mi_values=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(PACno).mod_indx(trials_in_event&trials_in_perbin)';
+                        catch
+                            pffft=1;
+                        end
                         mi_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno))=...
                             mean(these_mi_values);
                         
@@ -129,12 +135,12 @@ for lfpodNo=1:no_lfpevpairs
                         these_pa_values=zeros(no_trials,1);
                         these_pa_values=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(PACno).peakAngle(trials_in_event&trials_in_perbin);
                         pa_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno))=...
-                            mean(these_pa_values);
+                            circ_rad2ang(circ_mean(circ_ang2rad(these_pa_values')))+180;
                         
                         these_mva_values=zeros(no_trials,1);
                         these_mva_values=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(PACno).meanVectorAngle(trials_in_event&trials_in_perbin);
                         mva_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno))=...
-                            mean(these_mva_values);
+                            circ_rad2ang(circ_mean(circ_ang2rad(these_mva_values')))+180;
                          
                         this_all_phase_histo=zeros(no_trials,sz_all_phase(2));
                         this_all_phase_histo=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(PACno).all_phase_histo(trials_in_event&trials_in_perbin,1:sz_all_phase(2));
@@ -511,6 +517,10 @@ switch which_PA_display
                             fprintf(1, 'pFDR= = %d\n',drsFDRpval(p_vals));
                         end
                         fprintf(1, '\n');
+                    end
+                    
+                    if figNo==17
+                        pfft=1;
                     end
                     
                 end
