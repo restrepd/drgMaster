@@ -123,11 +123,7 @@ for lfpodNo=1:no_lfpevpairs
                         no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno)=no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno)+1;
                         
                         these_mi_values=zeros(no_trials,1);
-                        try
                         these_mi_values=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(PACno).mod_indx(trials_in_event&trials_in_perbin)';
-                        catch
-                            pffft=1;
-                        end
                         mi_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno,no_values(evTypeNo,timeWindow,groupNo,percent_bin,PACno))=...
                             mean(these_mi_values);
                         

@@ -11,12 +11,14 @@ pad_time=handles.time_pad;
 n_phase_bins=handles.n_phase_bins;
 
 %Empty vectors
-handles.drgb.PAC.meanVectorLength=[];;
+handles.drgb.PAC.meanVectorLength=[];
 handles.drgb.PAC.meanVectorAngle=[];
 handles.drgb.PAC.peakAngle=[];
 handles.drgb.PAC.mod_indx=[];
 handles.drgb.PAC.all_phase_histo=[];
 handles.drgb.PAC.all_theta_wave=[];
+handles.drgb.PAC.perCorr=[];
+handles.drgb.PAC.which_event=[];
 
 %Enter trials
 firstTr=handles.trialNo;
@@ -82,14 +84,9 @@ for trNo=firstTr:lastTr
                 handles.drgb.PAC.mod_indx(no_trials)=mod_indx(no_trials);
                 handles.drgb.PAC.all_phase_histo(no_trials,1:n_phase_bins+1)=phase_histo;
                 handles.drgb.PAC.all_theta_wave(no_trials,1:n_phase_bins+1)=theta_wave;
-                
-                try
                 handles.drgb.PAC.perCorr(no_trials)=perCorr(find(abs(handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo)-handles.drg.session(sessionNo).events(2).times)...
                     <= handles.max_dt_between_events,1,'first'));
-                catch
-                    pffft=1
-                end
-                
+  
                 
                 %handles.drgb.PAC.percent_lick(no_trials)=handles.drg.session(sessionNo).percent_lick(trialNo);
                 
