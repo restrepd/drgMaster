@@ -160,7 +160,7 @@ for j=2:lenlick
     gonogo.intertrial(j)=gonogo.time(j)-gonogo.time(j-1);
     j=j+1;
 end
-hist_intertrial= histc(gonogo.intertrial,[5 10 15 20 25 30 35 40 45 50 100])
+hist_intertrial= histc(gonogo.intertrial,[5 10 15 20 25 30 35 40 45 50 100]);
 % 
 % dimensions = size(gonogo.lick);
 gonogo.deltaP=[];

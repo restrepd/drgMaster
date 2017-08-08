@@ -46,9 +46,9 @@ for filNum=first_file:handles.drgbchoices.no_files
     
     if test_batch==1
         if handles.drgbchoices.group_no(filNum)==1
-            handles.data_vs_simulate=1;
+            handles.data_vs_simulate=5;
         else
-            handles.data_vs_simulate=2;
+            handles.data_vs_simulate=6;
         end
     end
     

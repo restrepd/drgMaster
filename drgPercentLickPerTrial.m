@@ -38,9 +38,9 @@ for evNo=firstTr:lastTr
     %     if excludeTrial==0
     
     thisLFP=[];
-    [thisLFP, trialNo, can_read] = drgGetTrialLFPData(handles, lfpElectrode, evNo, odorOn, time_start, time_end);
+    [thisLFP, trialNo, can_read(evNo)] = drgGetTrialLFPData(handles, lfpElectrode, evNo, odorOn, time_start, time_end);
     allnoEvs1=allnoEvs1+1;
-    if (can_read==1)
+    if (can_read(evNo)==1)
         licks(1:length(thisLFP),allnoEvs1)=thisLFP;
     end
     %     end
@@ -50,7 +50,9 @@ end
 szlicks=size(licks);
 threshold=((prctile(licks(:),99.5)-prctile(licks(:),0.5))/2)+prctile(licks(:),0.5);
 for evNo=firstTr:lastTr
-    handles.drg.session(sessionNo).percent_lick(evNo)=100*sum(licks(:,evNo)>threshold)/szlicks(1);
+    if can_read(evNo)==1
+        handles.drg.session(sessionNo).percent_lick(evNo)=100*sum(licks(:,evNo)>threshold)/szlicks(1);
+    end
 end
 handles.evTypeNo=this_ev_t_no;
 %pfffft=1
