@@ -13,4 +13,6 @@ switch handles.analysisNoBeh
         drgLickPerTrialTimecourse(handles)
     case 6
         drgITI(handles)
+    case 7
+        drgLickPerConcTimecourse(handles)
 end
