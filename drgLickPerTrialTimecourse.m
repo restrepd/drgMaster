@@ -17,8 +17,6 @@ lfpElectrode=19; %19 is the lick
 %   Events 14 through 19
 %     'FAE'    'Reinf'    'L+'    'L-' 'S+TStart' 'S-TStart'
 %   'S+TStart' = 18
-odorOn=2; %Defaults to OdorOn, this will not work in some experiments where OdorOn is not defined as 2 
-
 
 %Enter trials
 firstTr=1;

@@ -1,4 +1,4 @@
-function handles=drgLickPerConcTimecourse(handles)
+function handles=drgLickPerConc(handles)
 %   Finds the percent lick in the 0.5 to 2.5 sec interval for all OdorOn events
 
 %Enter LFP tetrode and event
@@ -13,16 +13,9 @@ lfpElectrode=19; %19 is the lick
 %   Events 14 through 19
 %     'FAE'    'Reinf'    'L+'    'L-' 'S+TStart' 'S-TStart'
 %   'S+TStart' = 18
-odorOn=2; %Defaults to OdorOn, this will not work in some experiments where OdorOn is not defined as 2
 
-% conc1 = handles.whichEvent.Value(16)
-% conc2 = handles.whichEvent.Value(17)
-% conc3 = handles.whichEvent.Value(18)
-% conc4 = handles.whichEvent.Value(19)
-% conc5 = handles.whichEvent.Value(20)
-% conc6 = handles.whichEvent.Value(21)
 
-% for ConcNo = conc1:conc6
+
 
 userevTypeNo = handles.evTypeNo;
 concx = 1;
