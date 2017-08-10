@@ -71,18 +71,18 @@ if isfield(handles_drgb.drgb.lfpevpair,'which_eventPAC')==0
         handles_drgb.drgb.lfpevpair(lfpodNo).perCorrPAC=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).perCorrPAC;
     end
 end
-
+  
 for lfpodNo=1:no_lfpevpairs
     fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
     groupNo=handles_drgb.drgbchoices.group_no(fileNo);
     timeWindow=handles_drgb.drgb.lfpevpair(lfpodNo).timeWindow;
     for evTypeNo=1:no_events
-        trials_in_event=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventPAC(evTypeNo,:)==1;
-        if sum(trials_in_event)>0
-            for percent_bin=1:no_percent_bins
-                trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrPAC>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrPAC<=percent_high(percent_bin));
-                if sum(trials_in_event&trials_in_perbin)>0
-                    for PACno=1:no_PACpeaks
+        for PACno=1:no_PACpeaks
+            trials_in_event=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(PACno).which_eventPAC(evTypeNo,:)==1;
+            if sum(trials_in_event)>0
+                for percent_bin=1:no_percent_bins
+                    trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).PAC(PACno).perCorrPAC>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrPAC<=percent_high(percent_bin));
+                    if sum(trials_in_event&trials_in_perbin)>0
                         no_trials(evTypeNo,timeWindow,groupNo,percent_bin,PACno)=no_trials(evTypeNo,timeWindow,groupNo,percent_bin,PACno)+sum(trials_in_event&trials_in_perbin);
                     end
                 end

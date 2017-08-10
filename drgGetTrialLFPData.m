@@ -4,7 +4,8 @@ function [dataforch,trialNo,can_read] = drgGetTrialLFPData(handles, lfpElectrode
 %evNo is the event number for the evTypeNo
 
 %If testLFP==0 the function reads the trial
-%If testLFP~=0 the function simulates data
+%If testLFP~=0 the function simulates data assuming that the trace is noise
+%before t=0, an oscillatory signal from 0 to 2.5 and noise from 2.5 onwards
 
 can_read=1;
 
@@ -74,6 +75,9 @@ try
         dataforch=[];
         %Setup a signal with high and low frequency oscillations
         Fs=handles.drg.draq_p.ActualRate;
+        
+        %Generate an oscillatory signal for the entire length (this is
+        %trimmed below)
         t = 0:1/Fs:time_end-time_start;
         t_tort=1:1:length(t);
         
@@ -113,7 +117,7 @@ try
                 for ii=1:floor((time_end-time_start)*Ftheta)
                     LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
                 end
-                dataforch=(LFPtheta+LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                dataforch=0.02*(LFPtheta+3*LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
             case 2
                 %LFP gamma burst in peak, high MI
                 gammaFact=0.5;
@@ -122,45 +126,35 @@ try
                 for ii=1:floor((time_end-time_start)*Ftheta)
                     LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
                 end
-                dataforch=(LFPtheta+LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                dataforch=0.02*(LFPtheta+3*LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
             case 3
                 %LFP gamma burst in trough, low MI
-                gammaFact=0.1;
+                gammaFact=0.3;
                 shift_burst=-ceil(length(k)/2);
                 shift_trough=0.5*(1/Ftheta)*Fs; %trough
                 for ii=1:floor((time_end-time_start)*Ftheta)
                     LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
                 end
-                dataforch=(LFPtheta+LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                dataforch=0.02*(LFPtheta+LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
             case 4
                 %LFP gamma burst in peak, low MI
-                gammaFact=0.1;
+                gammaFact=0.3;
                 shift_burst=-ceil(length(k)/2);
                 shift_trough=0; %peak
                 for ii=1:floor((time_end-time_start)*Ftheta)
                     LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
                 end
-                dataforch=(LFPtheta+LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                dataforch=0.02*(LFPtheta+LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
             case 5
-                %10 Hz and 80Hz 1/2
-                dataforch=3*sin(2*pi*t_tort*Ftheta/Fs)+0.5*sin(2*pi*t_tort*Fgamma/Fs);
+                %10 Hz and 80Hz 10 dB
+                dataforch=0.002*(6*sin(2*pi*t_tort*Ftheta/Fs)+6*sin(2*pi*t_tort*Fgamma/Fs));
                 dataforch= dataforch+noiseFact*randn(1,length(dataforch));
-                try
-                    dataforch(1:-time_start*handles.drg.draq_p.ActualRate)=0;
-                    dataforch(((-time_start+2.5)*handles.drg.draq_p.ActualRate):end)=0;
-                catch
-                    can_read=0;
-                end
+                dataforch=dataforch.*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(dataforch));
             case 6
-                %10 Hz and 80Hz
-                dataforch=30*sin(2*pi*t_tort*Ftheta/Fs)+5*sin(2*pi*t_tort*Fgamma/Fs);
+                %10 Hz and 80Hz 20 dB
+                dataforch=0.005*(6*sin(2*pi*t_tort*Ftheta/Fs)+6*sin(2*pi*t_tort*Fgamma/Fs));
                 dataforch= dataforch+noiseFact*randn(1,length(dataforch));
-                try
-                    dataforch(1:-time_start*handles.drg.draq_p.ActualRate)=0;
-                    dataforch(((-time_start+2.5)*handles.drg.draq_p.ActualRate):end)=0;
-                catch
-                    can_read=0;
-                end
+                dataforch=dataforch.*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(dataforch));
         end
         
         %     try

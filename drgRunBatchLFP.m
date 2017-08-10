@@ -191,10 +191,7 @@ for filNum=first_file:handles.drgbchoices.no_files
                     %drgMaster when the user chooses Phase Amplitude
                     %Coupling
                     handles=drgThetaAmpPhaseTrialRange(handles);
-                     
-                    if winNo==2
-                        pffft=1;
-                    end
+
                     
                     %Enter the per LFP values
                     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).no_trials=handles.drgb.PAC.no_trials;
@@ -205,6 +202,11 @@ for filNum=first_file:handles.drgbchoices.no_files
                     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).all_phase_histo=handles.drgb.PAC.all_phase_histo;
                     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).perCorrPAC=handles.drgb.PAC.perCorr;
                     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).which_eventPAC=handles.drgb.PAC.which_event;
+                    
+                   
+                    if isempty(handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).PAC(ii).meanVectorLength)
+                       pffft=1; 
+                    end
                     
                     %Enter the per experiment values
                     handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).no_trials=handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).PAC(ii).no_trials+handles.drgb.PAC.no_trials;
