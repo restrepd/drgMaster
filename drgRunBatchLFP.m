@@ -138,6 +138,8 @@ for filNum=first_file:handles.drgbchoices.no_files
             %Get LFP power per trial
             if sum(handles.drgbchoices.analyses==2)>0
                 
+                %Subtracting and adding handles.window/2 gives the correct
+                %times
                 handles.time_start=min(handles.drgbchoices.timeStart-handles.time_pad-handles.window/2);
                 handles.time_end=max(handles.drgbchoices.timeEnd+handles.time_pad+handles.window/2); %2.2 for Shane
                 
@@ -167,6 +169,10 @@ for filNum=first_file:handles.drgbchoices.no_files
             
             
             handles.drgb.lfpevpair_no=handles.drgb.lfpevpair_no+1;
+            
+            if filNum==3
+               pffft=1; 
+            end
             
             handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).fileNo=filNum;
             handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).elecNo=lfpNo;

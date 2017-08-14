@@ -38,7 +38,7 @@ warning('off')
 % evTypeLabels={'tstart'};
 
 % For Alexia's odorOn (CS) learning vs. proficeint
-% which_display=3;
+% which_display=4;
 % eventType=1; %OdorOn
 % evTypeLabels={'CS'};
 
@@ -48,10 +48,17 @@ warning('off')
 % eventType=[2 5 7];
 % evTypeLabels={'Hit','CR','FA'};
 
-% For Daniel's Hit, CR
-which_display=2;
-eventType=[2 5];
-evTypeLabels={'Hit','CR'};
+% % For Daniel's Hit, CR, FA, compare groups
+% winNo=2;
+% which_display=2;
+% eventType=[2 5 7];
+% evTypeLabels={'Hit','CR','FA'};
+
+% For Daniel's Hit, CR, FA, compare events
+winNo=2;
+which_display=1;
+eventType=[2 5 7];
+evTypeLabels={'Hit','CR','FA'};
 
 %THESE VALUES ARE IMPORTANT
 %VERY IMPORTANT: This is the index for this event in your handles.drgbchoices.evTypeNos
@@ -158,7 +165,6 @@ for lfpodNo=1:no_lfpevpairs
                         mean(this_dB_power,1);
                     experimentNo(evTypeNo,timeWindow,groupNo,percent_bin,no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1)=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
                     no_values(evTypeNo,timeWindow,groupNo,percent_bin)=no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1;
-                    
                     
                 end
             end
@@ -588,6 +594,9 @@ switch which_display
                                 this_dB_p_v1=this_dB_p_v1-this_dB_p_v1_ref;
                             end
                             
+                            these_experiments=zeros(1,no_values(eventType1,winNo,grNo,per_bin));
+                            these_experiments(:,:)=experimentNo(eventType1,winNo,grNo,per_bin,1:no_values(eventType1,winNo,grNo,per_bin),:);
+                            
                             this_dB_p_v1ref=zeros(no_values(eventType1,winNo,grNo,per_bin_ref),length(handles_drgb.drgb.freq_for_LFPpower));
                             this_dB_p_v1ref(:,:)=dB_power_values(eventType1,winNo,grNo,per_bin_ref,1:no_values(eventType1,winNo,grNo,per_bin_ref),:);
                             if subtractRef==1
@@ -596,6 +605,9 @@ switch which_display
                                 this_dB_p_v1ref=this_dB_p_v1ref-this_dB_p_v1ref_ref;
                             end
                             
+                            ref_experiments=zeros(1,no_values(eventType1,winNo,grNo,per_bin_ref));
+                            ref_experiments(:,:)=experimentNo(eventType1,winNo,grNo,per_bin_ref,1:no_values(eventType1,winNo,grNo,per_bin_ref),:);
+                            
                             %Calculate whether this this_dB_p_v1 is significantly
                             %different from reference
                             for ifreq=1:length(frequency)
@@ -603,6 +615,27 @@ switch which_display
                                 p_vals(grNo,per_bin,evTN1,ifreq)=ranksum(this_dB_p_v1(:,ifreq),this_dB_p_v1ref(:,ifreq));
                                 these_p_vals=[these_p_vals ranksum(this_dB_p_v1(:,ifreq),this_dB_p_v1ref(:,ifreq))];
                             end
+                            
+                            %Perform permutation test
+                            
+                            %This is a paired test. Find experiments where both
+                            %this LFP and reference LFP were recorded
+                            this_paired_dB_p_v1=[];
+                            this_paired_dB_p_v1ref=[];
+                            for expNo=min([min(ref_experiments) min(these_experiments)]):max([max(ref_experiments) max(these_experiments)])
+                                if sum(expNo==these_experiments)>0
+                                    if sum(expNo==ref_experiments)>0
+                                        this_paired_dB_p_v1=[this_paired_dB_p_v1 this_dB_p_v1(these_experiments==expNo,:)'];
+                                        this_paired_dB_p_v1ref=[this_paired_dB_p_v1ref this_dB_p_v1ref(ref_experiments==expNo,:)'];
+                                    end
+                                end
+                            end
+                            this_paired_dB_p_v1=this_paired_dB_p_v1';
+                            this_paired_dB_p_v1ref=this_paired_dB_p_v1ref';
+                            
+                            %Perform permutation test
+                            dif=this_paired_dB_p_v1-this_paired_dB_p_v1ref;
+                            [pvals_perm(grNo,per_bin,evTN1,:), t_orig, crit_t, est_alpha, seed_state]=mult_comp_perm_t1(dif,50000);
                             
                             %anovan with repeated measures
                             %To use anovan for repeated measures, you have to enter the subject
@@ -721,10 +754,15 @@ switch which_display
                     if calc_pval(per_bin)==1
                         for ifreq=1:length(frequency)
                             
-                            
+                            %FDR
                             if p_vals(grNo,per_bin,evTN1,ifreq)<=pFDR(grNo,evTN1)
                                 plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{per_bin})
                             end
+                            
+                            %Permutation test
+%                             if pvals_perm(grNo,per_bin,evTN1,ifreq)<=0.05
+%                                 plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{per_bin})
+%                             end
                             
                             
                         end
@@ -837,11 +875,12 @@ switch which_display
                     figure(figNo)
                     hold on
                     
+                  
+                    xtickl=[];
+                    kk=0;
                     this_dB_p=[];
                     these_experiments=[];
                     bin_group=[];
-                    xtickl=[];
-                    kk=0;
                     for per_bin=[1 3]
                         
                         if no_values(eventType1,winNo,grNo,per_bin)>1
@@ -854,7 +893,7 @@ switch which_display
                                 this_dB_p_v1=this_dB_p_v1-this_dB_p_v1_ref;
                             end
                             
-                            
+                              
                             this_band=(frequency>=low_freq(ii))&(frequency<=high_freq(ii));
                             expno=zeros(1,no_values(eventType1,winNo,grNo,per_bin));
                             expno(1,:)=experimentNo(eventType1,winNo,grNo,per_bin,1:no_values(eventType1,winNo,grNo,per_bin));
@@ -867,14 +906,14 @@ switch which_display
                             
                             %Now plot the individual points
                             deltax=0.03;
-                            x_shift=-deltax*floor((max(these_experiments)-min(these_experiments))/2);
-                            for jj=min(these_experiments):max(these_experiments)
+                            x_shift=-deltax*floor((max(these_experiments(bin_group==per_bin))-min(these_experiments(bin_group==per_bin)))/2);
+                            for jj=min(these_experiments(bin_group==per_bin)):max(these_experiments(bin_group==per_bin))
                                 if x_shift==0
                                     x_shift=x_shift+deltax;
                                 end
-                                no_lfps=sum(these_experiments==jj);
+                                no_lfps=sum((these_experiments==jj)&(bin_group==per_bin));
                                 x=(kk+x_shift)*ones(1,no_lfps);
-                                plot(x,this_dB_p(these_experiments==jj),'.k')
+                                plot(x,this_dB_p((these_experiments==jj)&(bin_group==per_bin)),'.k')
                                 x_shift=x_shift+deltax;
                             end
                             

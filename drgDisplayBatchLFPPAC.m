@@ -10,7 +10,7 @@ warning('off')
 %THESE VALUES ARE IMPORTANT
 
 %Choose the format for the display
-which_PA_display=1;
+which_PA_display=5;
 
 % 1 Show the cumulative histograms for peak angles for the difference between events
 %   for each group/ percent correct bin in a separate graph
@@ -61,6 +61,7 @@ no_percent_bins=3;
 no_groups=max(handles_drgb.drgbchoices.group_no);
 no_events=length(handles_drgb.drgbchoices.evTypeNos);
 no_lfpevpairs=handles_drgb.drgb.lfpevpair_no;
+% no_lfpevpairs=682;
 no_PACpeaks=handles_drgb.no_PACpeaks;
 no_trials=zeros(length(handles_drgb.drgbchoices.evTypeNos),handles_drgb.drgbchoices.noWindows,max(handles_drgb.drgbchoices.group_no),no_percent_bins,handles_drgb.no_PACpeaks);
 
@@ -71,7 +72,7 @@ if isfield(handles_drgb.drgb.lfpevpair,'which_eventPAC')==0
         handles_drgb.drgb.lfpevpair(lfpodNo).perCorrPAC=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).perCorrPAC;
     end
 end
-  
+   
 for lfpodNo=1:no_lfpevpairs
     fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
     groupNo=handles_drgb.drgbchoices.group_no(fileNo);
