@@ -3,12 +3,13 @@ function drgDisplayBatchLFPPower(handles)
 %This function displays the LFP power spectrum for drgRunBatch-generated
 %data
 
-%Which time window do you want displayed
-winNo=2;
+
 
 %Do you wnat to subtract the LFP spectrum in a reference window?
 subtractRef=1;
 refWin=1;
+
+grRef=1;  %p values will be calculated with respect to this group
 
 close all
 warning('off')
@@ -30,35 +31,40 @@ warning('off')
 %
 % 4 Show boxplots for the difference of dB per bandwidth between learning and proficient
 %
+% 5 Show boxplots for the difference in dB per badwidht between groups
 
 
 %For Alexia's tstart learning vs. proficeint
-% which_display=4;
+% winNo=3;
+% which_display=3;
 % eventType=1; %tstart
 % evTypeLabels={'tstart'};
 
 % For Alexia's odorOn (CS) learning vs. proficeint
+% winNo=2;
 % which_display=4;
 % eventType=1; %OdorOn
 % evTypeLabels={'CS'};
 
 
 % For Alexia's Hit, CR, FA
+% winNo=2;
 % which_display=1;
 % eventType=[2 5 7];
 % evTypeLabels={'Hit','CR','FA'};
 
 % % For Daniel's Hit, CR, FA, compare groups
-% winNo=2;
+winNo=2;
 % which_display=2;
-% eventType=[2 5 7];
-% evTypeLabels={'Hit','CR','FA'};
+which_display=5;
+eventType=[2 5];
+evTypeLabels={'Hit','CR'};
 
 % For Daniel's Hit, CR, FA, compare events
-winNo=2;
-which_display=1;
-eventType=[2 5 7];
-evTypeLabels={'Hit','CR','FA'};
+% winNo=2;
+% which_display=1;
+% eventType=[2 5 7];
+% evTypeLabels={'Hit','CR','FA'};
 
 %THESE VALUES ARE IMPORTANT
 %VERY IMPORTANT: This is the index for this event in your handles.drgbchoices.evTypeNos
@@ -75,6 +81,14 @@ evTypeLabels={'Hit','CR','FA'};
 % evTypeLabels={'Hi Od1';'Hi Od 2';'Hi Od 3';'Low Od1';'Low Od 2';'Low Od 3'};
 
 no_event_types=length(eventType);
+
+%Statistics
+%stats_method = 1, FDR, 2, statscond
+stat_method=2;
+
+%Mode for percent ANOVA
+mode_statcond='perm';
+% mode_statcond='bootstrap';
 
 %Which percent correct bins do you want to use?
 percent_low=[45 65 80];
@@ -109,6 +123,7 @@ for lfpodNo=1:no_lfpevpairs
     noFiles=noFiles+1;
     files(noFiles)=fileNo;
     groupNo=handles_drgb.drgbchoices.group_no(fileNo);
+    group_per_file(fileNo)=groupNo;
     timeWindow=handles_drgb.drgb.lfpevpair(lfpodNo).timeWindow;
     for evTypeNo=1:no_events
         
@@ -129,6 +144,13 @@ for lfpodNo=1:no_lfpevpairs
     end
 end
 max_lfps=max(no_lfps(:));
+
+
+fprintf(1, '\nTotal number of files: = %d\n\n',length(group_per_file));
+for grNo=1:no_groups
+    fprintf(1, ['Number of files for ' handles_drgb.drgbchoices.group_no_names{grNo} ' = %d\n'],sum(group_per_file==grNo));
+end
+fprintf(1, '\n\n');
 
 %Now initialize the variables for db power
 noWindows=handles_drgb.drgbchoices.noWindows;
@@ -380,12 +402,16 @@ switch which_display
         
     case 2
         %Display the difference between groups
+        these_p_vals=[];
+        these_p_vals_perm2=[];
+        
+        dB_p_v1_mean=zeros(length(eventType),no_percent_bins, max(handles_drgb.drgbchoices.group_no),length(handles_drgb.drgb.freq_for_LFPpower));
+        dB_p_v1_SEM=zeros(length(eventType),no_percent_bins, max(handles_drgb.drgbchoices.group_no),length(handles_drgb.drgb.freq_for_LFPpower));
+        
         
         for evTN1=1:length(eventType)
             eventType1=eventType(evTN1);
             
-            dB_p_v1_mean=zeros(no_percent_bins, max(handles_drgb.drgbchoices.group_no),length(handles_drgb.drgb.freq_for_LFPpower));
-            dB_p_v1_SEM=zeros(no_percent_bins, max(handles_drgb.drgbchoices.group_no),length(handles_drgb.drgb.freq_for_LFPpower));
             
             
             frequency=handles_drgb.drgb.freq_for_LFPpower;
@@ -395,7 +421,7 @@ switch which_display
             for per_bin=1:no_percent_bins
                 
                 grRef=1;  %p values will be calculated with respect to this group
-                these_p_vals=[];
+                
                 
                 for grNo=max(handles_drgb.drgbchoices.group_no):-1:1
                     
@@ -425,9 +451,15 @@ switch which_display
                             try
                                 if subtractRef==1
                                     for ifreq=1:length(frequency)
-                                        p_vals(grNo,per_bin,evTN1,ifreq)=ranksum(this_dB_p_v1(:,ifreq),this_dB_p_v1ref(:,ifreq));
+                                        p_vals(evTN1,grNo,per_bin,evTN1,ifreq)=ranksum(this_dB_p_v1(:,ifreq),this_dB_p_v1ref(:,ifreq));
                                         these_p_vals=[these_p_vals ranksum(this_dB_p_v1(:,ifreq),this_dB_p_v1ref(:,ifreq))];
                                     end
+                                    
+                                    a={ this_dB_p_v1' this_dB_p_v1ref'};
+                                    [F df pvals_perm2(evTN1,grNo,per_bin,evTN1,:)] = statcond(a,'mode',mode_statcond,'naccu', 1000); % perform an unpaired ANOVA
+                                    this_p_perm2=zeros(1,length(frequency));
+                                    this_p_perm2(1,:)=pvals_perm2(grNo,per_bin,evTN1,:);
+                                    these_p_vals_perm2=[these_p_vals_perm2 this_p_perm2];
                                 end
                             catch
                             end
@@ -443,8 +475,9 @@ switch which_display
                     
                 end
                 
-                pFDR(evTN1,per_bin)=drsFDRpval(these_p_vals);
-                fprintf(1, 'pFDR for event type: %d, percent bin no: %d = %d\n',evTN1,per_bin,pFDR(evTN1,per_bin));
+                
+                
+                
                 
                 %Now calculate the means, CIs, etc
                 for grNo=max(handles_drgb.drgbchoices.group_no):-1:1
@@ -460,13 +493,13 @@ switch which_display
                             this_dB_p_v1_ref(:,:)=dB_power_values(eventType1,refWin,grNo,per_bin,1:no_values(eventType1,refWin,grNo,per_bin),:);
                             this_dB_p_v1=this_dB_p_v1-this_dB_p_v1_ref;
                         end
-                        dB_p_v1_mean(per_bin,grNo,:)=mean(this_dB_p_v1,1);
-                        dB_p_v1_SEM(per_bin,grNo,:)=std(this_dB_p_v1,0,1)/sqrt(no_values(eventType1,winNo,grNo,per_bin));
+                        dB_p_v1_mean(evTN1,per_bin,grNo,:)=mean(this_dB_p_v1,1);
+                        dB_p_v1_SEM(evTN1,per_bin,grNo,:)=std(this_dB_p_v1,0,1)/sqrt(no_values(eventType1,winNo,grNo,per_bin));
                         %Calculate the 95% CI
                         for ifreq=1:length(frequency)
                             pd=fitdist(this_dB_p_v1(:,ifreq),'Normal');
                             ci=paramci(pd);
-                            dB_p_v1_ci(per_bin,grNo,ifreq)=ci(1,1)-pd.mu;
+                            dB_p_v1_ci(evTN1,per_bin,grNo,ifreq)=ci(1,1)-pd.mu;
                         end
                         these_experiments=experimentNo(eventType1,winNo,grNo,per_bin,1:no_values(eventType1,winNo,grNo,per_bin));
                         
@@ -477,9 +510,17 @@ switch which_display
                 
             end
             
-            
-            frequency=handles_drgb.drgb.freq_for_LFPpower;
-            
+        end
+        
+        pFDR=drsFDRpval(these_p_vals);
+        fprintf(1, 'pFDR  = %d\n',pFDR);
+        
+        
+        pFDR_perm2=drsFDRpval(these_p_vals_perm2);
+        fprintf(1, 'pFDR perm 2 = %d\n',pFDR_perm2);
+        frequency=handles_drgb.drgb.freq_for_LFPpower;
+        for evTN1=1:length(eventType)
+            eventType1=eventType(evTN1);
             %Now plot the lines
             for per_bin=1:no_percent_bins
                 figNo=figNo+1;
@@ -500,10 +541,10 @@ switch which_display
                     
                     %[hl, hp] = boundedline(frequency,dB_p_v1_mean(jj,:), dB_p_v1_SEM(jj,:), 'b');
                     this_dB_p_v1_mean=zeros(1,length(handles_drgb.drgb.freq_for_LFPpower));
-                    this_dB_p_v1_mean(1,:)=dB_p_v1_mean(per_bin,grNo,:);
+                    this_dB_p_v1_mean(1,:)=dB_p_v1_mean(evTN1,per_bin,grNo,:);
                     
                     this_dB_p_v1_ci=zeros(1,length(handles_drgb.drgb.freq_for_LFPpower));
-                    this_dB_p_v1_ci(1,:)=dB_p_v1_ci(per_bin,grNo,:);
+                    this_dB_p_v1_ci(1,:)=dB_p_v1_ci(evTN1,per_bin,grNo,:);
                     
                     %plot(frequency,this_dB_p_v1_mean, these_lines{grNo});
                     eval(['p' num2str(grNo) '=plot(frequency,this_dB_p_v1_mean, these_lines{grNo});'])
@@ -525,10 +566,10 @@ switch which_display
                     
                     
                     this_dB_p_v1_mean=zeros(1,length(handles_drgb.drgb.freq_for_LFPpower));
-                    this_dB_p_v1_mean(1,:)=dB_p_v1_mean(per_bin,grNo,:);
+                    this_dB_p_v1_mean(1,:)=dB_p_v1_mean(evTN1,per_bin,grNo,:);
                     
                     this_dB_p_v1_ci=zeros(1,length(handles_drgb.drgb.freq_for_LFPpower));
-                    this_dB_p_v1_ci(1,:)=dB_p_v1_ci(per_bin,grNo,:);
+                    this_dB_p_v1_ci(1,:)=dB_p_v1_ci(evTN1,per_bin,grNo,:);
                     
                     [hl, hp] = boundedline(frequency,this_dB_p_v1_mean, this_dB_p_v1_ci, these_colors{grNo});
                     
@@ -536,8 +577,15 @@ switch which_display
                         if calc_pval(grNo)==1
                             for ifreq=1:length(frequency)
                                 
-                                if p_vals(grNo,per_bin,evTN1,ifreq)<=pFDR(evTN1,per_bin)
-                                    plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{grNo})
+                                switch stat_method
+                                    case 1
+                                        if p_vals(evTN1,grNo,per_bin,evTN1,ifreq)<=pFDR
+                                            plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{grNo})
+                                        end
+                                    case 2
+                                        if pvals_perm2(evTN1,grNo,per_bin,evTN1,ifreq)<=pFDR_perm2
+                                            plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{grNo})
+                                        end
                                 end
                                 
                             end
@@ -616,7 +664,7 @@ switch which_display
                                 these_p_vals=[these_p_vals ranksum(this_dB_p_v1(:,ifreq),this_dB_p_v1ref(:,ifreq))];
                             end
                             
-                            %Perform permutation test
+                            %Perform permutation test using mult_comp_perm_t1
                             
                             %This is a paired test. Find experiments where both
                             %this LFP and reference LFP were recorded
@@ -636,6 +684,16 @@ switch which_display
                             %Perform permutation test
                             dif=this_paired_dB_p_v1-this_paired_dB_p_v1ref;
                             [pvals_perm(grNo,per_bin,evTN1,:), t_orig, crit_t, est_alpha, seed_state]=mult_comp_perm_t1(dif,50000);
+                            
+                            %Perform permutation test using statcond()
+                            %         a = { rand(2,11) rand(2,10) rand(2,12)+0.5 }; % pseudo 'unpaired'
+                            %         [F df pvals] = statcond(a); % perform an unpaired ANOVA
+                            %           pvals =
+                            %              0.00025 % p-values for difference between columns
+                            %              0.00002 % for each data row
+                            
+                            a={ this_dB_p_v1' this_dB_p_v1ref'};
+                            [F df pvals_perm2(grNo,per_bin,evTN1,:)] = statcond(a,'mode',mode_statcond,'naccu', 1000); % perform an unpaired ANOVA
                             
                             %anovan with repeated measures
                             %To use anovan for repeated measures, you have to enter the subject
@@ -754,17 +812,24 @@ switch which_display
                     if calc_pval(per_bin)==1
                         for ifreq=1:length(frequency)
                             
-                            %FDR
-                            if p_vals(grNo,per_bin,evTN1,ifreq)<=pFDR(grNo,evTN1)
-                                plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{per_bin})
+                            switch stat_method
+                                case 1
+                                    %FDR
+                                    if p_vals(grNo,per_bin,evTN1,ifreq)<=pFDR(grNo,evTN1)
+                                        plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{per_bin})
+                                    end
+                                    
+                                case 2
+                                    %Permutation test
+                                    %                             if pvals_perm(grNo,per_bin,evTN1,ifreq)<=0.05
+                                    %                                 plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{per_bin})
+                                    %                             end
+                                    
+                                    %Permutation test
+                                    if pvals_perm2(grNo,per_bin,evTN1,ifreq)<=0.05
+                                        plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{per_bin})
+                                    end
                             end
-                            
-                            %Permutation test
-%                             if pvals_perm(grNo,per_bin,evTN1,ifreq)<=0.05
-%                                 plot(frequency(ifreq),this_dB_p_v1_mean(ifreq),these_circles{per_bin})
-%                             end
-                            
-                            
                         end
                     end
                     
@@ -849,10 +914,10 @@ switch which_display
                                 
                                 fprintf(1, ['p value for ' freq_names{bwii} ', group No: %d, event: ' evTypeLabels{evTN1} ...
                                     ', ' percent_bin_legend{per_bin} '= %d\n'], grNo, p_vals(grNo,per_bin,evTN1,bwii));
-                
+                                
                             end
                             fprintf(1, '\n')
-                           
+                            
                         else
                             calc_pval(per_bin)=0;
                         end
@@ -875,7 +940,7 @@ switch which_display
                     figure(figNo)
                     hold on
                     
-                  
+                    
                     xtickl=[];
                     kk=0;
                     this_dB_p=[];
@@ -893,7 +958,7 @@ switch which_display
                                 this_dB_p_v1=this_dB_p_v1-this_dB_p_v1_ref;
                             end
                             
-                              
+                            
                             this_band=(frequency>=low_freq(ii))&(frequency<=high_freq(ii));
                             expno=zeros(1,no_values(eventType1,winNo,grNo,per_bin));
                             expno(1,:)=experimentNo(eventType1,winNo,grNo,per_bin,1:no_values(eventType1,winNo,grNo,per_bin));
@@ -931,16 +996,223 @@ switch which_display
                     
                     pffft=1;
                 end
-                 
+                
                 
                 
             end
             
             
-                        
             
             
-           
+            
+            
         end
+        
+    case 5
+        %Display the difference between groups using boxplots
+        frequency=handles_drgb.drgb.freq_for_LFPpower;
+        dB_p_v1_mean=zeros(length(eventType),no_percent_bins, max(handles_drgb.drgbchoices.group_no),length(handles_drgb.drgb.freq_for_LFPpower));
+        dB_p_v1_SEM=zeros(length(eventType),no_percent_bins, max(handles_drgb.drgbchoices.group_no),length(handles_drgb.drgb.freq_for_LFPpower));
+        these_p_vals=[];
+        these_p_vals_perm=[];
+        
+        fprintf(1, ['p values for comparison with ' handles_drgb.drgbchoices.group_no_names{grRef} '\n\n']);
+        
+        for evTN1=1:length(eventType)
+            eventType1=eventType(evTN1);
+            
+            
+            
+            frequency=handles_drgb.drgb.freq_for_LFPpower;
+            
+            
+            kk=0;
+            for per_bin=1:no_percent_bins
+                
+                
+                these_p_vals=[];
+                
+                for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                    
+                    if grNo~=grRef
+                        
+                        if subtractRef==1
+                            continue_for=(no_values(eventType1,winNo,grNo,per_bin)>1)&(no_values(eventType1,winNo,grRef,per_bin));
+                        else
+                            continue_for=(no_values(eventType1,winNo,grNo,per_bin)>1);
+                        end
+                        
+                        if continue_for
+                            calc_pval(grNo)=1;
+                            
+                            this_dB_p_v1=zeros(no_values(eventType1,winNo,grNo,per_bin),length(handles_drgb.drgb.freq_for_LFPpower));
+                            this_dB_p_v1(:,:)=dB_power_values(eventType1,winNo,grNo,per_bin,1:no_values(eventType1,winNo,grNo,per_bin),:);
+                            if subtractRef==1
+                                this_dB_p_v1_ref=zeros(no_values(eventType1,refWin,grNo,per_bin),length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_p_v1_ref(:,:)=dB_power_values(eventType1,refWin,grNo,per_bin,1:no_values(eventType1,refWin,grNo,per_bin),:);
+                                this_dB_p_v1=this_dB_p_v1-this_dB_p_v1_ref;
+                            end
+                            
+                            this_dB_p_bw=zeros(no_values(eventType1,winNo,grNo,per_bin),no_bandwidths);
+                            for ii=1:no_bandwidths
+                                this_band=(frequency>=low_freq(ii))&(frequency<=high_freq(ii));
+                                this_dB_p_bw(:,ii)=mean(this_dB_p_v1(:,this_band),2);
+                            end
+                            
+                            this_dB_p_v1ref=zeros(no_values(eventType1,winNo,grRef,per_bin),length(handles_drgb.drgb.freq_for_LFPpower));
+                            this_dB_p_v1ref(:,:)=dB_power_values(eventType1,winNo,grRef,per_bin,1:no_values(eventType1,winNo,grRef,per_bin),:);
+                            if subtractRef==1
+                                this_dB_p_v1ref_ref=zeros(no_values(eventType1,refWin,grRef,per_bin),length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_p_v1ref_ref(:,:)=dB_power_values(eventType1,refWin,grRef,per_bin,1:no_values(eventType1,refWin,grRef,per_bin),:);
+                                this_dB_p_v1ref=this_dB_p_v1ref-this_dB_p_v1ref_ref;
+                            end
+                            
+                            this_dB_p_bwref=zeros(no_values(eventType1,winNo,grRef,per_bin),no_bandwidths);
+                            for ii=1:no_bandwidths
+                                this_band=(frequency>=low_freq(ii))&(frequency<=high_freq(ii));
+                                this_dB_p_bwref(:,ii)=mean(this_dB_p_v1ref(:,this_band),2);
+                            end
+                            
+                            %Calculate whether this this_dB_p_v1 is significantly
+                            %different from reference
+                            
+                            switch stat_method
+                                case 1
+                                    %Ranksum
+                                    for bwii=1:no_bandwidths
+                                        
+                                        
+                                        p_vals(grNo,per_bin,evTN1,bwii)=ranksum(this_dB_p_bw(:,bwii),this_dB_p_bwref(:,bwii));
+                                        these_p_vals=[these_p_vals ranksum(this_dB_p_bw(:,bwii),this_dB_p_bwref(:,bwii))];
+                                        fprintf(1, ['p value for ' freq_names{bwii} ', ' handles_drgb.drgbchoices.group_no_names{grNo} ', ' evTypeLabels{evTN1} ...
+                                            ', ' percent_bin_legend{per_bin} '= %d\n'],  p_vals(grNo,per_bin,evTN1,bwii));
+                                    end
+                                case 2
+                                    %statcond
+                                    a={ this_dB_p_bw' this_dB_p_bwref'};
+                                    [F df pvals_perm2(grNo,per_bin,evTN1,:)] = statcond(a,'mode',mode_statcond); % perform an unpaired ANOVA
+                                    for bwii=1:no_bandwidths
+                                        fprintf(1, ['p value for ' freq_names{bwii} ', ' handles_drgb.drgbchoices.group_no_names{grNo} ', ' evTypeLabels{evTN1} ...
+                                            ', ' percent_bin_legend{per_bin} '= %d\n'],  pvals_perm2(grNo,per_bin,evTN1,bwii));
+                                    end
+                                    
+                                    this_pv=zeros(1,no_bandwidths);
+                                    this_pv(:,:)=pvals_perm2(grNo,per_bin,evTN1,:);
+                                    these_p_vals_perm=[these_p_vals_perm this_pv];
+                            end
+                            
+                            fprintf(1, '\n')
+                            
+                        else
+                            calc_pval(grNo)=0;
+                        end
+                        
+                    end
+                    
+                   
+                end
+                
+            end
+        end
+        
+        switch stat_method
+            case 1
+                %Ranksum
+                for bwii=1:no_bandwidths
+                    pFDR=drsFDRpval(these_p_vals);
+                    fprintf(1, ['pFDR for ' freq_names{bwii} ' = %d\n'],pFDR);
+                end
+            case 2
+                %statcond
+                pFDR_perm=drsFDRpval(these_p_vals_perm);
+                fprintf(1, 'pFDR perm  = %d\n',pFDR_perm); 
+        end
+        
+        for evTN1=1:length(eventType)
+            eventType1=eventType(evTN1);
+            
+            %Now do the boxplot
+            for per_bin=no_percent_bins:no_percent_bins
+                for ii=1:no_bandwidths
+                    figNo=figNo+1;
+                    try
+                        close(figNo)
+                    catch
+                    end
+                    figure(figNo)
+                    hold on
+                    
+                    
+                    xtickl=[];
+                    kk=0;
+                    this_dB_p=[];
+                    these_experiments=[];
+                    group_no=[];
+                    for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                        
+                        if no_values(eventType1,winNo,grNo,per_bin)>1
+                            
+                            this_dB_p_v1=zeros(no_values(eventType1,winNo,grNo,per_bin),length(handles_drgb.drgb.freq_for_LFPpower));
+                            this_dB_p_v1(:,:)=dB_power_values(eventType1,winNo,grNo,per_bin,1:no_values(eventType1,winNo,grNo,per_bin),:);
+                            if subtractRef==1
+                                this_dB_p_v1_ref=zeros(no_values(eventType1,refWin,grNo,per_bin),length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_p_v1_ref(:,:)=dB_power_values(eventType1,refWin,grNo,per_bin,1:no_values(eventType1,refWin,grNo,per_bin),:);
+                                this_dB_p_v1=this_dB_p_v1-this_dB_p_v1_ref;
+                            end
+                            
+                            
+                            this_band=(frequency>=low_freq(ii))&(frequency<=high_freq(ii));
+                            expno=zeros(1,no_values(eventType1,winNo,grNo,per_bin));
+                            expno(1,:)=experimentNo(eventType1,winNo,grNo,per_bin,1:no_values(eventType1,winNo,grNo,per_bin));
+                            these_experiments=[these_experiments expno];
+                            this_dB_p=[this_dB_p mean(this_dB_p_v1(:,this_band),2)'];
+                            group_no=[group_no grNo*ones(1,no_values(eventType1,winNo,grNo,per_bin))];
+                            
+                            kk=kk+1;
+                            xtickl{kk}=handles_drgb.drgbchoices.group_no_names{grNo};
+                            
+                            %Now plot the individual points
+                            deltax=0.03;
+                            no_these_files=0;
+                            for ww=1:length(group_per_file)
+                                if sum(ww==these_experiments(group_no==grNo))>0
+                                    no_these_files=no_these_files+1;
+                                    expNo(no_these_files)=ww;
+                                end
+                            end
+                            x_shift=-deltax*floor(no_these_files/2);
+                            for jj=1:no_these_files
+                                if x_shift==0
+                                    x_shift=x_shift+deltax;
+                                end
+                                no_lfps=sum((these_experiments==expNo(jj))&(group_no==grNo));
+                                x=(kk+x_shift)*ones(1,no_lfps);
+                                plot(x,this_dB_p((these_experiments==expNo(jj))&(group_no==grNo)),'.k')
+                                x_shift=x_shift+deltax;
+                            end
+                            
+                            
+                        end
+                        
+                    end
+                    
+                    boxplot(this_dB_p,group_no,'Symbol','')
+                    xticklabels(xtickl)
+                    if subtractRef==0
+                        title([ freq_names{ii} ' power (dB) for event ' evTypeLabels{evTN1} ' ' percent_bin_legend{per_bin}])
+                    else
+                        title([ freq_names{ii}  ' delta Power (dB) for event ' evTypeLabels{evTN1} ' ' percent_bin_legend{per_bin}])
+                    end
+                    
+                    pffft=1;
+                    
+                end
+            end
+            
+            
+            
+            
+        end
+        
+        
 end
-
