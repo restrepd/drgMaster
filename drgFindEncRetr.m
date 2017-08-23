@@ -31,13 +31,13 @@ switch handles.drg.drta_p.which_c_program
             (handles.drg.session(sessionNo).events(CR).times<=last_time));
         noHits=sum((handles.drg.session(sessionNo).events(hit).times>=first_time)&...
             (handles.drg.session(sessionNo).events(hit).times<=last_time));
-        perCorr(ii+(sliding_window/2))=100*(noCRs+noHits)/sliding_window;
-        
+        perCorr(ii+floor(sliding_window/2))=100*(noCRs+noHits)/sliding_window;
+
         if ii==1
-            perCorr(ii:(sliding_window/2))=perCorr(ii+(sliding_window/2));
+            perCorr(ii:floor(sliding_window/2))=perCorr(ii+floor(sliding_window/2));
         end
         if ii==handles.drg.session(sessionNo).events(odorOn).noTimes-sliding_window+1
-            perCorr(ii+(sliding_window/2)+1:handles.drg.session(sessionNo).events(odorOn).noTimes)=perCorr(ii+(sliding_window/2));
+            perCorr(ii+floor(sliding_window/2)+1:handles.drg.session(sessionNo).events(odorOn).noTimes)=perCorr(ii+floor(sliding_window/2));
         end
     end
     
