@@ -102,8 +102,10 @@ low_freq=[6 15 35 65];
 high_freq=[12 30 55 95];
 freq_names={'Theta','Beta','Low gamma','High gamma'};
 
-%Pairwise comparisons of percent correct for no laser vs laser
-%acetophenone vs ethyl benzoate for Daniel
+%Experiment pairs
+%Important: The first file must be the experiment performed first
+%For example in acetophenone ethyl benzoate no laser is first, laser is
+%second
 file_pairs=[1 7;
     2 8;
     3 9
@@ -112,10 +114,10 @@ file_pairs=[1 7;
     6 12;
     13 14;
     15 16;
-    17 21;
-    18 23;
-    19 22;
-    20 24];
+    21 17;
+    23 18;
+    22 19;
+    24 20];
 no_file_pairs=12;
     
 
@@ -223,5 +225,9 @@ end
 
 [h p_NL_L]=ttest(last_pc_NL,first_pc_L)
 
+[p_NL_Lrs h]=ranksum(last_pc_NL,first_pc_L)
+
 [h p_NLc_Lc]=ttest(last_pc_NLc,first_pc_Lc)
+
+[p_NLc_Lcrs h]=ranksum(last_pc_NLc,first_pc_Lc)
 

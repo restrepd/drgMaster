@@ -31,7 +31,7 @@ warning('off')
 %
 % 4 Show boxplots for the difference of dB per bandwidth between learning and proficient
 %
-% 5 Show boxplots for the difference in dB per badwidht between groups
+% 5 Show boxplots for the difference in dB per badwidth between groups
 %
 % 6 Analysis of delta power (Hit-CR)
 %   Show boxplots for the difference in dB per badwidht between groups
@@ -61,13 +61,13 @@ warning('off')
 % evTypeLabels={'Hit','CR','FA'};
 
 % % For Daniel's Hit, CR, compare groups
-% winNo=2;
-% % which_display=2;
-% which_display=5;
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-% % eventType=[2 5 7];
-% % evTypeLabels={'Hit','CR','FA'};
+winNo=2;
+% which_display=2;
+which_display=5;
+eventType=[2 5];
+evTypeLabels={'Hit','CR'};
+% eventType=[2 5 7];
+% evTypeLabels={'Hit','CR','FA'};
 
 % For Daniel's Hit, CR, FA, compare events
 % winNo=2;
@@ -82,13 +82,13 @@ warning('off')
 
 
 % % For Daniel's delta power Hit - CR, compare groups
-winNo=2;
-which_display=8;
-eventType1=2;
-eventType=2;
-eventTypeRef=5;
-evTypeLabel='Hit';
-evTypeRefLabel='CR';
+% winNo=2;
+% which_display=8;
+% eventType1=2;
+% eventType=2;
+% eventTypeRef=5;
+% evTypeLabel='Hit';
+% evTypeRefLabel='CR';
 
 
 
@@ -127,10 +127,27 @@ freq_names={'Theta','Beta','Low gamma','High gamma'};
 load([handles.PathName handles.drgb.outFileName])
 
 evHit=find(handles_drgb.drgbchoices.evTypeNos==3);
+%evHit=find(handles_drgb.drgbchoices.evTypeNos==5); %S plus
 evCR=find(handles_drgb.drgbchoices.evTypeNos==9);
+%evCR=find(handles_drgb.drgbchoices.evTypeNos==11); %S-
 evFA=find(handles_drgb.drgbchoices.evTypeNos==13);
 
 frequency=handles_drgb.drgb.freq_for_LFPpower;
+
+%Experiment pairs
+file_pairs=[1 7;
+    2 8;
+    3 9
+    4 10;
+    5 11;
+    6 12;
+    13 14;
+    15 16;
+    17 21;
+    18 23;
+    19 22;
+    20 24];
+no_file_pairs=12;
 
 %Initialize the variables
 
@@ -209,7 +226,7 @@ for lfpodNo=1:no_lfpevpairs
         trials_in_CR=[];
     end
     
-        try
+    try
         trials_in_FA=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evFA,:)==1;
     catch
         trials_in_FA=[];
@@ -279,7 +296,7 @@ for lfpodNo=1:no_lfpevpairs
             roc_data(no_trialsHit+1:no_trialsHit+no_trialsCR,1)=mean(this_dB_powerCR(:,this_band),2);
             roc_data(no_trialsHit+1:no_trialsHit+no_trialsCR,2)=ones(no_trialsCR,1);
             no_ROCs=no_ROCs+1;
-            ROCout(no_ROCs).roc=roc(roc_data,0,0.05,0);
+            ROCout(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
             ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
             ROCout(no_ROCs).groupNo=handles_drgb.drgbchoices.group_no(fileNo);
             ROCout(no_ROCs).timeWindow=handles_drgb.drgb.lfpevpair(lfpodNo).timeWindow;
@@ -290,7 +307,7 @@ for lfpodNo=1:no_lfpevpairs
             end
         end
         
-  
+        
     end
     
 end
@@ -308,99 +325,99 @@ if which_display==8
     d_primeFAs=[];
     grFAs=[];
     bwFAs=[];
-for lfpodNo=1:no_lfpevpairs
-    fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
-    groupNo=handles_drgb.drgbchoices.group_no(fileNo);
-    timeWindow=handles_drgb.drgb.lfpevpair(lfpodNo).timeWindow;
-    lfpodorNo=lfpodNo;
-    
-    try
-        trials_in_Hit=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evHit,:)==1;
-    catch
-        trials_in_Hit=[];
-    end
-    
-    try
-        trials_in_CR=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evCR,:)==1;
-    catch
-        trials_in_CR=[];
-    end
-    
+    for lfpodNo=1:no_lfpevpairs
+        fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
+        groupNo=handles_drgb.drgbchoices.group_no(fileNo);
+        timeWindow=handles_drgb.drgb.lfpevpair(lfpodNo).timeWindow;
+        lfpodorNo=lfpodNo;
+        
         try
-        trials_in_FA=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evFA,:)==1;
-    catch
-        trials_in_FA=[];
-    end
-    
-    
-    
-    %Calculate the ROC for Hit vs CR
-    %Do proficient only
-    percent_bin=3;
-    trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
-    
-    if (sum(trials_in_Hit&trials_in_perbin)>0)&(sum(trials_in_CR&trials_in_perbin)>0)
+            trials_in_Hit=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evHit,:)==1;
+        catch
+            trials_in_Hit=[];
+        end
         
-        no_trialsHit=sum(trials_in_Hit&trials_in_perbin);
-        this_dB_powerHit=zeros(no_trialsHit,length(handles_drgb.drgb.freq_for_LFPpower));
-        this_dB_powerHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_Hit&trials_in_perbin,:));
+        try
+            trials_in_CR=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evCR,:)==1;
+        catch
+            trials_in_CR=[];
+        end
+        
+        try
+            trials_in_FA=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evFA,:)==1;
+        catch
+            trials_in_FA=[];
+        end
         
         
-        no_trialsCR=sum(trials_in_CR&trials_in_perbin);
-        this_dB_powerCR=zeros(no_trialsCR,length(handles_drgb.drgb.freq_for_LFPpower));
-        this_dB_powerCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_CR&trials_in_perbin,:));
         
-         no_trialsFA=sum(trials_in_FA&trials_in_perbin);
+        %Calculate the ROC for Hit vs CR
+        %Do proficient only
+        percent_bin=3;
+        trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
+        
+        if (sum(trials_in_Hit&trials_in_perbin)>0)&(sum(trials_in_CR&trials_in_perbin)>0)
+            
+            no_trialsHit=sum(trials_in_Hit&trials_in_perbin);
+            this_dB_powerHit=zeros(no_trialsHit,length(handles_drgb.drgb.freq_for_LFPpower));
+            this_dB_powerHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_Hit&trials_in_perbin,:));
+            
+            
+            no_trialsCR=sum(trials_in_CR&trials_in_perbin);
+            this_dB_powerCR=zeros(no_trialsCR,length(handles_drgb.drgb.freq_for_LFPpower));
+            this_dB_powerCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_CR&trials_in_perbin,:));
+            
+            no_trialsFA=sum(trials_in_FA&trials_in_perbin);
             this_dB_powerFA=zeros(no_trialsFA,length(handles_drgb.drgb.freq_for_LFPpower));
             this_dB_powerFA(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_FA&trials_in_perbin,:));
             
-
-        for ii=1:no_bandwidths
-            %Enter the Hits
-
-            nRocs=nRocs+1;
-
-            if timeWindow==2
-                pffft=1;
-                %Calculate d prime if auROC is significant
-                if ROCout(nRocs).roc.p<=pFDRroc
-                    %Enter the Hits
-                    this_band=(frequency>=low_freq(ii))&(frequency<=high_freq(ii));
-                    these_hits=mean(this_dB_powerHit(:,this_band),2);
-                    mu_hit=mean(these_hits);
-                    SDhit=std(these_hits);
-                    these_CRs=mean(this_dB_powerCR(:,this_band),2);
-                    mu_CR=mean(these_CRs);
-                    SDCR=std(these_CRs);
-                    if mu_hit>mu_CR
-                        mult_fact=1/sqrt((SDhit^2 +SDCR^2)/2);
-                    else
-                        mult_fact=-1/sqrt((SDhit^2 +SDCR^2)/2);
-                    end
-                    
-                    d_primeHits=[d_primeHits mult_fact*(these_hits-mu_CR)'];
-                    grHits=[grHits ROCout(nRocs).groupNo*ones(1,no_trialsHit)];
-                    bwHits=[bwHits ii*ones(1,no_trialsHit)];
-                    d_primeCRs=[d_primeCRs mult_fact*(these_CRs-mu_CR)'];
-                    grCRs=[grCRs ROCout(nRocs).groupNo*ones(1,no_trialsCR)];
-                    bwCRs=[bwCRs ii*ones(1,no_trialsCR)];
-                    if no_trialsFA>0
-                        these_FAs=mean(this_dB_powerFA(:,this_band),2);
-                        d_primeFAs=[d_primeFAs mult_fact*(these_FAs-mu_CR)'];
-                        grFAs=[grFAs ROCout(nRocs).groupNo*ones(1,no_trialsFA)];
-                        bwFAs=[bwFAs ii*ones(1,no_trialsFA)];
+            
+            for ii=1:no_bandwidths
+                %Enter the Hits
+                
+                nRocs=nRocs+1;
+                
+                if timeWindow==2
+                    pffft=1;
+                    %Calculate d prime if auROC is significant
+                    if ROCout(nRocs).roc.p<=pFDRroc
+                        %Enter the Hits
+                        this_band=(frequency>=low_freq(ii))&(frequency<=high_freq(ii));
+                        these_hits=mean(this_dB_powerHit(:,this_band),2);
+                        mu_hit=mean(these_hits);
+                        SDhit=std(these_hits);
+                        these_CRs=mean(this_dB_powerCR(:,this_band),2);
+                        mu_CR=mean(these_CRs);
+                        SDCR=std(these_CRs);
+                        if mu_hit>mu_CR
+                            mult_fact=1/sqrt((SDhit^2 +SDCR^2)/2);
+                        else
+                            mult_fact=-1/sqrt((SDhit^2 +SDCR^2)/2);
+                        end
+                        
+                        d_primeHits=[d_primeHits mult_fact*(these_hits-mu_CR)'];
+                        grHits=[grHits ROCout(nRocs).groupNo*ones(1,no_trialsHit)];
+                        bwHits=[bwHits ii*ones(1,no_trialsHit)];
+                        d_primeCRs=[d_primeCRs mult_fact*(these_CRs-mu_CR)'];
+                        grCRs=[grCRs ROCout(nRocs).groupNo*ones(1,no_trialsCR)];
+                        bwCRs=[bwCRs ii*ones(1,no_trialsCR)];
+                        if no_trialsFA>0
+                            these_FAs=mean(this_dB_powerFA(:,this_band),2);
+                            d_primeFAs=[d_primeFAs mult_fact*(these_FAs-mu_CR)'];
+                            grFAs=[grFAs ROCout(nRocs).groupNo*ones(1,no_trialsFA)];
+                            bwFAs=[bwFAs ii*ones(1,no_trialsFA)];
+                        end
                     end
                 end
             end
+            
+            
         end
         
-  
     end
-    
 end
-end     
-           
-        
+
+
 
 %Display the results for each badnwidth
 %Sort by percent bin (rows) and within each row window No
@@ -1326,10 +1343,10 @@ switch which_display
         switch stat_method
             case 1
                 %Ranksum
-                for bwii=1:no_bandwidths
-                    pFDR=drsFDRpval(these_p_vals);
-                    fprintf(1, ['pFDR for ' freq_names{bwii} ' = %d\n'],pFDR);
-                end
+                
+                pFDR=drsFDRpval(these_p_vals);
+                fprintf(1, ['pFDR  = %d\n'],pFDR);
+                
             case 2
                 %statcond
                 pFDR_perm=drsFDRpval(these_p_vals_perm);
@@ -1628,7 +1645,7 @@ switch which_display
             end
         end
         
-       
+        
     case 7
         %ROC analysis for Hit and CR for proficient mice
         fprintf(1, 'ROC analysis for Hit and CR for proficient mice\n\n');
@@ -1669,7 +1686,7 @@ switch which_display
                                     
                                 end
                             end
-                        
+                            
                         end
                         
                         %Calculate whether this this_dB_p_v1 is significantly
@@ -1721,7 +1738,7 @@ switch which_display
                 fprintf(1, 'pFDR perm  = %d\n',pFDR_perm);
         end
         
-       
+        
         %Now do the boxplot of auROCs
         for per_bin=no_percent_bins:no_percent_bins
             for bwii=1:no_bandwidths
@@ -1902,28 +1919,7 @@ switch which_display
         
         %Now plot the cumulative histograms for each event
         
-        %Hit
-        for bwii=1:no_bandwidths
-            figNo=figNo+1;
-            try
-                close(figNo)
-            catch
-            end
-            figure(figNo)
-            hold on
-            
-            this_legend=[];
-            for grNo=1:max(handles_drgb.drgbchoices.group_no)
-                [f_dprime,x_dprime] = drg_ecdf(d_primeHits((grHits==grNo)&(bwii==bwHits)));
-                plot(x_dprime,f_dprime,these_colors{grNo})
-                this_legend=[this_legend '''' handles_drgb.drgbchoices.group_no_names{grNo} '''' ','];
-            end
-            
-            this_legend=['legend(' this_legend(1:end-1) ')'];
-            eval(this_legend)
-            title([ freq_names{bwii} ' d pime cumulative histograms for '  percent_bin_legend{per_bin}...
-                ' mice '])
-        end
+        
         p_valsKS=[];
         
         %Hit
@@ -1960,8 +1956,10 @@ switch which_display
                     end
                 end
             end
+            fprintf(1, '\n')
         end
         
+        fprintf(1, '\n\n')
         %CR
         for bwii=1:no_bandwidths
             figNo=figNo+1;
@@ -1996,8 +1994,9 @@ switch which_display
                     end
                 end
             end
+            fprintf(1, '\n')
         end
-        
+        fprintf(1, '\n\n')
         
         %FA
         for bwii=1:no_bandwidths
@@ -2033,7 +2032,12 @@ switch which_display
                     end
                 end
             end
+            fprintf(1, '\n')
         end
+        fprintf(1, '\n\n')
+        pFDRdprime=drsFDRpval(p_valsKS)
         
-         pFDRdprime=drsFDRpval(p_valsKS)
+   
+        
+        
 end
