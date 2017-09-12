@@ -26,81 +26,21 @@ warning('off')
 % 2 auROC analysis for post vs. pre differences
 %
 
-
-% For Daniel's tabaproprio
+%
+% % For Daniel's APEB tstart
 % winNo=2;
 % which_display=2;
 % % eventType=[2 5];
 % % evTypeLabels={'Hit','CR'};
-% eventType=[3 6];
-% evTypeLabels={'S+','S-'};
+% eventType=[1 1];
+% evTypeLabels={'tstart','tstart'};
 % 
 % %Experiment pairs
 % %Important: The first file must be the experiment performed first
 % %For example in acetophenone ethyl benzoate no laser is first, laser is
 % %second
-% file_pairs=[1 7;
-%     1 8;
-%     2 9;
-%     3 10;
-%     4 11;
-%     5 12;
-%     6 13;
-%     7 14];
-% no_file_pairs=7;
-% 
-% comp_window=10; %works well with 8-12
-% comp_window_auROC=20;
-% 
-% grpre=[1 3];
-% grpost=[2 4];
-
-% 
-% % For Daniel's isoamyl acetate tstart
-winNo=2;
-which_display=2;
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-eventType=[3 6];
-evTypeLabels={'S+','S-'};
-
-%Experiment pairs
-%Important: The first file must be the experiment performed first
-%For example in acetophenone ethyl benzoate no laser is first, laser is
-%second
-file_pairs=[1 7;
-    1 14;
-    2 12;
-    3 13;
-    4 15;
-    5 16;
-    6 17;
-    7 18;
-    8 19;
-    9 20;
-    10 21;
-    11 22];
-no_file_pairs=12;
-
-comp_window=10; %works well with 8-12
-comp_window_auROC=20;
-
-grpre=[1 3];
-grpost=[2 4];
-
-% For Daniel's acetophenone ethyl benzoate
-% winNo=2;
-% which_display=2;
-% % eventType=[2 5];
-% % evTypeLabels={'Hit','CR'};
-% eventType=[3 6];
-% evTypeLabels={'S+','S-'};
-% 
-% %Experiment pairs
-% %Important: The first file must be the experiment performed first
-% %For example in acetophenone ethyl benzoate no laser is first, laser is
-% %second
-% file_pairs=[1 7;
+% file_pairs=[
+%     1 7;
 %     2 8;
 %     3 9
 %     4 10;
@@ -120,34 +60,132 @@ grpost=[2 4];
 % grpre=[1 3];
 % grpost=[2 4];
 
-% For Daniel's Hit, CR, FA, compare events
+
+% % For Daniel's tabaproprio
 % winNo=2;
-% which_display=1;
+% which_display=2;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     1 8;
+%     2 9;
+%     3 10;
+%     4 11;
+%     5 12;
+%     6 13;
+%     7 14];
+% no_file_pairs=7;
+% 
+% comp_window=10; %works well with 8-12
+% comp_window_auROC=20;
+% 
+% grpre=[1 3];
+% grpost=[2 4];
+
+
+% % % For Daniel's isoamyl acetate tstart
+% winNo=2;
+% which_display=2;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+%
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     1 13;
+%     2 11;
+%     3 12;
+%     4 14;
+%     5 15;
+%     6 16;
+%     7 17;
+%     8 18;
+%     9 20;
+%     10 21;
+%     22 19];
+% no_file_pairs=11;
+%
+% comp_window=10; %works well with 8-12
+% comp_window_auROC=20;
+%
+% grpre=[1 3];
+% grpost=[2 4];
+
+% For Daniel's acetophenone ethyl benzoate
+winNo=2;
+which_display=2;
 % eventType=[2 5];
 % evTypeLabels={'Hit','CR'};
-
-%THESE VALUES ARE IMPORTANT
-%VERY IMPORTANT: This is the index for this event in your handles.drgbchoices.evTypeNos
-% eventType=[2 5]; %Hit and CR
-% evTypeLabels={'Hit';'CR'};
+eventType=[3 6];
+evTypeLabels={'S+','S-'};
 
 
-% % For Daniel's delta power Hit - CR, compare groups
+%Experiment pairs
+%Important: The first file must be the experiment performed first
+%For example in acetophenone ethyl benzoate no laser is first, laser is
+%second
+file_pairs=[
+    1 7;
+    2 8;
+    3 9;
+    4 10;
+    5 11;
+    6 12;
+    13 14;
+    15 16;
+    21 17;
+    23 18;
+    22 19;
+    24 20];
+no_file_pairs=12;
+
+comp_window=10; %works well with 8-12
+comp_window_auROC=20;
+
+grpre=[1 3];
+grpost=[2 4];
+
+% %For Daniel's APEBEfirstandlast9617
 % winNo=2;
-% which_display=8;
-% eventType1=2;
-% eventType=2;
-% eventTypeRef=5;
-% evTypeLabel='Hit';
-% evTypeRefLabel='CR';
-
-
-
-
-
-% eventType=[9 10 11 12 13 14]; %Hit and CR
-% no_event_types=6;
-% evTypeLabels={'Hi Od1';'Hi Od 2';'Hi Od 3';'Low Od1';'Low Od 2';'Low Od 3'};
+% which_display=2;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     1 11;
+%     2 7;
+%     3 8;
+%     4 9;
+%     5 10;
+%     6 12;
+%     13 16;
+%     14 17;
+%     15 18];
+% no_file_pairs=6;
+% 
+% comp_window=10; %works well with 8-12
+% comp_window_auROC=20;
+% 
+% grpre=[1 3];
+% grpost=[2 4];
 
 no_event_types=length(eventType);
 
@@ -171,11 +209,9 @@ low_freq=[6 15 35 65];
 high_freq=[12 30 55 95];
 freq_names={'Theta','Beta','Low gamma','High gamma'};
 
-% evHit=2;
-% evCR=5;
+evHit=eventType(1);
+evCR=eventType(2);
 
-evHit=3;
-evCR=6;
 
 %Ask user for the drgb output .mat file and load those data
 [handles.drgb.outFileName,handles.PathName] = uigetfile('*.mat','Select the drgb output file');
@@ -358,6 +394,8 @@ switch which_display
         ROCoutpre=[];
         ROCoutpost=[];
         p_vals_ROC=[];
+        delta_dB_powerpreHit=[];
+        no_hits=0;
         
         fprintf(1, ['Pairwise auROC analysis for Hit and CR LFP power\n\n'])
         p_vals=[];
@@ -381,133 +419,298 @@ switch which_display
                         trials_in_event_postCR=(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(evCR,:)==1);
                         trials_in_event_post=logical(trials_in_event_postHit+trials_in_event_postCR);
                         
-                        if (sum(trials_in_event_pre)>=comp_window)&(sum(trials_in_event_post)>=comp_window_auROC)
-                            
-                            lfpodNopre=find((files_per_lfp==file_pairs(fps,1))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
-                            lfpodNopost=find((files_per_lfp==file_pairs(fps,2))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
-                            
-                            %pre Hits
-                            this_dB_powerprerefHit=zeros(sum(trials_in_event_preHit),length(handles_drgb.drgb.freq_for_LFPpower));
-                            this_dB_powerprerefHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).allPower(trials_in_event_preHit,:));
-                            
-                            this_dB_powerpreHit=zeros(sum(trials_in_event_preHit),length(handles_drgb.drgb.freq_for_LFPpower));
-                            this_dB_powerpreHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre).allPower(trials_in_event_preHit,:));
-                            
-                            
-                            %pre CRs
-                            this_dB_powerprerefCR=zeros(sum(trials_in_event_preCR),length(handles_drgb.drgb.freq_for_LFPpower));
-                            this_dB_powerprerefCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).allPower(trials_in_event_preCR,:));
-                            
-                            this_dB_powerpreCR=zeros(sum(trials_in_event_preCR),length(handles_drgb.drgb.freq_for_LFPpower));
-                            this_dB_powerpreCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre).allPower(trials_in_event_preCR,:));
-                            
-                            
-                            %post Hits
-                            this_dB_powerpostrefHit=zeros(sum(trials_in_event_postHit),length(handles_drgb.drgb.freq_for_LFPpower));
-                            this_dB_powerpostrefHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower(trials_in_event_postHit,:));
-                            
-                            this_dB_powerpostHit=zeros(sum(trials_in_event_postHit),length(handles_drgb.drgb.freq_for_LFPpower));
-                            this_dB_powerpostHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost).allPower(trials_in_event_postHit,:));
-                            
-                            
-                            %post CRs
-                            this_dB_powerpostrefCR=zeros(sum(trials_in_event_postCR),length(handles_drgb.drgb.freq_for_LFPpower));
-                            this_dB_powerpostrefCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower(trials_in_event_postCR,:));
-                            
-                            this_dB_powerpostCR=zeros(sum(trials_in_event_postCR),length(handles_drgb.drgb.freq_for_LFPpower));
-                            this_dB_powerpostCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost).allPower(trials_in_event_postCR,:));
-                            
-                            for bwii=1:no_bandwidths
+                        if (sum(trials_in_event_preHit)>=comp_window)&(sum(trials_in_event_preCR)>=comp_window)&(sum(trials_in_event_postHit)>=comp_window)&(sum(trials_in_event_postCR)>=comp_window)
+                            if (sum(trials_in_event_pre)>=comp_window_auROC)&(sum(trials_in_event_post)>=comp_window_auROC)
+                                lfpodNopre=find((files_per_lfp==file_pairs(fps,1))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                lfpodNopost=find((files_per_lfp==file_pairs(fps,2))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
                                 
-                                no_ROCs=no_ROCs+1;
-                                this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
-                                
-                                %Enter the pre Hits
-                                this_delta_dB_powerpreHit=zeros(sum(trials_in_event_preHit),1);
-                                this_delta_dB_powerpreHit=mean(this_dB_powerpreHit(:,this_band)-this_dB_powerprerefHit(:,this_band),2);
-                                roc_data=[];
-                                roc_data(1:sum(trials_in_event_preHit),1)=this_delta_dB_powerpreHit;
-                                roc_data(1:sum(trials_in_event_preHit),2)=zeros(sum(trials_in_event_preHit),1);
-                                
-                                %Enter pre CR
-                                this_delta_dB_powerpreCR=zeros(sum(trials_in_event_preCR),1);
-                                this_delta_dB_powerpreCR=mean(this_dB_powerpreCR(:,this_band)-this_dB_powerprerefCR(:,this_band),2);
-                                roc_data(sum(trials_in_event_preHit)+1:sum(trials_in_event_preHit)+sum(trials_in_event_preCR),1)=this_delta_dB_powerpreCR;
-                                roc_data(sum(trials_in_event_preHit)+1:sum(trials_in_event_preHit)+sum(trials_in_event_preCR),2)=ones(sum(trials_in_event_preCR),1);
+                                %pre Hits
                                 
                                 
-                                %Find pre ROC
-                                ROCoutpre(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
-                                ROCoutpre(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNopre_ref).fileNo;
-                                ROCgroupNopre(no_ROCs)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).fileNo);
-                                ROCoutpre(no_ROCs).timeWindow=winNo;
-                                ROCbandwidthpre(no_ROCs)=bwii;
-                                auROCpre(no_ROCs)=ROCoutpre(no_ROCs).roc.AUC-0.5;
+                                no_trials=0;
+                                jj=length(trials_in_event_preHit);
+                                while no_trials<comp_window
+                                    if trials_in_event_preHit(jj)==1
+                                        no_trials=no_trials+1;
+                                    end
+                                    jj=jj-1;
+                                end
+                                jj=jj+1;
+                                these_trials=logical([zeros(1,jj-1) ones(1,length(trials_in_event_preHit)-jj+1)].*trials_in_event_preHit);
                                 
-                                p_vals_ROC=[p_vals_ROC ROCoutpre(no_ROCs).roc.p];
+                                this_dB_powerprerefHit=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerprerefHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).allPower(these_trials,:));
                                 
-                                %Enter the post Hits
-                                this_delta_dB_powerpostHit=zeros(sum(trials_in_event_postHit),1);
-                                this_delta_dB_powerpostHit=mean(this_dB_powerpostHit(:,this_band)-this_dB_powerpostrefHit(:,this_band),2);
-                                roc_data=[];
-                                roc_data(1:sum(trials_in_event_postHit),1)=this_delta_dB_powerpostHit;
-                                roc_data(1:sum(trials_in_event_postHit),2)=zeros(sum(trials_in_event_postHit),1);
-                                
-                                %Enter post CR
-                                this_delta_dB_powerpostCR=zeros(sum(trials_in_event_postCR),1);
-                                this_delta_dB_powerpostCR=mean(this_dB_powerpostCR(:,this_band)-this_dB_powerpostrefCR(:,this_band),2);
-                                roc_data(sum(trials_in_event_postHit)+1:sum(trials_in_event_postHit)+sum(trials_in_event_postCR),1)=this_delta_dB_powerpostCR;
-                                roc_data(sum(trials_in_event_postHit)+1:sum(trials_in_event_postHit)+sum(trials_in_event_postCR),2)=ones(sum(trials_in_event_postCR),1);
+                                this_dB_powerpreHit=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpreHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre).allPower(these_trials,:));
                                 
                                 
-                                %Find post ROC
-                                ROCoutpost(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
-                                ROCoutpost(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNopost_ref).fileNo;
-                                ROCgroupNopost(no_ROCs)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).fileNo);
-                                ROCoutpost(no_ROCs).timeWindow=winNo;
-                                ROCbandwidthpost(no_ROCs)=bwii;
-                                auROCpost(no_ROCs)=ROCoutpost(no_ROCs).roc.AUC-0.5;
+                                %pre CRs
+                                no_trials=0;
+                                jj=length(trials_in_event_preCR);
+                                while no_trials<comp_window
+                                    if trials_in_event_preCR(jj)==1
+                                        no_trials=no_trials+1;
+                                    end
+                                    jj=jj-1;
+                                end
+                                jj=jj+1;
+                                these_trials=logical([zeros(1,jj-1) ones(1,length(trials_in_event_preCR)-jj+1)].*trials_in_event_preCR);
                                 
-                                p_vals_ROC=[p_vals_ROC ROCoutpost(no_ROCs).roc.p];
+                                this_dB_powerprerefCR=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerprerefCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).allPower(these_trials,:));
                                 
-                                
-                                %Are the delta dB LFP's different?
-                                
-                                %Hit
-                                
-                                p_val(no_dBs,bwii)=ranksum(this_delta_dB_powerpreHit,this_delta_dB_powerpostHit);
-                                p_vals=[p_vals p_val(no_dBs,bwii)];
-                                groupNopre(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
-                                groupNopost(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
-                                events(no_dBs)=1;
+                                this_dB_powerpreCR=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpreCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre).allPower(these_trials,:));
                                 
                                 
-                                %CR
-                                p_val(no_dBs+1,bwii)=ranksum(this_delta_dB_powerpreCR,this_delta_dB_powerpostCR);
-                                p_vals=[p_vals p_val(no_dBs+1,bwii)];
-                                groupNopre(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
-                                groupNopost(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
-                                events(no_dBs+1)=2;
-                                
-                                if (p_val(no_dBs,bwii)<0.05)||(p_val(no_dBs+1,bwii)<0.05)
-                                    dB_power_change(no_ROCs)=1;
-                                else
-                                    dB_power_change(no_ROCs)=0;
+                                %post Hits
+                                no_trials=0;
+                                jj=0;
+                                while no_trials<comp_window
+                                    jj=jj+1;
+                                    if trials_in_event_postHit(jj)==1
+                                        no_trials=no_trials+1;
+                                    end
+                                    
                                 end
                                 
+                                these_trials=logical([ones(1,jj) zeros(1,length(trials_in_event_postHit)-jj)].*trials_in_event_postHit);
+                                
+                                this_dB_powerpostrefHit=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpostrefHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower(these_trials,:));
+                                
+                                this_dB_powerpostHit=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpostHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost).allPower(these_trials,:));
+                                
+                                
+                                %post CRs
+                                no_trials=0;
+                                jj=0;
+                                while no_trials<comp_window
+                                    jj=jj+1;
+                                    if trials_in_event_postCR(jj)==1
+                                        no_trials=no_trials+1;
+                                    end
+                                    
+                                end
+                                
+                                these_trials=logical([ones(1,jj) zeros(1,length(trials_in_event_postCR)-jj)].*trials_in_event_postCR);
+                                
+                                this_dB_powerpostrefCR=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpostrefCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower(these_trials,:));
+                                
+                                this_dB_powerpostCR=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpostCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost).allPower(these_trials,:));
+                                
+                                for bwii=1:no_bandwidths
+                                    
+                                    no_ROCs=no_ROCs+1;
+                                    this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                    
+                                    %Enter the pre Hits
+                                    this_delta_dB_powerpreHit=zeros(comp_window,1);
+                                    this_delta_dB_powerpreHit=mean(this_dB_powerpreHit(:,this_band)-this_dB_powerprerefHit(:,this_band),2);
+                                    roc_data=[];
+                                    roc_data(1:comp_window,1)=this_delta_dB_powerpreHit;
+                                    roc_data(1:comp_window,2)=zeros(comp_window,1);
+                                    
+                                    %Enter pre CR
+                                    this_delta_dB_powerpreCR=zeros(comp_window,1);
+                                    this_delta_dB_powerpreCR=mean(this_dB_powerpreCR(:,this_band)-this_dB_powerprerefCR(:,this_band),2);
+                                    roc_data(comp_window+1:2*comp_window,1)=this_delta_dB_powerpreCR;
+                                    roc_data(comp_window+1:2*comp_window,2)=ones(comp_window,1);
+                                    
+                                    
+                                    %Find pre ROC
+                                    ROCoutpre(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
+                                    ROCoutpre(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNopre_ref).fileNo;
+                                    ROCgroupNopre(no_ROCs)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).fileNo);
+                                    ROCoutpre(no_ROCs).timeWindow=winNo;
+                                    ROCbandwidthpre(no_ROCs)=bwii;
+                                    auROCpre(no_ROCs)=ROCoutpre(no_ROCs).roc.AUC-0.5;
+                                    
+                                    p_vals_ROC=[p_vals_ROC ROCoutpre(no_ROCs).roc.p];
+                                    
+                                    %Enter the post Hits
+                                    this_delta_dB_powerpostHit=zeros(comp_window,1);
+                                    this_delta_dB_powerpostHit=mean(this_dB_powerpostHit(:,this_band)-this_dB_powerpostrefHit(:,this_band),2);
+                                    roc_data=[];
+                                    roc_data(1:comp_window,1)=this_delta_dB_powerpostHit;
+                                    roc_data(1:comp_window,2)=zeros(comp_window,1);
+                                    
+                                    %Enter post CR
+                                    this_delta_dB_powerpostCR=zeros(comp_window,1);
+                                    this_delta_dB_powerpostCR=mean(this_dB_powerpostCR(:,this_band)-this_dB_powerpostrefCR(:,this_band),2);
+                                    roc_data(comp_window+1:2*comp_window,1)=this_delta_dB_powerpostCR;
+                                    roc_data(comp_window+1:2*comp_window,2)=ones(comp_window,1);
+                                    
+                                    
+                                    %Find post ROC
+                                    ROCoutpost(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
+                                    ROCoutpost(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNopost_ref).fileNo;
+                                    ROCgroupNopost(no_ROCs)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).fileNo);
+                                    ROCoutpost(no_ROCs).timeWindow=winNo;
+                                    ROCbandwidthpost(no_ROCs)=bwii;
+                                    auROCpost(no_ROCs)=ROCoutpost(no_ROCs).roc.AUC-0.5;
+                                    
+                                    p_vals_ROC=[p_vals_ROC ROCoutpost(no_ROCs).roc.p];
+                                    
+                                    
+                                    %Are the delta dB LFP's different?
+                                    
+                                    %Hit
+                                    
+                                    p_val(no_dBs,bwii)=ranksum(this_delta_dB_powerpreHit,this_delta_dB_powerpostHit);
+                                    p_vals=[p_vals p_val(no_dBs,bwii)];
+                                    groupNopre(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
+                                    groupNopost(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
+                                    events(no_dBs)=1;
+                                    
+                                    
+                                    %CR
+                                    p_val(no_dBs+1,bwii)=ranksum(this_delta_dB_powerpreCR,this_delta_dB_powerpostCR);
+                                    p_vals=[p_vals p_val(no_dBs+1,bwii)];
+                                    groupNopre(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
+                                    groupNopost(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
+                                    events(no_dBs+1)=2;
+                                    
+                                    if p_val(no_dBs,bwii)<0.05
+                                        dB_power_changeHit(no_ROCs)=1;
+                                    else
+                                        dB_power_changeHit(no_ROCs)=0;
+                                    end
+                                    
+                                    if p_val(no_dBs+1,bwii)<0.05
+                                        dB_power_changeCR(no_ROCs)=1;
+                                    else
+                                        dB_power_changeCR(no_ROCs)=0;
+                                    end
+                                    
+                                    %Plot the points and save the data
+                                    if groupNopre(no_dBs)==1
+                                        %Hit, split
+                                        if p_val(no_dBs,bwii)<=0.05
+                                            delta_dB_powerpreHit(no_ROCs)=mean(this_delta_dB_powerpreHit);
+                                            delta_dB_powerpostHit(no_ROCs)=mean(this_delta_dB_powerpostHit);
+                                            figure(bwii)
+                                            hold on
+                                            plot([0 1],[delta_dB_powerpreHit(no_ROCs) delta_dB_powerpostHit(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                        else
+                                            delta_dB_powerpreHit(no_ROCs)=mean(this_delta_dB_powerpreHit);
+                                            delta_dB_powerpostHit(no_ROCs)=mean(this_delta_dB_powerpostHit);
+                                            figure(bwii)
+                                            hold on
+                                            plot([3 4],[delta_dB_powerpreHit(no_ROCs) delta_dB_powerpostHit(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                            
+                                        end
+                                        
+                                        %Hit, all points
+                                        delta_dB_powerpreHit(no_ROCs)=mean(this_delta_dB_powerpreHit);
+                                        delta_dB_powerpostHit(no_ROCs)=mean(this_delta_dB_powerpostHit);
+                                        figure(bwii+12)
+                                        hold on
+                                        plot([0 1],[delta_dB_powerpreHit(no_ROCs) delta_dB_powerpostHit(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                        
+                                        %CR, split
+                                        if p_val(no_dBs+1,bwii)<=0.05
+                                            delta_dB_powerpreCR(no_ROCs)=mean(this_delta_dB_powerpreCR);
+                                            delta_dB_powerpostCR(no_ROCs)=mean(this_delta_dB_powerpostCR);
+                                            figure(bwii+4)
+                                            hold on
+                                            plot([0 1],[delta_dB_powerpreCR(no_ROCs) delta_dB_powerpostCR(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                        else
+                                            delta_dB_powerpreCR(no_ROCs)=mean(this_delta_dB_powerpreCR);
+                                            delta_dB_powerpostCR(no_ROCs)=mean(this_delta_dB_powerpostCR);
+                                            figure(bwii+4)
+                                            hold on
+                                            plot([3 4],[delta_dB_powerpreCR(no_ROCs) delta_dB_powerpostCR(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                        end
+                                        
+                                        %CR, all points
+                                        delta_dB_powerpreCR(no_ROCs)=mean(this_delta_dB_powerpreCR);
+                                        delta_dB_powerpostCR(no_ROCs)=mean(this_delta_dB_powerpostCR);
+                                        figure(bwii+4+12)
+                                        hold on
+                                        plot([0 1],[delta_dB_powerpreCR(no_ROCs) delta_dB_powerpostCR(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                    else
+                                        if groupNopre(no_dBs)==3
+                                            %Hit, split
+                                            if p_val(no_dBs,bwii)<=0.05
+                                                delta_dB_powerpreHit(no_ROCs)=mean(this_delta_dB_powerpreHit);
+                                                delta_dB_powerpostHit(no_ROCs)=mean(this_delta_dB_powerpostHit);
+                                                figure(bwii)
+                                                hold on
+                                                plot([6 7],[delta_dB_powerpreHit(no_ROCs) delta_dB_powerpostHit(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                            else
+                                                delta_dB_powerpreHit(no_ROCs)=mean(this_delta_dB_powerpreHit);
+                                                delta_dB_powerpostHit(no_ROCs)=mean(this_delta_dB_powerpostHit);
+                                                figure(bwii)
+                                                hold on
+                                                plot([9 10],[delta_dB_powerpreHit(no_ROCs) delta_dB_powerpostHit(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                            end
+                                            
+                                            %Hit, all points
+                                            delta_dB_powerpreHit(no_ROCs)=mean(this_delta_dB_powerpreHit);
+                                            delta_dB_powerpostHit(no_ROCs)=mean(this_delta_dB_powerpostHit);
+                                            figure(bwii+12)
+                                            hold on
+                                            plot([3 4],[delta_dB_powerpreHit(no_ROCs) delta_dB_powerpostHit(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                            
+                                            %CR, split
+                                            if p_val(no_dBs+1,bwii)<=0.05
+                                                delta_dB_powerpreCR(no_ROCs)=mean(this_delta_dB_powerpreCR);
+                                                delta_dB_powerpostCR(no_ROCs)=mean(this_delta_dB_powerpostCR);
+                                                figure(bwii+4)
+                                                hold on
+                                                plot([6 7],[delta_dB_powerpreCR(no_ROCs) delta_dB_powerpostCR(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                            else
+                                                delta_dB_powerpreCR(no_ROCs)=mean(this_delta_dB_powerpreCR);
+                                                delta_dB_powerpostCR(no_ROCs)=mean(this_delta_dB_powerpostCR);
+                                                figure(bwii+4)
+                                                hold on
+                                                plot([9 10],[delta_dB_powerpreCR(no_ROCs) delta_dB_powerpostCR(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                            end
+                                            
+                                            %CR, all points
+                                            delta_dB_powerpreCR(no_ROCs)=mean(this_delta_dB_powerpreCR);
+                                            delta_dB_powerpostCR(no_ROCs)=mean(this_delta_dB_powerpostCR);
+                                            figure(bwii+4+12)
+                                            hold on
+                                            plot([3 4],[delta_dB_powerpreCR(no_ROCs) delta_dB_powerpostCR(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                        end
+                                    end
+                                end
+                                
+                                no_dBs=no_dBs+2;
+                                
+                            else
+                                
+                                if (sum(trials_in_event_pre)<comp_window)
+                                    fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_pre),comp_window,file_pairs(fps,1),elec);
+                                end
+                                
+                                if (sum(trials_in_event_post)<comp_window)
+                                    fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_post),comp_window,file_pairs(fps,2),elec);
+                                end
                             end
-                            
-                            no_dBs=no_dBs+2;
                             
                         else
                             
-                            if (sum(trials_in_event_pre)<comp_window)
-                                fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_pre),comp_window,file_pairs(fps,1),elec);
+                            if (sum(trials_in_event_preHit)<comp_window)
+                                fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_preHit),comp_window,file_pairs(fps,1),elec);
                             end
                             
-                            if (sum(trials_in_event_post)<comp_window)
-                                fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_post),comp_window,file_pairs(fps,2),elec);
+                            if (sum(trials_in_event_preCR)<comp_window)
+                                fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_preCR),comp_window,file_pairs(fps,1),elec);
                             end
+                            if (sum(trials_in_event_postHit)<comp_window)
+                                fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_postHit),comp_window,file_pairs(fps,2),elec);
+                            end
+                            if (sum(trials_in_event_postCR)<comp_window)
+                                fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_postCR),comp_window,file_pairs(fps,2),elec);
+                            end
+                            
                         end
                     else
                         
@@ -537,8 +740,588 @@ switch which_display
         end
         fprintf(1, '\n\n')
         
+        %Now plot the bar graphs and do anovan for LFP power
+        p_vals_anovan=[];
+        pvals_ancova=[];
+        pvals_auROCancova=[];
+        for bwii=1:4
+            %Hits for NL->L
+            figure(bwii)
+            
+            %Significant changes - Hit, NL->L
+            sig_mean_pre=mean(delta_dB_powerpreHit((dB_power_changeHit==1)&(ROCgroupNopre==1)&(ROCbandwidthpre==bwii)));
+            if sum((dB_power_changeHit==1)&(ROCgroupNopre==1)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreHit((dB_power_changeHit==1)&(ROCgroupNopre==1)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(0,sig_mean_pre,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0],'MarkerEdgeColor',[0.6 0 0])
+            plot([0 0],[sig_mean_pre-ci95 sig_mean_pre+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            sig_mean_post=mean(delta_dB_powerpostHit((dB_power_changeHit==1)&(ROCgroupNopre==1)&(ROCbandwidthpost==bwii)));
+            if sum((dB_power_changeHit==1)&(ROCgroupNopre==1)&(ROCbandwidthpost==bwii))>1
+                pd=fitdist(delta_dB_powerpostHit((dB_power_changeHit==1)&(ROCgroupNopre==1)&(ROCbandwidthpost==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(1,sig_mean_post,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0],'MarkerEdgeColor',[0.6 0 0])
+            plot([1 1],[sig_mean_post-ci95 sig_mean_post+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            plot([0 1],[sig_mean_pre sig_mean_post],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            %Changes not singificant - Hit, NL->L
+            sig_mean_pre=mean(delta_dB_powerpreHit((dB_power_changeHit==0)&(ROCgroupNopre==1)&(ROCbandwidthpre==bwii)));
+            if sum((dB_power_changeHit==0)&(ROCgroupNopre==1)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreHit((dB_power_changeHit==0)&(ROCgroupNopre==1)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(3,sig_mean_pre,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0],'MarkerEdgeColor',[0.6 0 0])
+            plot([3 3],[sig_mean_pre-ci95 sig_mean_pre+ci95],'-','LineWidth',3,'Color',[0.6 0 0])
+            
+            sig_mean_post=mean(delta_dB_powerpostHit((dB_power_changeHit==0)&(ROCgroupNopre==1)&(ROCbandwidthpost==bwii)));
+            if sum((dB_power_changeHit==0)&(ROCgroupNopre==1)&(ROCbandwidthpost==bwii))>1
+                pd=fitdist(delta_dB_powerpostHit((dB_power_changeHit==0)&(ROCgroupNopre==1)&(ROCbandwidthpost==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(4,sig_mean_post,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0],'MarkerEdgeColor',[0.6 0 0])
+            plot([4 4],[sig_mean_post-ci95 sig_mean_post+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            plot([3 4],[sig_mean_pre sig_mean_post],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            %Significant changes - Hit, NLc->Lc
+            sig_mean_pre=mean(delta_dB_powerpreHit((dB_power_changeHit==1)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii)));
+            if sum((dB_power_changeHit==1)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreHit((dB_power_changeHit==1)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))','Normal');
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(6,sig_mean_pre,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6],'MarkerEdgeColor',[0 0 0.6])
+            plot([6 6],[sig_mean_pre-ci95 sig_mean_pre+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            sig_mean_post=mean(delta_dB_powerpostHit((dB_power_changeHit==1)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii)));
+            if sum((dB_power_changeHit==1)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpostHit((dB_power_changeHit==1)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(7,sig_mean_post,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6],'MarkerEdgeColor',[0 0 0.6])
+            plot([7 7],[sig_mean_post-ci95 sig_mean_post+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            plot([6 7],[sig_mean_pre sig_mean_post],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            %Changes not singificant - Hit, NLc->Lc
+            sig_mean_pre=mean(delta_dB_powerpreHit((dB_power_changeHit==0)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii)));
+            if sum((dB_power_changeHit==0)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreHit((dB_power_changeHit==0)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            
+            plot(9,sig_mean_pre,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6],'MarkerEdgeColor',[0 0 0.6])
+            plot([9 9],[sig_mean_pre-ci95 sig_mean_pre+ci95],'-','LineWidth',3,'Color',[0 0 0.6])
+            
+            sig_mean_post=mean(delta_dB_powerpostHit((dB_power_changeHit==0)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii)));
+            if sum((dB_power_changeHit==0)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpostHit((dB_power_changeHit==0)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(10,sig_mean_post,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6],'MarkerEdgeColor',[0 0 0.6])
+            plot([10 10],[sig_mean_post-ci95 sig_mean_post+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            plot([9 10],[sig_mean_pre sig_mean_post],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            title(['Change in ' freq_names{bwii} ' power dB elicited by the laser for Hits'])
+            xticks(0:10)
+            xticklabels({'','light','','','light','','','light','','','light',''})
+            xlim([-0.5 10.5])
+            ylm=ylim;
+            ylim([ylm(1)-(ylm(2)-ylm(1))/10 ylm(2)+(ylm(2)-ylm(1))/10])
+            txt1 = 'DBH-Cre x ROSA26 Halo';
+            text(1,ylm(1),txt1)
+            txt1 = 'DBH-Cre';
+            text(7.5,ylm(1),txt1)
+            
+            
+            %CRs for NL->L
+            figure(bwii+4)
+            
+            %Significant changes - CR, NL->L
+            sig_mean_pre=mean(delta_dB_powerpreCR((dB_power_changeCR==1)&(ROCgroupNopre==1)&(ROCbandwidthpre==bwii)));
+            
+            if sum((dB_power_changeCR==1)&(ROCgroupNopre==1)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreCR((dB_power_changeCR==1)&(ROCgroupNopre==1)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(0,sig_mean_pre,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0])
+            plot([0 0],[sig_mean_pre-ci95 sig_mean_pre+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            sig_mean_post=mean(delta_dB_powerpostCR((dB_power_changeCR==1)&(ROCgroupNopre==1)&(ROCbandwidthpost==bwii)));
+            
+            if sum((dB_power_changeCR==1)&(ROCgroupNopre==1)&(ROCbandwidthpost==bwii))>1
+                pd=fitdist(delta_dB_powerpostCR((dB_power_changeCR==1)&(ROCgroupNopre==1)&(ROCbandwidthpost==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(1,sig_mean_post,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0])
+            plot([1 1],[sig_mean_post-ci95 sig_mean_post+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            plot([0 1],[sig_mean_pre sig_mean_post],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            %Changes not singificant - CR, NL->L
+            sig_mean_pre=mean(delta_dB_powerpreCR((dB_power_changeCR==0)&(ROCgroupNopre==1)&(ROCbandwidthpre==bwii)));
+            
+            if sum((dB_power_changeCR==1)&(ROCgroupNopre==0)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreCR((dB_power_changeCR==0)&(ROCgroupNopre==1)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(3,sig_mean_pre,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0])
+            plot([3 3],[sig_mean_pre-ci95 sig_mean_pre+ci95],'-','LineWidth',3,'Color',[0.6 0 0])
+            
+            sig_mean_post=mean(delta_dB_powerpostCR((dB_power_changeCR==0)&(ROCgroupNopre==1)&(ROCbandwidthpost==bwii)));
+            
+            if sum((dB_power_changeCR==0)&(ROCgroupNopre==1)&(ROCbandwidthpost==bwii))
+                pd=fitdist(delta_dB_powerpostCR((dB_power_changeCR==0)&(ROCgroupNopre==1)&(ROCbandwidthpost==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(4,sig_mean_post,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0])
+            plot([4 4],[sig_mean_post-ci95 sig_mean_post+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            plot([3 4],[sig_mean_pre sig_mean_post],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            %Significant changes - CR, NLc->Lc
+            sig_mean_pre=mean(delta_dB_powerpreCR((dB_power_changeCR==1)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii)));
+            
+            if sum((dB_power_changeCR==1)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreCR((dB_power_changeCR==1)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(6,sig_mean_pre,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6])
+            plot([6 6],[sig_mean_pre-ci95 sig_mean_pre+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            sig_mean_post=mean(delta_dB_powerpostCR((dB_power_changeCR==1)&(ROCgroupNopre==3)&(ROCbandwidthpost==bwii)));
+            
+            if sum((dB_power_changeCR==1)&(ROCgroupNopre==3)&(ROCbandwidthpost==bwii))>1
+                pd=fitdist(delta_dB_powerpostCR((dB_power_changeCR==1)&(ROCgroupNopre==3)&(ROCbandwidthpost==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(7,sig_mean_post,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6])
+            plot([7 7],[sig_mean_post-ci95 sig_mean_post+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            plot([6 7],[sig_mean_pre sig_mean_post],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            %Changes not singificant - CR, NLc->Lc
+            sig_mean_pre=mean(delta_dB_powerpreCR((dB_power_changeCR==0)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii)));
+            if sum((dB_power_changeCR==0)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreCR((dB_power_changeCR==0)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(9,sig_mean_pre,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6])
+            plot([9 9],[sig_mean_pre-ci95 sig_mean_pre+ci95],'-','LineWidth',3,'Color',[0 0 0.6])
+            
+            sig_mean_post=mean(delta_dB_powerpostCR((dB_power_changeCR==0)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii)));
+            if sum((dB_power_changeCR==0)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpostCR((dB_power_changeCR==0)&(ROCgroupNopre==3)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(10,sig_mean_post,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6])
+            plot([10 10],[sig_mean_post-ci95 sig_mean_post+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            plot([9 10],[sig_mean_pre sig_mean_post],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            title(['Change in ' freq_names{bwii} ' power dB elicited by the laser for CRs'])
+            xticks(0:10)
+            xticklabels({'','light','','','light','','','light','','','light',''})
+            xlim([-0.5 10.5])
+            ylm=ylim;
+            ylim([ylm(1)-(ylm(2)-ylm(1))/10 ylm(2)+(ylm(2)-ylm(1))/10])
+            txt1 = 'DBH-Cre x ROSA26 Halo';
+            text(1,ylm(1),txt1)
+            txt1 = 'DBH-Cre';
+            text(7.5,ylm(1),txt1)
+            
+            pffft=1;
+            %ANOVAn
+            %Note: This is a first try, we should do a repeated measures...
+            
+            %For Hits
+            all_delta_dB_power=[];
+            laser=[];
+            halo=[];
+            
+            %No laser, pre, with halo
+            all_delta_dB_power=[all_delta_dB_power delta_dB_powerpreHit((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))];
+            laser=[laser zeros(1,sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)))];
+            halo=[halo ones(1,sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)))];
+            
+            %Laser, post, with halo
+            all_delta_dB_power=[all_delta_dB_power delta_dB_powerpostHit((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))];
+            laser=[laser ones(1,sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)))];
+            halo=[halo ones(1,sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)))];
+            
+            %No laser, pre, no halo
+            all_delta_dB_power=[all_delta_dB_power delta_dB_powerpreHit((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))];
+            laser=[laser zeros(1,sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))];
+            halo=[halo zeros(1,sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))];
+            
+            %Laser, post, with halo
+            all_delta_dB_power=[all_delta_dB_power delta_dB_powerpostHit((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))];
+            laser=[laser ones(1,sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))];
+            halo=[halo zeros(1,sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))];
+            
+            p=anovan(all_delta_dB_power,{laser,halo},'model','interaction','varnames',{'laser','halo'},'display','off');
+            p_vals_anovan=[p_vals_anovan p(3)];
+            fprintf(1, ['anovan p value ' freq_names{bwii} ' and ' evTypeLabels{1} ' = %d\n'],p(3));
+            
+            %For CRs
+            all_delta_dB_power=[];
+            laser=[];
+            halo=[];
+            
+            %No laser, pre, with halo
+            all_delta_dB_power=[all_delta_dB_power delta_dB_powerpreCR((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))];
+            laser=[laser zeros(1,sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)))];
+            halo=[halo ones(1,sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)))];
+            
+            %Laser, post, with halo
+            all_delta_dB_power=[all_delta_dB_power delta_dB_powerpostCR((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))];
+            laser=[laser ones(1,sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)))];
+            halo=[halo ones(1,sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)))];
+            
+            %No laser, pre, no halo
+            all_delta_dB_power=[all_delta_dB_power delta_dB_powerpreCR((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))];
+            laser=[laser zeros(1,sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))];
+            halo=[halo zeros(1,sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))];
+            
+            %Laser, post, with halo
+            all_delta_dB_power=[all_delta_dB_power delta_dB_powerpostCR((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))];
+            laser=[laser ones(1,sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))];
+            halo=[halo zeros(1,sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))];
+            
+            p=anovan(all_delta_dB_power,{laser,halo},'model','interaction','varnames',{'laser','halo'},'display','off');
+            p_vals_anovan=[p_vals_anovan p(3)];
+            fprintf(1, ['anovan p value ' freq_names{bwii} ' and ' evTypeLabels{2} ' = %d\n\n'],p(3));
+            
+            
+            %Now plot the LFP power, all points
+            %Hits for NL->L
+            figure(bwii+12)
+            
+            %All points - Hit, NL->L
+            mean_pre=mean(delta_dB_powerpreHit((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)));
+            if sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreHit((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(0,mean_pre,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0],'MarkerEdgeColor',[0.6 0 0])
+            plot([0 0],[mean_pre-ci95 mean_pre+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            mean_post=mean(delta_dB_powerpostHit((ROCgroupNopre==1)&(ROCbandwidthpost==bwii)));
+            if sum((ROCgroupNopre==1)&(ROCbandwidthpost==bwii))>1
+                pd=fitdist(delta_dB_powerpostHit((ROCgroupNopre==1)&(ROCbandwidthpost==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(1,mean_post,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0],'MarkerEdgeColor',[0.6 0 0])
+            plot([1 1],[mean_post-ci95 mean_post+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            plot([0 1],[mean_pre mean_post],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            
+            
+            %All points - Hit, NLc->Lc
+            mean_pre=mean(delta_dB_powerpreHit((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)));
+            if sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreHit((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))','Normal');
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(3,mean_pre,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6],'MarkerEdgeColor',[0 0 0.6])
+            plot([3 3],[mean_pre-ci95 mean_pre+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            mean_post=mean(delta_dB_powerpostHit((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)));
+            if sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpostHit((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            ci95=pd.mu-ci_tbl(1,1);
+            plot(4,mean_post,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6],'MarkerEdgeColor',[0 0 0.6])
+            plot([4 4],[mean_post-ci95 mean_post+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            plot([3 4],[mean_pre mean_post],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            
+            title(['Change in ' freq_names{bwii} ' power dB elicited by the laser for ' evTypeLabels{1}])
+            xticks(0:10)
+            xticklabels({'','light','','','light',''})
+            xlim([-0.5 4.5])
+            ylm=ylim;
+            ylim([ylm(1)-(ylm(2)-ylm(1))/10 ylm(2)+(ylm(2)-ylm(1))/10])
+            txt1 = 'DBH-Cre x ROSA26 Halo';
+            text(0,ylm(1),txt1)
+            txt1 = 'DBH-Cre';
+            text(3,ylm(1),txt1)
+            
+            
+            %CRs for NL->L
+            figure(bwii+4+12)
+            
+            %All points - CR, NL->L
+            mean_pre=mean(delta_dB_powerpreCR((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)));
+            
+            if sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreCR((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(0,mean_pre,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0])
+            plot([0 0],[mean_pre-ci95 mean_pre+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            mean_post=mean(delta_dB_powerpostCR((ROCgroupNopre==1)&(ROCbandwidthpost==bwii)));
+            
+            if sum((ROCgroupNopre==1)&(ROCbandwidthpost==bwii))>1
+                pd=fitdist(delta_dB_powerpostCR((ROCgroupNopre==1)&(ROCbandwidthpost==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(1,mean_post,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0])
+            plot([1 1],[mean_post-ci95 mean_post+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            plot([0 1],[mean_pre mean_post],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            
+            
+            %All points - CR, NLc->Lc
+            mean_pre=mean(delta_dB_powerpreCR((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)));
+            
+            if sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreCR((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(3,mean_pre,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6])
+            plot([3 3],[mean_pre-ci95 mean_pre+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            mean_post=mean(delta_dB_powerpostCR((ROCgroupNopre==3)&(ROCbandwidthpost==bwii)));
+            
+            if sum((ROCgroupNopre==3)&(ROCbandwidthpost==bwii))>1
+                pd=fitdist(delta_dB_powerpostCR((ROCgroupNopre==3)&(ROCbandwidthpost==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot(4,mean_post,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6])
+            plot([4 4],[mean_post-ci95 mean_post+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            plot([3 4],[mean_pre mean_post],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            
+            
+            title(['Change in ' freq_names{bwii} ' power dB elicited by the laser for ' evTypeLabels{2}])
+            xticks(0:10)
+            xticklabels({'','light','','','light',''})
+            xlim([-0.5 4.5])
+            ylm=ylim;
+            ylim([ylm(1)-(ylm(2)-ylm(1))/10 ylm(2)+(ylm(2)-ylm(1))/10])
+            txt1 = 'DBH-Cre x ROSA26 Halo';
+            text(0,ylm(1),txt1)
+            txt1 = 'DBH-Cre';
+            text(3,ylm(1),txt1)
+            
+            
+            %Analysis of covariance
+            
+            %For Hit
+            this_delta_dB_pre_powerHit=[];
+            this_delta_dB_pre_powerHit=delta_dB_powerpreHit((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))';
+            this_delta_dB_pre_powerHit=[this_delta_dB_pre_powerHit; delta_dB_powerpreHit((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))'];
+            
+            
+            this_delta_dB_post_powerHit=[];
+            this_delta_dB_post_powerHit=delta_dB_powerpostHit((ROCgroupNopre==1)&(ROCbandwidthpost==bwii))';
+            this_delta_dB_post_powerHit=[this_delta_dB_post_powerHit; delta_dB_powerpostHit((ROCgroupNopre==3)&(ROCbandwidthpost==bwii))'];
+            
+            pre_post=[];
+            pre_post=[zeros(sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)),1); ones(sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)),1)];
+            
+            [h,atab,ctab,stats] = aoctool(this_delta_dB_pre_powerHit,this_delta_dB_post_powerHit,pre_post,0.05,'','','','off');
+            
+            
+            pvals_ancova=[pvals_ancova atab{4,6}];
+            fprintf(1, ['ancova delta dB p value ' freq_names{bwii} ' and ' evTypeLabels{1} ' = %d\n'],atab{4,6});
+            
+            %Do ancova figures for Hits
+            figure(20+bwii)
+            h1=plot(delta_dB_powerpreHit((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)),delta_dB_powerpostHit((ROCgroupNopre==1)&(ROCbandwidthpost==bwii)),'or');
+            hold on
+            h2=plot(delta_dB_powerpreHit((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)),delta_dB_powerpostHit((ROCgroupNopre==3)&(ROCbandwidthpost==bwii)),'ob');
+            
+            slope_pre=ctab{5,2}+ctab{6,2};
+            int_pre=ctab{2,2}+ctab{3,2};
+            min_x=min([min(delta_dB_powerpreHit((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))) min(delta_dB_powerpreHit((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))]);
+            max_x=max([max(delta_dB_powerpreHit((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))) max(delta_dB_powerpreHit((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))]);
+            x=[min_x max_x];
+            plot(x,slope_pre*x+int_pre,'-r')
+            
+            slope_post=ctab{5,2}+ctab{7,2};
+            int_post=ctab{2,2}+ctab{4,2};
+            x=[min_x max_x];
+            plot(x,slope_post*x+int_post,'-b')
+            
+            title(['post vs pre power dB for ' freq_names{bwii} ' and ' evTypeLabels{1}])
+            xlabel('pre dB')
+            ylabel('post dB')
+            legend([h1 h2],'halo','no halo')
+            
+            %For CR
+            this_delta_dB_pre_powerCR=[];
+            this_delta_dB_pre_powerCR=delta_dB_powerpreCR((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))';
+            this_delta_dB_pre_powerCR=[this_delta_dB_pre_powerCR; delta_dB_powerpreCR((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))'];
+            
+            
+            this_delta_dB_post_powerCR=[];
+            this_delta_dB_post_powerCR=delta_dB_powerpostCR((ROCgroupNopre==1)&(ROCbandwidthpost==bwii))';
+            this_delta_dB_post_powerCR=[this_delta_dB_post_powerCR; delta_dB_powerpostCR((ROCgroupNopre==3)&(ROCbandwidthpost==bwii))'];
+            
+            pre_post=[];
+            pre_post=[zeros(sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)),1); ones(sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)),1)];
+            
+            [h,atab,ctab,stats] = aoctool(this_delta_dB_pre_powerCR,this_delta_dB_post_powerCR,pre_post,0.05,'','','','off');
+            
+            
+            pvals_ancova=[pvals_ancova atab{4,6}];
+            fprintf(1, ['ancova delta dB p value ' freq_names{bwii} ' and ' evTypeLabels{2} ' = %d\n\n'],atab{4,6});
+            
+            %Do ancova figures for CR
+            figure(24+bwii)
+            h1=plot(delta_dB_powerpreCR((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)),delta_dB_powerpostCR((ROCgroupNopre==1)&(ROCbandwidthpost==bwii)),'or');
+            hold on
+            h2=plot(delta_dB_powerpreCR((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)),delta_dB_powerpostCR((ROCgroupNopre==3)&(ROCbandwidthpost==bwii)),'ob');
+            
+            slope_pre=ctab{5,2}+ctab{6,2};
+            int_pre=ctab{2,2}+ctab{3,2};
+            min_x=min([min(delta_dB_powerpreCR((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))) min(delta_dB_powerpreCR((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))]);
+            max_x=max([max(delta_dB_powerpreCR((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))) max(delta_dB_powerpreCR((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))]);
+            x=[min_x max_x];
+            plot(x,slope_pre*x+int_pre,'-r')
+            
+            slope_post=ctab{5,2}+ctab{7,2};
+            int_post=ctab{2,2}+ctab{4,2};
+            x=[min_x max_x];
+            plot(x,slope_post*x+int_post,'-b')
+            
+            title(['post vs pre power dB for ' freq_names{bwii} ' and ' evTypeLabels{2}])
+            xlabel('pre dB')
+            ylabel('post dB')
+            legend([h1 h2],'halo','no halo')
+            
+            %Do ancova for auROC auROCpre
+            this_auROCpre=[];
+            this_auROCpre=auROCpre((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))';
+            this_auROCpre=[this_auROCpre; auROCpre((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))'];
+            
+            
+            this_auROCpost=[];
+            this_auROCpost=auROCpost((ROCgroupNopre==1)&(ROCbandwidthpost==bwii))';
+            this_auROCpost=[this_auROCpost; auROCpost((ROCgroupNopre==3)&(ROCbandwidthpost==bwii))'];
+            
+            pre_post=[];
+            pre_post=[zeros(sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)),1); ones(sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)),1)];
+            
+            [h,atab,ctab,stats] = aoctool(this_auROCpre,this_auROCpost,pre_post,0.05,'','','','off');
+            
+            
+            pvals_auROCancova=[pvals_auROCancova atab{4,6}];
+            fprintf(1, ['ancova auROC p value ' freq_names{bwii} ' = %d\n\n'],atab{4,6});
+            
+            %Do ancova figure for auROC
+            figure(28+bwii)
+            h1=plot(auROCpre((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)),auROCpost((ROCgroupNopre==1)&(ROCbandwidthpost==bwii)),'or');
+            hold on
+            h2=plot(auROCpre((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)),auROCpost((ROCgroupNopre==3)&(ROCbandwidthpost==bwii)),'ob');
+            
+            slope_pre=ctab{5,2}+ctab{6,2};
+            int_pre=ctab{2,2}+ctab{3,2};
+            min_x=min([min(auROCpre((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))) min(auROCpre((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))]);
+            max_x=max([max(auROCpre((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))) max(auROCpre((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))]);
+            x=[min_x max_x];
+            plot(x,slope_pre*x+int_pre,'-r')
+            
+            slope_post=ctab{5,2}+ctab{7,2};
+            int_post=ctab{2,2}+ctab{4,2};
+            x=[min_x max_x];
+            plot(x,slope_post*x+int_post,'-b')
+            
+            title(['post vs pre auROC for ' freq_names{bwii} ])
+            xlabel('pre auROC')
+            ylabel('post auROC')
+            legend([h1 h2],'halo','no halo')
+        end
         
+        pFDRanovan=drsFDRpval(p_vals_anovan);
+        fprintf(1, ['pFDR for anovan p value  = %d\n\n'],pFDRanovan);
         
+        pFDRancova=drsFDRpval(pvals_ancova);
+        fprintf(1, ['pFDR for power dB ancova p value  = %d\n\n'], pFDRancova);
+        
+        pFDRauROCancova=drsFDRpval(pvals_auROCancova);
+        fprintf(1, ['pFDR for auROC ancova p value  = %d\n\n'], pFDRauROCancova);
         
         fprintf(1, '\n\n')
         
@@ -562,6 +1345,9 @@ switch which_display
         fprintf(1, ['pFDR for Chi squared p value  = %d\n\n'],pFDRchi);
         
         %Plot cumulative histos for auROCs
+        dB_power_change=logical(dB_power_changeHit+dB_power_changeCR);
+        figNo=8;
+        p_val_ROC=[];
         
         for bwii=1:4
             figNo=figNo+1;
@@ -575,22 +1361,207 @@ switch which_display
             this_legend=[];
             for grs=1:2
                 %pre
-                [f_auROC,x_auROC] = drg_ecdf(auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)&(dB_power_change==1)));
+                [f_auROC,x_auROC] = drg_ecdf(auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)));
                 n_cum=n_cum+1;
                 plot(x_auROC,f_auROC,these_lines{n_cum})
                 this_legend=[this_legend '''' handles_drgb.drgbchoices.group_no_names{grpre(grs)}  '''' ','];
                 
                 %post
-                [f_auROC,x_auROC] = drg_ecdf(auROCpost((ROCgroupNopost==grpost(grs))&(ROCbandwidthpost==bwii)&(dB_power_change==1)));
+                [f_auROC,x_auROC] = drg_ecdf(auROCpost((ROCgroupNopost==grpost(grs))&(ROCbandwidthpost==bwii)));
                 n_cum=n_cum+1;
                 plot(x_auROC,f_auROC,these_lines{n_cum})
                 this_legend=[this_legend '''' handles_drgb.drgbchoices.group_no_names{grpost(grs)}  '''' ','];
+                
+                pROC=ranksum(auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)),auROCpost((ROCgroupNopost==grpost(grs))&(ROCbandwidthpost==bwii)));
+                p_val_ROC=[ p_val_ROC pROC];
+                fprintf(1, ['p value for auROC for ' freq_names{bwii} ' ' handles_drgb.drgbchoices.group_no_names{grs} ' vs. ' handles_drgb.drgbchoices.group_no_names{grs+1} ' = %d\n'],pROC);
             end
             this_legend=['legend(' this_legend(1:end-1) ')'];
             eval(this_legend)
-            title(['Cumulative histogram for ' freq_names{bwii} ' auROC for LFPs with significant power changes'])
+            title(['Cumulative histogram for ' freq_names{bwii} ' auROC for LFPs'])
         end
         
-        % auROCpre(no_ROCs)=ROCoutpre(no_ROCs).roc.AUC-0.5;
+        pFDRauROC=drsFDRpval(p_val_ROC);
+        fprintf(1, ['pFDR for auROC  = %d\n\n'],pFDRauROC);
+        
+        %Now do anovan for auROC
+        p_vals_anovan_auROC=[];
+        for bwii=1:4
+            
+            %ANOVAn
+            %Note: This is a first try, we should do a repeated measures...
+            
+            %For Hits
+            all_auROCs=[];
+            laser=[];
+            halo=[];
+            
+            %No laser, pre, with halo
+            all_auROCs=[all_auROCs auROCpre((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))];
+            laser=[laser zeros(1,sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)))];
+            halo=[halo ones(1,sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)))];
+            
+            %Laser, post, with halo
+            all_auROCs=[all_auROCs auROCpost((ROCgroupNopre==1)&(ROCbandwidthpre==bwii))];
+            laser=[laser ones(1,sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)))];
+            halo=[halo ones(1,sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)))];
+            
+            %No laser, pre, no halo
+            all_auROCs=[all_auROCs auROCpre((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))];
+            laser=[laser zeros(1,sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))];
+            halo=[halo zeros(1,sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))];
+            
+            %Laser, post, with halo
+            all_auROCs=[all_auROCs auROCpost((ROCgroupNopre==3)&(ROCbandwidthpre==bwii))];
+            laser=[laser ones(1,sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))];
+            halo=[halo zeros(1,sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)))];
+            
+            p=anovan(all_auROCs,{laser,halo},'model','interaction','varnames',{'laser','halo'},'display','off');
+            p_vals_anovan_auROC=[p_vals_anovan_auROC p(3)];
+            fprintf(1, ['anovan p value for auROC' freq_names{bwii} ' = %d\n'],p(3));
+            
+            
+            
+        end
+        
+        pFDRanovanauROC=drsFDRpval(p_vals_anovan_auROC);
+        fprintf(1, ['pFDR for anovan for auROC p value  = %d\n\n'],pFDRanovanauROC);
+        
+    case 3
+        %Compare delta Hit-CR
+        no_dBs=0;
+        delta_dB_power_pre=[];
+        
+        
+        fprintf(1, ['Pairwise LFP power analysis for Hit-CR\n\n'])
+        p_vals=[];
+        for fps=1:no_file_pairs
+            for elec=1:16
+                
+                lfpodNopre_ref=find((files_per_lfp==file_pairs(fps,1))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                lfpodNopost_ref=find((files_per_lfp==file_pairs(fps,2))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNopre_ref)))&(~isempty(handles_drgb.drgb.lfpevpair(lfpodNopost_ref)))
+                    
+                    if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).allPower))&(~isempty(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower))
+                        
+                        trials_in_event_preHit=handles_drgb.drgb.lfpevpair(lfpodNopre_ref).which_eventLFPPower(evHit,:)==1;
+                        trials_in_event_postHit=handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(evHit,:)==1;
+                        
+                        trials_in_event_preCR=handles_drgb.drgb.lfpevpair(lfpodNopre_ref).which_eventLFPPower(evCR,:)==1;
+                        trials_in_event_postCR=handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(evCR,:)==1;
+                        
+                        if (sum(trials_in_event_preHit)>=comp_window)&(sum(trials_in_event_preCR)>=comp_window)&(sum(trials_in_event_postHit)>=comp_window)&(sum(trials_in_event_postCR)>=comp_window)
+                            
+                            no_dBs=no_dBs+1;
+                            
+                            
+                            
+                            lfpodNopre=find((files_per_lfp==file_pairs(fps,1))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                            
+                            this_dB_powerpreHit=zeros(sum(trials_in_event_preHit),length(handles_drgb.drgb.freq_for_LFPpower));
+                            this_dB_powerpreHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre).allPower(trials_in_event_preHit,:));
+                            
+                            this_dB_powerpreCR=zeros(sum(trials_in_event_preCR),length(handles_drgb.drgb.freq_for_LFPpower));
+                            this_dB_powerpreCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre).allPower(trials_in_event_preCR,:));
+                            
+                            for bwii=1:4
+                                delta_dB_power_preHit(no_dBs,1:sum(trials_in_event_preHit),bwii)=mean(this_dB_powerpreHit(:,(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii))),2);
+                                delta_dB_power_preCR(no_dBs,1:sum(trials_in_event_preCR),bwii)=mean(this_dB_powerpreCR(:,(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii))),2);
+                            end
+                            
+                            groupNopre(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
+                            
+                            %Post file
+                            
+                            this_dB_powerpostref=zeros(sum(trials_in_event_post),length(handles_drgb.drgb.freq_for_LFPpower));
+                            this_dB_powerpostref(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower(trials_in_event_post,:));
+                            
+                            lfpodNopost=find((files_per_lfp==file_pairs(fps,2))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                            this_dB_powerpost=zeros(sum(trials_in_event_post),length(handles_drgb.drgb.freq_for_LFPpower));
+                            this_dB_powerpost(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost).allPower(trials_in_event_post,:));
+                            
+                            for bwii=1:4
+                                no_dB_power_post(no_dBs)=sum(trials_in_event_post);
+                                delta_dB_power_post(no_dBs,1:sum(trials_in_event_post),bwii)=mean(this_dB_powerpost(:,(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii)))...
+                                    -this_dB_powerpostref(:,(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii))),2);
+                            end
+                            
+                            groupNopost(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
+                            
+                            %Are they different?
+                            for bwii=1:4
+                                this_dB_power_pre=zeros(1,sum(trials_in_event_pre));
+                                this_dB_power_pre(1,:)=delta_dB_power_pre(no_dBs,1:sum(trials_in_event_pre),bwii);
+                                this_dB_power_post=zeros(1,sum(trials_in_event_post));
+                                this_dB_power_post(1,:)=delta_dB_power_post(no_dBs,1:sum(trials_in_event_post),bwii);
+                                
+                                p_val(no_dBs,bwii)=ranksum(this_dB_power_pre,this_dB_power_post);
+                                p_vals=[p_vals p_val(no_dBs,bwii)];
+                            end
+                            events(no_dBs)=evTN1;
+                        else
+                            
+                            if (sum(trials_in_event_pre)<comp_window)
+                                fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_pre),comp_window,file_pairs(fps,1),elec);
+                            end
+                            
+                            if (sum(trials_in_event_post)<comp_window)
+                                fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_post),comp_window,file_pairs(fps,2),elec);
+                            end
+                        end
+                    else
+                        
+                        if isempty(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).allPower)
+                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],file_pairs(fps,1),elec);
+                        end
+                        
+                        if isempty(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower)
+                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],file_pairs(fps,2),elec);
+                        end
+                        
+                    end
+                else
+                    
+                    if isempty(handles_drgb.drgb.lfpevpair(lfpodNopre_ref))
+                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],file_pairs(fps,1),elec);
+                    end
+                    
+                    if isempty(handles_drgb.drgb.lfpevpair(lfpodNopost_ref))
+                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],file_pairs(fps,2),elec);
+                    end
+                    
+                end
+                
+            end
+            
+        end
+        fprintf(1, '\n\n')
+        for bwii=1:4
+            pFDR(evTN1,bwii)=drsFDRpval(p_val(:,bwii));
+            fprintf(1, ['pFDR for ' freq_names{bwii} ' in ' evTypeLabels{evTN1} ' = %d\n'],pFDR(evTN1,bwii));
+        end
+        fprintf(1, '\n\n')
+        
+        
+        
+        fprintf(1, '\n\n')
+        p_chi=[];
+        for evTN1=1:length(eventType)
+            fprintf(1, ['Significant changes in pairwise LFP power analysis for event: ' evTypeLabels{evTN1} '\n\n'])
+            for bwii=1:4
+                for grs=grpre
+                    num_sig(grs)=sum(p_val((events==evTN1)&(groupNopre==grs),bwii)<=0.05);
+                    tot_num(grs)=sum((events==evTN1)&(grs==groupNopre));
+                    fprintf(1, ['Number significant for ' freq_names{bwii} ' and ' handles_drgb.drgbchoices.group_no_names{grs} ' = %d of %d\n'],num_sig(grs),tot_num(grs));
+                end
+                [p, Q]= chi2test([num_sig(grpre(1)), tot_num(grpre(1))-num_sig(grpre(1)); num_sig(grpre(2)), tot_num(grpre(2))-num_sig(grpre(2))]);
+                fprintf(1, ['Chi squared p value  = %d\n\n'],p);
+                p_chi=[p_chi p];
+            end
+            fprintf(1, '\n\n\n')
+        end
+        pFDRchi=drsFDRpval(p_chi);
+        fprintf(1, ['pFDR for Chi squared p value  = %d\n\n'],pFDRchi);
+        
 end
 pffft=1

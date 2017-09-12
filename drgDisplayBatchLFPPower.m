@@ -61,19 +61,28 @@ warning('off')
 % evTypeLabels={'Hit','CR','FA'};
 
 % % For Daniel's Hit, CR, compare groups
-winNo=2;
-% which_display=2;
-which_display=5;
-eventType=[2 5];
-evTypeLabels={'Hit','CR'};
-% eventType=[2 5 7];
-% evTypeLabels={'Hit','CR','FA'};
+% winNo=2;
+% % which_display=2;
+% which_display=5;
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% % eventType=[2 5 7];
+% % evTypeLabels={'Hit','CR','FA'};
 
 % For Daniel's Hit, CR, FA, compare events
 % winNo=2;
 % which_display=1;
 % eventType=[2 5];
 % evTypeLabels={'Hit','CR'};
+
+% % For Justin's Hit, CR, compare groups
+winNo=2;
+% which_display=2;
+which_display=7;
+eventType=[2 5];
+evTypeLabels={'Hit','CR'};
+% eventType=[2 5 7];
+% evTypeLabels={'Hit','CR','FA'};
 
 %THESE VALUES ARE IMPORTANT
 %VERY IMPORTANT: This is the index for this event in your handles.drgbchoices.evTypeNos
@@ -272,7 +281,7 @@ for lfpodNo=1:no_lfpevpairs
     percent_bin=3;
     trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
     
-    if (sum(trials_in_Hit&trials_in_perbin)>0)&(sum(trials_in_CR&trials_in_perbin)>0)&((which_display==7)||(which_display==8))
+    if (sum(trials_in_Hit&trials_in_perbin)>5)&(sum(trials_in_CR&trials_in_perbin)>5)&((which_display==7)||(which_display==8))
         
         no_trialsHit=sum(trials_in_Hit&trials_in_perbin);
         this_dB_powerHit=zeros(no_trialsHit,length(handles_drgb.drgb.freq_for_LFPpower));
@@ -356,7 +365,7 @@ if which_display==8
         percent_bin=3;
         trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
         
-        if (sum(trials_in_Hit&trials_in_perbin)>0)&(sum(trials_in_CR&trials_in_perbin)>0)
+        if (sum(trials_in_Hit&trials_in_perbin)>5)&(sum(trials_in_CR&trials_in_perbin)>5)
             
             no_trialsHit=sum(trials_in_Hit&trials_in_perbin);
             this_dB_powerHit=zeros(no_trialsHit,length(handles_drgb.drgb.freq_for_LFPpower));
@@ -538,7 +547,7 @@ switch which_display
                         for ifreq=1:length(frequency)
                             pd=fitdist(this_dB_p_v1(:,ifreq),'Normal');
                             ci=paramci(pd);
-                            dB_p_v1_ci(per_bin,evTN1,ifreq)=ci(1,1)-pd.mu;
+                            dB_p_v1_ci(per_bin,evTN1,ifreq)=pd.mu-ci(1,1);
                         end
                         these_experiments=experimentNo(eventType1,winNo,grNo,per_bin,1:no_values(eventType1,winNo,grNo,per_bin));
                         
@@ -721,7 +730,7 @@ switch which_display
                         for ifreq=1:length(frequency)
                             pd=fitdist(this_dB_p_v1(:,ifreq),'Normal');
                             ci=paramci(pd);
-                            dB_p_v1_ci(evTN1,per_bin,grNo,ifreq)=ci(1,1)-pd.mu;
+                            dB_p_v1_ci(evTN1,per_bin,grNo,ifreq)=pd.mu-ci(1,1);
                         end
                         these_experiments=experimentNo(eventType1,winNo,grNo,per_bin,1:no_values(eventType1,winNo,grNo,per_bin));
                         
@@ -977,7 +986,7 @@ switch which_display
                         for ifreq=1:length(frequency)
                             pd=fitdist(this_dB_p_v1(:,ifreq),'Normal');
                             ci=paramci(pd);
-                            dB_p_v1_ci(per_bin,evTN1,ifreq)=ci(1,1)-pd.mu;
+                            dB_p_v1_ci(per_bin,evTN1,ifreq)=pd.mu-ci(1,1);
                         end
                         these_experiments=experimentNo(eventType1,winNo,grNo,per_bin,1:no_values(eventType1,winNo,grNo,per_bin));
                         

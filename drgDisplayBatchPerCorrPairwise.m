@@ -53,32 +53,73 @@ warning('off')
 % eventType=[2 5 7];
 % evTypeLabels={'Hit','CR','FA'};
 
-% % For Daniel's Hit, CR, compare groups
-winNo=2;
-% which_display=2;
-which_display=5;
-eventType=[2 5];
-evTypeLabels={'Hit','CR'};
-
-% For Daniel's Hit, CR, FA, compare events
+% % % For Daniel's acetophenone Hit, CR, compare groups
 % winNo=2;
-% which_display=1;
+% % which_display=2;
+% which_display=5;
 % eventType=[2 5];
 % evTypeLabels={'Hit','CR'};
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[1 7;
+%     2 8;
+%     3 9
+%     4 10;
+%     5 11;
+%     6 12;
+%     13 14;
+%     15 16;
+%     21 17;
+%     23 18;
+%     22 19;
+%     24 20];
+% no_file_pairs=12;
 
-%THESE VALUES ARE IMPORTANT
-%VERY IMPORTANT: This is the index for this event in your handles.drgbchoices.evTypeNos
-% eventType=[2 5]; %Hit and CR
-% evTypeLabels={'Hit';'CR'};
+% % % For Daniel's tabaproprio Hit, CR, compare groups
+% winNo=2;
+% % which_display=2;
+% which_display=5;
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[1 7;
+%     1 8;
+%     2 9;
+%     3 10;
+%     4 11;
+%     5 12;
+%     6 13;
+%     7 14];
+% no_file_pairs=7;
 
+% % For Daniel's isoamyltstart Hit, CR, compare groups
+% winNo=2;
+% % which_display=2;
+% which_display=5;
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% 
+% file_pairs=[
+%     1 13;
+%     2 11;
+%     3 12;
+%     4 14;
+%     5 15;
+%     6 16;
+%     7 17;
+%     8 18;
+%     9 20;
+%     10 21;
+%     22 19];
+% no_file_pairs=11;
 
-
-
-
-
-% eventType=[9 10 11 12 13 14]; %Hit and CR
-% no_event_types=6;
-% evTypeLabels={'Hi Od1';'Hi Od 2';'Hi Od 3';'Low Od1';'Low Od 2';'Low Od 3'};
 
 no_event_types=length(eventType);
 
@@ -102,23 +143,7 @@ low_freq=[6 15 35 65];
 high_freq=[12 30 55 95];
 freq_names={'Theta','Beta','Low gamma','High gamma'};
 
-%Experiment pairs
-%Important: The first file must be the experiment performed first
-%For example in acetophenone ethyl benzoate no laser is first, laser is
-%second
-file_pairs=[1 7;
-    2 8;
-    3 9
-    4 10;
-    5 11;
-    6 12;
-    13 14;
-    15 16;
-    21 17;
-    23 18;
-    22 19;
-    24 20];
-no_file_pairs=12;
+
     
 
 %Ask user for the drgb output .mat file and load those data
@@ -200,7 +225,9 @@ for fps=1:no_file_pairs
             if perCorr_per_file(file_pairs(fps,noFil)).groupNo==1
                 last_pc_NL=[last_pc_NL perCorr_per_file(file_pairs(fps,noFil)).perCorr(end)];
             else
-                first_pc_L=[first_pc_L perCorr_per_file(file_pairs(fps,noFil)).perCorr(end)];
+                
+                    first_pc_L=[first_pc_L perCorr_per_file(file_pairs(fps,noFil)).perCorr(end)];
+                
             end
             
             
@@ -215,7 +242,9 @@ for fps=1:no_file_pairs
             if perCorr_per_file(file_pairs(fps,noFil)).groupNo==3
                 last_pc_NLc=[last_pc_NLc perCorr_per_file(file_pairs(fps,noFil)).perCorr(end)];
             else
-                first_pc_Lc=[first_pc_Lc perCorr_per_file(file_pairs(fps,noFil)).perCorr(end)];
+                
+                    first_pc_Lc=[first_pc_Lc perCorr_per_file(file_pairs(fps,noFil)).perCorr(end)];
+                
             end
             
         end
