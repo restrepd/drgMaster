@@ -78,6 +78,29 @@ warning('off')
 %     24 20];
 % no_file_pairs=12;
 
+% % % % For Daniel's acetophenone first last
+% winNo=2;
+% % which_display=2;
+% which_display=5;
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     1 11;
+%     2 7;
+%     3 8;
+%     4 9;
+%     5 10;
+%     6 12;
+%     13 16;
+%     14 17;
+%     15 18];
+% no_file_pairs=9;
+
 % % % For Daniel's tabaproprio Hit, CR, compare groups
 % winNo=2;
 % % which_display=2;
@@ -119,6 +142,27 @@ warning('off')
 %     10 21;
 %     22 19];
 % no_file_pairs=11;
+
+% % % For Daniel's isomin_firstandlastIAMO91317
+winNo=2;
+% which_display=2;
+which_display=5;
+eventType=[3 6];
+evTypeLabels={'S+','S-'};
+
+%Experiment pairs
+%Important: The first file must be the experiment performed first
+%For example in acetophenone ethyl benzoate no laser is first, laser is
+%second
+file_pairs=[
+    1 5;
+    2 4;
+    3 6;
+    7 11;
+    8 12;
+    9 13;
+    10 14];
+no_file_pairs=7;
 
 
 no_event_types=length(eventType);
@@ -238,13 +282,15 @@ for fps=1:no_file_pairs
     if (perCorr_per_file(file_pairs(fps,1)).groupNo==3)||(perCorr_per_file(file_pairs(fps,1)).groupNo==4)
         for noFil=1:2
             
-            
+            try
             if perCorr_per_file(file_pairs(fps,noFil)).groupNo==3
                 last_pc_NLc=[last_pc_NLc perCorr_per_file(file_pairs(fps,noFil)).perCorr(end)];
             else
                 
                     first_pc_Lc=[first_pc_Lc perCorr_per_file(file_pairs(fps,noFil)).perCorr(end)];
                 
+            end
+            catch
             end
             
         end
@@ -259,4 +305,6 @@ end
 [h p_NLc_Lc]=ttest(last_pc_NLc,first_pc_Lc)
 
 [p_NLc_Lcrs h]=ranksum(last_pc_NLc,first_pc_Lc)
+
+pffft=1
 

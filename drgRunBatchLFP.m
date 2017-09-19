@@ -237,13 +237,13 @@ for filNum=first_file:handles.drgbchoices.no_files
                 
                 %Enter the per LFP values
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).allPower=this_all_power;
-                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).all_Power_ref=all_Power_ref;
+                %handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).all_Power_ref=all_Power_ref;
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).which_eventLFPPower=which_event;
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).perCorrLFPPower=perCorr;
                 
                 %Enter the per experiment values
                 handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).allPower=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).allPower this_all_power'];
-                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).all_Power_ref=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).all_Power_ref all_Power_ref'];
+                %handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).all_Power_ref=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).all_Power_ref all_Power_ref'];
                 handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).which_eventLFPPower=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).which_eventLFPPower which_event];
                 handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).perCorrLFPPower=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).perCorrLFPPower perCorr];
                 

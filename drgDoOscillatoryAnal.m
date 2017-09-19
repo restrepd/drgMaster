@@ -19,4 +19,6 @@ switch handles.analysisNoOsc
         drgLFPwaveTimecourse(handles)
     case 9 
         drgComparePhases(handles)
+    case 10
+        drgLFProc(handles)
 end
