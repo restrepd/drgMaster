@@ -189,7 +189,36 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % grpre=[1 3];
 % grpost=[2 4];
 
-%For Daniel's isomin_firstandlastIAMO91017
+% %For Daniel's isomin_firstandlastIAMO91017
+% winNo=2;
+% refWin=1;
+% which_display=3;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     1 5;
+%     2 4;
+%     3 6;
+%     7 11;
+%     8 12;
+%     9 13;
+%     10 14];
+% no_file_pairs=7;
+% 
+% comp_window=15; %works well with 8-12
+% comp_window_auROC=30;
+% 
+% grpre=[1 3];
+% grpost=[2 4];
+%For Daniel's isomin_firstandlastIAMO91817
 winNo=2;
 refWin=1;
 which_display=3;
@@ -208,13 +237,12 @@ file_pairs=[
     2 4;
     3 6;
     7 11;
-    8 12;
-    9 13;
-    10 14];
-no_file_pairs=7;
+    9 12;
+    10 13];
+no_file_pairs=6;
 
-comp_window=10; %works well with 8-12
-comp_window_auROC=20;
+comp_window=15; %works well with 8-12
+comp_window_auROC=30;
 
 grpre=[1 3];
 grpost=[2 4];
