@@ -158,38 +158,40 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % grpost=[2 4];
 
 % % For Daniel's APEBEfirstandlast91117
-% winNo=2;
-% refWin=1;
-% which_display=3;
-% % eventType=[2 5];
-% % evTypeLabels={'Hit','CR'};
-% eventType=[3 6];
-% evTypeLabels={'S+','S-'};
-% 
-% 
-% %Experiment pairs
-% %Important: The first file must be the experiment performed first
-% %For example in acetophenone ethyl benzoate no laser is first, laser is
-% %second
-% file_pairs=[
-%     1 11;
-%     2 7;
-%     3 8;
-%     4 9;
-%     5 10;
-%     6 12;
-%     13 16;
-%     14 17;
-%     15 18];
-% no_file_pairs=9;
-% 
-% comp_window=15; %works well with 8-12
-% comp_window_auROC=30;
-% 
-% grpre=[1 3];
-% grpost=[2 4];
+winNo=2;
+refWin=1;
+which_display=3;
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+eventType=[3 6];
+evTypeLabels={'S+','S-'};
 
-% %For Daniel's isomin_firstandlastIAMO91017
+
+%Experiment pairs
+%Important: The first file must be the experiment performed first
+%For example in acetophenone ethyl benzoate no laser is first, laser is
+%second
+file_pairs=[
+    1 11;
+    2 7;
+    3 8;
+    4 9;
+    5 10;
+    6 12;
+    13 16;
+    14 17;
+    15 18];
+no_file_pairs=9;
+
+comp_window=15; %works well with 8-12
+comp_window_auROC=30;
+
+grpre=[1 3];
+grpost=[2 4];
+
+
+%For Daniel's Fig. 1 run with isomin_firstandlastIAMO91817
+%and which_display=3
 % winNo=2;
 % refWin=1;
 % which_display=3;
@@ -208,44 +210,15 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 %     2 4;
 %     3 6;
 %     7 11;
-%     8 12;
-%     9 13;
-%     10 14];
-% no_file_pairs=7;
+%     9 12;
+%     10 13];
+% no_file_pairs=6;
 % 
 % comp_window=15; %works well with 8-12
 % comp_window_auROC=30;
 % 
 % grpre=[1 3];
 % grpost=[2 4];
-%For Daniel's isomin_firstandlastIAMO91817
-winNo=2;
-refWin=1;
-which_display=3;
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-eventType=[3 6];
-evTypeLabels={'S+','S-'};
-
-
-%Experiment pairs
-%Important: The first file must be the experiment performed first
-%For example in acetophenone ethyl benzoate no laser is first, laser is
-%second
-file_pairs=[
-    1 5;
-    2 4;
-    3 6;
-    7 11;
-    9 12;
-    10 13];
-no_file_pairs=6;
-
-comp_window=15; %works well with 8-12
-comp_window_auROC=30;
-
-grpre=[1 3];
-grpost=[2 4];
 
 
 %% The code processing pairwise batch LFP starts here
@@ -2230,27 +2203,27 @@ switch which_display
            pos2=[0.8 0.1 0.1 0.8];
            subplot('Position',pos2)
            hold on
-           plot([0 1],[mean(delta_dB_powerpreHit) mean(delta_dB_powerpreCR)],'-k','LineWidth', 3)
-           CI = bootci(1000, @mean, delta_dB_powerpreHit);
+           plot([0 1],[mean(delta_dB_powerpreHit(ROCbandwidthpre==bwii)) mean(delta_dB_powerpreCR(ROCbandwidthpre==bwii))],'-k','LineWidth', 3)
+           CI = bootci(1000, @mean, delta_dB_powerpreHit(ROCbandwidthpre==bwii));
            plot([0 0],CI,'-r','LineWidth',3)
-           plot(0,mean(delta_dB_powerpreHit),'or','MarkerSize', 10,'MarkerFace','r')
-           CI = bootci(1000, @mean, delta_dB_powerpreCR);
+           plot(0,mean(delta_dB_powerpreHit(ROCbandwidthpre==bwii)),'or','MarkerSize', 10,'MarkerFace','r')
+           CI = bootci(1000, @mean, delta_dB_powerpreCR(ROCbandwidthpre==bwii));
            plot([1 1],CI,'-b','LineWidth',3)
-           plot(1,mean(delta_dB_powerpreCR),'ob','MarkerSize', 10,'MarkerFace','b')
+           plot(1,mean(delta_dB_powerpreCR(ROCbandwidthpre==bwii)),'ob','MarkerSize', 10,'MarkerFace','b')
            ylabel('delta Power (dB)')
            
            %Plot the histograms
            
-           maxdB=max([max(delta_dB_powerpreHit) max(delta_dB_powerpreCR)]);
-           mindB=min([min(delta_dB_powerpreHit) min(delta_dB_powerpreCR)]);
+           maxdB=max([max(delta_dB_powerpreHit(ROCbandwidthpre==bwii)) max(delta_dB_powerpreCR(ROCbandwidthpre==bwii))]);
+           mindB=min([min(delta_dB_powerpreHit(ROCbandwidthpre==bwii)) min(delta_dB_powerpreCR(ROCbandwidthpre==bwii))]);
            edges=[mindB-0.1*(maxdB-mindB):1.2*(maxdB-mindB)/20:maxdB+0.1*(maxdB-mindB)];
            pos2=[0.1 0.1 0.6 0.8];
            subplot('Position',pos2)
            hold on
            
-           h1=histogram(delta_dB_powerpreCR,edges);
+           h1=histogram(delta_dB_powerpreCR(ROCbandwidthpre==bwii),edges);
            h1.FaceColor='b';
-           h2=histogram(delta_dB_powerpreHit,edges);
+           h2=histogram(delta_dB_powerpreHit(ROCbandwidthpre==bwii),edges);
            h2.FaceColor='r';
            xlabel('delta Power (dB)')
            ylabel('# of electrodes')
@@ -2259,7 +2232,7 @@ switch which_display
            
            pffft=1
            
-            a={ delta_dB_powerpreHit' delta_dB_powerpreCR'};
+            a={ delta_dB_powerpreHit(ROCbandwidthpre==bwii)' delta_dB_powerpreCR(ROCbandwidthpre==bwii)'};
             mode_statcond='perm';
             [F df pvals_perm(bwii)] = statcond(a,'mode',mode_statcond,'naccu', 1000); % perform an unpaired ANOVA
             fprintf(1, ['p value for premuted anovan dB delta power S+ vs S- ' freq_names{bwii} '= %d\n'],  pvals_perm(bwii));
