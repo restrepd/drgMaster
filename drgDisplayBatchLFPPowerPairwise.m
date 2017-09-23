@@ -92,7 +92,8 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % grpost=[2 4];
 
 
-% % For Daniel's isoamyl acetate tstart
+% For Daniel's isoamylmintstart_electrodeChR281217
+% For Fig. 5 of Daniel's paper run with which_display=5
 winNo=2;
 refWin=1;
 which_display=5;
@@ -119,22 +120,22 @@ file_pairs=[
     22 19];
 no_file_pairs=11;
 
-comp_window=10; %works well with 8-12
-comp_window_auROC=20;
+comp_window=10; %Note: The ancova is not significant when the comp_window is increaesed to 15
 
 grpre=[1 3];
 grpost=[2 4];
 
-% % For Daniel's acetophenone ethyl benzoate
+% % For Daniel's acetophenone ethyl benzoate acetoethylben_electrode8152017
+% % % For Fig. 5 of Daniel's paper run with which_display=5
 % winNo=2;
 % refWin=1;
-% which_display=2;
+% which_display=5;
 % % eventType=[2 5];
 % % evTypeLabels={'Hit','CR'};
 % eventType=[3 6];
 % evTypeLabels={'S+','S-'};
-%
-%
+% 
+% 
 % %Experiment pairs
 % %Important: The first file must be the experiment performed first
 % %For example in acetophenone ethyl benzoate no laser is first, laser is
@@ -153,10 +154,9 @@ grpost=[2 4];
 %     22 19;
 %     24 20];
 % no_file_pairs=12;
-%
-% comp_window=15; %works well with 8-12
-% comp_window_auROC=30;
-%
+% 
+% comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
+% 
 % grpre=[1 3];
 % grpost=[2 4];
 
@@ -230,6 +230,8 @@ grpost=[2 4];
 
 close all
 warning('off')
+
+comp_window_auROC=2*comp_window;
 
 no_event_types=length(eventType);
 
