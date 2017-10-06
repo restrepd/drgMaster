@@ -39,6 +39,9 @@ warning('off')
 % 7 Do between group auROC analysis for Hit vs CR for proficient
 %
 % 8 d prime analysis for FA
+%
+% 9 d prime analysis for Fig. 3 of Daniel's pub
+% use acetoethylben_electrode9202017.mat
 
 
 %For Alexia's tstart learning vs. proficeint
@@ -76,13 +79,13 @@ warning('off')
 % evTypeLabels={'Hit','CR'};
 
 % % For Justin's Hit, CR, compare groups
-winNo=2;
-% which_display=2;
-which_display=7;
-eventType=[2 5];
-evTypeLabels={'Hit','CR'};
-% eventType=[2 5 7];
-% evTypeLabels={'Hit','CR','FA'};
+% winNo=2;
+% % which_display=2;
+% which_display=7;
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% % eventType=[2 5 7];
+% % evTypeLabels={'Hit','CR','FA'};
 
 %THESE VALUES ARE IMPORTANT
 %VERY IMPORTANT: This is the index for this event in your handles.drgbchoices.evTypeNos
@@ -91,17 +94,19 @@ evTypeLabels={'Hit','CR'};
 
 
 % % For Daniel's delta power Hit - CR, compare groups
-% winNo=2;
-% which_display=8;
-% eventType1=2;
-% eventType=2;
-% eventTypeRef=5;
-% evTypeLabel='Hit';
-% evTypeRefLabel='CR';
-
-
-
-
+% which_display = 9 is used for the d prime calculations for Fig. 3
+% run with:
+% isomin_firstandlastIAMO91817.mat
+% acetoethylben_firstandlast91117.mat
+% ethylacetatepropylacetatefirstandlast92617.mat
+%
+winNo=2;
+which_display=9;
+eventType1=2;
+eventType=2;
+eventTypeRef=5;
+evTypeLabel='Hit';
+evTypeRefLabel='CR';
 
 % eventType=[9 10 11 12 13 14]; %Hit and CR
 % no_event_types=6;
@@ -134,6 +139,8 @@ freq_names={'Theta','Beta','Low gamma','High gamma'};
 %Ask user for the drgb output .mat file and load those data
 [handles.drgb.outFileName,handles.PathName] = uigetfile('*.mat','Select the drgb output file');
 load([handles.PathName handles.drgb.outFileName])
+
+fprintf(1, ['\ndrgDisplayBatchLFPPower run for ' handles.drgb.outFileName ', which_display= = %d\n\n'],which_display);
 
 evHit=find(handles_drgb.drgbchoices.evTypeNos==3);
 %evHit=find(handles_drgb.drgbchoices.evTypeNos==5); %S plus
@@ -281,7 +288,7 @@ for lfpodNo=1:no_lfpevpairs
     percent_bin=3;
     trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
     
-    if (sum(trials_in_Hit&trials_in_perbin)>5)&(sum(trials_in_CR&trials_in_perbin)>5)&((which_display==7)||(which_display==8))
+    if (sum(trials_in_Hit&trials_in_perbin)>5)&(sum(trials_in_CR&trials_in_perbin)>5)&((which_display==7)||(which_display==8)||(which_display==9))
         
         no_trialsHit=sum(trials_in_Hit&trials_in_perbin);
         this_dB_powerHit=zeros(no_trialsHit,length(handles_drgb.drgb.freq_for_LFPpower));
@@ -322,7 +329,7 @@ for lfpodNo=1:no_lfpevpairs
 end
 
 
-if which_display==8
+if (which_display==8)||(which_display==9)
     nRocs=0;
     pFDRroc=drsFDRpval(p_vals_ROC);
     d_primeHits=[];
@@ -2046,7 +2053,98 @@ switch which_display
         fprintf(1, '\n\n')
         pFDRdprime=drsFDRpval(p_valsKS)
         
-   
+    case 9
+        %d prime analysis for Fig. 3 of Daniel's pub
+        fprintf(1, 'd prime analysis for Hit, CR and FA for proficient mice\n\n');
+        per_bin=3;
+        figNo=0;
+        
+        
+        for bwii=1:no_bandwidths
+            
+            figNo=figNo+1;
+            try
+                close(figNo)
+            catch
+            end
+            figure(figNo)
+            
+            max_dprime=prctile(d_primeHits,99);
+            min_dprime=prctile(d_primeCRs,1);
+            edges=[1.1*min_dprime:1.1*(max_dprime-min_dprime)/100:1.1*max_dprime];
+            
+            %Plot Hit histogram
+            these_dprimeHits=d_primeHits(((grHits==1)|(grHits==3))&(bwii==bwHits));
+            histogram(these_dprimeHits,edges,'EdgeColor','k','FaceColor','r','FaceAlpha',0.4);
+            
+            hold on
+            
+            %Plot CR histogram
+            these_dprimeCRs=d_primeCRs(((grCRs==1)|(grCRs==3))&(bwii==bwCRs));
+            histogram(these_dprimeCRs,edges,'EdgeColor','k','FaceColor','b','FaceAlpha',0.4);
+            
+            %Plot FA histogram
+            these_dprimeFAs=d_primeFAs(((grFAs==1)|(grFAs==3))&(bwii==bwFAs));
+            histogram(these_dprimeFAs,edges,'EdgeColor','k','FaceColor','g','FaceAlpha',0.4);
+            
+            legend('Hit','CR','FA')
+            
+            title([ freq_names{bwii} ' d pime histograms for '  percent_bin_legend{per_bin}])
+            
+            %Plot ROC for HIt vs CR
+            roc_data=[];
+            %Enter d prime for Hits
+            roc_data(1:length(these_dprimeHits),1)=these_dprimeHits';
+            roc_data(1:length(these_dprimeHits),2)=zeros(length(these_dprimeHits),1);
+            
+            %Enter dprime for CR
+            roc_data(length(these_dprimeHits)+1:length(these_dprimeHits)+length(these_dprimeCRs),1)=these_dprimeCRs';
+            roc_data(length(these_dprimeHits)+1:length(these_dprimeHits)+length(these_dprimeCRs),2)=ones(length(these_dprimeCRs),1);
+            
+            %Find pre ROC
+            rocHitCR=roc_calc(roc_data,0,0.05,0);
+            
+            fprintf(1, ['auROC for '  freq_names{bwii} ' Hit vs. CR = %d\n'],  rocHitCR.AUC-0.5);
+            
+            figNo=figNo+1;
+            try
+                close(figNo)
+            catch
+            end
+            figure(figNo)
+            
+            
+            hold on
+            plot([0 1],[0 1],'k');
+            plot(rocHitCR.xr,rocHitCR.yr,'ro','markersize',1,'markeredgecolor','r','markerfacecolor','r');
+            
+            
+            
+            %Plot ROC for CR vs FA
+            roc_data=[];
+            %Enter d prime for CRs
+            roc_data(1:length(these_dprimeCRs),1)=these_dprimeCRs';
+            roc_data(1:length(these_dprimeCRs),2)=zeros(length(these_dprimeCRs),1);
+            
+            %Enter dprime for FA
+            roc_data(length(these_dprimeCRs)+1:length(these_dprimeCRs)+length(these_dprimeFAs),1)=these_dprimeFAs';
+            roc_data(length(these_dprimeCRs)+1:length(these_dprimeCRs)+length(these_dprimeFAs),2)=ones(length(these_dprimeFAs),1);
+            
+            
+            %Find pre ROC
+            rocCRFA=roc_calc(roc_data,0,0.05,0);
+            fprintf(1, ['auROC for '  freq_names{bwii} ' FA vs. CR = %d\n'],  rocCRFA.AUC-0.5);
+            
+            plot(rocCRFA.xr,rocCRFA.yr,'bo','markersize',1,'markeredgecolor','b','markerfacecolor','b');
+            
+            xlabel('False positive rate (1-Specificity)')
+            ylabel('True positive rate (Sensitivity)')
+            title(['ROC curve for Hit or FA vs CR for ' freq_names{bwii}])
+            legend('Hit','FA')
+            
+            
+            
+        end
         
         
 end

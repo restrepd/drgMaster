@@ -17,7 +17,14 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 %
 %
 % 4 Generate figure 2 for Daniel's paper. first vs last.
-
+%
+%
+% 5 Compare auROC in the last few trials of pre with first few trials of post
+%    Used for Fig. 5 of Daniel's paper with acetoethylben_electrode9202017.mat
+%
+%
+% 6 Compare the last few trials of forward vs. the first few trials of reverse
+        % Generate Fig. 3 for Daniel's paper
 
 
 
@@ -92,8 +99,42 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % grpost=[2 4];
 
 
-% For Daniel's isoamylmintstart_electrodeChR281217
+% % For Daniel's isoamylmintstart_electrodeChR281217
+% % For Fig. 5 of Daniel's paper run with which_display=5
+% winNo=2;
+% refWin=1;
+% which_display=5;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     1 13;
+%     2 11;
+%     3 12;
+%     4 14;
+%     5 15;
+%     6 16;
+%     7 17;
+%     8 18;
+%     9 20;
+%     10 21;
+%     22 19];
+% no_file_pairs=11;
+% 
+% comp_window=10; %Note: The ancova is not significant when the comp_window is increaesed to 15
+% 
+% grpre=[1 3];
+% grpost=[2 4];
+
+% For Daniel's acetophenone ethyl benzoate acetoethylben_electrode8152017
 % For Fig. 5 of Daniel's paper run with which_display=5
+% NOTE: I am not using file 6 because the animal was not proficient
 winNo=2;
 refWin=1;
 which_display=5;
@@ -102,31 +143,34 @@ which_display=5;
 eventType=[3 6];
 evTypeLabels={'S+','S-'};
 
+
 %Experiment pairs
 %Important: The first file must be the experiment performed first
 %For example in acetophenone ethyl benzoate no laser is first, laser is
 %second
 file_pairs=[
-    1 13;
-    2 11;
-    3 12;
-    4 14;
-    5 15;
-    6 16;
-    7 17;
-    8 18;
-    9 20;
-    10 21;
-    22 19];
+    1 7;
+    2 8;
+    3 9;
+    4 10;
+    5 11;
+%     6 12;  %Exclude, this is not last
+    13 14;
+    15 16;
+    21 17;
+    23 18;
+    22 19;
+    24 20];
 no_file_pairs=11;
 
-comp_window=10; %Note: The ancova is not significant when the comp_window is increaesed to 15
+comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
 
 grpre=[1 3];
 grpost=[2 4];
 
-% % For Daniel's acetophenone ethyl benzoate acetoethylben_electrode8152017
-% % % For Fig. 5 of Daniel's paper run with which_display=5
+
+% % For Daniel's ethylacetatepropylacetate10217
+% % For Fig. 5 of Daniel's paper run with which_display=5
 % winNo=2;
 % refWin=1;
 % which_display=5;
@@ -141,19 +185,15 @@ grpost=[2 4];
 % %For example in acetophenone ethyl benzoate no laser is first, laser is
 % %second
 % file_pairs=[
-%     1 7;
-%     2 8;
-%     3 9;
-%     4 10;
-%     5 11;
-%     6 12;
-%     13 14;
-%     15 16;
-%     21 17;
-%     23 18;
-%     22 19;
-%     24 20];
-% no_file_pairs=12;
+%     8 1;
+%     9 2;
+%     10 3;
+%     11 4;
+%     12 5;
+%     13 6;  
+%     14 7
+%     ];
+% no_file_pairs=7;
 % 
 % comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
 % 
@@ -161,15 +201,17 @@ grpost=[2 4];
 % grpost=[2 4];
 
 % % % For Daniel's APEBEfirstandlast91117
+% %Fig 1 run with which_display=3;
+% %Fig 2 run with which_display=4; 
 % winNo=2;
 % refWin=1;
-% which_display=3;
+% which_display=4;
 % % eventType=[2 5];
 % % evTypeLabels={'Hit','CR'};
 % eventType=[3 6];
 % evTypeLabels={'S+','S-'};
-%
-%
+% 
+% 
 % %Experiment pairs
 % %Important: The first file must be the experiment performed first
 % %For example in acetophenone ethyl benzoate no laser is first, laser is
@@ -180,32 +222,60 @@ grpost=[2 4];
 %     3 8;
 %     4 9;
 %     5 10;
-%     6 12;
+% %     6 12; %Exclude, this is not last
 %     13 16;
 %     14 17;
 %     15 18];
-% no_file_pairs=9;
-%
+% no_file_pairs=8;
+% 
 % comp_window=15; %works well with 8-12
 % comp_window_auROC=30;
-%
+% 
 % grpre=[1 3];
 % grpost=[2 4];
 
-
-% % For Daniel's Fig. 1 run with isomin_firstandlastIAMO91817
-% % and which_display=3
-% % For Daniel's Fig. 2 run with isomin_firstandlastIAMO91817
-% % and which_display=4
+% % % For Daniel's ethylacetatepropylacetatefirstandlast92617.mat
+% %Fig 1 run with which_display=3;
+% %Fig 2 run with which_display=4; 
 % winNo=2;
 % refWin=1;
-% which_display=3;
+% which_display=4;
 % % eventType=[2 5];
 % % evTypeLabels={'Hit','CR'};
 % eventType=[3 6];
 % evTypeLabels={'S+','S-'};
-%
-%
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     1 6;
+%     2 7;
+%     3 8;
+%     4 9;
+%     5 10];
+% no_file_pairs=5;
+% 
+% comp_window=15; %works well with 8-12
+% 
+% grpre=[1 3];
+% grpost=[2 4];
+
+
+% % % For Daniel's Fig. 1 run with isomin_firstandlastIAMO91817
+% % % and which_display=3
+% % % For Daniel's Fig. 2 run with isomin_firstandlastIAMO91817
+% % % and which_display=4
+% winNo=2;
+% refWin=1;
+% which_display=4;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% 
 % %Experiment pairs
 % %Important: The first file must be the experiment performed first
 % %For example in acetophenone ethyl benzoate no laser is first, laser is
@@ -218,12 +288,44 @@ grpost=[2 4];
 %     9 12;
 %     10 13];
 % no_file_pairs=6;
-%
+% 
 % comp_window=15; %works well with 8-12
 % comp_window_auROC=30;
-%
+% 
 % grpre=[1 3];
 % grpost=[2 4];
+
+% 
+% % % For Daniel's reversal ethylacepropylaceandreverse92317
+% %Fig 3 run with which_display=6; 
+% winNo=2;
+% refWin=1;
+% which_display=6;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     1 8;
+%     2 9;
+%     3 10;
+%     4 11;
+%     5 12;
+%     6 13; 
+%     7 14];
+% no_file_pairs=7;
+% 
+% comp_window=10; %works well with 8-12
+% 
+% grpre=[1 3];
+% grpost=[2 4];
+
 
 
 %% The code processing pairwise batch LFP starts here
@@ -258,12 +360,17 @@ freq_names={'Theta','Beta','Low gamma','High gamma'};
 evHit=eventType(1);
 evCR=eventType(2);
 
+%To calculate percent correct
+perEvHit=2;
+perEvCR=5;
+
 
 %Ask user for the drgb output .mat file and load those data
 [handles.drgb.outFileName,handles.PathName] = uigetfile('*.mat','Select the drgb output file');
 load([handles.PathName handles.drgb.outFileName])
 
 
+fprintf(1, ['\ndrgDisplayBatchLFPPowerPairwise run for ' handles.drgb.outFileName ', which_display= = %d\n\n'],which_display);
 
 frequency=handles_drgb.drgb.freq_for_LFPpower;
 
@@ -2156,6 +2263,7 @@ switch which_display
                         
                     end
                     
+                    
                 else
                     
                     if isempty(handles_drgb.drgb.lfpevpair(lfpodNopre_ref))
@@ -2225,7 +2333,7 @@ switch which_display
             
             maxdB=max([max(delta_dB_powerpreHit(ROCbandwidthpre==bwii)) max(delta_dB_powerpreCR(ROCbandwidthpre==bwii))]);
             mindB=min([min(delta_dB_powerpreHit(ROCbandwidthpre==bwii)) min(delta_dB_powerpreCR(ROCbandwidthpre==bwii))]);
-            edges=[-15:0.5:15];
+            edges=[-15:1:15];
             pos2=[0.1 0.1 0.6 0.8];
             subplot('Position',pos2)
             hold on
@@ -2237,7 +2345,7 @@ switch which_display
             xlabel('delta Power (dB)')
             ylabel('# of electrodes')
             legend('S-','S+')
-            xlim([-15 15])
+            xlim([-12 12])
             ylim([0 40])
             title(freq_names{bwii})
             
@@ -2320,6 +2428,8 @@ switch which_display
             bar(bwii,100*sum(( p_valROCpre<=pFDRauROC)&(ROCbandwidthpre==bwii))/sum((ROCbandwidthpre==bwii)))
         end
         title('Percent auROC significantly different from zero')
+        ylim([0 100])
+        pffft=1;
         
     case 4
         %Compare auROC in the last few trials of pre with first few trials of post
@@ -2334,14 +2444,37 @@ switch which_display
         no_hits=0;
         pvals_auROCperm=[];
         pvals_dBperm=[];
+        perCorr_pre=[];
+        perCorr_post=[];
         
         fprintf(1, ['Pairwise auROC analysis for Hit and CR LFP power\n\n'])
         p_vals=[];
         for fps=1:no_file_pairs
+             
+             
             for elec=1:16
                 
                 lfpodNopre_ref=find((files_per_lfp==file_pairs(fps,1))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
                 lfpodNopost_ref=find((files_per_lfp==file_pairs(fps,2))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                
+                if elec==1
+                    %Find percent correct for pre
+                    trials_Sp=(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).which_eventLFPPower(evHit,:)==1);
+                    trials_Sm=(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).which_eventLFPPower(evCR,:)==1);
+                    trials_Hit=(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).which_eventLFPPower(perEvHit,:)==1);
+                    trials_CR=(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).which_eventLFPPower(perEvCR,:)==1);
+                    perCorr_pre(fps)=100*(trials_Hit+trials_CR)/(trials_Sp+trials_Sm);
+                    
+                    %Find percent correct for post
+                    trials_Sp=(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(evHit,:)==1);
+                    trials_Sm=(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(evCR,:)==1);
+                    trials_Hit=(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(perEvHit,:)==1);
+                    trials_CR=(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(perEvCR,:)==1);
+                    perCorr_post(fps)=100*(trials_Hit+trials_CR)/(trials_Sp+trials_Sm);
+                    
+                    fprintf(1, '\nPercent correct for session pair %d pre= %d, post= %d\n',fps,perCorr_pre(fps),perCorr_post(fps));
+                               
+                end
                 
                 if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNopre_ref)))&(~isempty(handles_drgb.drgb.lfpevpair(lfpodNopost_ref)))
                     
@@ -2752,7 +2885,7 @@ switch which_display
             legend('Learning','Proficient')
             title(['auROC for ' freq_names{bwii}])
             xlim([-0.3 0.6])
-            ylim([0 30])
+            ylim([0 40])
             
             %Plot the single electrodes
             pos2=[0.8 0.1 0.1 0.8];
@@ -2791,6 +2924,7 @@ switch which_display
             percent_auROCpre=100*sum(p_valROCpre(ROCbandwidthpre==bwii)<=pFDRROC)/sum(ROCbandwidthpre==bwii);
             bar(x+1,percent_auROCpre,'r')
             
+            
             x=x+3;
             
         end
@@ -2798,9 +2932,32 @@ switch which_display
         figure(5)
         title('Percent singificant auROC')
         legend('Learning','Proficient')
+        ylim([0 100])
         
         pFDRanovanauROC=drsFDRpval(pval_auROCperm);
         fprintf(1, ['\npFDR for premuted anovan p value for difference between learning and proficent for auROC = %d\n\n'],pFDRanovanauROC);
+        
+        figure(8)
+        hold on
+        for fps=1:no_file_pairs
+            plot([0 1],[perCorr_post(fps) perCorr_pre(fps)],'-o', 'Color',[0.7 0.7 0.7])
+        end
+        
+        plot([0 1],[mean(perCorr_post) mean(perCorr_pre)],'-k','LineWidth', 3)
+        CI = bootci(1000, @mean, perCorr_post);
+        plot([0 0],CI,'-b','LineWidth',3)
+        plot(0,mean(perCorr_post),'ob','MarkerSize', 10,'MarkerFace','b')
+        CI = bootci(1000, @mean, perCorr_pre);
+        plot([1 1],CI,'-r','LineWidth',3)
+        plot(1,mean(perCorr_pre),'or','MarkerSize', 10,'MarkerFace','r')
+        ylabel('Percent correct')
+        ylim([30 110])
+        
+        p_perCorr=ranksum(perCorr_pre,perCorr_post);
+        fprintf(1, '\np value for ranksum test for percent correct= %d\n\n',p_perCorr);
+        
+        save([handles.PathName handles.drgb.outFileName(1:end-4) '_out.mat'],'perCorr_pre','perCprr_post');
+        
         
     case 5
          %Compare auROC in the last few trials of pre with first few trials of post
@@ -2813,14 +2970,40 @@ switch which_display
         p_vals_ROC=[];
         delta_dB_powerpreHit=[];
         no_hits=0;
+        perCorr_pre=[];
+        perCorr_post=[];
+        group_pre=[];
+        group_post=[];
         
-        fprintf(1, ['Pairwise auROC analysis for Hit and CR LFP power\n\n'])
+        fprintf(1, ['Pairwise auROC analysis for Hit and CR LFP power\n\n'],'perCorr_pre','perCorr_post')
         p_vals=[];
         for fps=1:no_file_pairs
             for elec=1:16
-                
+
                 lfpodNopre_ref=find((files_per_lfp==file_pairs(fps,1))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
                 lfpodNopost_ref=find((files_per_lfp==file_pairs(fps,2))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                
+                if elec==1
+                    %Find percent correct for pre
+                    trials_Sp=(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).which_eventLFPPower(evHit,:)==1);
+                    trials_Sm=(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).which_eventLFPPower(evCR,:)==1);
+                    trials_Hit=(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).which_eventLFPPower(perEvHit,:)==1);
+                    trials_CR=(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).which_eventLFPPower(perEvCR,:)==1);
+                    perCorr_pre(fps)=100*(trials_Hit+trials_CR)/(trials_Sp+trials_Sm);
+                    group_pre(fps)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).fileNo);
+                    
+                    %Find percent correct for post
+                    trials_Sp=(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(evHit,:)==1);
+                    trials_Sm=(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(evCR,:)==1);
+                    trials_Hit=(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(perEvHit,:)==1);
+                    trials_CR=(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(perEvCR,:)==1);
+                    perCorr_post(fps)=100*(trials_Hit+trials_CR)/(trials_Sp+trials_Sm);
+                    group_post(fps)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).fileNo);
+                    
+                    
+                    fprintf(1, '\nPercent correct for session pair %d pre= %d, post= %d\n',fps,perCorr_pre(fps),perCorr_post(fps));
+                    
+                end
                 
                 if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNopre_ref)))&(~isempty(handles_drgb.drgb.lfpevpair(lfpodNopost_ref)))
                     
@@ -3716,9 +3899,9 @@ switch which_display
             
             %Do ancova figure for auROC
             figure(10+bwii)
-            h1=plot(auROCpre((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)),auROCpost((ROCgroupNopre==1)&(ROCbandwidthpost==bwii)),'or');
+            h1=plot(auROCpre((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)),auROCpost((ROCgroupNopre==1)&(ROCbandwidthpost==bwii)),'or','MarkerFace','r');
             hold on
-            h2=plot(auROCpre((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)),auROCpost((ROCgroupNopre==3)&(ROCbandwidthpost==bwii)),'ob');
+            h2=plot(auROCpre((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)),auROCpost((ROCgroupNopre==3)&(ROCbandwidthpost==bwii)),'ob','MarkerFace','b');
             
             slope_pre=ctab{5,2}+ctab{6,2};
             int_pre=ctab{2,2}+ctab{3,2};
@@ -3729,7 +3912,7 @@ switch which_display
             
             slope_post=ctab{5,2}+ctab{7,2};
             int_post=ctab{2,2}+ctab{4,2};
-            x=[min_x max_x];
+            x=[-0.2 0.5];
             plot(x,slope_post*x+int_post,'-b','LineWidth',2)
             
             plot([-0.2 0.5],[-0.2 0.5],'-k','LineWidth',2)
@@ -3740,7 +3923,8 @@ switch which_display
             legend([h1 h2],'halo','no halo')
             xlim([-0.2 0.5])
             ylim([-0.2 0.5])
-            
+            ax=gca;
+            ax.LineWidth=3;
         end
         
 %         pFDRanovan=drsFDRpval(p_vals_anovan);
@@ -3778,16 +3962,7 @@ switch which_display
         figNo=0;
         p_val_ROC=[];
         pvals_auROCperm=[];
-        try
-            close(9)
-        catch
-        end
-        figure(9)
-        try
-            close(10)
-        catch
-        end
-        figure(10)
+      
         x=0
         for bwii=1:4
             n_cum=0;
@@ -3830,7 +4005,12 @@ switch which_display
                     title(['auROC DBh Cre for ' freq_names{bwii}])
                 end
                 xlim([-0.3 0.6])
-                ylim([0 30])
+                
+%                 if grs==1
+%                     ylim([0 40])
+%                 else
+%                     ylim([0 20])
+%                 end
                 
                 %Plot the single electrodes
                 pos2=[0.8 0.1 0.1 0.8];
@@ -3864,19 +4044,6 @@ switch which_display
                 end
                 pvals_auROCperm=[pvals_auROCperm pval_auROCperm];
                 
-                %Figure 5
-                if grs==1
-                    figure(9)
-                else
-                    figure(10)
-                end
-                hold on
-                
-                percent_auROCpost=100*sum(p_valROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii))<=pFDRROC)/sum((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii));
-                bar(x,percent_auROCpost,'b')
-                
-                percent_auROCpre=100*sum(p_valROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii))<=pFDRROC)/sum((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii));
-                bar(x+1,percent_auROCpre,'r')
          
             end
             figNo=figNo+2;
@@ -3886,6 +4053,518 @@ switch which_display
         pFDRauROC=drsFDRpval(pvals_auROCperm);
         fprintf(1, ['pFDR for auROC  = %d\n\n'],pFDRauROC);
         
-      pffft=1;
+        figure(15)
+        hold on
+        for fps=1:no_file_pairs
+            if group_pre(fps)==1
+                plot([0 1],[perCorr_post(fps) perCorr_pre(fps)],'-o', 'Color',[0.7 0.7 0.7])
+            else
+                plot([3 4],[perCorr_post(fps) perCorr_pre(fps)],'-o', 'Color',[0.7 0.7 0.7])
+            end
+        end
+        
+        plot([0 1],[mean(perCorr_post(group_post==2)) mean(perCorr_pre(group_pre==1))],'-k','LineWidth', 3)
+        CI = bootci(1000, @mean, perCorr_post(group_post==2));
+        plot([0 0],CI,'-b','LineWidth',3)
+        plot(0,mean(perCorr_post(group_post==2)),'ob','MarkerSize', 10,'MarkerFace','b')
+        CI = bootci(1000, @mean, perCorr_pre(group_pre==1));
+        plot([1 1],CI,'-r','LineWidth',3)
+        plot(1,mean(perCorr_pre(group_pre==1)),'or','MarkerSize', 10,'MarkerFace','r')
+        
+        plot([3 4],[mean(perCorr_post(group_post==4)) mean(perCorr_pre(group_pre==3))],'-k','LineWidth', 3)
+        CI = bootci(1000, @mean, perCorr_post(group_post==4));
+        plot([3 3],CI,'-b','LineWidth',3)
+        plot(3,mean(perCorr_post(group_post==4)),'ob','MarkerSize', 10,'MarkerFace','b')
+        CI = bootci(1000, @mean, perCorr_pre(group_pre==3));
+        plot([4 4],CI,'-r','LineWidth',3)
+        plot(4,mean(perCorr_pre(group_pre==3)),'or','MarkerSize', 10,'MarkerFace','r')
+        
+        ylabel('Percent correct')
+        ylim([30 110])
+        
+        ax=gca;
+        ax.LineWidth=3;
+        
+%         p_perCorr=ranksum(perCorr_pre,perCorr_post);
+%         fprintf(1, '\np value for ranksum test for percent correct= %d\n\n',p_perCorr);
+%         
+        save([handles.PathName handles.drgb.outFileName(1:end-4) '_out.mat'],'perCorr_pre','perCorr_post','group_pre', 'group_post');
+        
+       case 6
+        %Compare the last few trials of forward vs. the first few trials of reverse
+        % Generate Fig. 3 for Daniel's paper
+        no_dBs=1;
+        delta_dB_power_pre=[];
+        no_ROCs=0;
+        ROCoutpre=[];
+        ROCoutpost=[];
+        p_vals_ROC=[];
+        delta_dB_powerpreHit=[];
+        no_hits=0;
+        pvals_auROCperm=[];
+        pvals_dBperm=[];
+        
+        fprintf(1, ['Pairwise auROC analysis for Hit and CR LFP power\n\n'])
+        p_vals=[];
+        for fps=1:no_file_pairs
+            for elec=1:16
+                
+                lfpodNopre_ref=find((files_per_lfp==file_pairs(fps,1))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                lfpodNopost_ref=find((files_per_lfp==file_pairs(fps,2))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                
+                if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNopre_ref)))&(~isempty(handles_drgb.drgb.lfpevpair(lfpodNopost_ref)))
+                    
+                    
+                    if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).allPower))&(~isempty(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower))
+                        
+                        
+                        trials_in_event_preHit=(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).which_eventLFPPower(evHit,:)==1);
+                        trials_in_event_preCR=(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).which_eventLFPPower(evCR,:)==1);
+                        trials_in_event_pre=logical(trials_in_event_preHit+trials_in_event_preCR);
+                        
+                        trials_in_event_postHit=(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(evHit,:)==1);
+                        trials_in_event_postCR=(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).which_eventLFPPower(evCR,:)==1);
+                        trials_in_event_post=logical(trials_in_event_postHit+trials_in_event_postCR);
+                        
+                        if (sum(trials_in_event_preHit)>=comp_window)&(sum(trials_in_event_preCR)>=comp_window)&(sum(trials_in_event_postHit)>=comp_window)&(sum(trials_in_event_postCR)>=comp_window)
+                            if (sum(trials_in_event_pre)>=comp_window_auROC)&(sum(trials_in_event_post)>=comp_window_auROC)
+                                lfpodNopre=find((files_per_lfp==file_pairs(fps,1))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                lfpodNopost=find((files_per_lfp==file_pairs(fps,2))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                
+                                %pre Hits
+                                
+                                
+                                no_trials=0;
+                                jj=length(trials_in_event_preHit);
+                                while no_trials<comp_window
+                                    if trials_in_event_preHit(jj)==1
+                                        no_trials=no_trials+1;
+                                    end
+                                    jj=jj-1;
+                                end
+                                jj=jj+1;
+                                these_trials=logical([zeros(1,jj-1) ones(1,length(trials_in_event_preHit)-jj+1)].*trials_in_event_preHit);
+                                
+                                this_dB_powerprerefHit=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerprerefHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).allPower(these_trials,:));
+                                
+                                this_dB_powerpreHit=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpreHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre).allPower(these_trials,:));
+                                
+                                
+                                %pre CRs
+                                no_trials=0;
+                                jj=length(trials_in_event_preCR);
+                                while no_trials<comp_window
+                                    if trials_in_event_preCR(jj)==1
+                                        no_trials=no_trials+1;
+                                    end
+                                    jj=jj-1;
+                                end
+                                jj=jj+1;
+                                these_trials=logical([zeros(1,jj-1) ones(1,length(trials_in_event_preCR)-jj+1)].*trials_in_event_preCR);
+                                
+                                this_dB_powerprerefCR=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerprerefCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).allPower(these_trials,:));
+                                
+                                this_dB_powerpreCR=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpreCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopre).allPower(these_trials,:));
+                                
+                                
+                                %post Hits
+                                no_trials=0;
+                                jj=0;
+                                while no_trials<comp_window
+                                    jj=jj+1;
+                                    if trials_in_event_postHit(jj)==1
+                                        no_trials=no_trials+1;
+                                    end
+                                    
+                                end
+                                
+                                these_trials=logical([ones(1,jj) zeros(1,length(trials_in_event_postHit)-jj)].*trials_in_event_postHit);
+                                
+                                this_dB_powerpostrefHit=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpostrefHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower(these_trials,:));
+                                
+                                this_dB_powerpostHit=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpostHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost).allPower(these_trials,:));
+                                
+                                
+                                %post CRs
+                                no_trials=0;
+                                jj=0;
+                                while no_trials<comp_window
+                                    jj=jj+1;
+                                    if trials_in_event_postCR(jj)==1
+                                        no_trials=no_trials+1;
+                                    end
+                                    
+                                end
+                                
+                                these_trials=logical([ones(1,jj) zeros(1,length(trials_in_event_postCR)-jj)].*trials_in_event_postCR);
+                                
+                                this_dB_powerpostrefCR=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpostrefCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower(these_trials,:));
+                                
+                                this_dB_powerpostCR=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpostCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost).allPower(these_trials,:));
+                                
+                                %post last Hits
+                                no_trials=0;
+                                jj=0;
+                                while no_trials<comp_window
+                                    
+                                    if trials_in_event_postHit(end-jj)==1
+                                        no_trials=no_trials+1;
+                                    end
+                                    jj=jj+1;
+                                end
+                                
+                                these_trials=logical([zeros(1,length(trials_in_event_postHit)-jj) ones(1,jj)].*trials_in_event_postHit);
+                                
+                                this_dB_powerpostlastrefHit=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpostlastrefHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower(these_trials,:));
+                                
+                                this_dB_powerpostlastHit=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpostlastHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost).allPower(these_trials,:));
+                                
+                                
+                                %post last CRs
+                                no_trials=0;
+                                jj=0;
+                                while no_trials<comp_window
+                                    
+                                    if trials_in_event_postCR(end-jj)==1
+                                        no_trials=no_trials+1;
+                                    end
+                                    jj=jj+1;
+                                end
+                                
+                                these_trials=logical([zeros(1,length(trials_in_event_postCR)-jj) ones(1,jj)].*trials_in_event_postCR);
+                                
+                                this_dB_powerpostlastrefCR=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpostlastrefCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower(these_trials,:));
+                                
+                                this_dB_powerpostlastCR=zeros(comp_window,length(handles_drgb.drgb.freq_for_LFPpower));
+                                this_dB_powerpostlastCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNopost).allPower(these_trials,:));
+                                
+                                for bwii=1:no_bandwidths
+                                    
+                                    no_ROCs=no_ROCs+1;
+                                    this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                    
+                                    %Enter the pre Hits
+                                    this_delta_dB_powerpreHit=zeros(comp_window,1);
+                                    this_delta_dB_powerpreHit=mean(this_dB_powerpreHit(:,this_band)-this_dB_powerprerefHit(:,this_band),2);
+                                    roc_data=[];
+                                    roc_data(1:comp_window,1)=this_delta_dB_powerpreHit;
+                                    roc_data(1:comp_window,2)=zeros(comp_window,1);
+                                    
+                                    %Enter pre CR
+                                    this_delta_dB_powerpreCR=zeros(comp_window,1);
+                                    this_delta_dB_powerpreCR=mean(this_dB_powerpreCR(:,this_band)-this_dB_powerprerefCR(:,this_band),2);
+                                    roc_data(comp_window+1:2*comp_window,1)=this_delta_dB_powerpreCR;
+                                    roc_data(comp_window+1:2*comp_window,2)=ones(comp_window,1);
+                                    
+                                    
+                                    %Find pre ROC
+                                    ROCoutpre(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
+                                    ROCoutpre(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNopre_ref).fileNo;
+                                    ROCgroupNopre(no_ROCs)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).fileNo);
+                                    ROCoutpre(no_ROCs).timeWindow=winNo;
+                                    ROCbandwidthpre(no_ROCs)=bwii;
+                                    auROCpre(no_ROCs)=ROCoutpre(no_ROCs).roc.AUC-0.5;
+                                    p_valROCpre(no_ROCs)=ROCoutpre(no_ROCs).roc.p;
+                                    
+                                    p_vals_ROC=[p_vals_ROC ROCoutpre(no_ROCs).roc.p];
+                                    
+                                    %Enter the post Hits
+                                    this_delta_dB_powerpostHit=zeros(comp_window,1);
+                                    this_delta_dB_powerpostHit=mean(this_dB_powerpostHit(:,this_band)-this_dB_powerpostrefHit(:,this_band),2);
+                                    roc_data=[];
+                                    roc_data(1:comp_window,1)=this_delta_dB_powerpostHit;
+                                    roc_data(1:comp_window,2)=zeros(comp_window,1);
+                                    
+                                    %Enter post CR
+                                    this_delta_dB_powerpostCR=zeros(comp_window,1);
+                                    this_delta_dB_powerpostCR=mean(this_dB_powerpostCR(:,this_band)-this_dB_powerpostrefCR(:,this_band),2);
+                                    roc_data(comp_window+1:2*comp_window,1)=this_delta_dB_powerpostCR;
+                                    roc_data(comp_window+1:2*comp_window,2)=ones(comp_window,1);
+                                    
+                                    
+                                    %Find post ROC
+                                    ROCoutpost(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
+                                    ROCoutpost(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNopost_ref).fileNo;
+                                    ROCgroupNopost(no_ROCs)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).fileNo);
+                                    ROCoutpost(no_ROCs).timeWindow=winNo;
+                                    ROCbandwidthpost(no_ROCs)=bwii;
+                                    auROCpost(no_ROCs)=ROCoutpost(no_ROCs).roc.AUC-0.5;
+                                    p_valROCpost(no_ROCs)=ROCoutpost(no_ROCs).roc.p;
+                                    
+                                    p_vals_ROC=[p_vals_ROC ROCoutpost(no_ROCs).roc.p];
+                                    
+                                    %Enter the post last Hits
+                                    this_delta_dB_powerpostlastHit=zeros(comp_window,1);
+                                    this_delta_dB_powerpostlastHit=mean(this_dB_powerpostlastHit(:,this_band)-this_dB_powerpostlastrefHit(:,this_band),2);
+                                    
+                                    
+                                    %Enter post last CR
+                                    this_delta_dB_powerpostlastCR=zeros(comp_window,1);
+                                    this_delta_dB_powerpostlastCR=mean(this_dB_powerpostlastCR(:,this_band)-this_dB_powerpostlastrefCR(:,this_band),2);
+                                    
+                                    
+                                    %Are the delta dB LFP's different?
+                                    
+                                    %Hit
+                                    
+                                    p_val(no_dBs,bwii)=ranksum(this_delta_dB_powerpreHit,this_delta_dB_powerpostHit);
+                                    p_vals=[p_vals p_val(no_dBs,bwii)];
+                                    groupNopre(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
+                                    groupNopost(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
+                                    events(no_dBs)=1;
+                                    
+                                    
+                                    %CR
+                                    p_val(no_dBs+1,bwii)=ranksum(this_delta_dB_powerpreCR,this_delta_dB_powerpostCR);
+                                    p_vals=[p_vals p_val(no_dBs+1,bwii)];
+                                    groupNopre(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
+                                    groupNopost(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
+                                    events(no_dBs+1)=2;
+                                    
+                                    if p_val(no_dBs,bwii)<0.05
+                                        dB_power_changeHit(no_ROCs)=1;
+                                    else
+                                        dB_power_changeHit(no_ROCs)=0;
+                                    end
+                                    
+                                    if p_val(no_dBs+1,bwii)<0.05
+                                        dB_power_changeCR(no_ROCs)=1;
+                                    else
+                                        dB_power_changeCR(no_ROCs)=0;
+                                    end
+                                    
+                                    %Plot the points and save the data
+                                    if (groupNopre(no_dBs)==1)||(groupNopre(no_dBs)==3)
+                                        %
+                                        
+                                        %Hit, all points
+                                        delta_dB_powerpreHit(no_ROCs)=mean(this_delta_dB_powerpreHit);
+                                        delta_dB_powerpostHit(no_ROCs)=mean(this_delta_dB_powerpostHit);
+                                        delta_dB_powerpostlastHit(no_ROCs)=mean(this_delta_dB_powerpostlastHit);
+                                        
+                                        %CR, all points
+                                        delta_dB_powerpreCR(no_ROCs)=mean(this_delta_dB_powerpreCR);
+                                        delta_dB_powerpostCR(no_ROCs)=mean(this_delta_dB_powerpostCR);
+                                        delta_dB_powerpostlastCR(no_ROCs)=mean(this_delta_dB_powerpostlastCR);
+                                        
+                                        
+                                        figure(6)
+                                        hold on
+                                        plot([(bwii-1)*3 (bwii-1)*3+1 (bwii-1)*3+2],[delta_dB_powerpreHit(no_ROCs) delta_dB_powerpostCR(no_ROCs) delta_dB_powerpostlastCR(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                        
+                                        figure(7)
+                                        hold on
+                                        plot([(bwii-1)*3 (bwii-1)*3+1 (bwii-1)*3+2],[delta_dB_powerpreCR(no_ROCs) delta_dB_powerpostHit(no_ROCs) delta_dB_powerpostlastHit(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                        
+                                    end
+                                end
+                                
+                                no_dBs=no_dBs+2;
+                                
+                            else
+                                
+                                if (sum(trials_in_event_pre)<comp_window)
+                                    fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_pre),comp_window,file_pairs(fps,1),elec);
+                                end
+                                
+                                if (sum(trials_in_event_post)<comp_window)
+                                    fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_post),comp_window,file_pairs(fps,2),elec);
+                                end
+                            end
+                            
+                        else
+                            
+                            if (sum(trials_in_event_preHit)<comp_window)
+                                fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_preHit),comp_window,file_pairs(fps,1),elec);
+                            end
+                            
+                            if (sum(trials_in_event_preCR)<comp_window)
+                                fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_preCR),comp_window,file_pairs(fps,1),elec);
+                            end
+                            if (sum(trials_in_event_postHit)<comp_window)
+                                fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_postHit),comp_window,file_pairs(fps,2),elec);
+                            end
+                            if (sum(trials_in_event_postCR)<comp_window)
+                                fprintf(1, ['%d trials in event fewer than comp_window %d for file No %d electrode %d\n'],sum(trials_in_event_postCR),comp_window,file_pairs(fps,2),elec);
+                            end
+                            
+                        end
+                    else
+                        
+                        if isempty(handles_drgb.drgb.lfpevpair(lfpodNopre_ref).allPower)
+                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],file_pairs(fps,1),elec);
+                        end
+                        
+                        if isempty(handles_drgb.drgb.lfpevpair(lfpodNopost_ref).allPower)
+                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],file_pairs(fps,2),elec);
+                        end
+                        
+                    end
+                    
+                else
+                    
+                    if isempty(handles_drgb.drgb.lfpevpair(lfpodNopre_ref))
+                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],file_pairs(fps,1),elec);
+                    end
+                    
+                    if isempty(handles_drgb.drgb.lfpevpair(lfpodNopost_ref))
+                        fprintf(1, ['Empty lfpevpairfor file No %d electrode %d\n'],file_pairs(fps,2),elec);
+                    end
+                    
+                end
+            end
+            
+        end
+        fprintf(1, '\n\n')
+        
+        pFDRROC=drsFDRpval(p_vals_ROC);
+        fprintf(1, ['pFDR for significant difference of auROC p value from 0.5  = %d\n\n'],pFDRROC);
+        
+        %Now plot the bar graphs and do anovan for LFP power
+        p_vals_anovan=[];
+        pvals_ancova=[];
+        pvals_auROCancova=[];
+        for bwii=1:4
+            
+            
+            %Now plot the LFP power, all points
+            %Hits for NL->L
+            
+            
+            %All points - Hit, NL->L
+            figure(6)
+            mean_pre=mean(delta_dB_powerpreHit(((ROCgroupNopre==1)|(ROCgroupNopre==3))&logical(ROCbandwidthpre==bwii)));
+            if sum(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreHit(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            
+            plot((bwii-1)*3,mean_pre,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0],'MarkerEdgeColor',[0.6 0 0])
+            plot([(bwii-1)*3 (bwii-1)*3],[mean_pre-ci95 mean_pre+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            
+            mean_post=mean(delta_dB_powerpostCR(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii)));
+            
+            if sum(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii))>1
+                pd=fitdist(delta_dB_powerpostCR(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot((bwii-1)*3+1,mean_post,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0])
+            plot([(bwii-1)*3+1 (bwii-1)*3+1],[mean_post-ci95 mean_post+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            plot([(bwii-1)*3 (bwii-1)*3+1],[mean_pre mean_post],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+             mean_postlast=mean(delta_dB_powerpostlastCR(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii)));
+            
+            if sum(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii))>1
+                pd=fitdist(delta_dB_powerpostlastCR(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot((bwii-1)*3+2,mean_postlast,'o','MarkerSize', 10,'MarkerFace',[0.6 0 0])
+            plot([(bwii-1)*3+2 (bwii-1)*3+2],[mean_postlast-ci95 mean_postlast+ci95],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            plot([(bwii-1)*3+1 (bwii-1)*3+2],[mean_post mean_postlast],'-','LineWidth',2,'Color',[0.6 0 0])
+            
+            
+            %Do the statistics for dB differences for S+
+            a={delta_dB_powerpreHit(((ROCgroupNopre==1)|(ROCgroupNopre==3))&logical(ROCbandwidthpre==bwii))' delta_dB_powerpostHit(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii))'};
+            mode_statcond='perm';
+            [F df pval_dBperm] = statcond(a,'mode',mode_statcond,'naccu', 1000); % perform an unpaired ANOVA
+            fprintf(1, ['p value for premuted anovan for dB S+ ' freq_names{bwii} '= %d\n'],  pval_dBperm);
+            pvals_dBperm=[pvals_dBperm pval_dBperm];
+            
+            
+            %CRs for NL->L
+            figure(7)
+            
+            %All points - CR, NL->L
+            mean_pre=mean(delta_dB_powerpreCR(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpre==bwii)));
+            
+            if sum(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpre==bwii))>1
+                pd=fitdist(delta_dB_powerpreCR(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpre==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            plot((bwii-1)*3,mean_pre,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6])
+            plot([(bwii-1)*3 (bwii-1)*3],[mean_pre-ci95 mean_pre+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            
+            
+            mean_post=mean(delta_dB_powerpostHit(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii)));
+            if sum(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii))>1
+                pd=fitdist(delta_dB_powerpostHit(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            
+            plot((bwii-1)*3+1,mean_post,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6],'MarkerEdgeColor',[0 0 0.6])
+            plot([(bwii-1)*3+1 (bwii-1)*3+1],[mean_post-ci95 mean_post+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            plot([(bwii-1)*3 (bwii-1)*3+1],[mean_pre mean_post],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            mean_postlast=mean(delta_dB_powerpostlastHit(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii)));
+            if sum(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii))>1
+                pd=fitdist(delta_dB_powerpostlastHit(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii))','Normal');
+                ci_tbl=paramci(pd);
+                ci95=pd.mu-ci_tbl(1,1);
+            else
+                ci95=0;
+            end
+            
+            plot((bwii-1)*3+2,mean_postlast,'o','MarkerSize', 10,'MarkerFace',[0 0 0.6],'MarkerEdgeColor',[0 0 0.6])
+            plot([(bwii-1)*3+2 (bwii-1)*3+2],[mean_postlast-ci95 mean_post+ci95],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            plot([(bwii-1)*3+1 (bwii-1)*3+2],[mean_post mean_postlast],'-','LineWidth',2,'Color',[0 0 0.6])
+            
+            %Do the statistics for dB differences for S-
+            a={delta_dB_powerpreCR(((ROCgroupNopre==1)|(ROCgroupNopre==3))&logical(ROCbandwidthpre==bwii))' delta_dB_powerpostCR(((ROCgroupNopre==1)|(ROCgroupNopre==3))&(ROCbandwidthpost==bwii))'};
+            mode_statcond='perm';
+            [F df pval_dBperm] = statcond(a,'mode',mode_statcond,'naccu', 1000); % perform an unpaired ANOVA
+            fprintf(1, ['p value for premuted anovan for dB S- ' freq_names{bwii} '= %d\n'],  pval_dBperm);
+            pvals_dBperm=[pvals_dBperm pval_dBperm];
+        end
+        
+        pFDRdBperm=drsFDRpval(pvals_dBperm);
+        fprintf(1, ['\npFDR for premuted anovan p value for difference between learning and proficent for dB = %d\n\n'],pFDRdBperm);
+        
+        
+        figure(6)
+        title('Change in power dB from forward to reverse for EA')
+        ylabel('delta Power (dB)')
+        ylim([-10 12])
+        
+        figure(7)
+        title('Change in power dB from forward to reverse for PA')
+        ylabel('delta Power (dB)')
+        ylim([-10 12])
+        
+        
+        fprintf(1, '\n\n')
+        
+        
 end
 pffft=1
