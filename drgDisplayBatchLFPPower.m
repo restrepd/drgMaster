@@ -2119,7 +2119,7 @@ switch which_display
             
             hold on
             plot([0 1],[0 1],'k','LineWidth',3);
-            plot(rocHitCR.xr,rocHitCR.yr,'ro','markersize',1,'markeredgecolor','r','markerfacecolor','r');
+            plot(rocHitCR.xr,rocHitCR.yr,'ro','markersize',1,'markeredgecolor','r','markerfacecolor','r','LineWidth',3);
             
             
             
@@ -2138,7 +2138,7 @@ switch which_display
             rocCRFA=roc_calc(roc_data,0,0.05,0);
             fprintf(1, ['auROC for '  freq_names{bwii} ' FA vs. CR = %d\n'],  rocCRFA.AUC-0.5);
             
-            plot(rocCRFA.xr,rocCRFA.yr,'bo','markersize',1,'markeredgecolor','b','markerfacecolor','b');
+            plot(rocCRFA.xr,rocCRFA.yr,'bo','markersize',1,'markeredgecolor','b','markerfacecolor','b','LineWidth',3);
             
             xlabel('False positive rate (1-Specificity)')
             ylabel('True positive rate (Sensitivity)')
