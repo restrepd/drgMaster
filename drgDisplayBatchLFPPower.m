@@ -2090,6 +2090,9 @@ switch which_display
             legend('Hit','CR','FA')
             
             title([ freq_names{bwii} ' d pime histograms for '  percent_bin_legend{per_bin}])
+            ax=gca;
+            ax.LineWidth=3;
+            ylim([0 100])
             
             %Plot ROC for HIt vs CR
             roc_data=[];
