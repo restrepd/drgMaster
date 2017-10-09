@@ -2118,7 +2118,7 @@ switch which_display
             
             
             hold on
-            plot([0 1],[0 1],'k');
+            plot([0 1],[0 1],'k','LineWidth',3);
             plot(rocHitCR.xr,rocHitCR.yr,'ro','markersize',1,'markeredgecolor','r','markerfacecolor','r');
             
             
@@ -2144,6 +2144,8 @@ switch which_display
             ylabel('True positive rate (Sensitivity)')
             title(['ROC curve for Hit or FA vs CR for ' freq_names{bwii}])
             legend('Hit','FA')
+            ax=gca;
+            ax.LineWidth=3;
             
             
             
