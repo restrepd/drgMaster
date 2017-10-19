@@ -101,15 +101,42 @@ for trNo=firstTr:lastTr
                 end
                 if handles.displayData==0
                     for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
-                        if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
-                            which_event(evTypeNo,no_trials)=1;
-                        else
-                            which_event(evTypeNo,no_trials)=0;
+                        switch handles.evTypeNo
+                            case 1
+                                %tstart is the reference event
+                                if handles.drgbchoices.evTypeNos(evTypeNo)==1
+                                    %This is tstart
+                                    if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
+                                        which_event(evTypeNo,no_trials)=1;
+                                    else
+                                        which_event(evTypeNo,no_trials)=0;
+                                    end
+                                else
+                                    %These are not tstart, and the time
+                                    %should be compared at OdorOn
+                                      %This is tstart
+                                    if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(2).times(evNo))>0
+                                        which_event(evTypeNo,no_trials)=1;
+                                    else
+                                        which_event(evTypeNo,no_trials)=0;
+                                    end
+                                end
+                            otherwise
+                                %OdorOn is the reference event
+                                if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
+                                    which_event(evTypeNo,no_trials)=1;
+                                else
+                                    which_event(evTypeNo,no_trials)=0;
+                                end
                         end
+                        
+                        
+                        
                     end
-                    
                 end
+                
             end
+        end
         else
             no_excluded=no_excluded+1;
         end %for evNo
