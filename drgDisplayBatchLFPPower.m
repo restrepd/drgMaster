@@ -2332,13 +2332,57 @@ switch which_display
 %             a={ these_dprimeCRs these_dprimeFAs};
 %             [F df pvals_CRFA_perm2(bwii)] = statcond(a,'mode',mode_statcond); % perform an unpaired ANOVA
     
-            pvals_CRFA_perm2(bwii)=ranksum(these_dprimeCRs, these_dprimeFAs);
-           );
-            fprintf(1, ['p value for '  freq_names{bwii} ' FA vs CR d prime = %d\n'],  pvals_CRFA_perm2(bwii));
+            pvals_CRFA_rs(bwii)=ranksum(these_dprimeCRs, these_dprimeFAs);
+          
+            fprintf(1, ['ranksum p value for '  freq_names{bwii} ' FA vs CR d prime = %d\n'],  pvals_CRFA_rs(bwii));
+            
+            figNo=figNo+1;
+            try
+                close(figNo)
+            catch
+            end
+            figure(figNo)
+            
+            
+            hold on
+           
+            
+            
+            
+            %Plot ROC for CR vs FA
+            roc_data=[];
+            %Enter d prime for CRs
+            roc_data(1:length(these_dprimeCRs),1)=these_dprimeCRs';
+            roc_data(1:length(these_dprimeCRs),2)=zeros(length(these_dprimeCRs),1);
+            
+            %Enter dprime for FA
+            roc_data(length(these_dprimeCRs)+1:length(these_dprimeCRs)+length(these_dprimeFAs),1)=these_dprimeFAs';
+            roc_data(length(these_dprimeCRs)+1:length(these_dprimeCRs)+length(these_dprimeFAs),2)=ones(length(these_dprimeFAs),1);
+            
+            
+            %Find pre ROC
+            rocCRFA=roc_calc(roc_data,0,0.05,0);
+            fprintf(1, ['auROC for '  freq_names{bwii} ' FA vs. CR = %d\n'],  rocCRFA.AUC-0.5);
+            
+            plot(rocCRFA.xr,rocCRFA.yr,'bo','markersize',1,'markeredgecolor','g','markerfacecolor','g','LineWidth',3);
+            
+            plot([0 1],[0 1],'k','LineWidth',3);
+             
+            xlabel('False positive rate (1-Specificity)')
+            ylabel('True positive rate (Sensitivity)')
+            title(['ROC curve for Hit or FA vs CR for ' freq_names{bwii}])
+            legend('CR/FA','No discrimination')
+            ax=gca;
+            ax.LineWidth=3;
                   
+            roc_p(bwii)=rocCRFA.p;
+            fprintf(1, ['p value for ROC for '  freq_names{bwii} ' FA vs. CR = %d\n'],  rocCRFA.p);
              
         end
-        pFDRCRFA_perm2=drsFDRpval(pvals_CRFA_perm2);
-        fprintf(1, ['pFDR value for FA vs CR d prime = %d\n'],  pFDRCRFA_perm2);
+        pFDRCRFA_re=drsFDRpval(pvals_CRFA_re);
+        fprintf(1, ['pFDR value for FA vs CR d prime ranksum = %d\n'],  pFDRCRFA_rs);
+        
+        pFDRCRFA_roc=drsFDRpval(roc_p);
+        fprintf(1, ['pFDR value for FA vs CR ROC = %d\n'],  pFDRCRFA_roc);
         
 end
