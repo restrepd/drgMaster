@@ -242,110 +242,217 @@ no_valuesHitCR=zeros(no_events,noWindows,no_groups,no_percent_bins);
 %Sort out all power values into a matrix
 no_ROCs=0;
 p_vals_ROC=[];
-for lfpodNo=1:no_lfpevpairs
-    fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
-    groupNo=handles_drgb.drgbchoices.group_no(fileNo);
-    timeWindow=handles_drgb.drgb.lfpevpair(lfpodNo).timeWindow;
-    lfpodorNo=lfpodNo;
-     
-    try
-        trials_in_Hit=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evHit,:)==1;
-    catch
-        trials_in_Hit=[];
-    end
-    
-    try
-        trials_in_CR=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evCR,:)==1;
-    catch
-        trials_in_CR=[];
-    end
-    
-    try
-        trials_in_FA=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evFA,:)==1;
-    catch
-        trials_in_FA=[];
-    end
-    
-    %Calculate the average dB power
-    for evTypeNo=1:no_events
-        
-        try
-            trials_in_event=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evTypeNo,:)==1;
-        catch
-            trials_in_event=[];
-        end
-        
-        if sum(trials_in_event)>0
-            for percent_bin=1:no_percent_bins
-                trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
+switch which_display
+    case 10
+        for lfpodNo=1:no_lfpevpairs
+            fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
+            groupNo=handles_drgb.drgbchoices.group_no(fileNo);
+            timeWindow=handles_drgb.drgb.lfpevpair(lfpodNo).timeWindow;
+            lfpodorNo=lfpodNo;
+            
+            try
+                trials_in_Hit=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evHit,:)==1;
+            catch
+                trials_in_Hit=[];
+            end
+            
+            try
+                trials_in_CR=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evCR,:)==1;
+            catch
+                trials_in_CR=[];
+            end
+            
+            try
+                trials_in_FA=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evFA,:)==1;
+            catch
+                trials_in_FA=[];
+            end
+            
+            %Calculate the average dB power
+            for evTypeNo=1:no_events
                 
-                if sum(trials_in_event&trials_in_perbin)>0
-                    
-                    no_trials=sum(trials_in_event&trials_in_perbin);
-                    
-                    this_dB_power=zeros(no_trials,length(handles_drgb.drgb.freq_for_LFPpower));
-                    this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event&trials_in_perbin,:));
-                    dB_power_values(evTypeNo,timeWindow,groupNo,percent_bin,no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1,:)=...
-                        mean(this_dB_power,1);
-                    experimentNo(evTypeNo,timeWindow,groupNo,percent_bin,no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1)=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
-                    no_values(evTypeNo,timeWindow,groupNo,percent_bin)=no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1;
-                    if (sum(trials_in_Hit&trials_in_perbin)>0)&(sum(trials_in_CR&trials_in_perbin)>0)
-                        dB_power_valuesHitCR(evTypeNo,timeWindow,groupNo,percent_bin,no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1,:)=...
-                            mean(this_dB_power,1);
-                        experimentNoHitCR(evTypeNo,timeWindow,groupNo,percent_bin,no_valuesHitCR(evTypeNo,timeWindow,groupNo,percent_bin)+1)=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
-                        no_valuesHitCR(evTypeNo,timeWindow,groupNo,percent_bin)=no_valuesHitCR(evTypeNo,timeWindow,groupNo,percent_bin)+1;
+                try
+                    trials_in_event=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evTypeNo,:)==1;
+                catch
+                    trials_in_event=[];
+                end
+                
+                if sum(trials_in_event)>0
+                    for percent_bin=1:no_percent_bins
+                        trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
+                        
+                        if sum(trials_in_event&trials_in_perbin)>0
+                            
+                            no_trials=sum(trials_in_event&trials_in_perbin);
+                            
+                            this_dB_power=zeros(no_trials,length(handles_drgb.drgb.freq_for_LFPpower));
+                            this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event&trials_in_perbin,:));
+                            dB_power_values(evTypeNo,timeWindow,groupNo,percent_bin,no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1,:)=...
+                                mean(this_dB_power,1);
+                            experimentNo(evTypeNo,timeWindow,groupNo,percent_bin,no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1)=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
+                            no_values(evTypeNo,timeWindow,groupNo,percent_bin)=no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1;
+                            if (sum(trials_in_Hit&trials_in_perbin)>0)&(sum(trials_in_CR&trials_in_perbin)>0)
+                                dB_power_valuesHitCR(evTypeNo,timeWindow,groupNo,percent_bin,no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1,:)=...
+                                    mean(this_dB_power,1);
+                                experimentNoHitCR(evTypeNo,timeWindow,groupNo,percent_bin,no_valuesHitCR(evTypeNo,timeWindow,groupNo,percent_bin)+1)=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
+                                no_valuesHitCR(evTypeNo,timeWindow,groupNo,percent_bin)=no_valuesHitCR(evTypeNo,timeWindow,groupNo,percent_bin)+1;
+                            end
+                        end
                     end
                 end
+                
             end
-        end
-        
-    end
-    
-    %Calculate the ROC for Hit vs CR
-    %Do proficient only
-    percent_bin=3;
-    trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
-    
-    if (sum(trials_in_Hit&trials_in_perbin)>5)&(sum(trials_in_CR&trials_in_perbin)>5)&((which_display==7)||(which_display==8)||(which_display==9)||(which_display==10))
-        
-        no_trialsHit=sum(trials_in_Hit&trials_in_perbin);
-        this_dB_powerHit=zeros(no_trialsHit,length(handles_drgb.drgb.freq_for_LFPpower));
-        this_dB_powerHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_Hit&trials_in_perbin,:));
-        
-        
-        no_trialsCR=sum(trials_in_CR&trials_in_perbin);
-        this_dB_powerCR=zeros(no_trialsCR,length(handles_drgb.drgb.freq_for_LFPpower));
-        this_dB_powerCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_CR&trials_in_perbin,:));
-        
-        this_dB_powerCRbw=zeros(no_trialsCR,4);
-        this_dB_powerHitbw=zeros(no_trialsHit,4);
-        roc_data=zeros(no_trialsHit+no_trialsCR,2);
-        for ii=1:no_bandwidths
-            %Enter the Hits
-            this_band=(frequency>=low_freq(ii))&(frequency<=high_freq(ii));
-            roc_data(1:no_trialsHit,1)=mean(this_dB_powerHit(:,this_band),2);
-            roc_data(1:no_trialsHit,2)=zeros(no_trialsHit,1);
             
-            %Enter CR
-            roc_data(no_trialsHit+1:no_trialsHit+no_trialsCR,1)=mean(this_dB_powerCR(:,this_band),2);
-            roc_data(no_trialsHit+1:no_trialsHit+no_trialsCR,2)=ones(no_trialsCR,1);
-            no_ROCs=no_ROCs+1;
-            ROCout(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
-            ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
-            ROCout(no_ROCs).groupNo=handles_drgb.drgbchoices.group_no(fileNo);
-            ROCout(no_ROCs).timeWindow=handles_drgb.drgb.lfpevpair(lfpodNo).timeWindow;
-            ROCout(no_ROCs).bandwidth=ii;
-            p_vals_ROC=[p_vals_ROC ROCout(no_ROCs).roc.p];
-            if timeWindow==2
-                pffft=1;
-            end
+            %Calculate the ROC for Hit vs CR
+            %Do proficient only
+            for percent_bin=[1 3]
+                trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
+                
+                if (sum(trials_in_Hit&trials_in_perbin)>5)&(sum(trials_in_CR&trials_in_perbin)>5)&((which_display==7)||(which_display==8)||(which_display==9)||(which_display==10))
+                    
+                    no_trialsHit=sum(trials_in_Hit&trials_in_perbin);
+                    this_dB_powerHit=zeros(no_trialsHit,length(handles_drgb.drgb.freq_for_LFPpower));
+                    this_dB_powerHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_Hit&trials_in_perbin,:));
+                    
+                    
+                    no_trialsCR=sum(trials_in_CR&trials_in_perbin);
+                    this_dB_powerCR=zeros(no_trialsCR,length(handles_drgb.drgb.freq_for_LFPpower));
+                    this_dB_powerCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_CR&trials_in_perbin,:));
+                    
+                    this_dB_powerCRbw=zeros(no_trialsCR,4);
+                    this_dB_powerHitbw=zeros(no_trialsHit,4);
+                    roc_data=zeros(no_trialsHit+no_trialsCR,2);
+                    for ii=1:no_bandwidths
+                        %Enter the Hits
+                        this_band=(frequency>=low_freq(ii))&(frequency<=high_freq(ii));
+                        roc_data(1:no_trialsHit,1)=mean(this_dB_powerHit(:,this_band),2);
+                        roc_data(1:no_trialsHit,2)=zeros(no_trialsHit,1);
+                        
+                        %Enter CR
+                        roc_data(no_trialsHit+1:no_trialsHit+no_trialsCR,1)=mean(this_dB_powerCR(:,this_band),2);
+                        roc_data(no_trialsHit+1:no_trialsHit+no_trialsCR,2)=ones(no_trialsCR,1);
+                        no_ROCs=no_ROCs+1;
+                        ROCout(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
+                        ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
+                        ROCout(no_ROCs).groupNo=handles_drgb.drgbchoices.group_no(fileNo);
+                        ROCout(no_ROCs).timeWindow=handles_drgb.drgb.lfpevpair(lfpodNo).timeWindow;
+                        ROCout(no_ROCs).bandwidth=ii;
+                        p_vals_ROC=[p_vals_ROC ROCout(no_ROCs).roc.p];
+                        if timeWindow==2
+                            pffft=1;
+                        end
+                    end
+                    
+                    
+                end
         end
-        
-        
-    end
-    
+            
+        end
+    otherwise
+        for lfpodNo=1:no_lfpevpairs
+            fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
+            groupNo=handles_drgb.drgbchoices.group_no(fileNo);
+            timeWindow=handles_drgb.drgb.lfpevpair(lfpodNo).timeWindow;
+            lfpodorNo=lfpodNo;
+            
+            try
+                trials_in_Hit=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evHit,:)==1;
+            catch
+                trials_in_Hit=[];
+            end
+            
+            try
+                trials_in_CR=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evCR,:)==1;
+            catch
+                trials_in_CR=[];
+            end
+            
+            try
+                trials_in_FA=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evFA,:)==1;
+            catch
+                trials_in_FA=[];
+            end
+            
+            %Calculate the average dB power
+            for evTypeNo=1:no_events
+                
+                try
+                    trials_in_event=handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(evTypeNo,:)==1;
+                catch
+                    trials_in_event=[];
+                end
+                
+                if sum(trials_in_event)>0
+                    for percent_bin=1:no_percent_bins
+                        trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
+                        
+                        if sum(trials_in_event&trials_in_perbin)>0
+                            
+                            no_trials=sum(trials_in_event&trials_in_perbin);
+                            
+                            this_dB_power=zeros(no_trials,length(handles_drgb.drgb.freq_for_LFPpower));
+                            this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event&trials_in_perbin,:));
+                            dB_power_values(evTypeNo,timeWindow,groupNo,percent_bin,no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1,:)=...
+                                mean(this_dB_power,1);
+                            experimentNo(evTypeNo,timeWindow,groupNo,percent_bin,no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1)=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
+                            no_values(evTypeNo,timeWindow,groupNo,percent_bin)=no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1;
+                            if (sum(trials_in_Hit&trials_in_perbin)>0)&(sum(trials_in_CR&trials_in_perbin)>0)
+                                dB_power_valuesHitCR(evTypeNo,timeWindow,groupNo,percent_bin,no_values(evTypeNo,timeWindow,groupNo,percent_bin)+1,:)=...
+                                    mean(this_dB_power,1);
+                                experimentNoHitCR(evTypeNo,timeWindow,groupNo,percent_bin,no_valuesHitCR(evTypeNo,timeWindow,groupNo,percent_bin)+1)=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
+                                no_valuesHitCR(evTypeNo,timeWindow,groupNo,percent_bin)=no_valuesHitCR(evTypeNo,timeWindow,groupNo,percent_bin)+1;
+                            end
+                        end
+                    end
+                end
+                
+            end
+            
+            %Calculate the ROC for Hit vs CR
+            %Do proficient only
+            percent_bin=3;
+            trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
+            
+            if (sum(trials_in_Hit&trials_in_perbin)>5)&(sum(trials_in_CR&trials_in_perbin)>5)&((which_display==7)||(which_display==8)||(which_display==9)||(which_display==10))
+                
+                no_trialsHit=sum(trials_in_Hit&trials_in_perbin);
+                this_dB_powerHit=zeros(no_trialsHit,length(handles_drgb.drgb.freq_for_LFPpower));
+                this_dB_powerHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_Hit&trials_in_perbin,:));
+                
+                
+                no_trialsCR=sum(trials_in_CR&trials_in_perbin);
+                this_dB_powerCR=zeros(no_trialsCR,length(handles_drgb.drgb.freq_for_LFPpower));
+                this_dB_powerCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_CR&trials_in_perbin,:));
+                
+                this_dB_powerCRbw=zeros(no_trialsCR,4);
+                this_dB_powerHitbw=zeros(no_trialsHit,4);
+                roc_data=zeros(no_trialsHit+no_trialsCR,2);
+                for ii=1:no_bandwidths
+                    %Enter the Hits
+                    this_band=(frequency>=low_freq(ii))&(frequency<=high_freq(ii));
+                    roc_data(1:no_trialsHit,1)=mean(this_dB_powerHit(:,this_band),2);
+                    roc_data(1:no_trialsHit,2)=zeros(no_trialsHit,1);
+                    
+                    %Enter CR
+                    roc_data(no_trialsHit+1:no_trialsHit+no_trialsCR,1)=mean(this_dB_powerCR(:,this_band),2);
+                    roc_data(no_trialsHit+1:no_trialsHit+no_trialsCR,2)=ones(no_trialsCR,1);
+                    no_ROCs=no_ROCs+1;
+                    ROCout(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
+                    ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
+                    ROCout(no_ROCs).groupNo=handles_drgb.drgbchoices.group_no(fileNo);
+                    ROCout(no_ROCs).timeWindow=handles_drgb.drgb.lfpevpair(lfpodNo).timeWindow;
+                    ROCout(no_ROCs).bandwidth=ii;
+                    p_vals_ROC=[p_vals_ROC ROCout(no_ROCs).roc.p];
+                    if timeWindow==2
+                        pffft=1;
+                    end
+                end
+                
+                
+            end
+            
+        end
 end
-
 
 if (which_display==8)||(which_display==9)
     nRocs=0;
@@ -464,6 +571,9 @@ if (which_display==10)
     d_primeFAs=[];
     grFAs=[];
     bwFAs=[];
+    pbHits=[];
+    pbCR=[];
+    pbFA=[];
     for lfpodNo=1:no_lfpevpairs
         fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
         groupNo=handles_drgb.drgbchoices.group_no(fileNo);
@@ -492,34 +602,35 @@ if (which_display==10)
         
         %Calculate the ROC for Hit vs CR
         %Do proficient only
-        percent_bin=3;
-        trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
         
-        if (sum(trials_in_Hit&trials_in_perbin)>5)&(sum(trials_in_CR&trials_in_perbin)>5)
+        for percent_bin=[1 3]
+            trials_in_perbin=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>percent_low(percent_bin))&(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_high(percent_bin));
             
-            no_trialsHit=sum(trials_in_Hit&trials_in_perbin);
-            this_dB_powerHit=zeros(no_trialsHit,length(handles_drgb.drgb.freq_for_LFPpower));
-            this_dB_powerHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_Hit&trials_in_perbin,:));
-            
-            
-            no_trialsCR=sum(trials_in_CR&trials_in_perbin);
-            this_dB_powerCR=zeros(no_trialsCR,length(handles_drgb.drgb.freq_for_LFPpower));
-            this_dB_powerCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_CR&trials_in_perbin,:));
-            
-            no_trialsFA=sum(trials_in_FA&trials_in_perbin);
-            this_dB_powerFA=zeros(no_trialsFA,length(handles_drgb.drgb.freq_for_LFPpower));
-            this_dB_powerFA(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_FA&trials_in_perbin,:));
-            
-            
-            for ii=1:no_bandwidths
-                %Enter the Hits
+            if (sum(trials_in_Hit&trials_in_perbin)>5)&(sum(trials_in_CR&trials_in_perbin)>5)
                 
-                nRocs=nRocs+1;
+                no_trialsHit=sum(trials_in_Hit&trials_in_perbin);
+                this_dB_powerHit=zeros(no_trialsHit,length(handles_drgb.drgb.freq_for_LFPpower));
+                this_dB_powerHit(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_Hit&trials_in_perbin,:));
                 
-                if timeWindow==winNo
-                    pffft=1;
-                    %Calculate d prime if auROC is significant
-                   
+                
+                no_trialsCR=sum(trials_in_CR&trials_in_perbin);
+                this_dB_powerCR=zeros(no_trialsCR,length(handles_drgb.drgb.freq_for_LFPpower));
+                this_dB_powerCR(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_CR&trials_in_perbin,:));
+                
+                no_trialsFA=sum(trials_in_FA&trials_in_perbin);
+                this_dB_powerFA=zeros(no_trialsFA,length(handles_drgb.drgb.freq_for_LFPpower));
+                this_dB_powerFA(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_FA&trials_in_perbin,:));
+                
+                
+                for ii=1:no_bandwidths
+                    %Enter the Hits
+                    
+                    nRocs=nRocs+1;
+                    
+                    if timeWindow==winNo
+                        pffft=1;
+                        %Calculate d prime if auROC is significant
+                        
                         %Enter the Hits
                         this_band=(frequency>=low_freq(ii))&(frequency<=high_freq(ii));
                         these_hits=mean(this_dB_powerHit(:,this_band),2);
@@ -536,20 +647,25 @@ if (which_display==10)
                         
                         d_primeHits=[d_primeHits mult_fact*(these_hits-mu_CR)'];
                         grHits=[grHits ROCout(nRocs).groupNo*ones(1,no_trialsHit)];
+                        pbHits=[pbHits percent_bin*ones(1,no_trialsHit)];
                         bwHits=[bwHits ii*ones(1,no_trialsHit)];
                         d_primeCRs=[d_primeCRs mult_fact*(these_CRs-mu_CR)'];
                         grCRs=[grCRs ROCout(nRocs).groupNo*ones(1,no_trialsCR)];
+                        pbCR=[pbCR percent_bin*ones(1,no_trialsCR)];
                         bwCRs=[bwCRs ii*ones(1,no_trialsCR)];
                         if no_trialsFA>0
                             these_FAs=mean(this_dB_powerFA(:,this_band),2);
                             d_primeFAs=[d_primeFAs mult_fact*(these_FAs-mu_CR)'];
                             grFAs=[grFAs ROCout(nRocs).groupNo*ones(1,no_trialsFA)];
                             bwFAs=[bwFAs ii*ones(1,no_trialsFA)];
+                            pbFA=[pbFA percent_bin*ones(1,no_trialsFA)];
                         end
-                   
+                        
+                    end
                 end
+                
+                
             end
-            
             
         end
         
@@ -2282,107 +2398,131 @@ switch which_display
     case 10
         %d prime analysis for Alexia
         fprintf(1, 'd prime analysis for Hit, CR and FA for proficient mice\n\n');
-        per_bin=3;
+        
         figNo=0;
-        
-        
-        for bwii=1:no_bandwidths
-            
-            figNo=figNo+1;
-            try
-                close(figNo)
-            catch
+        no_pvals=0;
+        for per_bin=[1 3]
+            for bwii=1:no_bandwidths
+                no_pvals=no_pvals+1;
+                figNo=figNo+1;
+                try
+                    close(figNo)
+                catch
+                end
+                figure(figNo)
+                hold on
+                
+                max_dprime=prctile(d_primeCRs,99);
+                min_dprime=prctile(d_primeCRs,1);
+                
+                
+                
+                hold on
+                
+                %Plot CR cumulative histogram
+                these_dprimeCRs=[];
+                these_dprimeCRs=d_primeCRs(((grCRs==1)|(grCRs==3))&(bwii==bwCRs)&(per_bin==pbCR));
+                [f_dprimeCR,x_dprimeCR] = drg_ecdf(these_dprimeCRs);
+                plot(x_dprimeCR,f_dprimeCR,'-b')
+                
+                
+                %Plot FA histogram
+                these_dprimeFAs=[];
+                these_dprimeFAs=d_primeFAs(((grFAs==1)|(grFAs==3))&(bwii==bwFAs)&(per_bin==pbFA));
+                [f_dprimeFA,x_dprimeFA] = drg_ecdf(these_dprimeFAs);
+                plot(x_dprimeFA,f_dprimeFA,'-g')
+                
+                legend('CR','FA')
+                if per_bin==1
+                    title([ freq_names{bwii} ' d pime cumulative histogram for learning and '  percent_bin_legend{per_bin}])
+                else
+                    title([ freq_names{bwii} ' d pime cumulative histogram for proficient and '  percent_bin_legend{per_bin}])
+                end
+                ax=gca;
+                ax.LineWidth=3;
+                ylim([0 1.1])
+                
+                ax=gca;
+                ax.LineWidth=3;
+                
+                
+                
+                
+                %             a={ these_dprimeCRs these_dprimeFAs};
+                %             [F df pvals_CRFA_perm2(bwii)] = statcond(a,'mode',mode_statcond); % perform an unpaired ANOVA
+                
+                pvals_CRFA_rs(no_pvals)=ranksum(these_dprimeCRs, these_dprimeFAs);
+                
+                if per_bin==1
+                    fprintf(1, ['ranksum p value for learning and '  freq_names{bwii} ' FA vs CR d prime = %d\n'],  pvals_CRFA_rs(no_pvals));
+                else
+                    fprintf(1, ['ranksum p value for proficient and '  freq_names{bwii} ' FA vs CR d prime = %d\n'],  pvals_CRFA_rs(no_pvals));
+                end
+                
+                figNo=figNo+1;
+                try
+                    close(figNo)
+                catch
+                end
+                figure(figNo)
+                
+                
+                hold on
+                
+                
+                
+                
+                %Plot ROC for CR vs FA
+                roc_data=[];
+                %Enter d prime for CRs
+                roc_data(1:length(these_dprimeCRs),1)=these_dprimeCRs';
+                roc_data(1:length(these_dprimeCRs),2)=zeros(length(these_dprimeCRs),1);
+                
+                %Enter dprime for FA
+                roc_data(length(these_dprimeCRs)+1:length(these_dprimeCRs)+length(these_dprimeFAs),1)=these_dprimeFAs';
+                roc_data(length(these_dprimeCRs)+1:length(these_dprimeCRs)+length(these_dprimeFAs),2)=ones(length(these_dprimeFAs),1);
+                
+                
+                %Find pre ROC
+                rocCRFA=roc_calc(roc_data,0,0.05,0);
+                if per_bin==1
+                    fprintf(1, ['auROC for learning and '  freq_names{bwii} ' FA vs. CR = %d\n'],  rocCRFA.AUC-0.5);
+                else
+                    fprintf(1, ['auROC for proficient and '  freq_names{bwii} ' FA vs. CR = %d\n'],  rocCRFA.AUC-0.5);
+                end
+                
+                plot(rocCRFA.xr,rocCRFA.yr,'bo','markersize',1,'markeredgecolor','g','markerfacecolor','g','LineWidth',3);
+                
+                plot([0 1],[0 1],'k','LineWidth',3);
+                
+                xlabel('False positive rate (1-Specificity)')
+                ylabel('True positive rate (Sensitivity)')
+                if per_bin==1
+                    title(['ROC curve for learning FA vs CR for ' freq_names{bwii}])
+                else
+                    title(['ROC curve for proficient FA vs CR for ' freq_names{bwii}])
+                end
+                legend('CR/FA','No discrimination')
+                ax=gca;
+                ax.LineWidth=3;
+                
+                roc_p(no_pvals)=rocCRFA.p;
+                if per_bin==1
+                    fprintf(1, ['p value for ROC for learning and '  freq_names{bwii} ' FA vs. CR = %d\n\n'],  rocCRFA.p);
+                else
+                    fprintf(1, ['p value for ROC for proficient and '  freq_names{bwii} ' FA vs. CR = %d\n\n'],  rocCRFA.p);
+                end
+                
             end
-            figure(figNo)
-            hold on
             
-            max_dprime=prctile(d_primeCRs,99);
-            min_dprime=prctile(d_primeCRs,1);
-            
-           
-            
-            hold on
-            
-            %Plot CR cumulative histogram
-            these_dprimeCRs=[];
-            these_dprimeCRs=d_primeCRs(((grCRs==1)|(grCRs==3))&(bwii==bwCRs));
-            [f_dprimeCR,x_dprimeCR] = drg_ecdf(these_dprimeCRs);
-            plot(x_dprimeCR,f_dprimeCR,'-b')
-            
-            
-            %Plot FA histogram
-            these_dprimeFAs=[];
-            these_dprimeFAs=d_primeFAs(((grFAs==1)|(grFAs==3))&(bwii==bwFAs));
-            [f_dprimeFA,x_dprimeFA] = drg_ecdf(these_dprimeFAs);
-            plot(x_dprimeFA,f_dprimeFA,'-g')
-            
-            legend('CR','FA')
-            
-            title([ freq_names{bwii} ' d pime cumulative histogram for '  percent_bin_legend{per_bin}])
-            ax=gca;
-            ax.LineWidth=3;
-            ylim([0 1.1])
-            
-            ax=gca;
-            ax.LineWidth=3;
-            
-            
-      
-            
-%             a={ these_dprimeCRs these_dprimeFAs};
-%             [F df pvals_CRFA_perm2(bwii)] = statcond(a,'mode',mode_statcond); % perform an unpaired ANOVA
-    
-            pvals_CRFA_rs(bwii)=ranksum(these_dprimeCRs, these_dprimeFAs);
-          
-            fprintf(1, ['ranksum p value for '  freq_names{bwii} ' FA vs CR d prime = %d\n'],  pvals_CRFA_rs(bwii));
-            
-            figNo=figNo+1;
-            try
-                close(figNo)
-            catch
-            end
-            figure(figNo)
-            
-            
-            hold on
-           
-            
-            
-            
-            %Plot ROC for CR vs FA
-            roc_data=[];
-            %Enter d prime for CRs
-            roc_data(1:length(these_dprimeCRs),1)=these_dprimeCRs';
-            roc_data(1:length(these_dprimeCRs),2)=zeros(length(these_dprimeCRs),1);
-            
-            %Enter dprime for FA
-            roc_data(length(these_dprimeCRs)+1:length(these_dprimeCRs)+length(these_dprimeFAs),1)=these_dprimeFAs';
-            roc_data(length(these_dprimeCRs)+1:length(these_dprimeCRs)+length(these_dprimeFAs),2)=ones(length(these_dprimeFAs),1);
-            
-            
-            %Find pre ROC
-            rocCRFA=roc_calc(roc_data,0,0.05,0);
-            fprintf(1, ['auROC for '  freq_names{bwii} ' FA vs. CR = %d\n'],  rocCRFA.AUC-0.5);
-            
-            plot(rocCRFA.xr,rocCRFA.yr,'bo','markersize',1,'markeredgecolor','g','markerfacecolor','g','LineWidth',3);
-            
-            plot([0 1],[0 1],'k','LineWidth',3);
-             
-            xlabel('False positive rate (1-Specificity)')
-            ylabel('True positive rate (Sensitivity)')
-            title(['ROC curve for Hit or FA vs CR for ' freq_names{bwii}])
-            legend('CR/FA','No discrimination')
-            ax=gca;
-            ax.LineWidth=3;
-                  
-            roc_p(bwii)=rocCRFA.p;
-            fprintf(1, ['p value for ROC for '  freq_names{bwii} ' FA vs. CR = %d\n'],  rocCRFA.p);
-             
+            fprintf(1, '\n\n\n');
         end
-        pFDRCRFA_re=drsFDRpval(pvals_CRFA_re);
+        
+        pFDRCRFA_rs=drsFDRpval(pvals_CRFA_rs);
         fprintf(1, ['pFDR value for FA vs CR d prime ranksum = %d\n'],  pFDRCRFA_rs);
         
         pFDRCRFA_roc=drsFDRpval(roc_p);
         fprintf(1, ['pFDR value for FA vs CR ROC = %d\n'],  pFDRCRFA_roc);
+        
         
 end

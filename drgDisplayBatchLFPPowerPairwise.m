@@ -132,45 +132,45 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % grpre=[1 3];
 % grpost=[2 4];
 
-% For Daniel's acetophenone ethyl benzoate acetoethylben_electrode8152017
-% For Fig. 5 of Daniel's paper run with which_display=5
-% NOTE: I am not using file 6 because the animal was not proficient
-winNo=2;
-refWin=1;
-which_display=5;
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-eventType=[3 6];
-evTypeLabels={'S+','S-'};
-
-
-%Experiment pairs
-%Important: The first file must be the experiment performed first
-%For example in acetophenone ethyl benzoate no laser is first, laser is
-%second
-file_pairs=[
-    1 7;
-    2 8;
-    3 9;
-%     4 10;  %Exclude, this is not last
-    5 11;
-    6 12;  
-    13 14;
-    15 16;
-    21 17;
-    23 18;
-    22 19;
-    24 20];
-no_file_pairs=11;
-
-comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
-
-grpre=[1 3];
-grpost=[2 4];
-
-
-% % For Daniel's ethylacetatepropylacetate10217
+% % For Daniel's acetophenone ethyl benzoate acetoethylben_electrode8152017
 % % For Fig. 5 of Daniel's paper run with which_display=5
+% % NOTE: I am not using file 6 because the animal was not proficient
+% winNo=2;
+% refWin=1;
+% which_display=5;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     1 7;
+%     2 8;
+%     3 9;
+% %     4 10;  %Exclude, this is not last
+%     5 11;
+%     6 12;  
+%     13 14;
+%     15 16;
+%     21 17;
+%     23 18;
+%     22 19;
+%     24 20];
+% no_file_pairs=11;
+% 
+% comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
+% 
+% grpre=[1 3];
+% grpost=[2 4];
+
+% % For Daniel's acetoethylben_electrode9202017
+% % For Fig. 5 of Daniel's paper run with which_display=5
+% % NOTE: I am not using file 6 because the animal was not proficient
 % winNo=2;
 % refWin=1;
 % which_display=5;
@@ -188,17 +188,52 @@ grpost=[2 4];
 %     8 1;
 %     9 2;
 %     10 3;
-%     11 4;
+%     11 4;  %Exclude, this is not last
 %     12 5;
 %     13 6;  
-%     14 7
-%     ];
-% no_file_pairs=7;
+%     14 7;
+%     19 15;
+%     20 16;
+%     21 17;
+%     22 18];
+% no_file_pairs=11;
 % 
 % comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
 % 
 % grpre=[1 3];
 % grpost=[2 4];
+
+
+% For Daniel's ethylacetatepropylacetate10217
+% For Fig. 5 of Daniel's paper run with which_display=5
+winNo=2;
+refWin=1;
+which_display=5;
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+eventType=[3 6];
+evTypeLabels={'S+','S-'};
+
+
+%Experiment pairs
+%Important: The first file must be the experiment performed first
+%For example in acetophenone ethyl benzoate no laser is first, laser is
+%second
+file_pairs=[
+    8 1;
+    9 2;
+    10 3;
+    11 4;
+    12 5;
+    13 6;  
+    14 7
+    ];
+no_file_pairs=7;
+
+comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
+
+grpre=[1 3];
+grpost=[2 4];
 
 % % % For Daniel's APEBEfirstandlast91117
 % %Fig 1 run with which_display=3;
@@ -3158,8 +3193,8 @@ switch which_display
                                     
                                     p_vals_ROC=[p_vals_ROC ROCoutpost(no_ROCs).roc.p];
                                     
-                                    if (auROCpost(no_ROCs)>0.3)&(auROCpre(no_ROCs)<0.05)&(ROCgroupNopre(no_ROCs)==1)&(ROCbandwidthpre(no_ROCs)==4)
-                                      fprintf(1, ['Increase in auROC for file No %d vs file No %d electrode %d bandwidth No: %d\n'],file_pairs(fps,1),file_pairs(fps,2),elec,bwii);  
+                                    if (auROCpost(no_ROCs)<0.3)&(auROCpre(no_ROCs)>0.3)&(ROCgroupNopre(no_ROCs)==1)&(ROCbandwidthpre(no_ROCs)==4)
+                                      fprintf(1, ['Decrease in auROC for file No %d vs file No %d electrode %d bandwidth No: %d\n'],file_pairs(fps,1),file_pairs(fps,2),elec,bwii);  
                                     end
                                     
                                     %Are the delta dB LFP's different?
@@ -3382,6 +3417,9 @@ switch which_display
         for bwii=1:4
             n_cum=0;
             this_legend=[];
+            data_auROC=[];
+            pre_post_auROC=[];
+            gr_auROC=[];
             for grs=1:2
                 if grs==1
                     try
@@ -3420,11 +3458,13 @@ switch which_display
                     title(['auROC DBh Cre for ' freq_names{bwii}])
                 end
                 xlim([-0.3 0.6])
-                
+                ylim([0 40])
+                 ax=gca;
+                ax.LineWidth=3;
 %                 if grs==1
-%                     ylim([0 40])
+%                     ylim([0 30])
 %                 else
-%                     ylim([0 20])
+%                     ylim([0 40])
 %                 end
                 
                 %Plot the single electrodes
@@ -3447,11 +3487,15 @@ switch which_display
                 plot(1,mean(auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii))),'or','MarkerSize', 10,'MarkerFace','r')
                 ylabel('auROC')
                 ylim([-0.2 0.5])
-                
+                ax=gca;
+                ax.LineWidth=3;
                 %Do the statistics for auROC differences
-                a={auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii))' auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii))'};
-                mode_statcond='perm';
-                [F df pval_auROCperm] = statcond(a,'mode',mode_statcond,'naccu', 1000); % perform an unpaired ANOVA
+%                 a={auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii))' auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii))'};
+%                 mode_statcond='perm';
+%                 [F df pval_auROCperm] = statcond(a,'mode',mode_statcond,'naccu', 1000); % perform an unpaired ANOVA
+%                 
+                pval_auROCperm=ranksum(auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)), auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)));
+                
                 if grs==1
                     fprintf(1, ['p value for premuted anovan for auROC DBH Cre x halo pre vs laser ' freq_names{bwii} '= %d\n'],  pval_auROCperm);
                 else
@@ -3459,14 +3503,32 @@ switch which_display
                 end
                 pvals_auROCperm=[pvals_auROCperm pval_auROCperm];
                 
-         
+                %Save the data for anovan interaction
+                %Pre
+                data_auROC=[data_auROC auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii))];
+                gr_auROC=[gr_auROC grs*ones(1,sum((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)))];
+                pre_post_auROC=[pre_post_auROC ones(1,sum((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)))];
+                
+                %Post
+                data_auROC=[data_auROC auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii))];
+                gr_auROC=[gr_auROC grs*ones(1,sum((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)))];
+                pre_post_auROC=[pre_post_auROC 2*ones(1,sum((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)))];
             end
             figNo=figNo+2;
              x=x+3;
+              
+             %Calculate anovan for inteaction
+             [p,tbl,stats]=anovan(data_auROC,{pre_post_auROC gr_auROC},'model','interaction','varnames',{'pre_vs_post','halo_vs_no_halo'},'display','off');
+             fprintf(1, ['p value for anovan auROC interaction for ' freq_names{bwii} '= %d\n'],  p(3));
+             p_aovan_int(bwii)=p(3);
+                
         end
         
         pFDRauROC=drsFDRpval(pvals_auROCperm);
         fprintf(1, ['pFDR for auROC  = %d\n\n'],pFDRauROC);
+        
+        pFDRauROCint=drsFDRpval(p_aovan_int);
+        fprintf(1, ['pFDR for auROC anovan interaction  = %d\n\n'],pFDRauROCint);
         
         figure(15)
         hold on
@@ -3503,6 +3565,9 @@ switch which_display
 %         p_perCorr=ranksum(perCorr_pre,perCorr_post);
 %         fprintf(1, '\np value for ranksum test for percent correct= %d\n\n',p_perCorr);
 %         
+
+    
+    
         save([handles.PathName handles.drgb.outFileName(1:end-4) '_out.mat'],'perCorr_pre','perCorr_post','group_pre', 'group_post');
         
        case 6
