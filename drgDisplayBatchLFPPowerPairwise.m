@@ -20,7 +20,7 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 %
 %
 % 5 Compare auROC in the last few trials of pre with first few trials of post
-%    Used for Fig. 5 of Daniel's paper with acetoethylben_electrode9202017.mat
+%    Used for Fig. 4 of Daniel's paper with acetoethylben_electrode9202017.mat
 %
 %
 % 6 Compare the last few trials of forward vs. the first few trials of reverse
@@ -235,8 +235,41 @@ comp_window=10; %Note: The ancova is not significant for all bandwidths when the
 grpre=[1 3];
 grpost=[2 4];
 
-% % % For Daniel's APEBEfirstandlast91117
-% %Fig 1 run with which_display=3;
+% % For Daniel's heptaoctanol11317.mat
+% % For Fig. 5 of Daniel's paper run with which_display=5
+% winNo=2;
+% refWin=1;
+% which_display=5;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     9 1;
+%     10 2;
+%     11 3;
+%     12 4;
+%     13 5;
+%     14 6;  
+%     15 7
+%     16 8
+%     ];
+% no_file_pairs=8;
+% 
+% comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
+% 
+% grpre=[1 3];
+% grpost=[2 4];
+
+% 
+% % % For Daniel's acetoethylben_firstandlast91117
+% %Fig 1G2 run with which_display=3;
 % %Fig 2 run with which_display=4; 
 % winNo=2;
 % refWin=1;
@@ -265,13 +298,13 @@ grpost=[2 4];
 % 
 % comp_window=15; %works well with 8-12
 % comp_window_auROC=30;
-% 
+%  
 % grpre=[1 3];
 % grpost=[2 4];
 
 % % % For Daniel's ethylacetatepropylacetatefirstandlast92617.mat
-% %Fig 1 run with which_display=3;
-% %Fig 2 run with which_display=4; 
+% %Fig 1G3 run with which_display=3;
+% %Fig 2C run with which_display=4; 
 % winNo=2;
 % refWin=1;
 % which_display=4;
@@ -297,10 +330,10 @@ grpost=[2 4];
 % grpre=[1 3];
 % grpost=[2 4];
 
-
+% % IMPORTANT: IAMO was used for Daniel's Figs. 1A to G1
 % % % For Daniel's Fig. 1 run with isomin_firstandlastIAMO91817
 % % % and which_display=3
-% % % For Daniel's Fig. 2 run with isomin_firstandlastIAMO91817
+% % % For Daniel's Fig. 2B run with isomin_firstandlastIAMO91817
 % % % and which_display=4
 % winNo=2;
 % refWin=1;
@@ -2250,9 +2283,7 @@ switch which_display
                                         subplot('Position',pos2)
                                         hold on
                                         plot([0 1],[delta_dB_powerpreHit(no_ROCs) delta_dB_powerpreCR(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
-                                        
-                                        pffft=1
-                                        
+        
                                     end
                                 end
                                 
@@ -2384,7 +2415,7 @@ switch which_display
             ylim([0 40])
             title(freq_names{bwii})
             
-            pffft=1
+        
             
             a={ delta_dB_powerpreHit(ROCbandwidthpre==bwii)' delta_dB_powerpreCR(ROCbandwidthpre==bwii)'};
             mode_statcond='perm';
@@ -2461,6 +2492,8 @@ switch which_display
         
         for bwii=1:4
             bar(bwii,100*sum(( p_valROCpre<=pFDRauROC)&(ROCbandwidthpre==bwii))/sum((ROCbandwidthpre==bwii)))
+            auROC_sig.sig(bwii)=sum(( p_valROCpre<=pFDRauROC)&(ROCbandwidthpre==bwii));
+            auROC_sig.not_sig(bwii)=sum((ROCbandwidthpre==bwii))-sum(( p_valROCpre<=pFDRauROC)&(ROCbandwidthpre==bwii));
         end
         title('Percent auROC significantly different from zero')
         ylim([0 100])
@@ -2783,7 +2816,7 @@ switch which_display
         pvals_ancova=[];
         pvals_auROCancova=[];
         for bwii=1:4
-            
+             
             
             %Now plot the LFP power, all points
             %Hits for NL->L
@@ -2956,8 +2989,14 @@ switch which_display
             percent_auROCpost=100*sum(p_valROCpost(ROCbandwidthpre==bwii)<=pFDRROC)/sum(ROCbandwidthpre==bwii);
             bar(x,percent_auROCpost,'b')
             
+            learn_sig(bwii)=sum(p_valROCpost(ROCbandwidthpre==bwii)<=pFDRROC);
+            learn_not_sig(bwii)=sum(ROCbandwidthpre==bwii)-sum(p_valROCpost(ROCbandwidthpre==bwii)<=pFDRROC);
+            
             percent_auROCpre=100*sum(p_valROCpre(ROCbandwidthpre==bwii)<=pFDRROC)/sum(ROCbandwidthpre==bwii);
             bar(x+1,percent_auROCpre,'r')
+            
+            prof_sig(bwii)=sum(p_valROCpre(ROCbandwidthpre==bwii)<=pFDRROC);
+            prof_not_sig(bwii)=sum(ROCbandwidthpre==bwii)-sum(p_valROCpre(ROCbandwidthpre==bwii)<=pFDRROC);
             
             
             x=x+3;
@@ -2991,8 +3030,9 @@ switch which_display
         p_perCorr=ranksum(perCorr_pre,perCorr_post);
         fprintf(1, '\np value for ranksum test for percent correct= %d\n\n',p_perCorr);
         
-        save([handles.PathName handles.drgb.outFileName(1:end-4) '_out.mat'],'perCorr_pre','perCprr_post');
+        save([handles.PathName handles.drgb.outFileName(1:end-4) '_out.mat'],'perCorr_pre','perCorr_post');
         
+        pffft=1;
         
     case 5
          %Compare auROC in the last few trials of pre with first few trials of post
@@ -3193,7 +3233,7 @@ switch which_display
                                     
                                     p_vals_ROC=[p_vals_ROC ROCoutpost(no_ROCs).roc.p];
                                     
-                                    if (auROCpost(no_ROCs)<0.3)&(auROCpre(no_ROCs)>0.3)&(ROCgroupNopre(no_ROCs)==1)&(ROCbandwidthpre(no_ROCs)==4)
+                                    if (auROCpost(no_ROCs)<0.3)&(auROCpre(no_ROCs)>0.4)&(ROCgroupNopre(no_ROCs)==1)&(ROCbandwidthpre(no_ROCs)==2)
                                       fprintf(1, ['Decrease in auROC for file No %d vs file No %d electrode %d bandwidth No: %d\n'],file_pairs(fps,1),file_pairs(fps,2),elec,bwii);  
                                     end
                                     
@@ -3341,8 +3381,9 @@ switch which_display
             pre_post=[];
             pre_post=[zeros(sum((ROCgroupNopre==1)&(ROCbandwidthpre==bwii)),1); ones(sum((ROCgroupNopre==3)&(ROCbandwidthpre==bwii)),1)];
             
-            [h,atab,ctab,stats] = aoctool(this_auROCpre,this_auROCpost,pre_post,0.05,'','','','off');
             
+            [h,atab,ctab,stats] = aoctool(this_auROCpre,this_auROCpost,pre_post,0.05,'','','','off');
+       
             
             pvals_auROCancova=[pvals_auROCancova atab{4,6}];
             fprintf(1, ['ancova auROC p value ' freq_names{bwii} ' = %d\n\n'],atab{4,6});
@@ -3569,6 +3610,7 @@ switch which_display
     
     
         save([handles.PathName handles.drgb.outFileName(1:end-4) '_out.mat'],'perCorr_pre','perCorr_post','group_pre', 'group_post');
+        pfft=1;
         
        case 6
         %Compare the last few trials of forward vs. the first few trials of reverse

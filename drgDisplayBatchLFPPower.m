@@ -44,7 +44,7 @@ warning('off')
 % use acetoethylben_electrode9202017.mat
 
 
-%For Alexia's tstart learning vs. proficeint Fig. 3B
+% For Alexia's tstart learning vs. proficeint Fig. 3B
 % bf_tstartLFPDRaftersim_troubleshoot.mat
 % it also works with bf_tstartLFPDRaftersim101717.mat
 % winNo=3;
@@ -75,10 +75,10 @@ warning('off')
 
 % For Alexia's per trial Hit, CR, FA with time in reference to tstart
 % bf_tstartLFPDRaftersim101717.mat
-winNo=3;
-which_display=10;
-eventType=[2 4 5];
-evTypeLabels={'Hit','CR','FA'};
+% winNo=3;
+% which_display=10;
+% eventType=[2 4 5];
+% evTypeLabels={'Hit','CR','FA'};
 
 
 % % For Daniel's Hit, CR, compare groups
@@ -110,21 +110,21 @@ evTypeLabels={'Hit','CR','FA'};
 % eventType=[2 5]; %Hit and CR
 % evTypeLabels={'Hit';'CR'};
 
-
+% 
 % % For Daniel's delta power Hit - CR, compare groups
-% which_display = 9 is used for the d prime calculations for Fig. 3
-% run with:
-% isomin_firstandlastIAMO91817.mat
-% acetoethylben_firstandlast91117.mat
-% ethylacetatepropylacetatefirstandlast92617.mat
-%
-% winNo=2;
-% which_display=9;
-% eventType1=2;
-% eventType=2;
-% eventTypeRef=5;
-% evTypeLabel='Hit';
-% evTypeRefLabel='CR';
+% % which_display = 9 is used for the d prime calculations for Fig. 3
+% % run with:
+% % isomin_firstandlastIAMO91817.mat
+% % acetoethylben_firstandlast91117.mat
+% % ethylacetatepropylacetatefirstandlast92617.mat
+
+winNo=2;
+which_display=9;
+eventType1=2;
+eventType=2;
+eventTypeRef=5;
+evTypeLabel='Hit';
+evTypeRefLabel='CR';
 
 % eventType=[9 10 11 12 13 14]; %Hit and CR
 % no_event_types=6;
@@ -142,7 +142,7 @@ mode_statcond='perm';
 
 %Which percent correct bins do you want to use?
 percent_low=[45 65 80];
-percent_high=[65 80 100];
+percent_high=[55 80 100];
 percent_bin_legend={' learning';' between learning and proficient';' proficient'};
 no_percent_bins=3;
 
@@ -2296,6 +2296,7 @@ switch which_display
         fprintf(1, 'd prime analysis for Hit, CR and FA for proficient mice\n\n');
         per_bin=3;
         figNo=0;
+        p_vals=[];
         
         
         for bwii=1:no_bandwidths
@@ -2347,7 +2348,8 @@ switch which_display
             %Find pre ROC
             rocHitCR=roc_calc(roc_data,0,0.05,0);
             
-            fprintf(1, ['auROC for '  freq_names{bwii} ' Hit vs. CR = %d\n'],  rocHitCR.AUC-0.5);
+            fprintf(1, ['auROC for '  freq_names{bwii} ' Hit vs. CR = %d, p value = %d\n'],  rocHitCR.AUC-0.5,rocHitCR.p);
+            p_vals=[p_vals rocHitCR.p];
             
             figNo=figNo+1;
             try
@@ -2376,7 +2378,8 @@ switch which_display
             
             %Find pre ROC
             rocCRFA=roc_calc(roc_data,0,0.05,0);
-            fprintf(1, ['auROC for '  freq_names{bwii} ' FA vs. CR = %d\n'],  rocCRFA.AUC-0.5);
+            fprintf(1, ['auROC for '  freq_names{bwii} ' FA vs. CR = %d, p value = %d\n'],  rocCRFA.AUC-0.5,rocCRFA.p);
+            p_vals=[p_vals rocCRFA.p];
             
             plot(rocCRFA.xr,rocCRFA.yr,'bo','markersize',1,'markeredgecolor','g','markerfacecolor','g','LineWidth',3);
             
@@ -2389,18 +2392,20 @@ switch which_display
             ax=gca;
             ax.LineWidth=3;
             
-            
-            
-            
-            
+
         end
+        
+        pFDRdprime=drsFDRpval(p_vals)
+        
+        pffft=1;
         
     case 10
         %d prime analysis for Alexia
-        fprintf(1, 'd prime analysis for Hit, CR and FA for proficient mice\n\n');
+        fprintf(1, 'd prime analysis for Hit, CR and FA\n\n');
         
         figNo=0;
         no_pvals=0;
+        roc_p=[];
         for per_bin=[1 3]
             for bwii=1:no_bandwidths
                 no_pvals=no_pvals+1;
