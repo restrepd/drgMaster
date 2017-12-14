@@ -88,21 +88,29 @@ for filNum=first_file:handles.drgbchoices.no_files
     handles.drgb.file(filNum).FileName=handles.FileName;
     handles.drgb.file(filNum).PathName=handles.PathName;
     
-    [handles.drgb.file(filNum).perCorr, encoding_trials, retrieval_trials, encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
+    [handles.drgb.file(filNum).perCorr, handles.drgb.file(filNum).encoding_trials, handles.drgb.file(filNum).retrieval_trials, encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
 
 
     
-    handles.drgb.file(filNum).drg=handles.drg;
+%     handles.drgb.file(filNum).drg=handles.drg;
     
     
-    %Save output file
-    handles_drgb=handles;
-    if isfield(handles,'data_dg')
-        handles_drgb=rmfield(handles_drgb,'data_dg');
-    end
-    save([handles.drgb.outPathName handles.drgb.outFileName],'handles_drgb','-v7.3')
+%     %Save output file
+%     handles_drgb=handles;
+%     if isfield(handles,'data_dg')
+%         handles_drgb=rmfield(handles_drgb,'data_dg');
+%     end
+%     save([handles.drgb.outPathName handles.drgb.outFileName],'handles_drgb','-v7.3')
     
 end
+
+%Plot percent correct
+max_session=max(handles.drgbchoices.session_no);
+for filNum=first_file:handles.drgbchoices.no_files
+    
+end
+pfft=1;
+
 
 
 
