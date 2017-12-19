@@ -9,16 +9,20 @@ switch handles.analysisNoOsc
         drgLFPspect(handles)
     case 4
         drgLFPPerTrial(handles)
-    case 5
-        drgLFPspectTimecourse(handles)
+    case 5 
+        drgLFPandLicksPerTrial(handles)
     case 6
-        drgPhaseTimecourse(handles)
+        drgLFPspectTimecourse(handles)
     case 7
-        drgThetaAmpPhaseLick(handles)
+        drgPhaseTimecourse(handles)
     case 8
+        drgThetaAmpPhaseLick(handles)
+    case 9
         drgLFPwaveTimecourse(handles)
-    case 9 
+    case 10 
         drgComparePhases(handles)
-    case 10
+    case 11
+        drgEventRelatedAnalysis(handles)
+    case 12
         drgLFProc(handles)
 end

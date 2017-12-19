@@ -103,11 +103,32 @@ for filNum=first_file:handles.drgbchoices.no_files
 %     save([handles.drgb.outPathName handles.drgb.outFileName],'handles_drgb','-v7.3')
     
 end
-
+ 
 %Plot percent correct
+try
+    close 1
+catch
+end
+
+hFig1 = figure(1);
+set(hFig1, 'units','normalized','position',[.02 .02 .95 .95])
+
 max_session=max(handles.drgbchoices.session_no);
+max_mouse=max(handles.drgbchoices.mouse_no);
+
 for filNum=first_file:handles.drgbchoices.no_files
+    subplot(max_session,max(max_mouse,max_session),max_session*(handles.drgbchoices.mouse_no(filNum)-1)+handles.drgbchoices.session_no(filNum))
+    % subplot(3,1,1)
+    trials=1:length(handles.drgb.file(filNum).perCorr);
     
+    %Plot in different colors
+    plot(trials,handles.drgb.file(filNum).perCorr,'o','MarkerEdgeColor',[0.7 0.7 0.7],'MarkerFaceColor',[0.7 0.7 0.7])
+    hold on
+    plot(trials(handles.drgb.file(filNum).encoding_trials),handles.drgb.file(filNum).perCorr(handles.drgb.file(filNum).encoding_trials),'ob')
+    plot(trials(handles.drgb.file(filNum).retrieval_trials),handles.drgb.file(filNum).perCorr(handles.drgb.file(filNum).retrieval_trials),'or')
+    
+    ylim([0 110]);
+    title(handles.drgbchoices.group_no_names{handles.drgbchoices.group_no(filNum)})
 end
 pfft=1;
 
