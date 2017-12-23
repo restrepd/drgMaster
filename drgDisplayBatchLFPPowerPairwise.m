@@ -168,44 +168,11 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % grpre=[1 3];
 % grpost=[2 4];
 
-% % For Daniel's acetoethylben_electrode9202017
-% % For Fig. 5 of Daniel's paper run with which_display=5
-% % NOTE: I am not using file 6 because the animal was not proficient
-% winNo=2;
-% refWin=1;
-% which_display=5;
-% % eventType=[2 5];
-% % evTypeLabels={'Hit','CR'};
-% eventType=[3 6];
-% evTypeLabels={'S+','S-'};
-% 
-% 
-% %Experiment pairs
-% %Important: The first file must be the experiment performed first
-% %For example in acetophenone ethyl benzoate no laser is first, laser is
-% %second
-% file_pairs=[
-%     8 1;
-%     9 2;
-%     10 3;
-%     11 4;  %Exclude, this is not last
-%     12 5;
-%     13 6;  
-%     14 7;
-%     19 15;
-%     20 16;
-%     21 17;
-%     22 18];
-% no_file_pairs=11;
-% 
-% comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
-% 
-% grpre=[1 3];
-% grpost=[2 4];
-
-
-% For Daniel's ethylacetatepropylacetate10217
+% For Daniel's acetoethylben_electrode92017
+% drgbChoicesDanielAPEBElectrodesaddfiles92017
+%DO NOT USE 159867
 % For Fig. 5 of Daniel's paper run with which_display=5
+% NOTE: I am not using file 6 because the animal was not proficient
 winNo=2;
 refWin=1;
 which_display=5;
@@ -223,17 +190,52 @@ file_pairs=[
     8 1;
     9 2;
     10 3;
-    11 4;
-    12 5;
+    11 4;  
+%     12 5; %Exclude, this is not last. Do NOT use 159867!!
     13 6;  
-    14 7
-    ];
-no_file_pairs=7;
+    14 7;
+    19 15;
+    20 16;
+    21 17;
+    22 18];
+no_file_pairs=10;
 
 comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
 
 grpre=[1 3];
 grpost=[2 4];
+
+
+% % For Daniel's ethylacetatepropylacetate10217
+% % For Fig. 5 of Daniel's paper run with which_display=5
+% winNo=2;
+% refWin=1;
+% which_display=5;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     8 1;
+%     9 2;
+%     10 3;
+%     11 4;
+%     12 5;
+%     13 6;  
+%     14 7
+%     ];
+% no_file_pairs=7;
+% 
+% comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
+% 
+% grpre=[1 3];
+% grpost=[2 4];
 
 % % For Daniel's heptaoctanol11317.mat
 % % For Fig. 5 of Daniel's paper run with which_display=5
@@ -290,7 +292,7 @@ grpost=[2 4];
 %     3 8;
 %     4 9;
 %     5 10;
-% %     6 12; %Exclude, this is not last
+% %     6 12; %Exclude, this is not last, 159867 should NOT be used
 %     13 16;
 %     14 17;
 %     15 18];

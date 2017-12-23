@@ -32,7 +32,7 @@ firstTr=handles.trialNo;
 lastTr=handles.lastTrialNo;
 
 %Calculate the threshold value to detect a lick
-all_refs=[]
+all_refs=[];
 for trNo=firstTr:lastTr
     
     if handles.displayData==1
@@ -92,7 +92,7 @@ phase_per_trial=[];
 ERLF_per_trial=[];
 
 log_P_t=[];
-
+ 
 for trNo=firstTr:lastTr
     
     if handles.displayData==1
@@ -104,7 +104,7 @@ for trNo=firstTr:lastTr
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
         
         if excludeTrial==0
-            
+             
             %Note: handles.peakLFPNo is the reference LFP
             [reference, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
             [LFP, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, min_t, max_t);
@@ -172,7 +172,7 @@ for trNo=firstTr:lastTr
                         
                         [mint,mint_ii]=min(abs(times_spec-time(no_events)));
                         out_times=times_spec((times_spec>=times_spec(mint_ii)-handles.window/2)&(times_spec<=times_spec(mint_ii)+handles.window/2));
-                        lot=length(out_times)
+                        lot=length(out_times);
                         
                         all_Power_per_event(no_events,1:length(f),1:length(out_times))=P(:,(times_spec>=times_spec(mint_ii)-handles.window/2)&(times_spec<=times_spec(mint_ii)+handles.window/2));
                         all_Power_these_events(no_evs_this_trial,1:length(f),1:length(out_times))=P(:,(times_spec>=times_spec(mint_ii)-handles.window/2)&(times_spec<=times_spec(mint_ii)+handles.window/2));

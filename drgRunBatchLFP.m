@@ -247,7 +247,29 @@ for filNum=first_file:handles.drgbchoices.no_files
                 handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).which_eventLFPPower=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).which_eventLFPPower which_event];
                 handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).perCorrLFPPower=[handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).perCorrLFPPower perCorr];
                 
-
+ 
+            end
+            
+            %Do the event-related LFP analysis
+            if sum(handles.drgbchoices.analyses==3)>0
+                %This was written to answer a reviewer's question on
+                %lick-related theta LFP. Because of this I am defaulting
+                %the bandwidth of the phase to theta
+                handles.peakLowF=6;
+                handles.peakHighF=12;
+                handles.burstLowF=6;
+                handles.burstHighF=12;
+                
+                handles.peakLFPNo=19; %These are licks
+                [log_P_t,no_trials_w_event,which_event,f,out_times,times,ERLFP_per_trial,phase_per_trial]=drgEventRelatedAnalysis(handles);
+                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).log_P_tERP=log_P_t;
+                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).no_trials_w_eventERP=no_trials_w_event;
+                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).which_eventERP=which_event;
+                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).fERP=f;
+                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).out_timesERP=out_times;
+                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).timesERP=times; 
+                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).ERLFP_per_trialERP=ERLFP_per_trial; 
+                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).phase_per_trialERP=phase_per_trial; 
             end
         end
         
@@ -261,6 +283,8 @@ for filNum=first_file:handles.drgbchoices.no_files
     save([handles.drgb.outPathName handles.drgb.outFileName],'handles_drgb','-v7.3')
     
 end
+
+pffft=1;
 
 
 
