@@ -262,14 +262,16 @@ for filNum=first_file:handles.drgbchoices.no_files
                 
                 handles.peakLFPNo=19; %These are licks
                 [log_P_t,no_trials_w_event,which_event,f,out_times,times,ERLFP_per_trial,phase_per_trial]=drgEventRelatedAnalysis(handles);
-                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).log_P_tERP=log_P_t;
-                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).no_trials_w_eventERP=no_trials_w_event;
-                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).which_eventERP=which_event;
-                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).fERP=f;
-                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).out_timesERP=out_times;
-                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).timesERP=times; 
-                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).ERLFP_per_trialERP=ERLFP_per_trial; 
-                handles.drgb.lfp_per_exp(handles.drgb.lfp_per_exp_no).phase_per_trialERP=phase_per_trial; 
+                
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).no_trials_w_eventERP=no_trials_w_event;
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).which_eventERP=which_event;
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).fERP=f;
+                lpt=zeros(no_trials_w_event,length(f));
+                lpt(:,:)=log_P_t(:,:,floor(length(out_times)/2)+1);
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).log_P_tERP=lpt;
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).timesERP=times; 
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).ERLFP_per_trialERP=ERLFP_per_trial; 
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).phase_per_trialERP=phase_per_trial; 
             end
         end
         
