@@ -397,14 +397,77 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % grpost=[2 4];
 
 
+% 
+% % For Daniel's acetoethylben_ERP_122317.mat
+% % drgbChoicesDanielAPEBlastertestERP12192017
+% %DO NOT USE 159867
+% % For ERP figure  of Daniel's paper run with which_display=8
+% % NOTE: I am not using file 6 because the animal was not proficient
+% winNo=1;
+% 
+% which_display=8;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     2 1;
+%     ];
+% no_file_pairs=1;
+% 
+% comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
+% 
+% grpre=[1 3];
+% grpost=[2 4];
 
-% For Daniel's acetoethylben_ERP_122317.mat
-% drgbChoicesDanielAPEBlastertestERP12192017
-%DO NOT USE 159867
+% 
+% % For Daniel's ethylacetatepropylacetate122117
+% % drgbChoicesDanielEAPA122117
+% % For Fig. 5 of Daniel's paper run with which_display=5
+% winNo=2;
+% refWin=1;
+% which_display=5;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     13 1;
+%     14 2;
+%     15 3;
+%     16 4;
+%     17 5;
+%     18 6;
+%     19 7;
+%     20 8;
+%     21 9;
+%     22 10;
+%     23 11;
+%     24 12
+%     ];
+% no_file_pairs=12;
+% 
+% comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
+% 
+% grpre=[1 3];
+% grpost=[2 4];
+
+% For Daniel's EAPA_ERP_12262017
+% drgbChoicesDanielEAPA_ERP12252017
 % For ERP figure  of Daniel's paper run with which_display=8
-% NOTE: I am not using file 6 because the animal was not proficient
 winNo=1;
-
 which_display=8;
 % eventType=[2 5];
 % evTypeLabels={'Hit','CR'};
@@ -417,9 +480,20 @@ evTypeLabels={'S+','S-'};
 %For example in acetophenone ethyl benzoate no laser is first, laser is
 %second
 file_pairs=[
-    2 1;
+    13 1;
+    14 2;
+    15 3;
+    16 4;
+    17 5;
+    18 6;
+    19 7;
+    20 8;
+    21 9;
+    22 10;
+    23 11;
+    24 12
     ];
-no_file_pairs=1;
+no_file_pairs=12;
 
 comp_window=10; %Note: The ancova is not significant for all bandwidths when the comp_window is increaesed to 15
 
@@ -468,7 +542,7 @@ load([handles.PathName handles.drgb.outFileName])
 
 
 fprintf(1, ['\ndrgDisplayBatchLFPPowerPairwise run for ' handles.drgb.outFileName ', which_display= = %d\n\n'],which_display);
- 
+  
 switch which_display
     case 8
         frequency=handles_drgb.drgb.lfpevpair(1).fERP;

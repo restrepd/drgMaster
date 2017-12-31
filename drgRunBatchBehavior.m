@@ -130,6 +130,13 @@ for filNum=first_file:handles.drgbchoices.no_files
     ylim([0 110]);
     title(handles.drgbchoices.group_no_names{handles.drgbchoices.group_no(filNum)})
 end
+
+title_str=inputdlg('Enter title');
+
+annotation('textbox', [0 0.9 1 0.1], ...
+    'String', title_str{1}, ...
+    'EdgeColor', 'none', ...
+    'HorizontalAlignment', 'center')
 pfft=1;
 
 
