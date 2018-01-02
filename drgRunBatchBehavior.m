@@ -57,7 +57,9 @@ for filNum=first_file:handles.drgbchoices.no_files
     handles.jtFileName=handles.drgbchoices.FileName{filNum};
     handles.jtPathName=handles.drgbchoices.PathName{filNum};
     
+    
     drgRead_jt_times(handles.jtPathName,handles.jtFileName);
+   
     FileName=[handles.jtFileName(10:end-4) '_drg.mat'];
     handles.fullName=[handles.jtPathName,FileName];
     handles.FileName=FileName;
@@ -117,7 +119,7 @@ max_session=max(handles.drgbchoices.session_no);
 max_mouse=max(handles.drgbchoices.mouse_no);
 
 for filNum=first_file:handles.drgbchoices.no_files
-    subplot(max_session,max(max_mouse,max_session),max_session*(handles.drgbchoices.mouse_no(filNum)-1)+handles.drgbchoices.session_no(filNum))
+    subplot(max_mouse,max_session,max_session*(handles.drgbchoices.mouse_no(filNum)-1)+handles.drgbchoices.session_no(filNum))
     % subplot(3,1,1)
     trials=1:length(handles.drgb.file(filNum).perCorr);
     
