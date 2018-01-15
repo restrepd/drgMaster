@@ -22,7 +22,9 @@ switch handles.analysisNoOsc
     case 10 
         drgComparePhases(handles)
     case 11
-        drgEventRelatedAnalysis(handles)
+        drgEventRelatedAnalysis(handles);
     case 12
         drgLFProc(handles)
+    case 13
+        drgEventRelatedROCAnalysis(handles);
 end

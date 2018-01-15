@@ -8,6 +8,10 @@ function drgRunBatchBehavior
 %
 %
 
+close all
+clear all
+
+trial_window=30;
 
 [choiceFileName,choiceBatchPathName] = uigetfile({'drgbChoices*.m'},'Select the .m file with all the choices for analysis');
 addpath(choiceBatchPathName)
@@ -120,6 +124,7 @@ max_mouse=max(handles.drgbchoices.mouse_no);
 
 for filNum=first_file:handles.drgbchoices.no_files
     subplot(max_mouse,max_session,max_session*(handles.drgbchoices.mouse_no(filNum)-1)+handles.drgbchoices.session_no(filNum))
+    set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
     % subplot(3,1,1)
     trials=1:length(handles.drgb.file(filNum).perCorr);
     
@@ -131,6 +136,11 @@ for filNum=first_file:handles.drgbchoices.no_files
     
     ylim([0 110]);
     title(handles.drgbchoices.group_no_names{handles.drgbchoices.group_no(filNum)})
+    
+    remainder = rem((max_session*(handles.drgbchoices.mouse_no(filNum)-1)+handles.drgbchoices.session_no(filNum))-1,max_session);
+    if  remainder==0
+        ylabel(handles.drgbchoices.MouseName(handles.drgbchoices.mouse_no(filNum)))
+    end
 end
 
 title_str=inputdlg('Enter title');
@@ -139,6 +149,46 @@ annotation('textbox', [0 0.9 1 0.1], ...
     'String', title_str{1}, ...
     'EdgeColor', 'none', ...
     'HorizontalAlignment', 'center')
+
+%Plot the percent correct for the first and last set of trials
+
+first_pc=[];
+last_pc=[];
+
+for filNum=first_file:handles.drgbchoices.no_files
+    if length(handles.drgb.file(filNum).perCorr)>=trial_window
+        if handles.drgbchoices.session_no(filNum)==1
+            first_pc(handles.drgbchoices.mouse_no(filNum))=mean(handles.drgb.file(filNum).perCorr(1:trial_window));
+        else
+            if handles.drgbchoices.session_no(filNum)==max(handles.drgbchoices.session_no)
+                last_pc(handles.drgbchoices.mouse_no(filNum))=mean(handles.drgb.file(filNum).perCorr(end-trial_window:end));
+            end
+        end
+    end
+end
+
+
+figure(2)
+hold on
+for fps=1:max(handles.drgbchoices.mouse_no)
+    plot([0 1],[first_pc(fps) last_pc(fps)],'-o', 'Color',[0.7 0.7 0.7])
+end
+
+plot([0 1],[mean(first_pc) mean(last_pc)],'-k','LineWidth', 3)
+CI = bootci(1000, @mean, first_pc);
+plot([0 0],CI,'-b','LineWidth',3)
+plot(0,mean(first_pc),'ob','MarkerSize', 10,'MarkerFace','b')
+CI = bootci(1000, @mean, last_pc);
+plot([1 1],CI,'-r','LineWidth',3)
+plot(1,mean(last_pc),'or','MarkerSize', 10,'MarkerFace','r')
+ylabel('Percent correct')
+ylim([30 110])
+title('Percent correct')
+set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+
+p_perCorr=ranksum(last_pc,first_pc);
+fprintf(1, '\np value for ranksum test for percent correct= %d\n\n',p_perCorr);
+
 pfft=1;
 
 

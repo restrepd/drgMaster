@@ -261,25 +261,25 @@ end %for evNo
 if handles.displayData==1
     
 
-    %Scatter plot of phase as a function of time
-    try
-        close 3
-    catch
-    end
-    
-    hFig3 = figure(3);
-    set(hFig3, 'units','normalized','position',[.05 .1 .65 .3])
-    
-    hold on
-    for ii=1:no_events
-       plot(time(ii), pi*phase(ii)/180,'ob')
-    end
-    xlim([handles.time_start+pad_time handles.time_end-pad_time]);
-    ylim([0 360])
-    xlabel('Time (s)')
-    ylabel('Phase degrees')
-    title('Timecourse for the event-related phase')
-        
+%     %Scatter plot of phase as a function of time
+%     try
+%         close 3
+%     catch
+%     end
+%     
+%     hFig3 = figure(3);
+%     set(hFig3, 'units','normalized','position',[.05 .1 .65 .3])
+%     
+%     hold on
+%     for ii=1:no_events
+%        plot(time(ii), pi*phase(ii)/180,'ob')
+%     end
+%     xlim([handles.time_start+pad_time handles.time_end-pad_time]);
+%     ylim([0 360])
+%     xlabel('Time (s)')
+%     ylabel('Theta phase degrees')
+%     title('Timecourse for the event-related phase')
+%         
     %Avearge event-related filtered LFP
     try
         close 4
@@ -341,16 +341,19 @@ if handles.displayData==1
     catch
     end
     
-    %Plot the timecourse
+    %Plot the ERP timecourse
     hFig1 = figure(1);
     set(hFig1, 'units','normalized','position',[.07 .1 .55 .3])
     
-    
-    if handles.subtractRef==0
-        drg_pcolor(repmat(out_times-mean(out_times),length(freq),1)',repmat(freq,length(out_times),1),log_P_timecourse')
-    else
-        drg_pcolor(repmat(out_times-mean(out_times),length(freq),1)',repmat(freq,length(out_times),1),log_P_timecourse'-log_P_timecourse_ref')
-    end
+    %Calculate the mean ERP timecourse
+    mean_log_P_t=zeros(length(f),length(out_times));
+    mean_log_P_t(:,:)=mean(log_P_t,1);
+    drg_pcolor(repmat(out_times-mean(out_times),length(freq),1)',repmat(freq,length(out_times),1),mean_log_P_t')
+%     if handles.subtractRef==0
+%         drg_pcolor(repmat(out_times-mean(out_times),length(freq),1)',repmat(freq,length(out_times),1),log_P_timecourse')
+%     else
+%         drg_pcolor(repmat(out_times-mean(out_times),length(freq),1)',repmat(freq,length(out_times),1),log_P_timecourse'-log_P_timecourse_ref')
+%     end
     
     colormap jet
     shading interp
