@@ -102,6 +102,7 @@ handles.max_dt_between_events=3.5; %Maximum time between events (odorOn to reinf
 handles.read_entire_file=0;
 handles.corr_window=0.00025;
 handles.analysisSync=1;
+handles.max_events_per_sec=20;
 
 
 % Update handles structure

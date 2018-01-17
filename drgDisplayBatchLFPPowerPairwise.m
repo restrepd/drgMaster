@@ -297,48 +297,48 @@ comp_window=15; %Note: This is here because it is not being used in some cases
 % min_trials_per_event=4;
 
 
-% % % For Daniel's acetoethylben_firstandlast91117
-% % drgbChoicesDanielAPEBEfirstandlast9617
-% %Fig. 2 run with which_display=4;
-% 
-% winNo=2;
-% refWin=1;
-% which_display=4;
-% 
-% %
-% % eventType=[2 5];
-% % evTypeLabels={'Hit','CR'};
-% % comp_window=10;
-% 
-% eventType=[3 6];
-% evTypeLabels={'S+','S-'};
-% 
-% %Experiment pairs
-% % Here the last session file is the first file and the first session the second file in the pair
-% % file_pairs=[file_for_last_session file_for_first_session]
-% % because of this front_mask=[0 1]; 
-% file_pairs=[
-%     1 11;
-%     2 7;
-%     3 8;
-%     4 9;
-%     5 10;
-% %     6 12; %Exclude,159867 should NOT be used because the mouse was not
-% %     proficient in the "last" session
-%     13 16;
-%     14 17;
-%     15 18];
-% no_file_pairs=8;
-% 
-% front_mask=[0 1];  %For each file pair enter whether you will analyze the first few trials (1) or the last(0)
-% 
-% file_label{1}='proficient';
-% file_label{2}='learning';
-% 
-% trials_to_process=20;
-% min_trials_per_event=4;
-% 
-% output_suffix='_spmout.mat';
+% % For Daniel's acetoethylben_firstandlast91117
+% drgbChoicesDanielAPEBEfirstandlast9617
+%Fig. 2 run with which_display=4;
+
+winNo=2;
+refWin=1;
+which_display=4;
+
+%
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% comp_window=10;
+
+eventType=[3 6];
+evTypeLabels={'S+','S-'};
+
+%Experiment pairs
+% Here the last session file is the first file and the first session the second file in the pair
+% file_pairs=[file_for_last_session file_for_first_session]
+% because of this front_mask=[0 1]; 
+file_pairs=[
+    1 11;
+    2 7;
+    3 8;
+    4 9;
+    5 10;
+%     6 12; %Exclude,159867 should NOT be used because the mouse was not
+%     proficient in the "last" session
+    13 16;
+    14 17;
+    15 18];
+no_file_pairs=8;
+
+front_mask=[0 1];  %For each file pair enter whether you will analyze the first few trials (1) or the last(0)
+
+file_label{1}='proficient';
+file_label{2}='learning';
+
+trials_to_process=20;
+min_trials_per_event=4;
+
+output_suffix='_spmout.mat';
 
 
 
@@ -416,46 +416,47 @@ comp_window=15; %Note: This is here because it is not being used in some cases
 
 
 
-
-% drgbChoicesDanielIMMOfirstandlast91817
-% % For Daniel's Fig. 2B run with isomin_firstandlastIAMO91817
-% % and which_display=4
-winNo=2;
-refWin=1;
-which_display=4;
-
-
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-
-
-eventType=[3 6];
-evTypeLabels={'S+','S-'}; %Note: This is currently not used
-
-%Experiment pairs
-% Here the last session file is the first file and the first session the second file in the pair
-% file_pairs=[file_for_last_session file_for_first_session]
-% because of this front_mask=[0 1]; 
-
-file_pairs=[
-%     1 5; %Do not use this pair, the learning was deficient
-    2 4;
-    3 6;
-    7 11;
-    9 12;
-    10 13];
-no_file_pairs=5;
-
-
-front_mask=[0 1];  %For each file pair enter whether you will analyze the first few trials (1) or the last(0)
-
-file_label{1}='proficient';
-file_label{2}='learning';
-
-trials_to_process=20;
-min_trials_per_event=4;
-
-output_suffix='_spmout.mat';
+% 
+% % drgbChoicesDanielIMMOfirstandlast91817
+% % % For Daniel's Fig. 2B run with isomin_firstandlastIAMO91817
+% % % and which_display=4
+% winNo=2;
+% refWin=1;
+% which_display=4;
+% 
+% 
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% 
+% 
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'}; %Note: This is currently not used
+% 
+% %Experiment pairs
+% % Here the last session file is the first file and the first session the second file in the pair
+% % file_pairs=[file_for_last_session file_for_first_session]
+% % because of this front_mask=[0 1]; 
+% 
+% file_pairs=[
+% %     1 5; %Do not use this pair, the learning was deficient
+%     2 4;
+%     3 6;
+%     7 11;
+%     9 12;
+%     8 14;
+%     10 13];
+% no_file_pairs=6;
+% 
+% 
+% front_mask=[0 1];  %For each file pair enter whether you will analyze the first few trials (1) or the last(0)
+% 
+% file_label{1}='proficient';
+% file_label{2}='learning';
+% 
+% trials_to_process=20;
+% min_trials_per_event=4;
+% 
+% output_suffix='_spmout.mat';
 
 
 % % IMPORTANT: IAMO was used for Daniel's Figs. 1A to G1
@@ -478,8 +479,8 @@ output_suffix='_spmout.mat';
 % 
 % 
 % % Enter the files to be processed
-% files=[2 3 7 9 10];
-% no_files=5;
+% files=[2 3 7 8 9 10];
+% no_files=6;
 % 
 % trials_to_process=30;
 % min_trials_per_event=4;
@@ -727,7 +728,7 @@ output_suffix='_spmout.mat';
 % min_trials_per_event=4;
 
 
-% 
+
 % % Forward-reverse using Daniel's Fig. 2 analysis
 % % drgbChoicesDanielEAPAlastandreversallast11118
 % % % For Daniel's reversal EAPA_lastandreversallastEAPA11118

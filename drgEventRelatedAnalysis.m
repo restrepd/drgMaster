@@ -1,4 +1,4 @@
-function [log_P_t,no_trials_w_event,which_event,f,out_times,times,ERLFP_per_trial,phase_per_trial]=drgEventRelatedAnalysis(handles)
+function [log_P_t,no_trials_w_event,which_event,f,out_times,times,ERLFP_per_trial,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial]=drgEventRelatedAnalysis(handles)
 %Performs an event-related analysis. The event is signaled by a sharp chane
 %in the reference voltage. This is used to analyze lick-related changes in
 %LFP
@@ -7,6 +7,9 @@ which_event=[];
 anglereference = [];
 angleLFP = [];
 delta_phase_timecourse=[];
+no_events_per_trial=[];
+t_per_event_per_trial=[];
+time_per_event=[];
 
 %Generates a trial per trial phase histogram
 sessionNo=handles.sessionNo;
@@ -128,6 +131,7 @@ for trNo=firstTr:lastTr
                 [S,f,t,P]=spectrogram(detrend(double(LFP)),window,noverlap,freq,handles.drg.session(handles.sessionNo).draq_p.ActualRate);
                 
                 times_spec=t+min_t;
+                wing_ii=int64((handles.window/2)/(times_spec(2)-times_spec(1)));
                 
                 
                 %Get events
@@ -156,30 +160,42 @@ for trNo=firstTr:lastTr
                     if isempty(next_event)
                         the_end=1;
                     else
-                        no_events=no_events+1;
+                        
                         ii=ii+next_event-1;
-                        events(no_events)=ii;
-                        time(no_events)=handles.time_start+pad_time+(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
-                        phase(no_events)=thaLFP(ii);
-                        no_evs_this_trial=no_evs_this_trial+1;
-                        phase_this_trial(no_evs_this_trial)=thaLFP(ii);
                         
-                        ERLFP(no_events,:)=LFP(1,floor(ii_start+ii-(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate):...
-                            floor(ii_start+ii+(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate));
+                        %Make sure that the array is large enough
+                        this_time=handles.time_start+pad_time+(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
+                        [mint,mint_ii]=min(abs(times_spec-this_time));
                         
-                        ERLFP_this_trial(no_evs_this_trial,:)=LFP(1,floor(ii_start+ii-(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate):...
-                            floor(ii_start+ii+(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate));
-                        
-                        [mint,mint_ii]=min(abs(times_spec-time(no_events)));
-                        out_times=times_spec((times_spec>=times_spec(mint_ii)-handles.window/2)&(times_spec<=times_spec(mint_ii)+handles.window/2));
-                        lot=length(out_times);
-                        
-                        all_Power_per_event(no_events,1:length(f),1:length(out_times))=P(:,(times_spec>=times_spec(mint_ii)-handles.window/2)&(times_spec<=times_spec(mint_ii)+handles.window/2));
-                        all_Power_these_events(no_evs_this_trial,1:length(f),1:length(out_times))=P(:,(times_spec>=times_spec(mint_ii)-handles.window/2)&(times_spec<=times_spec(mint_ii)+handles.window/2));
-                       
-                        if handles.subtractRef==1
-                            ref_power_per_event(no_events,:)=mean(P(:,(times_spec>=handles.startRef+handles.time_pad)&(times_spec<=handles.endRef-handles.time_pad)),2)';
-                            ref_power_these_events(no_evs_this_trial,:)=mean(P(:,(times_spec>=handles.startRef+handles.time_pad)&(times_spec<=handles.endRef-handles.time_pad)),2)';
+                        if (mint_ii+wing_ii<=length(times_spec))&(mint_ii-wing_ii>=1)
+                            no_events=no_events+1;
+                            events(no_events)=ii;
+                            time_per_event(no_events)=handles.time_start+pad_time+(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
+                            phase(no_events)=thaLFP(ii);
+                            no_evs_this_trial=no_evs_this_trial+1;
+                            phase_this_trial(no_evs_this_trial)=thaLFP(ii);
+                            no_events_per_trial(no_trials)=no_evs_this_trial;
+                            t_per_event_per_trial(no_trials,no_evs_this_trial)=time_per_event(no_events);
+                            
+                            ERLFP(no_events,:)=LFP(1,floor(ii_start+ii-(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate):...
+                                floor(ii_start+ii+(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate));
+                            
+                            ERLFP_this_trial(no_evs_this_trial,:)=LFP(1,floor(ii_start+ii-(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate):...
+                                floor(ii_start+ii+(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate));
+                            
+                            out_times=times_spec(mint_ii-wing_ii:mint_ii+wing_ii);
+                            
+                            lot=length(out_times);
+                            
+                            all_Power_per_event(no_events,1:length(f),1:length(out_times))=P(:,mint_ii-wing_ii:mint_ii+wing_ii);
+                            all_Power_these_events(no_evs_this_trial,1:length(f),1:length(out_times))=P(:,mint_ii-wing_ii:mint_ii+wing_ii);
+                            
+                            if handles.subtractRef==1
+                                ref_power_per_event(no_events,:)=mean(P(:,mint_ii-wing_ii:mint_ii+wing_ii),2)';
+                                ref_power_these_events(no_evs_this_trial,:)=mean(P(:,mint_ii-wing_ii:mint_ii+wing_ii),2)';
+                            end
+                            
+                           
                         end
                         
                         end_event=find(ref(ii:end)<thershold_ref,1,'first');
@@ -191,7 +207,7 @@ for trNo=firstTr:lastTr
                     end
                 end
                 
-                if no_evs_this_trial>0
+                if (no_evs_this_trial>0)&(no_evs_this_trial<handles.max_events_per_sec*handles.time_end-handles.time_start-2*pad_time)
                     no_trials_w_event=no_trials_w_event+1;
                     phase_per_trial(no_trials_w_event)=circ_mean(phase_this_trial');
                     ERLFP_per_trial(no_trials_w_event,:)=mean(ERLFP_this_trial,1);
@@ -259,27 +275,7 @@ for trNo=firstTr:lastTr
 end %for evNo
 
 if handles.displayData==1
-    
-
-%     %Scatter plot of phase as a function of time
-%     try
-%         close 3
-%     catch
-%     end
-%     
-%     hFig3 = figure(3);
-%     set(hFig3, 'units','normalized','position',[.05 .1 .65 .3])
-%     
-%     hold on
-%     for ii=1:no_events
-%        plot(time(ii), pi*phase(ii)/180,'ob')
-%     end
-%     xlim([handles.time_start+pad_time handles.time_end-pad_time]);
-%     ylim([0 360])
-%     xlabel('Time (s)')
-%     ylabel('Theta phase degrees')
-%     title('Timecourse for the event-related phase')
-%         
+           
     %Avearge event-related filtered LFP
     try
         close 4
@@ -293,7 +289,7 @@ if handles.displayData==1
     times=[1:no_time_pts]/handles.drg.session(sessionNo).draq_p.ActualRate;
     times=times-(handles.window/2);
     
-    shadedErrorBar(times,mean(ERLFP,1)-mean(mean(ERLFP,1)),std(ERLFP,0,1)/sqrt(no_events),'-b')
+    shadedErrorBar(times,mean(ERLFP_per_trial,1)-mean(mean(ERLFP_per_trial,1)),std(ERLFP_per_trial,0,1)/sqrt(no_events),'-b')
     
     title('Event-related LFP')
     xlim([-0.5 0.5])
@@ -349,11 +345,7 @@ if handles.displayData==1
     mean_log_P_t=zeros(length(f),length(out_times));
     mean_log_P_t(:,:)=mean(log_P_t,1);
     drg_pcolor(repmat(out_times-mean(out_times),length(freq),1)',repmat(freq,length(out_times),1),mean_log_P_t')
-%     if handles.subtractRef==0
-%         drg_pcolor(repmat(out_times-mean(out_times),length(freq),1)',repmat(freq,length(out_times),1),log_P_timecourse')
-%     else
-%         drg_pcolor(repmat(out_times-mean(out_times),length(freq),1)',repmat(freq,length(out_times),1),log_P_timecourse'-log_P_timecourse_ref')
-%     end
+
     
     colormap jet
     shading interp
@@ -383,7 +375,7 @@ if handles.displayData==1
         close 5
     catch
     end
-
+ 
     hFig5 = figure(5);
     set(hFig5, 'units','normalized','position',[.69 .1 .3 .3])
     

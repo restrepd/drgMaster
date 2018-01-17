@@ -261,7 +261,8 @@ for filNum=first_file:handles.drgbchoices.no_files
                 handles.burstHighF=12;
                 
                 handles.peakLFPNo=19; %These are licks
-                [log_P_t,no_trials_w_event,which_event,f,out_times,times,ERLFP_per_trial,phase_per_trial]=drgEventRelatedAnalysis(handles);
+                [log_P_t,no_trials_w_event,which_event,f,out_times,times,ERLFP_per_trial,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial]=drgEventRelatedAnalysis(handles);
+                %[log_P_t,no_trials_w_event,which_event,f,out_times,times,ERLFP_per_trial,phase_per_trial]=drgEventRelatedAnalysis(handles);
                 
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).no_trials_w_eventERP=no_trials_w_event;
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).which_eventERP=which_event;
@@ -271,7 +272,11 @@ for filNum=first_file:handles.drgbchoices.no_files
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).log_P_tERP=lpt;
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).timesERP=times; 
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).ERLFP_per_trialERP=ERLFP_per_trial; 
-                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).phase_per_trialERP=phase_per_trial; 
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).phase_per_trialERP=phase_per_trial;
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).no_trials=no_trials;
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).no_events_per_trial=no_events_per_trial;
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).t_per_event_per_trial=t_per_event_per_trial;
+                
             end
         end
         
