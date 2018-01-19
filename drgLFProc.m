@@ -1,6 +1,6 @@
 function drgLFProc(handles)
 
-close all
+
 
 time_start=handles.time_start;
 time_end=handles.time_end;
