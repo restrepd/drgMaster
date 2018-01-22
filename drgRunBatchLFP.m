@@ -39,6 +39,8 @@ end
 
 test_batch=handles.drgbchoices.test_batch;
 
+first_out=1;
+
 %Do batch processing for each file
 for filNum=first_file:handles.drgbchoices.no_files
     
@@ -264,7 +266,10 @@ for filNum=first_file:handles.drgbchoices.no_files
                 [log_P_t,no_trials_w_event,which_event,f,out_times,times,ERLFP_per_trial,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial]=drgEventRelatedAnalysis(handles);
                 %[log_P_t,no_trials_w_event,which_event,f,out_times,times,ERLFP_per_trial,phase_per_trial]=drgEventRelatedAnalysis(handles);
                 
-                handles.drgb.lfpevpair.out_times=out_times;
+                if first_out==1
+                    handles.drgb.lfpevpair.out_times=out_times;
+                    first_out=0;
+                end
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).no_trials_w_eventERP=no_trials_w_event;
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).which_eventERP=which_event;
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).fERP=f;
