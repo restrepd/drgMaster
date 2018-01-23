@@ -1,4 +1,4 @@
-function [log_P_t,no_trials_w_event,which_event,f,out_times,times,ERLFP_per_trial,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial]=drgEventRelatedAnalysis(handles)
+function [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial]=drgEventRelatedAnalysis(handles)
 %Performs an event-related analysis. The event is signaled by a sharp chane
 %in the reference voltage. This is used to analyze lick-related changes in
 %LFP
@@ -21,12 +21,12 @@ highF2=handles.burstHighF;
 pad_time=handles.time_pad;
 n_phase_bins=handles.n_phase_bins;
 
-window=round(handles.window*handles.drg.draq_p.ActualRate); 
-noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate); 
+window=round(handles.window*handles.drg.draq_p.ActualRate);
+noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate);
 
 no_time_pts=floor(handles.window*handles.drg.session(sessionNo).draq_p.ActualRate)+1;
-    times=[1:no_time_pts]/handles.drg.session(sessionNo).draq_p.ActualRate;
-    times=times-(handles.window/2);
+times=[1:no_time_pts]/handles.drg.session(sessionNo).draq_p.ActualRate;
+times=times-(handles.window/2);
 
 freq=4:1:95;
 
@@ -38,10 +38,6 @@ lastTr=handles.lastTrialNo;
 all_refs=[];
 for trNo=firstTr:lastTr
     
-    if handles.displayData==1
-        trial_no=trNo
-    end
-    
     evNo = drgFindEvNo(handles,trNo,sessionNo);
     if evNo~=-1
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
@@ -50,7 +46,7 @@ for trNo=firstTr:lastTr
             %Note: handles.peakLFPNo is the reference LFP
             [reference, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
             [LFP, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
-
+            
             if (can_read1==1)&(can_read2==1)
                 all_refs=[all_refs reference];
             end
@@ -95,25 +91,24 @@ phase_per_trial=[];
 ERLF_per_trial=[];
 
 log_P_t=[];
- 
+
 for trNo=firstTr:lastTr
     
-    if handles.displayData==1
-        trial_no=trNo
-    end
     
     evNo = drgFindEvNo(handles,trNo,sessionNo);
     if evNo~=-1
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
         
         if excludeTrial==0
-             
+            
             %Note: handles.peakLFPNo is the reference LFP
             [reference, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
             [LFP, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, min_t, max_t);
             
             if (can_read1==1)&(can_read2==1)
                 no_trials=no_trials+1;
+                no_events_per_trial(no_trials)=0;
+                t_per_event_per_trial(no_trials,1)=0;
                 time(no_trials)=handles.drg.session(sessionNo).trial_start(trialNo);
                 which_trial(no_trials)=1;
                 perCorr_per_histo(no_trials)=50;
@@ -132,7 +127,9 @@ for trNo=firstTr:lastTr
                 
                 times_spec=t+min_t;
                 wing_ii=int64((handles.window/2)/(times_spec(2)-times_spec(1)));
-                
+                dt= times_spec(2)- times_spec(1);
+                out_times=double([-wing_ii:wing_ii])*dt;
+               
                 
                 %Get events
                 
@@ -155,6 +152,8 @@ for trNo=firstTr:lastTr
                 ref_power_these_events=[];
                 ERLFP_this_trial=[];
                 no_evs_this_trial=0;
+%                 figure(10)
+%                 plot(ref)
                 while the_end==0
                     next_event=find(ref(ii:end)>thershold_ref,1,'first');
                     if isempty(next_event)
@@ -183,7 +182,7 @@ for trNo=firstTr:lastTr
                             ERLFP_this_trial(no_evs_this_trial,:)=LFP(1,floor(ii_start+ii-(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate):...
                                 floor(ii_start+ii+(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate));
                             
-                            out_times=times_spec(mint_ii-wing_ii:mint_ii+wing_ii);
+                            
                             
                             lot=length(out_times);
                             
@@ -195,7 +194,7 @@ for trNo=firstTr:lastTr
                                 ref_power_these_events(no_evs_this_trial,:)=mean(P(:,mint_ii-wing_ii:mint_ii+wing_ii),2)';
                             end
                             
-                           
+                            
                         end
                         
                         end_event=find(ref(ii:end)<thershold_ref,1,'first');
@@ -207,9 +206,9 @@ for trNo=firstTr:lastTr
                     end
                 end
                 
+                fprintf(1, '\nTrial No: %d, no of events: %d\n',no_trials,no_evs_this_trial);
                 if (no_evs_this_trial>0)&(no_evs_this_trial<handles.max_events_per_sec*handles.time_end-handles.time_start-2*pad_time)
                     no_trials_w_event=no_trials_w_event+1;
-                    phase_per_trial(no_trials_w_event)=circ_mean(phase_this_trial');
                     ERLFP_per_trial(no_trials_w_event,:)=mean(ERLFP_this_trial,1);
                     %Per trial event related spectrogram
                     %Event-related spectrogram
@@ -218,51 +217,56 @@ for trNo=firstTr:lastTr
                     if handles.subtractRef==0
                         log_P_timecourse=zeros(length(f),length(out_times));
                         log_P_timecourse(:,:)=mean(10*log10(all_Power_per_event),1);
-                        log_P_t(no_trials_w_event,1:length(f),1:length(out_times))=log_P_timecourse(:,:);
+                        log_P_t(no_trials,1:length(f),1:length(out_times))=log_P_timecourse(:,:);
                     else
                         log_P_timecourse=zeros(length(f),length(out_times));
                         log_P_timecourse(:,:)=mean(10*log10(all_Power_per_event),1);
                         log_P_timecourse_ref=zeros(length(f),length(out_times));
                         log_P_timecourse_ref(:,:)=repmat(mean(10*log10(ref_power_per_event),1)',1,length(out_times));
-                        log_P_t(no_trials_w_event,1:length(f),1:length(out_times))=log_P_timecourse(:,:)-log_P_timecourse_ref(:,:);
+                        log_P_t(no_trials,1:length(f),1:length(out_times))=log_P_timecourse(:,:)-log_P_timecourse_ref(:,:);
                     end
-                    
-                    if isfield(handles,'drgbchoices')
-                        for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
-                            switch handles.evTypeNo
-                                case 1
-                                    %tstart is the reference event
-                                    if handles.drgbchoices.evTypeNos(evTypeNo)==1
-                                        %This is tstart
-                                        if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
-                                            which_event(evTypeNo,no_trials_w_event)=1;
-                                        else
-                                            which_event(evTypeNo,no_trials_w_event)=0;
-                                        end
-                                    else
-                                        %These are not tstart, and the time
-                                        %should be compared at OdorOn
-                                        %This is tstart
-                                        if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(2).times(evNo))>0
-                                            which_event(evTypeNo,no_trials_w_event)=1;
-                                        else
-                                            which_event(evTypeNo,no_trials_w_event)=0;
-                                        end
-                                    end
-                                otherwise
-                                    %OdorOn is the reference event
+                    phase_per_trial(no_trials)=circ_mean(phase_this_trial');
+                else
+                    log_P_t(no_trials,1:length(f),1:length(out_times))=zeros(length(f),length(out_times));
+                    phase_per_trial(no_trials)=0;
+                end
+                
+                if isfield(handles,'drgbchoices')
+                    for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
+                        switch handles.evTypeNo
+                            case 1
+                                %tstart is the reference event
+                                if handles.drgbchoices.evTypeNos(evTypeNo)==1
+                                    %This is tstart
                                     if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
-                                        which_event(evTypeNo,no_trials_w_event)=1;
+                                        which_event(evTypeNo,no_trials)=1;
                                     else
-                                        which_event(evTypeNo,no_trials_w_event)=0;
+                                        which_event(evTypeNo,no_trials)=0;
                                     end
-                            end
-                            
-                            
-                            
+                                else
+                                    %These are not tstart, and the time
+                                    %should be compared at OdorOn
+                                    %This is tstart
+                                    if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(2).times(evNo))>0
+                                        which_event(evTypeNo,no_trials)=1;
+                                    else
+                                        which_event(evTypeNo,no_trials)=0;
+                                    end
+                                end
+                            otherwise
+                                %OdorOn is the reference event
+                                if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
+                                    which_event(evTypeNo,no_trials)=1;
+                                else
+                                    which_event(evTypeNo,no_trials)=0;
+                                end
                         end
+                        
+                        
+                        
                     end
                 end
+                
                 
                 
                 
@@ -283,7 +287,7 @@ if handles.displayData==1
     end
     
     hFig4 = figure(4);
-    set(hFig4, 'units','normalized','position',[.05 .5 .3 .3])
+    set(hFig4, 'units','normalized','position',[.0 .5 .25 .25])
     
     no_time_pts=floor(handles.window*handles.drg.session(sessionNo).draq_p.ActualRate)+1;
     times=[1:no_time_pts]/handles.drg.session(sessionNo).draq_p.ActualRate;
@@ -293,7 +297,7 @@ if handles.displayData==1
     
     title('Event-related LFP')
     xlim([-0.5 0.5])
-    ylim([-250 250])
+    %ylim([-250 250])
     ylabel('uV')
     xlabel('Time (s)')
     
@@ -367,7 +371,7 @@ if handles.displayData==1
     colormap jet
     shading interp
     ax=gca;
-    set(ax,'XTickLabel','')    %Rose plot histogram of the phase of the events
+    set(ax,'XTickLabel','')    
     ylabel('dB')
     
     %Phase rose plot
@@ -384,6 +388,17 @@ if handles.displayData==1
         title('LFP phase of events')
     end
     
+    try
+        close 3
+    catch
+    end
+    
+    hFig3 = figure(3);
+    set(hFig3, 'units','normalized','position',[.25 .5 .25 .25])
+    edges=[handles.time_start+handles.time_pad:0.1:handles.time_end-handles.time_pad];
+    histogram(time_per_event,edges)
+    title('Histogram for time of events')
+    xlabel('Time (sec)')
     pffft=1;
 end
 

@@ -900,15 +900,41 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % trials_to_process=20;
 % min_trials_per_event=4;
 
+% 
+% % % For Justin's spmc_LFP_20180111.mat
+% % drgbChoicesJustinLFP20180111
+% %New Fig. 2 G2 run with which_display=3;
+% 
+% 
+% winNo=2;
+% refWin=1;
+% which_display=3;
+% 
+% %
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% % comp_window=10;
+% 
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% % Enter the files to be processed
+% files=[3]; %[3 13 20 26 29];
+% no_files=1;
+% 
+% 
+% trials_to_process=30;
+% min_trials_per_event=4;
+
 
 % % For Justin's spmc_LFP_20180111.mat
 % drgbChoicesJustinLFP20180111
-%New Fig. 2 G2 run with which_display=3;
+% logP for ERP in was saved with no lag from the event
+% run with which_display=6;
 
 
-winNo=2;
-refWin=1;
-which_display=3;
+winNo=1;
+which_display=6;
 
 %
 % eventType=[2 5];
@@ -919,13 +945,13 @@ eventType=[3 6];
 evTypeLabels={'S+','S-'};
 
 % Enter the files to be processed
-files=[3]; %[3 13 20 26 29];
-no_files=1;
+%files=[1 2 3 4 5];
+files=[3 13 20 26 29];
+no_files=5;
 
 
 trials_to_process=30;
 min_trials_per_event=4;
-
 
 
 % % For Justin's spmc_LFP_20180111.mat
