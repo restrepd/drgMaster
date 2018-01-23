@@ -1,7 +1,9 @@
-function [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial]=drgEventRelatedAnalysis(handles)
+function [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr]=drgEventRelatedAnalysis(handles)
 %Performs an event-related analysis. The event is signaled by a sharp chane
 %in the reference voltage. This is used to analyze lick-related changes in
 %LFP
+
+[perCorr, encoding_trials, retrieval_trials,encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
 
 which_event=[];
 anglereference = [];
@@ -89,6 +91,7 @@ all_Power_per_event=[];
 ref_power_per_event=[];
 phase_per_trial=[];
 ERLF_per_trial=[];
+trial_map=[];
 
 log_P_t=[];
 
@@ -107,6 +110,7 @@ for trNo=firstTr:lastTr
             
             if (can_read1==1)&(can_read2==1)
                 no_trials=no_trials+1;
+                trial_map(no_trials)=trNo;
                 no_events_per_trial(no_trials)=0;
                 t_per_event_per_trial(no_trials,1)=0;
                 time(no_trials)=handles.drg.session(sessionNo).trial_start(trialNo);
@@ -129,7 +133,7 @@ for trNo=firstTr:lastTr
                 wing_ii=int64((handles.window/2)/(times_spec(2)-times_spec(1)));
                 dt= times_spec(2)- times_spec(1);
                 out_times=double([-wing_ii:wing_ii])*dt;
-               
+                
                 
                 %Get events
                 
@@ -152,8 +156,8 @@ for trNo=firstTr:lastTr
                 ref_power_these_events=[];
                 ERLFP_this_trial=[];
                 no_evs_this_trial=0;
-%                 figure(10)
-%                 plot(ref)
+                %                 figure(10)
+                %                 plot(ref)
                 while the_end==0
                     next_event=find(ref(ii:end)>thershold_ref,1,'first');
                     if isempty(next_event)
@@ -205,8 +209,9 @@ for trNo=firstTr:lastTr
                         end
                     end
                 end
-                
-                fprintf(1, '\nTrial No: %d, no of events: %d\n',no_trials,no_evs_this_trial);
+                if handles.displayData==1
+                    fprintf(1, '\nTrial No: %d, no of events: %d\n',no_trials,no_evs_this_trial);
+                end
                 if (no_evs_this_trial>0)&(no_evs_this_trial<handles.max_events_per_sec*handles.time_end-handles.time_start-2*pad_time)
                     no_trials_w_event=no_trials_w_event+1;
                     ERLFP_per_trial(no_trials_w_event,:)=mean(ERLFP_this_trial,1);
@@ -229,6 +234,14 @@ for trNo=firstTr:lastTr
                 else
                     log_P_t(no_trials,1:length(f),1:length(out_times))=zeros(length(f),length(out_times));
                     phase_per_trial(no_trials)=0;
+                end
+                
+                if (no_evs_this_trial>handles.max_events_per_sec*handles.time_end-handles.time_start-2*pad_time)
+                    no_events=no_events-no_evs_this_trial;
+                    events=events(1:end-no_evs_this_trial);
+                    time_per_event=time_per_event(1:end-no_evs_this_trial);
+                    phase=phase(1:end-no_evs_this_trial);
+                    ERLFP=ERLFP(1:end-no_evs_this_trial,:);
                 end
                 
                 if isfield(handles,'drgbchoices')
@@ -279,7 +292,7 @@ for trNo=firstTr:lastTr
 end %for evNo
 
 if handles.displayData==1
-           
+    
     %Avearge event-related filtered LFP
     try
         close 4
@@ -349,7 +362,7 @@ if handles.displayData==1
     mean_log_P_t=zeros(length(f),length(out_times));
     mean_log_P_t(:,:)=mean(log_P_t,1);
     drg_pcolor(repmat(out_times-mean(out_times),length(freq),1)',repmat(freq,length(out_times),1),mean_log_P_t')
-
+    
     
     colormap jet
     shading interp
@@ -371,7 +384,7 @@ if handles.displayData==1
     colormap jet
     shading interp
     ax=gca;
-    set(ax,'XTickLabel','')    
+    set(ax,'XTickLabel','')
     ylabel('dB')
     
     %Phase rose plot
@@ -379,7 +392,7 @@ if handles.displayData==1
         close 5
     catch
     end
- 
+    
     hFig5 = figure(5);
     set(hFig5, 'units','normalized','position',[.69 .1 .3 .3])
     

@@ -6,7 +6,7 @@ display_data=handles.displayData;
 handles.displayData=0;
 
 %Get the ERp for the first event
-[log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial]=drgEventRelatedAnalysis(handles);
+[log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr]=drgEventRelatedAnalysis(handles);
 lpt1=zeros(no_trials_w_event,length(f));
 lpt1(:,:)=log_P_t(no_events_per_trial>0,:,floor(length(out_times)/2)+1);
 % lpt1(:,:)=mean(log_P_t(:,:,:),3);
@@ -19,7 +19,7 @@ handles.evTypeNo=handles.evTypeNo2;
 
 
 %Get the ERp for the first event
-[log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial]=drgEventRelatedAnalysis(handles);
+[log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr]=drgEventRelatedAnalysis(handles);
 lpt2=zeros(no_trials_w_event,length(f));
 lpt2(:,:)=log_P_t(no_events_per_trial>0,:,floor(length(out_times)/2)+1);
 % lpt2(:,:)=mean(log_P_t(:,:,:),3);
