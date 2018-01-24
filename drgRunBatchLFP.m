@@ -263,7 +263,7 @@ for filNum=first_file:handles.drgbchoices.no_files
                 handles.burstHighF=12;
                 
                 handles.peakLFPNo=19; %These are licks
-                [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr]=drgEventRelatedAnalysis(handles);
+                [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr,no_ref_evs_per_trial]=drgEventRelatedAnalysis(handles);
                 %[log_P_t,no_trials_w_event,which_event,f,out_times,times,ERLFP_per_trial,phase_per_trial]=drgEventRelatedAnalysis(handles);
                 
                 if first_out==1
@@ -285,6 +285,8 @@ for filNum=first_file:handles.drgbchoices.no_files
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).t_per_event_per_trial=t_per_event_per_trial;
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).trial_map=trial_map;
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).perCorr=perCorr;
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).no_ref_evs_per_trial=no_ref_evs_per_trial;
+                
                 
             end
         end

@@ -872,33 +872,34 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % grpre=[1 3];
 % grpost=[2 4];
 
-% % drgbChoicesDanielAPEB_ERP1182018
-% % acetoethylben_ERP_1182018
-% % logP for ERP in was saved with no lag from the event
-% % run with which_display=6;
-% winNo=1;
-% which_display=6;
-% 
-% %
-% % eventType=[2 5];
-% % evTypeLabels={'Hit','CR'};
-% % comp_window=10;
-% 
-% eventType=[3 6];
-% evTypeLabels={'S+','S-'};
-% 
-% % Enter the files to be processed
-% 
-% %no laser experimental
-% files=[7 8 9 10 11 12];
+% drgbChoicesDanielAPEB_ERP_shift2_1202018
+% acetoethylben_ERP_shift_1232018.mat
+% logP for ERP in was saved with no lag from the event
+% run with which_display=6;
+winNo=1;
+which_display=6;
+
+%
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% comp_window=10;
+
+eventType=[3 6];
+evTypeLabels={'S+','S-'};
+
+% Enter the files to be processed
+
+%no laser experimental
+files=[1];
+
+%laser experimental
+% files=[1 2 3 4 5 6];
 % no_files=6;
-% 
-% %laser experimental
-% % files=[1 2 3 4 5 6];
-% % no_files=6;
-% 
-% trials_to_process=20;
-% min_trials_per_event=4;
+
+trials_to_process=20;
+min_trials_per_event=3;
+shift_time=-0.3;
+shift_from_event=floor(shift_time/0.025);
 
 % 
 % % % For Justin's spmc_LFP_20180111.mat
@@ -927,31 +928,31 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % min_trials_per_event=4;
 
 
-% % For Justin's spmc_LFP_20180111.mat
-% drgbChoicesJustinLFP20180111
-% logP for ERP in was saved with no lag from the event
-% run with which_display=6;
-
-
-winNo=1;
-which_display=6;
-
-%
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-% comp_window=10;
-
-eventType=[3 6];
-evTypeLabels={'S+','S-'};
-
-% Enter the files to be processed
-%files=[1 2 3 4 5];
-files=[3 13 20 26 29];
-no_files=5;
-
-
-trials_to_process=30;
-min_trials_per_event=4;
+% % % For Justin's spmc_LFP_20180111.mat
+% % drgbChoicesJustinLFP20180111
+% % logP for ERP in was saved with no lag from the event
+% % run with which_display=6;
+% 
+% 
+% winNo=1;
+% which_display=6;
+% 
+% %
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% % comp_window=10;
+% 
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% % Enter the files to be processed
+% %files=[1 2 3 4 5];
+% files=[3 13 20 26 29];
+% no_files=5;
+% 
+% 
+% trials_to_process=30;
+% min_trials_per_event=4;
 
 
 % % For Justin's spmc_LFP_20180111.mat
@@ -3303,6 +3304,7 @@ switch which_display
         noWB=0;
         delta_dB_powerEv1WB=[];
         delta_dB_powerEv2WB=[];
+        shift_ii=floor(length(handles_drgb.drgb.lfpevpair(1).out_times)/2)+1+shift_from_event;
         
         NoLicksEv1=[];
         NoLicksEv2=[];
@@ -3311,12 +3313,15 @@ switch which_display
         lickTrialsEv1=0;
         lickTrialsEv2=0;
          
+        
+         
         fprintf(1, ['Pairwise auROC analysis for Fig 1 of Daniel''s paper\n\n'])
         p_vals=[];
-        for fileNo=1:no_files
+        for fileNo=1:length(files)
             %Analyze the licks
             elec=1;
             lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+            
             trials=length(handles_drgb.drgb.lfpevpair(lfpodNo).which_eventERP(1,:));
             mask=logical([zeros(1,trials-trials_to_process) ones(1,trials_to_process)]);
             trials_in_eventEv1=(handles_drgb.drgb.lfpevpair(lfpodNo).which_eventERP(event1,:)==1);
@@ -3354,18 +3359,22 @@ switch which_display
                             mask=logical([zeros(1,trials-trials_to_process) ones(1,trials_to_process)]);
                             trials_in_eventEv1=(handles_drgb.drgb.lfpevpair(lfpodNo).which_eventERP(event1,:)==1);
                             trials_in_eventEv2=(handles_drgb.drgb.lfpevpair(lfpodNo).which_eventERP(event2,:)==1);
-                            
-                            if (sum(trials_in_eventEv1)>=min_trials_per_event) & (sum(trials_in_eventEv2)>=min_trials_per_event)
+                            %Make sure there is at least one lick event
+                            %within each trial
+                            trials_with_event=(handles_drgb.drgb.lfpevpair(lfpodNo).no_events_per_trial>0)&(handles_drgb.drgb.lfpevpair(lfpodNo).no_events_per_trial<=handles_drgb.max_events_per_sec)...
+                                &(handles_drgb.drgb.lfpevpair(lfpodNo).no_ref_evs_per_trial>0)&(handles_drgb.drgb.lfpevpair(lfpodNo).no_ref_evs_per_trial<=handles_drgb.max_events_per_sec);
+                             
+                            if (sum(trials_in_eventEv1&trials_with_event&mask)>=min_trials_per_event) & (sum(trials_in_eventEv2&trials_with_event&mask)>=min_trials_per_event)
                                 
                                 
                                
                                 
-                                this_dB_powerEv1=zeros(sum(trials_in_eventEv1&mask),length(frequency));
-                                this_dB_powerEv1(:,:)=handles_drgb.drgb.lfpevpair(lfpodNo).log_P_tERP(trials_in_eventEv1&mask,:);
+                                this_dB_powerEv1=zeros(sum(trials_in_eventEv1&trials_with_event&mask),length(frequency));
+                                this_dB_powerEv1(:,:)=handles_drgb.drgb.lfpevpair(lfpodNo).log_P_tERP(trials_in_eventEv1&trials_with_event&mask,:,shift_ii);
                                 
                                 % Ev2
-                                this_dB_powerEv2=zeros(sum(trials_in_eventEv2&mask),length(frequency));
-                                this_dB_powerEv2(:,:)=handles_drgb.drgb.lfpevpair(lfpodNo).log_P_tERP(trials_in_eventEv2&mask,:);
+                                this_dB_powerEv2=zeros(sum(trials_in_eventEv2&trials_with_event&mask),length(frequency));
+                                this_dB_powerEv2(:,:)=handles_drgb.drgb.lfpevpair(lfpodNo).log_P_tERP(trials_in_eventEv2&trials_with_event&mask,:,shift_ii);
                                 
                                 
                                 %Wide band spectrum
@@ -3382,20 +3391,20 @@ switch which_display
                                         this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
                                         
                                         %Enter the  Ev1
-                                        this_delta_dB_powerEv1=zeros(sum(trials_in_eventEv1&mask),1);
+                                        this_delta_dB_powerEv1=zeros(sum(trials_in_eventEv1&trials_with_event&mask),1);
                                         this_delta_dB_powerEv1=mean(this_dB_powerEv1(:,this_band),2);
                                         roc_data=[];
-                                        roc_data(1:sum(trials_in_eventEv1&mask),1)=this_delta_dB_powerEv1;
-                                        roc_data(1:sum(trials_in_eventEv1&mask),2)=zeros(sum(trials_in_eventEv1&mask),1);
+                                        roc_data(1:sum(trials_in_eventEv1&trials_with_event&mask),1)=this_delta_dB_powerEv1;
+                                        roc_data(1:sum(trials_in_eventEv1&trials_with_event&mask),2)=zeros(sum(trials_in_eventEv1&trials_with_event&mask),1);
                                         
                                         %Enter  Ev2
-                                        total_trials=sum(trials_in_eventEv1&mask)+sum(trials_in_eventEv2&mask);
-                                        this_delta_dB_powerEv2=zeros(sum(trials_in_eventEv2&mask),1);
+                                        total_trials=sum(trials_in_eventEv1&trials_with_event&mask)+sum(trials_in_eventEv2&trials_with_event&mask);
+                                        this_delta_dB_powerEv2=zeros(sum(trials_in_eventEv2&trials_with_event&mask),1);
                                         this_delta_dB_powerEv2=mean(this_dB_powerEv2(:,this_band),2);
-                                        roc_data(sum(trials_in_eventEv1&mask)+1:total_trials,1)=this_delta_dB_powerEv2;
-                                        roc_data(sum(trials_in_eventEv1&mask)+1:total_trials,2)=ones(sum(trials_in_eventEv2&mask),1);
+                                        roc_data(sum(trials_in_eventEv1&trials_with_event&mask)+1:total_trials,1)=this_delta_dB_powerEv2;
+                                        roc_data(sum(trials_in_eventEv1&trials_with_event&mask)+1:total_trials,2)=ones(sum(trials_in_eventEv2&trials_with_event&mask),1);
                                         
-                                        
+                                         
                                         %Find  ROC
                                         ROCout(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
                                         ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
@@ -3427,12 +3436,12 @@ switch which_display
                                 
                             else
                                 
-                                if (sum(trials_in_eventEv1)<min_trials_per_event)
-                                    fprintf(1, ['%d trials in event No %d fewer than minimum trials per event %d for file No %d electrode %d\n'],sum(trials_in_eventEv1),event1, min_trials_per_event,files(fileNo),elec);
+                                if sum(trials_in_eventEv1&trials_with_event&mask)<min_trials_per_event
+                                    fprintf(1, ['%d trials with lick events in event No %d fewer than minimum trials per event %d for file No %d electrode %d\n'],sum(trials_in_eventEv1&trials_with_event&mask),event1, min_trials_per_event,files(fileNo),elec);
                                 end
                                 
-                                if (sum(trials_in_eventEv2)<min_trials_per_event)
-                                    fprintf(1, ['%d trials in event No %d fewer than minimum trials per event %d for file No %d electrode %d\n'],sum(trials_in_eventEv2),event2, min_trials_per_event,files(fileNo),elec);
+                                if sum(trials_in_eventEv2&trials_with_event&mask)<min_trials_per_event
+                                    fprintf(1, ['%d trials with lick events in event No %d fewer than minimum trials per event %d for file No %d electrode %d\n'],sum(trials_in_eventEv2&trials_with_event&mask),event2, min_trials_per_event,files(fileNo),elec);
                                 end
                                 
                             end
