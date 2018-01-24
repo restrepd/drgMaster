@@ -28,6 +28,7 @@ first_file=handles.drgb.first_file;
 if first_file==1
     handles.drgb.lfpevpair_no=0;
     handles.drgb.lfp_per_exp_no=0;
+    first_out=1;
 else
     load([handles.drgb.outPathName handles.drgb.outFileName])
     handles.drgb=handles_drgb.drgb;
@@ -35,11 +36,12 @@ else
     handles.drgbchoices.no_files=new_no_files;
     handles.drgbchoices.PathName=choicePathName;
     handles.drgbchoices.FileName=choiceFileName;
+    first_out=0;
 end
 
 test_batch=handles.drgbchoices.test_batch;
 
-first_out=1;
+
 
 %Do batch processing for each file
 for filNum=first_file:handles.drgbchoices.no_files
