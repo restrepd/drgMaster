@@ -181,8 +181,8 @@ for trNo=firstTr:lastTr
 
                 no_events_per_trial(no_trials)=no_evs_this_trial;
                 
-                if (no_evs_this_trial>0)&(no_evs_this_trial<handles.max_events_per_sec*handles.time_end-handles.time_start-2*pad_time)...
-                        &(no_ref_evs_this_trial>0)&(no_ref_evs_this_trial<handles.max_events_per_sec*handles.time_end-handles.time_start-2*pad_time)
+                if (no_evs_this_trial>0)&(no_evs_this_trial<handles.max_events_per_sec*(handles.time_end-handles.time_start-2*pad_time))...
+                        &(no_ref_evs_this_trial>0)&(no_ref_evs_this_trial<handles.max_events_per_sec*(handles.time_end-handles.time_start-2*pad_time))
                     no_trials_w_event=no_trials_w_event+1;
                     ERLFP_per_trial(no_trials_w_event,:)=mean(ERLFP_this_trial,1);
                     %Per trial event related spectrogram
@@ -215,7 +215,7 @@ for trNo=firstTr:lastTr
                     fprintf(1, 'Trial No: %d, no of events: %d, logP theta=%d\n',no_trials,no_evs_this_trial,this_lpt);
                 end
 
-                if (no_evs_this_trial>handles.max_events_per_sec*handles.time_end-handles.time_start-2*pad_time)
+                if (no_evs_this_trial>handles.max_events_per_sec*(handles.time_end-handles.time_start-2*pad_time))
                     no_events=no_events-no_evs_this_trial;
                     events=events(1:end-no_evs_this_trial);
                     time_per_event=time_per_event(1:end-no_evs_this_trial);

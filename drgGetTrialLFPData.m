@@ -155,6 +155,32 @@ try
                 dataforch=0.005*(6*sin(2*pi*t_tort*Ftheta/Fs)+6*sin(2*pi*t_tort*Fgamma/Fs));
                 dataforch= dataforch+noiseFact*randn(1,length(dataforch));
                 dataforch=dataforch.*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(dataforch));
+            case 7
+                %10 and 80Hz centered on the lick
+                if lfpElectrode==19
+                    %Licks starting at -1 and 1.5
+                    licks=(~((time<1.5)|(time>2)))|(~((time<-1)|(time>-0.5)));
+                    dataforch=1000*licks+2000;
+                else
+                    %0.4sec 80 Hz sine wave burst centered at the lick
+                    LFPburst=(~((time<1.3)|(time>1.7)));
+                    noLFPburst=~LFPburst;
+                    dataforch=0.005*(6*sin(2*pi*t_tort*Ftheta/Fs)+6*sin(2*pi*t_tort*Fgamma/Fs));
+                    dataforch=dataforch.*(0.05*noLFPburst+LFPburst)+noiseFact*randn(1,length(dataforch));
+                end
+            case 8
+                  %10 and 80Hz starting at the lick
+                if lfpElectrode==19
+                    %Licks starting at -1 and 1.5
+                    licks=(~((time<1.5)|(time>2)))|(~((time<-1)|(time>-0.5)));
+                    dataforch=1000*licks+2000;
+                else
+                    %0.4sec 80 Hz sine wave burst centered at the lick
+                    LFPburst=(~((time<1.5)|(time>1.9)));
+                    noLFPburst=~LFPburst;
+                    dataforch=0.005*(6*sin(2*pi*t_tort*Ftheta/Fs)+6*sin(2*pi*t_tort*Fgamma/Fs));
+                    dataforch=dataforch.*(0.05*noLFPburst+LFPburst)+noiseFact*randn(1,length(dataforch));
+                end
         end
         
         %     try

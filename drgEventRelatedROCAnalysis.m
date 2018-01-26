@@ -9,8 +9,8 @@ pad_time=handles.time_pad;
 
 %Get the ERP for the first event
 [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr,no_ref_evs_this_trial]=drgEventRelatedAnalysis(handles);
-these_trials=(no_events_per_trial>0)&(no_events_per_trial<handles.max_events_per_sec*handles.time_end-handles.time_start-2*pad_time)...
-                        &(no_ref_evs_this_trial>0)&(no_ref_evs_this_trial<handles.max_events_per_sec*handles.time_end-handles.time_start-2*pad_time);
+these_trials=(no_events_per_trial>0)&(no_events_per_trial<handles.max_events_per_sec*(handles.time_end-handles.time_start-2*pad_time))...
+                        &(no_ref_evs_this_trial>0)&(no_ref_evs_this_trial<handles.max_events_per_sec*(handles.time_end-handles.time_start-2*pad_time));
                     
 lpt1=zeros(sum(these_trials),length(f));
 lpt1(:,:)=log_P_t(these_trials,:,floor(length(out_times)/2)+1+shift_ii);
@@ -26,8 +26,8 @@ handles.evTypeNo=handles.evTypeNo2;
 %Get the ERp for the first event
 [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr,no_ref_evs_this_trial]=drgEventRelatedAnalysis(handles);
 
-these_trials=(no_events_per_trial>0)&(no_events_per_trial<handles.max_events_per_sec*handles.time_end-handles.time_start-2*pad_time)...
-                        &(no_ref_evs_this_trial>0)&(no_ref_evs_this_trial<handles.max_events_per_sec*handles.time_end-handles.time_start-2*pad_time);
+these_trials=(no_events_per_trial>0)&(no_events_per_trial<handles.max_events_per_sec*(handles.time_end-handles.time_start-2*pad_time))...
+                        &(no_ref_evs_this_trial>0)&(no_ref_evs_this_trial<handles.max_events_per_sec*(handles.time_end-handles.time_start-2*pad_time));
 lpt2=zeros(sum(these_trials),length(f));
 lpt2(:,:)=log_P_t(these_trials,:,floor(length(out_times)/2)+1+shift_ii);
 % lpt2(:,:)=mean(log_P_t(:,:,:),3);
