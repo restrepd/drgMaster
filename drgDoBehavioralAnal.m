@@ -15,4 +15,6 @@ switch handles.analysisNoBeh
         drgITI(handles)
     case 7
         drgLickPerConc(handles)
+    case 8
+        drgLickTimecourse(handles);
 end

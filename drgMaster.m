@@ -103,6 +103,8 @@ handles.read_entire_file=0;
 handles.corr_window=0.00025;
 handles.analysisSync=1;
 handles.max_events_per_sec=20;
+handles.dt_lick=0.1;
+handles.smallest_inter_lick_interval=0.02;  %Note: this is used to reject "lick" events due to noise
 
 
 % Update handles structure

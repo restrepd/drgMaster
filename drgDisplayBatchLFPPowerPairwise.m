@@ -208,30 +208,30 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % grpost=[2 4];
 
 
-% % % For Daniel's acetoethylben_firstandlast91117
-% % drgbChoicesDanielAPEBEfirstandlast9617
-% %New Fig. 2 G2 run with which_display=3;
+% % For Daniel's acetoethylben_firstandlast91117
+% drgbChoicesDanielAPEBEfirstandlast9617
+%New Fig. 2 G2 run with which_display=3;
+
+
+winNo=2;
+refWin=1;
+which_display=3;
 
 %
-% winNo=2;
-% refWin=1;
-% which_display=3;
-%
-% %
-% % eventType=[2 5];
-% % evTypeLabels={'Hit','CR'};
-% % comp_window=10;
-%
-% eventType=[3 6];
-% evTypeLabels={'S+','S-'};
-%
-% % Enter the files to be processed
-% files=[1 2 3 4 5 13 14 15];
-% no_files=8;
-%
-%
-% trials_to_process=30;
-% min_trials_per_event=4;
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% comp_window=10;
+
+eventType=[3 6];
+evTypeLabels={'S+','S-'};
+
+% Enter the files to be processed
+files=[1 2 3 4 5 13 14 15];
+no_files=8;
+
+
+trials_to_process=30;
+min_trials_per_event=4;
 
 
 % % % For Daniel's acetoethylben_firstandlast91117
@@ -806,43 +806,43 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % min_trials_per_event=4;
 
 
-%drgbChoicesDanielAPEB_ERP_shift2_1202018
-%acetoethylben_ERP_shift_1232018
-% logP for ERP in was saved with no lag from the event
-% For ERP figure  of Daniel's paper run with which_display=1
-winNo=1;
-which_display=1;
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-eventType=[3 6];
-evTypeLabels={'S+','S-'};
-
-
-%Experiment pairs
-%Important: The first file must be the experiment performed first
-%For example in acetophenone ethyl benzoate no laser is first, laser is
-%second
-file_pairs=[
-    7 1;
-    8 2;
-    9 3;
-    10 4;
-    11 5;
-    12 6;
-    17 13;
-    18 14;
-    19 15;
-    20 16];
-no_file_pairs=10;
-
-trials_to_process=20;
-min_trials_per_event=3;
-shift_time=0.5;
-shift_from_event=floor(shift_time/0.025);
-
-
-grpre=[1 3];
-grpost=[2 4];
+% %drgbChoicesDanielAPEB_ERP_shift2_1202018
+% %acetoethylben_ERP_shift_1232018
+% % logP for ERP in was saved with no lag from the event
+% % For ERP figure  of Daniel's paper run with which_display=1
+% winNo=1;
+% which_display=1;
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% 
+% %Experiment pairs
+% %Important: The first file must be the experiment performed first
+% %For example in acetophenone ethyl benzoate no laser is first, laser is
+% %second
+% file_pairs=[
+%     7 1;
+%     8 2;
+%     9 3;
+%     10 4;
+%     11 5;
+%     12 6;
+%     17 13;
+%     18 14;
+%     19 15;
+%     20 16];
+% no_file_pairs=10;
+% 
+% trials_to_process=20;
+% min_trials_per_event=3;
+% shift_time=0.5;
+% shift_from_event=floor(shift_time/0.025);
+% 
+% 
+% grpre=[1 3];
+% grpost=[2 4];
 
 % % drgbChoicesDanielAPEB_ERP_shift2_1202018
 % % acetoethylben_ERP_shift_1232018.mat
@@ -1107,11 +1107,11 @@ fprintf(1, ['\ndrgDisplayBatchLFPPowerPairwise run for ' handles.drgb.outFileNam
 switch which_display
     case {1,6,7}
         frequency=handles_drgb.drgb.lfpevpair(1).fERP;
+        max_events_per_sec=(handles_drgb.drgbchoices.timeEnd(winNo)-handles_drgb.drgbchoices.timeStart(winNo))*handles_drgb.max_events_per_sec;
     otherwise
         frequency=handles_drgb.drgb.freq_for_LFPpower;
 end
 
-max_events_per_sec=(handles_drgb.drgbchoices.timeEnd(winNo)-handles_drgb.drgbchoices.timeStart(winNo))*handles_drgb.max_events_per_sec;
 
 
 figNo=0;
@@ -2193,7 +2193,7 @@ switch which_display
         p_vals=[];
         no_files=length(files);
         
-        if isempty(which_electrodes)
+        if exist('which_electrodes')==0
             which_electrodes=[1:16];
         end
         
@@ -2331,24 +2331,27 @@ switch which_display
         %Now plot the bounded line for
         
         %Calculate the mean and 95% CI for Ev1
+        dB_Ev1_ci=zeros(length(frequency),2);
         for ifreq=1:length(frequency)
             %             pd=fitdist(delta_dB_powerEv1WB(:,ifreq),'Normal');
             %             ci=paramci(pd);
             %             dB_Ev1_ci(ifreq)=pd.mu-ci(1,1);
             dB_Ev1_mean(ifreq)=mean(delta_dB_powerEv1WB(:,ifreq));
             CI = bootci(1000, @mean, delta_dB_powerEv1WB(:,ifreq));
-            dB_Ev1_ci(ifreq)=dB_Ev1_mean(ifreq)-CI(1);
+            dB_Ev1_ci(ifreq,1)=CI(2)-dB_Ev1_mean(ifreq);
+            dB_Ev1_ci(ifreq,2)=-(CI(1)-dB_Ev1_mean(ifreq));
         end
         
         figure(1)
-        set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
         [hl1, hp1] = boundedline(frequency,dB_Ev1_mean, dB_Ev1_ci, 'r');
         
         %Calculate the mean and 95% CI for Ev2
+        dB_Ev2_ci=zeros(length(frequency),2);
         for ifreq=1:length(frequency)
             dB_Ev2_mean(ifreq)=mean(delta_dB_powerEv2WB(:,ifreq));
             CI = bootci(1000, @mean, delta_dB_powerEv2WB(:,ifreq));
-            dB_Ev2_ci(ifreq)=dB_Ev2_mean(ifreq)-CI(1);
+            dB_Ev2_ci(ifreq,1)=CI(2)-dB_Ev2_mean(ifreq);
+            dB_Ev2_ci(ifreq,2)=-(CI(1)-dB_Ev2_mean(ifreq));
         end
         
         hold on
@@ -2356,6 +2359,7 @@ switch which_display
         xlabel('Frequency (Hz)')
         ylabel('delta Power (dB)')
         legend([hl1 hl2],'S+','S-')
+        set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
         
         %Now plot the histograms and the average
         for bwii=1:4
@@ -3564,24 +3568,27 @@ switch which_display
         %Now plot the bounded line for
         
         %Calculate the mean and 95% CI for Ev1
+        dB_Ev1_ci=zeros(length(frequency),2);
         for ifreq=1:length(frequency)
             %             pd=fitdist(delta_dB_powerEv1WB(:,ifreq),'Normal');
             %             ci=paramci(pd);
             %             dB_Ev1_ci(ifreq)=pd.mu-ci(1,1);
             dB_Ev1_mean(ifreq)=mean(delta_dB_powerEv1WB(:,ifreq));
             CI = bootci(1000, @mean, delta_dB_powerEv1WB(:,ifreq));
-            dB_Ev1_ci(ifreq)=dB_Ev1_mean(ifreq)-CI(1);
+            dB_Ev1_ci(ifreq,1)=CI(2)-dB_Ev1_mean(ifreq);
+            dB_Ev1_ci(ifreq,2)=-(CI(1)-dB_Ev1_mean(ifreq));
         end
         
         figure(1)
-        set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
         [hl1, hp1] = boundedline(frequency,dB_Ev1_mean, dB_Ev1_ci, 'r');
         
         %Calculate the mean and 95% CI for Ev2
+        dB_Ev2_ci=zeros(length(frequency),2);
         for ifreq=1:length(frequency)
             dB_Ev2_mean(ifreq)=mean(delta_dB_powerEv2WB(:,ifreq));
             CI = bootci(1000, @mean, delta_dB_powerEv2WB(:,ifreq));
-            dB_Ev2_ci(ifreq)=dB_Ev2_mean(ifreq)-CI(1);
+            dB_Ev2_ci(ifreq,1)=CI(2)-dB_Ev2_mean(ifreq);
+            dB_Ev2_ci(ifreq,2)=-(CI(1)-dB_Ev2_mean(ifreq));
         end
         
         hold on
@@ -3589,6 +3596,7 @@ switch which_display
         xlabel('Frequency (Hz)')
         ylabel('delta Power (dB)')
         legend([hl1 hl2],'S+','S-')
+        set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
         
         %Now plot the histograms and the average
         for bwii=1:4
