@@ -169,55 +169,55 @@ for filNum=first_file:handles.drgbchoices.no_files
     end
 end
 
-
-% figure(2)
-% hold on
-% for fps=1:max(handles.drgbchoices.mouse_no)
-%     plot([0 1],[first_pc(fps) last_pc(fps)],'-o', 'Color',[0.7 0.7 0.7])
-% end
-% 
-% plot([0 1],[mean(first_pc) mean(last_pc)],'-k','LineWidth', 3)
-% CI = bootci(1000, @mean, first_pc);
-% plot([0 0],CI,'-b','LineWidth',3)
-% plot(0,mean(first_pc),'ob','MarkerSize', 10,'MarkerFace','b')
-% CI = bootci(1000, @mean, last_pc);
-% plot([1 1],CI,'-r','LineWidth',3)
-% plot(1,mean(last_pc),'or','MarkerSize', 10,'MarkerFace','r')
-% ylabel('Percent correct')
-% ylim([30 110])
-% title('Percent correct, first 30 trials, last 30')
-% set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-% 
-% p_perCorr=ranksum(last_pc,first_pc);
-% fprintf(1, '\np value for ranksum test for percent correct= %d\n\n',p_perCorr);
-
-%Plot the pc of last 30 trials in first and last
-figure(3)
+%Plot pc of the first 30 trials in first and last 30 trials in last
+figure(2)
 hold on
 for fps=1:max(handles.drgbchoices.mouse_no)
-    plot([0 1],[first_pc_end(fps) last_pc(fps)],'-o', 'Color',[0.7 0.7 0.7])
+    plot([0 1],[first_pc(fps) last_pc(fps)],'-o', 'Color',[0.7 0.7 0.7])
 end
 
-plot([0 1],[mean(first_pc_end) mean(last_pc)],'-k','LineWidth', 3)
-CI = bootci(1000, @mean, first_pc_end);
+plot([0 1],[mean(first_pc) mean(last_pc)],'-k','LineWidth', 3)
+CI = bootci(1000, @mean, first_pc);
 plot([0 0],CI,'-b','LineWidth',3)
-plot(0,mean(first_pc_end),'ob','MarkerSize', 10,'MarkerFace','b')
+plot(0,mean(first_pc),'ob','MarkerSize', 10,'MarkerFace','b')
 CI = bootci(1000, @mean, last_pc);
 plot([1 1],CI,'-r','LineWidth',3)
 plot(1,mean(last_pc),'or','MarkerSize', 10,'MarkerFace','r')
 ylabel('Percent correct')
 ylim([30 110])
-title('Percent correct, last 30 trials for the first and last sessions')
+title('Percent correct, first 30 trials, last 30')
 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
 
-p_perCorr=ranksum(last_pc,first_pc_end);
+p_perCorr=ranksum(last_pc,first_pc);
 fprintf(1, '\np value for ranksum test for percent correct= %d\n\n',p_perCorr);
+
+%Plot the pc of last 30 trials in first and last
+% figure(3)
+% hold on
+% for fps=1:max(handles.drgbchoices.mouse_no)
+%     plot([0 1],[first_pc_end(fps) last_pc(fps)],'-o', 'Color',[0.7 0.7 0.7])
+% end
+% 
+% plot([0 1],[mean(first_pc_end) mean(last_pc)],'-k','LineWidth', 3)
+% CI = bootci(1000, @mean, first_pc_end);
+% plot([0 0],CI,'-b','LineWidth',3)
+% plot(0,mean(first_pc_end),'ob','MarkerSize', 10,'MarkerFace','b')
+% CI = bootci(1000, @mean, last_pc);
+% plot([1 1],CI,'-r','LineWidth',3)
+% plot(1,mean(last_pc),'or','MarkerSize', 10,'MarkerFace','r')
+% ylabel('Percent correct')
+% ylim([30 110])
+% title('Percent correct, last 30 trials for the first and last sessions')
+% set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+% 
+% p_perCorr=ranksum(last_pc,first_pc_end);
+% fprintf(1, '\np value for ranksum test for percent correct= %d\n\n',p_perCorr);
 
 pppf=1;
 
 
 %Plot one of the sessions
-filNum=3;
+filNum=6;
 figure(4)
 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
 % subplot(3,1,1)

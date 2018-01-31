@@ -166,6 +166,7 @@ Ev2_ci_l=Ev2_CI_licks(1,:)-mean_Ev2;
 title('Lick timecourse, S+ red, S- blue')
 xlabel('Time (s)')
 ylabel('Licks/s')
+ylim([0 11.5])
 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
 
 pffft=1;
