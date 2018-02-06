@@ -10,6 +10,8 @@ function drgRunBatchLFP
 
 
 [choiceFileName,choiceBatchPathName] = uigetfile({'drgbChoices*.m'},'Select the .m file with all the choices for analysis');
+fprintf(1, ['\ndrgRunBatchLFP run for ' choiceFileName '\n\n']);
+
 addpath(choiceBatchPathName)
 eval(['handles=' choiceFileName(1:end-2) ';'])
 handles.choiceFileName=choiceFileName;
@@ -18,6 +20,8 @@ handles.choiceBatchPathName=choiceBatchPathName;
 new_no_files=handles.drgbchoices.no_files;
 choicePathName=handles.drgbchoices.PathName;
 choiceFileName=handles.drgbchoices.FileName;
+
+
 
 %Very, very important!
 handles.evTypeNo=handles.drgbchoices.referenceEvent;

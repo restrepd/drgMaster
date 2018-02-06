@@ -12,6 +12,7 @@ close all
 clear all
 
 trial_window=30;
+front_mask=1;
 
 lick_timecourseEv1=[];
 lick_timecourseEv2=[];
@@ -102,8 +103,12 @@ for filNum=first_file:handles.drgbchoices.no_files
     handles.time_start=-2.2;
     
     if handles.lastTrialNo>=trial_window
-        handles.trialNo=handles.lastTrialNo-trial_window;
-        
+        if front_mask==1
+            handles.trialNo=1;
+            handles.lastTrialNo=trial_window;
+        else
+            handles.trialNo=handles.lastTrialNo-trial_window;
+        end
         handles.evTypeNo=5;
         lick_timecourseEv1_this_file=[];
         inter_lick_intervalsEv1_this_file=[];
@@ -117,6 +122,7 @@ for filNum=first_file:handles.drgbchoices.no_files
         [per_corr_per_trialEv2, lick_timecourseEv2_this_file,which_eventEv2,no_trialsEv2,inter_lick_intervalsEv2_this_file]=drgLickTimecourseThisEv(handles);
         lick_timecourseEv2=[lick_timecourseEv2; lick_timecourseEv2_this_file];
         inter_lick_intervals_Ev2=[inter_lick_intervals_Ev2 inter_lick_intervalsEv2_this_file];
+        
         
     end
     

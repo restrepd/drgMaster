@@ -27,6 +27,9 @@ switch handles.drg.session(sessionNo).draq_p.dgordra
                 handles.drg.session(sessionNo).draq_p.no_chans*trialNo)-2000);
         else
             fid=fopen(handles.drg.drta_p.fullName,'rb');
+            if fid==-1
+                fprintf(1, ['\nFile ' handles.drg.drta_p.fullName ' does not exist!\n\n']);
+            end
             bytes_per_native=2;     %Note: Native is unit16
             %Note: Since 2013 DT3010 is acquiring at a rate that is not an integer.
             %However, the program saves using an integer number of bytes! VERY

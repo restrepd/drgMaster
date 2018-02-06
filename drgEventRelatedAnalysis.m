@@ -415,13 +415,24 @@ if handles.displayData==1
     times=[1:no_time_pts]/handles.drg.session(sessionNo).draq_p.ActualRate;
     times=times-(handles.window/2);
     
-    shadedErrorBar(times,mean(ERLFP_per_trial,1)-mean(mean(ERLFP_per_trial,1)),std(ERLFP_per_trial,0,1)/sqrt(no_events),'-b')
+    ERLFP_per_trial=ERLFP_per_trial-mean(mean(ERLFP_per_trial,1));
+    meanERLFP_per_trial=mean(ERLFP_per_trial,1);
+    CI = bootci(1000, @mean, ERLFP_per_trial);
+    
+    mean_ERLFP=[meanERLFP_per_trial;meanERLFP_per_trial];
+    ERLFP_CI=CI-mean_ERLFP;
+    ERLFP_CI(1,:)=-ERLFP_CI(1,:);
+    
+    [hl1, hp1] = boundedline(times',meanERLFP_per_trial', ERLFP_CI', 'b');
+    
     
     title('Event-related LFP')
     xlim([-0.5 0.5])
-    %ylim([-250 250])
+    ylim([-300 300])
     ylabel('uV')
     xlabel('Time (s)')
+    set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+        
     
     
     %Event-related spectrogram
@@ -494,7 +505,7 @@ if handles.displayData==1
     set(hFig5, 'units','normalized','position',[.69 .1 .3 .3])
     
     if no_events>0
-        rose(pi*phase/180,12)
+        polarhistogram(pi*phase/180,6)
         title('LFP phase of events')
     end
     
