@@ -38,16 +38,14 @@ new_no_files=length(handles.drgbchoices.PathName);
 choicePathName=handles.drgbchoices.PathName;
 choiceFileName=handles.drgbchoices.FileName;
 
-if ~isfield(handles.drgbchoices,'is_dropc')
-    handles.drgbchoices.is_dropc=0;
-end
-
 %Do batch processing for each file
 for filNum=1:length(handles.drgbchoices.FileName)
     
     file_no=filNum
     
-    if handles.drgbchoices.is_dropc==0
+    this_file=handles.drgbchoices.FileName{filNum};
+    
+    if strcmp(this_file(1:3),'jt_')
         %read the jt_times files
         handles.jtfullName=[handles.drgbchoices.PathName{filNum},handles.drgbchoices.FileName{filNum}];
         handles.jtFileName=handles.drgbchoices.FileName{filNum};
