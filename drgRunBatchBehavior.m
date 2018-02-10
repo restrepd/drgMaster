@@ -28,8 +28,6 @@ which_display=2;
 trial_window=20;
 
 
-
-
 [choiceFileName,choiceBatchPathName] = uigetfile({'drgbChoices*.m'},'Select the .m file with all the choices for analysis');
 addpath(choiceBatchPathName)
 eval(['handles=' choiceFileName(1:end-2) ';'])
@@ -40,90 +38,86 @@ new_no_files=length(handles.drgbchoices.PathName);
 choicePathName=handles.drgbchoices.PathName;
 choiceFileName=handles.drgbchoices.FileName;
 
-%Very, very important!
-handles.evTypeNo=handles.drgbchoices.referenceEvent;
-
-%If you want to skip files that have already been processed enter the number of the first file
-first_file=handles.drgb.first_file;
-
-if first_file==1
-    handles.drgb.lfpevpair_no=0;
-    handles.drgb.lfp_per_exp_no=0;
-else
-    load([handles.drgb.outPathName handles.drgb.outFileName])
-    handles.drgb=handles_drgb.drgb;
-    %The user may add new files
-    handles.drgbchoices.no_files=new_no_files;
-    handles.drgbchoices.PathName=choicePathName;
-    handles.drgbchoices.FileName=choiceFileName;
+if ~isfield(handles.drgbchoices,'is_dropc')
+    handles.drgbchoices.is_dropc=0;
 end
 
-test_batch=handles.drgbchoices.test_batch;
-
 %Do batch processing for each file
-for filNum=first_file:length(handles.drgbchoices.PathName)
+for filNum=1:length(handles.drgbchoices.FileName)
     
     file_no=filNum
     
-    if test_batch==1
-        if handles.drgbchoices.group_no(filNum)==1
-            handles.data_vs_simulate=5;
-        else
-            handles.data_vs_simulate=6;
+    if handles.drgbchoices.is_dropc==0
+        %read the jt_times files
+        handles.jtfullName=[handles.drgbchoices.PathName{filNum},handles.drgbchoices.FileName{filNum}];
+        handles.jtFileName=handles.drgbchoices.FileName{filNum};
+        handles.jtPathName=handles.drgbchoices.PathName{filNum};
+        
+        
+        drgRead_jt_times(handles.jtPathName,handles.jtFileName);
+        
+        FileName=[handles.jtFileName(10:end-4) '_drg.mat'];
+        handles.fullName=[handles.jtPathName,FileName];
+        handles.FileName=FileName;
+        handles.PathName=handles.jtPathName;
+        
+        load(handles.fullName);
+        handles.drg=drg;
+        
+        if handles.read_entire_file==1
+            handles=drgReadAllDraOrDg(handles);
         end
+        
+        switch handles.drg.session(handles.sessionNo).draq_p.dgordra
+            case 1
+            case 2
+                handles.drg.drta_p.fullName=[handles.jtPathName handles.jtFileName(10:end-4) '.dg'];
+            case 3
+                handles.drg.drta_p.fullName=[handles.jtPathName handles.jtFileName(10:end-4) '.rhd'];
+        end
+        
+        
+        
+        %Set the last trial to the last trial in the session
+        handles.lastTrialNo=handles.drg.session(handles.sessionNo).events(2).noTimes;
+        
+        %Save information for this file
+        handles.drgb.filNum=filNum;
+        handles.drgb.file(filNum).FileName=handles.FileName;
+        handles.drgb.file(filNum).PathName=handles.PathName;
+        
+        [handles.drgb.file(filNum).perCorr, handles.drgb.file(filNum).encoding_trials, handles.drgb.file(filNum).retrieval_trials, encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
+        
+    else
+        %Read dropc .mat file
+        handles.dropc_hand=drg_dropc_load([handles.drgbchoices.PathName{filNum},handles.drgbchoices.FileName{filNum}]);
+        
+        
+        %Compute percent correct in a 20 trial window
+        sliding_window=20; %Trials for determination of behavioral performance
+        
+        
+        no_trials=length(handles.dropc_hand.dropcData.trialTime)
+        score=~(handles.dropc_hand.dropcData.trialScore==(handles.dropc_hand.dropcData.odorType-1));
+        
+        for ii=1:length(handles.dropc_hand.dropcData.trialTime)-sliding_window+1
+            first_time=handles.dropc_hand.dropcData.trialTime(ii);
+            last_time=handles.dropc_hand.dropcData.trialTime(ii+sliding_window-1);
+            handles.drgb.file(filNum).perCorr(ii+(sliding_window/2))=100*sum(score(ii:ii+sliding_window-1))/sliding_window;
+            
+            if ii==1
+                handles.drgb.file(filNum).perCorr(ii:(sliding_window/2))=handles.drgb.file(filNum).perCorr(ii+(sliding_window/2));
+            end
+            if ii==length(handles.dropc_hand.dropcData.trialTime)-sliding_window+1
+                handles.drgb.file(filNum).perCorr(ii+(sliding_window/2)+1:length(handles.dropc_hand.dropcData.trialTime))=handles.drgb.file(filNum).perCorr(ii+(sliding_window/2));
+            end
+        end
+        
+        handles.drgb.file(filNum).encoding_trials=handles.drgb.file(filNum).perCorr<=65; 
+        handles.drgb.file(filNum).retrieval_trials=handles.drgb.file(filNum).perCorr>=80;
+        
     end
     
-    %read the jt_times files
-    handles.jtfullName=[handles.drgbchoices.PathName{filNum},handles.drgbchoices.FileName{filNum}];
-    handles.jtFileName=handles.drgbchoices.FileName{filNum};
-    handles.jtPathName=handles.drgbchoices.PathName{filNum};
-    
-    
-    drgRead_jt_times(handles.jtPathName,handles.jtFileName);
-    
-    FileName=[handles.jtFileName(10:end-4) '_drg.mat'];
-    handles.fullName=[handles.jtPathName,FileName];
-    handles.FileName=FileName;
-    handles.PathName=handles.jtPathName;
-    
-    load(handles.fullName);
-    handles.drg=drg;
-    
-    if handles.read_entire_file==1
-        handles=drgReadAllDraOrDg(handles);
-    end
-    
-    switch handles.drg.session(handles.sessionNo).draq_p.dgordra
-        case 1
-        case 2
-            handles.drg.drta_p.fullName=[handles.jtPathName handles.jtFileName(10:end-4) '.dg'];
-        case 3
-            handles.drg.drta_p.fullName=[handles.jtPathName handles.jtFileName(10:end-4) '.rhd'];
-    end
-    
-    
-    
-    %Set the last trial to the last trial in the session
-    handles.lastTrialNo=handles.drg.session(handles.sessionNo).events(2).noTimes;
-    
-    %Save information for this file
-    handles.drgb.filNum=filNum;
-    handles.drgb.file(filNum).FileName=handles.FileName;
-    handles.drgb.file(filNum).PathName=handles.PathName;
-    
-    [handles.drgb.file(filNum).perCorr, handles.drgb.file(filNum).encoding_trials, handles.drgb.file(filNum).retrieval_trials, encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
-    
-    
-    
-    %     handles.drgb.file(filNum).drg=handles.drg;
-    
-    
-    %     %Save output file
-    %     handles_drgb=handles;
-    %     if isfield(handles,'data_dg')
-    %         handles_drgb=rmfield(handles_drgb,'data_dg');
-    %     end
-    %     save([handles.drgb.outPathName handles.drgb.outFileName],'handles_drgb','-v7.3')
     
 end
  
@@ -139,7 +133,7 @@ set(hFig1, 'units','normalized','position',[.02 .02 .95 .95])
 max_session=max(handles.drgbchoices.session_no);
 max_mouse=max(handles.drgbchoices.mouse_no);
 
-for filNum=first_file:length(handles.drgbchoices.PathName)
+for filNum=1:length(handles.drgbchoices.PathName)
     subplot(max_mouse,max_session,max_session*(handles.drgbchoices.mouse_no(filNum)-1)+handles.drgbchoices.session_no(filNum))
     set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
     % subplot(3,1,1)
