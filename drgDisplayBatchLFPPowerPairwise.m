@@ -28,6 +28,11 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 %
 % 8 Compare auROC for ERP LFP in the last few trials of pre with first few trials of post
 %   Used for New Fig. 7 of Daniel's paper
+%
+% 9 Compare auROC for power LFP in two percent windows for all of the files 
+%
+% 10 Compare auROC for power LFP for two groups (e.g. NRG1 vs control)
+% within one precent window
 
 %% First enter the choices for what will be analyzed.
 % THESE VALUES ARE IMPORTANT and differ for each user
@@ -168,36 +173,33 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % min_trials_per_event=4;
 
 
-% % For Daniel's acetoethylben_firstandlast91117
-% drgbChoicesDanielAPEBEfirstandlast9617
-% Used to test comparing low to high percent correct
-
-winNo=2;
-refWin=1;
-which_display=9;
-
-
-
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-% trials_to_process=20;
-% output_suffix='_spmouthit.mat';
-
-eventType=[3 6];
-evTypeLabels={'S+','S-'};
-trials_to_process=20;
-output_suffix='pertest_spmout.mat';
-
-
-%Files to analyze
-files=[1 11 2 7 3 8 4 9 5 10 13 16 14 17 15 18];
-
-percent_windows=[80 100;45 65];
-
-file_label{1}='proficient';
-file_label{2}='learning';
-
-min_trials_per_event=4;
+% % % For Daniel's acetoethylben_firstandlast91117
+% % drgbChoicesDanielAPEBEfirstandlast9617
+% % Used to test comparing low to high percent correct
+% 
+% winNo=2;
+% refWin=1;
+% which_display=9;
+% 
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% % trials_to_process=20;
+% % output_suffix='_spmouthit.mat';
+% 
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% output_suffix='pertest_spmout.mat';
+% 
+% 
+% %Files to analyze
+% files=[1 11 2 7 3 8 4 9 5 10 13 16 14 17 15 18];
+% 
+% percent_windows=[80 100;45 65];
+% 
+% file_label{1}='proficient';
+% file_label{2}='naive';
+% 
+% min_trials_per_event=4;
 
 
 % 
@@ -1056,11 +1058,107 @@ min_trials_per_event=4;
 % min_trials_per_event=4;
 
 
+
+% % drgbChoicesDanielNRG1IAMOfirstandlast12318
+% % % For Daniel's isomin_firstandlast12318
+% %New Fig. 2 G2 run with which_display=3;
 % 
-% % % % For Daniel's isomin_firstandlast12318
+% 
+% winNo=2;
+% refWin=1;
+% which_display=3;
+% 
+% %
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% % comp_window=10;
+% 
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% % Enter the files to be processed
+% % files=[1 2 3]; %last experimental
+% % output_suffix='_spmoutnrg1.mat';
+% 
+% % 
+% files=[7 8 9 10]; %last control
+% output_suffix='_spmoutcontrol.mat';
+% 
+% 
+% % which_electrodes=[1:4,13:16]; %Prefrontal
+% which_electrodes=[5:12]; %Hippocampus
+%     
+% trials_to_process=20;
+% min_trials_per_event=4;
+
+% 
+% %Compare NRG with controls percent>80
+% % drgbChoicesDanielNRG1IAMOfirstandlast12318
+% % % For Daniel's isomin_firstandlast12318
+% winNo=2;
+% refWin=1;
+% which_display=10;
+% 
+% %
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% % comp_window=10;
+% 
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% % Enter the files to be processed
+% files=[1:14];
+% 
+% groups=[ones(1,6), 2*ones(1,8)];
+% group_names{1}='Experimental';
+% group_names{2}='Control';
+% 
+% output_suffix='_spmcompnrg1.mat';
+% 
+% 
+% % which_electrodes=[1:4,13:16]; %Prefrontal
+% which_electrodes=[5:12]; %Hippocampus
+% 
+% min_trials_per_event=4;
+% percent_windows=[80 100];
+
+
+% drgbChoicesDanielNRG1IAMOfirstandlast12318
+% % For Daniel's isomin_firstandlast12318
+% Compare low percent vs high percent
+winNo=2;
+refWin=1;
+which_display=9;
+
+%
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% comp_window=10;
+
+eventType=[3 6];
+evTypeLabels={'S+','S-'};
+
+% Enter the files to be processed
+files=[7:14]; %Control files
+% files=[1:6]; %Experimental files
+
+output_suffix='_spmpernrg1.mat';
+
+
+% which_electrodes=[1:4,13:16]; %Prefrontal
+which_electrodes=[5:12]; %Hippocampus
+    
+min_trials_per_event=4;
+percent_windows=[80 100;45 65];
+
+file_label{1}='proficient';
+file_label{2}='learning';
+
+
+
 % % % drgbChoicesDanielNRG1IAMOfirstandlast12318
-% %Compare NRG with controls
-% % New Fig. 3 run with which_display=4;
+% % % % For Daniel's isomin_firstandlast12318
 % 
 % winNo=2;
 % refWin=1;
@@ -4542,9 +4640,7 @@ switch which_display
         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2, 'Box', 'off')
         
 case 9
-    %Compare auROC in the last few trials of the last session file with
-    %first few trials of the first session
-    %Generates Fig. 3 for Daniel's paper. first vs last.
+    %Compare LFP power auROC in two percent windows for all of the files 
     no_dBs=1;
     delta_dB_power_fp1=[];
     no_ROCs=0;
@@ -4575,7 +4671,7 @@ case 9
             if sum(which_electrodes==elec)>0
                 
                 
-                lfpodNo_ref=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
                 
                 if ~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref))
                     
@@ -4583,14 +4679,20 @@ case 9
                         
                         for per_ii=1:2
                             
+                            percent_mask=[];
+                            trials_in_event_Ev1=[];
+                            trials_in_event_Ev2=[];
                             percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))&(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
                             trials_in_event_Ev1=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(event1,:)==1)&percent_mask;
                             trials_in_event_Ev2=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(event2,:)==1)&percent_mask;
                             
+                            if (files(fileNo)==7)&(elec==5)
+                                pffft=1;
+                            end
                             if (sum(trials_in_event_Ev1)>=min_trials_per_event) & (sum( trials_in_event_Ev2)>=min_trials_per_event)
                                 
-                                fprintf(1, ['File no %d electrode %d for percent window No %d was processed succesfully\n'],fileNo,elec,per_ii)
-                                lfpodNo=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                fprintf(1, ['File no %d electrode %d for percent window No %d was processed succesfully\n'],files(fileNo),elec,per_ii)
+                                lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
                                 
                                 %Ev1
                                 this_dB_powerrefEv1=zeros(sum(trials_in_event_Ev1),length(frequency));
@@ -4646,11 +4748,11 @@ case 9
                             else
                                 
                                 if (sum(trials_in_event_Ev1)<min_trials_per_event)
-                                    fprintf(1, ['%d trials for ' evTypeLabels{1} ' fewer than minimum trials per event =%d for file No %d electrode %d\n'],sum(trials_in_event_Ev1), min_trials_per_event,fileNo,elec);
+                                    fprintf(1, ['%d trials for ' evTypeLabels{1} ' fewer than minimum trials per event =%d for file No %d electrode %d\n'],sum(trials_in_event_Ev1), min_trials_per_event,files(fileNo),elec);
                                 end
                                 
                                 if (sum(trials_in_event_Ev2)<min_trials_per_event)
-                                    fprintf(1, ['%d trials for ' evTypeLabels{2} ' fewer than minimum trials per event =%d for file No %d electrode %d\n'],sum(trials_in_event_Ev2), min_trials_per_event,fileNo,elec);
+                                    fprintf(1, ['%d trials for ' evTypeLabels{2} ' fewer than minimum trials per event =%d for file No %d electrode %d\n'],sum(trials_in_event_Ev2), min_trials_per_event,files(fileNo),elec);
                                 end
                                 
                                 
@@ -4659,11 +4761,11 @@ case 9
                         end
                         
                     else
-                        fprintf(1, ['Empty allPower for file No %d electrode %d\n'],fileNo,elec);
+                        fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
                     end
                     
                 else
-                    fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],fileNo,elec);
+                    fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],files(fileNo),elec);
                 end
             end
         end
@@ -4780,7 +4882,255 @@ case 9
         
         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix],'learn_sig','learn_not_sig','prof_sig','prof_not_sig');
         
-       
+        
+        pffft=1
+        
+        
+    case 10
+        %Compare LFP power auROC for two groups (i.e. NRG1 vs control) for a percent window
+        no_dBs=1;
+        delta_dB_power_fp1=[];
+        no_ROCs=0;
+        ROCoutfp1=[];
+        ROCoutfp2=[];
+        p_vals_ROC=[];
+        delta_dB_powerfp1Ev1=[];
+        no_Ev1=0;
+        pvals_auROCperm=[];
+        pvals_dBperm=[];
+        perCorr_fp1=[];
+        perCorr_fp2=[];
+        
+        fprintf(1, ['Pairwise auROC analysis for ' evTypeLabels{1} ' and ' evTypeLabels{2} ' LFP power\n\n'])
+        p_vals=[];
+        
+        if exist('which_electrodes')==0
+            which_electrodes=[1:16];
+        end
+        
+        no_files=length(files);
+        
+        
+        for fileNo=1:no_files
+            
+            
+            for elec=1:16
+                if sum(which_electrodes==elec)>0
+                    
+                    
+                    lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                    
+                    if ~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref))
+                        
+                        if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
+                            
+                            per_ii=1;
+                            
+                            percent_mask=[];
+                            trials_in_event_Ev1=[];
+                            trials_in_event_Ev2=[];
+                            percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
+                                &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
+                            trials_in_event_Ev1=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(event1,:)==1)&percent_mask;
+                            trials_in_event_Ev2=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(event2,:)==1)&percent_mask;
+                            if (files(fileNo)==7)&(elec==5)
+                                pffft=1
+                            end
+                            if (sum(trials_in_event_Ev1)>=min_trials_per_event) & (sum( trials_in_event_Ev2)>=min_trials_per_event)
+                                
+                                fprintf(1, ['File no %d electrode %d for percent window No %d was processed succesfully\n'],files(fileNo),elec,per_ii)
+                                lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                
+                                %Ev1
+                                this_dB_powerrefEv1=zeros(sum(trials_in_event_Ev1),length(frequency));
+                                this_dB_powerrefEv1(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_event_Ev1,:));
+                                
+                                this_dB_powerEv1=zeros(sum(trials_in_event_Ev1),length(frequency));
+                                this_dB_powerEv1(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event_Ev1,:));
+                                
+                                %Ev2
+                                this_dB_powerrefEv2=zeros(sum(trials_in_event_Ev2),length(frequency));
+                                this_dB_powerrefEv2(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_event_Ev2,:));
+                                
+                                this_dB_powerEv2=zeros(sum(trials_in_event_Ev2),length(frequency));
+                                this_dB_powerEv2(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event_Ev2,:));
+                                
+                                for bwii=1:no_bandwidths
+                                    
+                                    no_ROCs=no_ROCs+1;
+                                    this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                    
+                                    %Enter Ev1
+                                    this_delta_dB_powerEv1=zeros(sum(trials_in_event_Ev1),1);
+                                    this_delta_dB_powerEv1=mean(this_dB_powerEv1(:,this_band)-this_dB_powerrefEv1(:,this_band),2);
+                                    roc_data=[];
+                                    roc_data(1:sum(trials_in_event_Ev1),1)=this_delta_dB_powerEv1;
+                                    roc_data(1:sum(trials_in_event_Ev1),2)=zeros(sum(trials_in_event_Ev1),1);
+                                    
+                                    %Enter Ev2
+                                    total_trials=sum(trials_in_event_Ev1)+sum(trials_in_event_Ev2);
+                                    this_delta_dB_powerEv2=zeros(sum(trials_in_event_Ev2),1);
+                                    this_delta_dB_powerEv2=mean(this_dB_powerEv2(:,this_band)-this_dB_powerrefEv2(:,this_band),2);
+                                    roc_data(sum(trials_in_event_Ev1)+1:total_trials,1)=this_delta_dB_powerEv2;
+                                    roc_data(sum(trials_in_event_Ev1)+1:total_trials,2)=ones(sum(trials_in_event_Ev2),1);
+                                    
+                                    
+                                    %Find  ROC
+                                    ROCout(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
+                                    ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo_ref).fileNo;
+                                    ROCgroupNo(no_ROCs)=groups(fileNo);
+                                    ROCout(no_ROCs).timeWindow=winNo;
+                                    ROCbandwidth(no_ROCs)=bwii;
+                                    ROCper_ii(no_ROCs)=per_ii;
+                                    auROC(no_ROCs)=ROCout(no_ROCs).roc.AUC-0.5;
+                                    p_valROC(no_ROCs)=ROCout(no_ROCs).roc.p;
+                                    
+                                    p_vals_ROC=[p_vals_ROC ROCout(no_ROCs).roc.p];
+                                    
+                                    
+                                    
+                                end
+                                
+                                
+                            else
+                                
+                                if (sum(trials_in_event_Ev1)<min_trials_per_event)
+                                    fprintf(1, ['%d trials for ' evTypeLabels{1} ' fewer than minimum trials per event =%d for file No %d electrode %d\n'],sum(trials_in_event_Ev1), min_trials_per_event,fileNo,elec);
+                                end
+                                
+                                if (sum(trials_in_event_Ev2)<min_trials_per_event)
+                                    fprintf(1, ['%d trials for ' evTypeLabels{2} ' fewer than minimum trials per event =%d for file No %d electrode %d\n'],sum(trials_in_event_Ev2), min_trials_per_event,fileNo,elec);
+                                end
+                                
+                                
+                            end
+                            
+                            
+                            
+                        else
+                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],fileNo,elec);
+                        end
+                        
+                    else
+                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],fileNo,elec);
+                    end
+                end
+            end
+            
+        end
+        fprintf(1, '\n\n')
+        
+        pFDRROC=drsFDRpval(p_vals_ROC);
+        fprintf(1, ['pFDR for significant difference of auROC p value from 0.5  = %d\n\n'],pFDRROC);
+        
+        
+        
+        fprintf(1, '\n\n')
+        
+        
+        %Plot cumulative histos for auROCs
+        
+        figNo=0;
+        x=0;
+        
+        try
+            close(5)
+        catch
+        end
+        figure(5)
+        hold on
+        
+        
+        for bwii=1:4
+            figNo=figNo+1;
+            try
+                close(figNo)
+            catch
+            end
+            figure(figNo)
+            
+            %Plot the histograms
+            edges=[-0.5:0.05:0.5];
+            pos2=[0.1 0.1 0.6 0.8];
+            subplot('Position',pos2)
+            hold on
+            
+            h2=histogram(auROC((ROCbandwidth==bwii)&(ROCgroupNo==1)),edges);
+            h2.FaceColor='r';
+            h1=histogram(auROC((ROCbandwidth==bwii)&(ROCgroupNo==2)),edges);
+            h1.FaceColor='b';
+            
+            
+            xlabel('auROC')
+            ylabel('# of electrodes')
+            legend(group_names{1},group_names{2})
+            title(['auROC for ' freq_names{bwii}])
+            xlim([-0.3 0.6])
+            ylim([0 80])
+            set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+            
+            %Plot the single electrodes
+            pos2=[0.8 0.1 0.1 0.8];
+            subplot('Position',pos2)
+            hold on
+            
+            plot(ones(1,sum((ROCbandwidth==bwii)&(ROCgroupNo==1))),auROC((ROCbandwidth==bwii)&(ROCgroupNo==1)),'o', 'Color',[0.7 0.7 0.7])
+            plot(zeros(1,sum((ROCbandwidth==bwii)&(ROCgroupNo==2))),auROC((ROCbandwidth==bwii)&(ROCgroupNo==2)),'o', 'Color',[0.7 0.7 0.7])
+            
+            
+            %PLot the mean and 95% CI
+            plot([0 1],[mean(auROC((ROCbandwidth==bwii)&(ROCgroupNo==2))) mean(auROC((ROCbandwidth==bwii)&(ROCgroupNo==1)))],'-k','LineWidth', 3)
+            CI = bootci(1000, @mean, auROC((ROCbandwidth==bwii)&(ROCgroupNo==2)));
+            plot([0 0],CI,'-b','LineWidth',3)
+            plot(0,mean(auROC((ROCbandwidth==bwii)&(ROCgroupNo==2))),'ob','MarkerSize', 10,'MarkerFace','b')
+            CI = bootci(1000, @mean, auROC((ROCbandwidth==bwii)&(ROCgroupNo==1)));
+            plot([1 1],CI,'-r','LineWidth',3)
+            plot(1,mean(auROC((ROCbandwidth==bwii)&(ROCgroupNo==1))),'or','MarkerSize', 10,'MarkerFace','r')
+            ylabel('auROC')
+            ylim([-0.2 0.5])
+            set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+            
+            %Do the statistics for auROC differences
+            a={auROC((ROCbandwidth==bwii)&(ROCgroupNo==1)) auROC((ROCbandwidth==bwii)&(ROCgroupNo==2))};
+            mode_statcond='perm';
+            [F df pval_auROCperm] = statcond(a,'mode',mode_statcond,'naccu', 1000); % perform an unpaired ANOVA
+            fprintf(1, ['p value for permuted anovan for auROC S+ vs S- ' freq_names{bwii} '= %d\n\n'],  pval_auROCperm);
+            pvals_auROCperm=[pvals_auROCperm pval_auROCperm];
+            
+            %Figure 5
+            figure(5)
+            
+            percent_auROCper1=100*sum(p_valROC((ROCbandwidth==bwii)&(ROCgroupNo==1))<=pFDRROC)/sum((ROCbandwidth==bwii)&(ROCgroupNo==1));
+            bar(x+1,percent_auROCper1,'r')
+            
+            percent_auROCper2=100*sum(p_valROC((ROCbandwidth==bwii)&(ROCgroupNo==2))<=pFDRROC)/sum((ROCbandwidth==bwii)&(ROCgroupNo==2));
+            bar(x,percent_auROCper2,'b')
+            
+            learn_sig(bwii)=sum(p_valROC((ROCbandwidth==bwii)&(ROCgroupNo==2))<=pFDRROC);
+            learn_not_sig(bwii)=sum((ROCbandwidth==bwii)&(ROCgroupNo==2))-sum(p_valROC((ROCbandwidth==bwii)&(ROCgroupNo==2))<=pFDRROC);
+            
+            prof_sig(bwii)=sum(p_valROC((ROCbandwidth==bwii)&(ROCgroupNo==1))<=pFDRROC);
+            prof_not_sig(bwii)=sum((ROCbandwidth==bwii)&(ROCgroupNo==1))-sum(p_valROC((ROCbandwidth==bwii)&(ROCgroupNo==1))<=pFDRROC);
+            
+            set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+            
+            x=x+3;
+            
+        end
+        
+        figure(5)
+        title('Percent singificant auROC')
+        legend(group_names{1},group_names{2})
+        ylim([0 100])
+        
+        pFDRanovanauROC=drsFDRpval(pval_auROCperm);
+        fprintf(1, ['\npFDR for premuted anovan p value for difference between ' group_names{1} ' and ' group_names{2} ' for auROC = %d\n\n'],pFDRanovanauROC);
+        
+        
+        
+        save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix],'learn_sig','learn_not_sig','prof_sig','prof_not_sig');
+         
+        
         pffft=1
 end
 

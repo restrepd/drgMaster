@@ -27,7 +27,9 @@ clear all
 which_display=1;
 trial_window=20;
 
+which_file=1; %1=.m   2=.mat 
 
+if which_file==1
 [choiceFileName,choiceBatchPathName] = uigetfile({'drgbChoices*.m'},'Select the .m file with all the choices for analysis');
 addpath(choiceBatchPathName)
 eval(['handles=' choiceFileName(1:end-2) ';'])
@@ -118,6 +120,15 @@ for filNum=1:length(handles.drgbchoices.FileName)
     
     
 end
+
+%Save the data
+save([handles.choiceBatchPathName handles.choiceFileName(1:end-2) '.mat'],'handles')
+
+else
+   [matFileName,matBatchPathName] = uigetfile({'drgbChoices*.mat'},'Select the .mat file with all the choices for analysis'); 
+   load([matBatchPathName matFileName])
+end
+
  
 %Plot percent correct
 try
@@ -181,6 +192,7 @@ switch which_display
                 end
             end
         end
+        
         %Plot pc of the first 30 trials in first and last 30 trials in last
         figure(2)
         hold on
@@ -202,31 +214,7 @@ switch which_display
         
         p_perCorr=ranksum(last_pc,first_pc);
         fprintf(1, '\np value for ranksum test for percent correct= %d\n\n',p_perCorr);
-        
-        %Plot the pc of last 30 trials in first and last
-        % figure(3)
-        % hold on
-        % for fps=1:max(handles.drgbchoices.mouse_no)
-        %     plot([0 1],[first_pc_end(fps) last_pc(fps)],'-o', 'Color',[0.7 0.7 0.7])
-        % end
-        %
-        % plot([0 1],[mean(first_pc_end) mean(last_pc)],'-k','LineWidth', 3)
-        % CI = bootci(1000, @mean, first_pc_end);
-        % plot([0 0],CI,'-b','LineWidth',3)
-        % plot(0,mean(first_pc_end),'ob','MarkerSize', 10,'MarkerFace','b')
-        % CI = bootci(1000, @mean, last_pc);
-        % plot([1 1],CI,'-r','LineWidth',3)
-        % plot(1,mean(last_pc),'or','MarkerSize', 10,'MarkerFace','r')
-        % ylabel('Percent correct')
-        % ylim([30 110])
-        % title('Percent correct, last 30 trials for the first and last sessions')
-        % set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-        %
-        % p_perCorr=ranksum(last_pc,first_pc_end);
-        % fprintf(1, '\np value for ranksum test for percent correct= %d\n\n',p_perCorr);
-        
-        
-        
+
         
         %Plot one of the sessions
         filNum=6;
