@@ -24,7 +24,7 @@ clear all
 % which_display=2 is used to show behavior for per and post laser for Fig.
 % 6 of Daniel's paper
 % drgbChoicesDanielAPEBexperimentalBeh02012018
-which_display=2;
+which_display=1;
 trial_window=20;
 
 
@@ -169,7 +169,7 @@ switch which_display
         first_pc_end=[];
         last_pc=[];
         
-        for filNum=first_file:length(handles.drgbchoices.PathName)
+        for filNum=1:length(handles.drgbchoices.PathName)
             if length(handles.drgb.file(filNum).perCorr)>=trial_window
                 if handles.drgbchoices.session_no(filNum)==1
                     first_pc(handles.drgbchoices.mouse_no(filNum))=mean(handles.drgb.file(filNum).perCorr(1:trial_window));
@@ -258,7 +258,7 @@ switch which_display
             group(grNo).last_pc_start=[];
             
             group(grNo).mouse_numbers=[];
-            for filNum=first_file:length(handles.drgbchoices.PathName)
+            for filNum=1:length(handles.drgbchoices.PathName)
                 if length(handles.drgb.file(filNum).perCorr)>=trial_window
                     if handles.drgbchoices.group_no(filNum)==grNo
                         if handles.drgbchoices.session_no(filNum)==1
@@ -281,10 +281,12 @@ switch which_display
             end
             figure(grNo+1)
             hold on
-            for filNum=first_file:length(handles.drgbchoices.PathName)
+            for filNum=1:length(handles.drgbchoices.PathName)
                 if length(handles.drgb.file(filNum).perCorr)>=trial_window
                     if handles.drgbchoices.group_no(filNum)==grNo
+
                         plot([0 1],[group(grNo).first_pc_end(handles.drgbchoices.mouse_no(filNum)) group(grNo).last_pc_start(handles.drgbchoices.mouse_no(filNum))],'-o', 'Color',[0.7 0.7 0.7])
+
                     end
                 end
             end
