@@ -172,7 +172,7 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % trials_to_process=30;
 % min_trials_per_event=4;
 
-
+% 
 % % % For Daniel's acetoethylben_firstandlast91117
 % % drgbChoicesDanielAPEBEfirstandlast9617
 % % Used to test comparing low to high percent correct
@@ -1091,21 +1091,50 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % trials_to_process=20;
 % min_trials_per_event=4;
 
+
+%Compare NRG delta LFP power with controls percent>80
+% drgbChoicesDanielNRG1IAMOallfiles21218
+% % For Daniel's NRG1isominallfiles21218.mat
+winNo=2;
+refWin=1;
+which_display=10;
 % 
-% %Compare NRG with controls percent>80
+% 
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+
+
+eventType=[3 6];
+evTypeLabels={'S+','S-'};
+
+% Enter the files to be processed
+files=[1:25];
+
+groups=[ones(1,13), 2*ones(1,12)];
+group_names{1}='Experimental';
+group_names{2}='Control';
+
+output_suffix='_spmcompnrg1.mat';
+
+
+which_electrodes=[1:4,13:16]; %Prefrontal
+% which_electrodes=[5:12]; %Hippocampus
+
+min_trials_per_event=4;
+percent_windows=[80 100];
+
+
+% %Compare NRG ERP delta LFP power with controls percent>80
 % % drgbChoicesDanielNRG1IAMOfirstandlast12318
 % % % For Daniel's isomin_firstandlast12318
-% winNo=2;
-% refWin=1;
-% which_display=10;
 % 
-% %
-% % eventType=[2 5];
-% % evTypeLabels={'Hit','CR'};
-% % comp_window=10;
+% winNo=1;
+% which_display=11;
 % 
-% eventType=[3 6];
-% evTypeLabels={'S+','S-'};
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% % eventType=[3 6];
+% % evTypeLabels={'S+','S-'};
 % 
 % % Enter the files to be processed
 % files=[1:14];
@@ -1122,38 +1151,42 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % 
 % min_trials_per_event=4;
 % percent_windows=[80 100];
+% 
+% shift_time=0.3;
+% shift_from_event=floor(shift_time/0.025);
 
 
-% drgbChoicesDanielNRG1IAMOfirstandlast12318
+
+% % drgbChoicesDanielNRG1IAMOfirstandlast12318
 % % For Daniel's isomin_firstandlast12318
-% Compare low percent vs high percent
-winNo=2;
-refWin=1;
-which_display=9;
-
-%
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-% comp_window=10;
-
-eventType=[3 6];
-evTypeLabels={'S+','S-'};
-
-% Enter the files to be processed
-files=[7:14]; %Control files
+% % Compare low percent vs high percent
+% winNo=2;
+% refWin=1;
+% which_display=9;
+% 
+% % 
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% % comp_window=10;
+% 
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% % Enter the files to be processed
+% % files=[7:14]; %Control files
 % files=[1:6]; %Experimental files
-
-output_suffix='_spmpernrg1.mat';
-
-
+% 
+% output_suffix='_spmpernrg1.mat';
+% 
+% 
 % which_electrodes=[1:4,13:16]; %Prefrontal
-which_electrodes=[5:12]; %Hippocampus
-    
-min_trials_per_event=4;
-percent_windows=[80 100;45 65];
-
-file_label{1}='proficient';
-file_label{2}='learning';
+% % which_electrodes=[5:12]; %Hippocampus
+%     
+% min_trials_per_event=4;
+% percent_windows=[80 100;45 65];
+% 
+% file_label{1}='proficient';
+% file_label{2}='learning';
 
 
 
@@ -5124,13 +5157,365 @@ case 9
         ylim([0 100])
         
         pFDRanovanauROC=drsFDRpval(pval_auROCperm);
-        fprintf(1, ['\npFDR for premuted anovan p value for difference between ' group_names{1} ' and ' group_names{2} ' for auROC = %d\n\n'],pFDRanovanauROC);
+        fprintf(1, ['\npFDR for premuted anovan p value for difference between\n ' group_names{1} ' and ' group_names{2} ' for auROC = %d\n\n'],pFDRanovanauROC);
         
         
         
         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix],'learn_sig','learn_not_sig','prof_sig','prof_not_sig');
-         
+        
         
         pffft=1
+        
+    case 11
+        
+        %Compare auROC for ERP LFP between two groups for percent >80
+        
+        fprintf(1, ['Analysis of auROC differences between two groups for different shift times for ' evTypeLabels{1} ' and ' evTypeLabels{2} ' for ERP LFP power\n\n'])
+        
+        shift_ii=[1:4:41];
+        
+        delta_meanauROC=[];
+        delta_meanauROCM=[];
+        CIauROCpreLowM=[];
+        CIauROCpreUppM=[];
+        CIauROCpostLowM=[];
+        CIauROCpostUppM=[];
+        
+        CIauROCdeltaLow=[];
+        CIauROCdeltaUpp=[];
+        
+        for ii_shift=1:length(shift_ii)
+            
+            fprintf(1, '\nDelta t from event %d of %d\n',ii_shift, length(shift_ii));
+            
+            
+            no_dBs=1;
+            delta_dB_power_pre=[];
+            no_ROCs=0;
+            ROCoutpre=[];
+            ROCoutpost=[];
+            p_vals_ROC=[];
+            delta_dB_powerpreHit=[];
+            no_hits=0;
+            perCorr_pre=[];
+            perCorr_post=[];
+            group_pre=[];
+            group_post=[];
+            sz_fps=size(file_pairs);
+            no_file_pairs=sz_fps(1);
+            
+            p_vals=[];
+            for fps=1:no_file_pairs
+                for elec=1:16
+                    
+                    lfpodNopre=find((files_per_lfp==file_pairs(fps,1))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                    lfpodNopost=find((files_per_lfp==file_pairs(fps,2))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                    
+                    if elec==1
+                        %Find percent correct for pre
+                        trials_Sp=(handles_drgb.drgb.lfpevpair(lfpodNopre).which_eventERP(event1,:)==1);
+                        trials_Sm=(handles_drgb.drgb.lfpevpair(lfpodNopre).which_eventERP(event2,:)==1);
+                        trials_Hit=(handles_drgb.drgb.lfpevpair(lfpodNopre).which_eventERP(perevent1,:)==1);
+                        trials_CR=(handles_drgb.drgb.lfpevpair(lfpodNopre).which_eventERP(perevent2,:)==1);
+                        perCorr_pre(fps)=100*(trials_Hit+trials_CR)/(trials_Sp+trials_Sm);
+                        group_pre(fps)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNopre).fileNo);
+                        
+                        %Find percent correct for post
+                        trials_Sp=(handles_drgb.drgb.lfpevpair(lfpodNopost).which_eventERP(event1,:)==1);
+                        trials_Sm=(handles_drgb.drgb.lfpevpair(lfpodNopost).which_eventERP(event2,:)==1);
+                        trials_Hit=(handles_drgb.drgb.lfpevpair(lfpodNopost).which_eventERP(perevent1,:)==1);
+                        trials_CR=(handles_drgb.drgb.lfpevpair(lfpodNopost).which_eventERP(perevent2,:)==1);
+                        perCorr_post(fps)=100*(trials_Hit+trials_CR)/(trials_Sp+trials_Sm);
+                        group_post(fps)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNopost).fileNo);
+                        
+                    end
+                    
+                    if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNopre)))&(~isempty(handles_drgb.drgb.lfpevpair(lfpodNopost)))
+                        
+                        
+                        if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNopre).log_P_tERP))&(~isempty(handles_drgb.drgb.lfpevpair(lfpodNopost).log_P_tERP))
+                            
+                            if (length(handles_drgb.drgb.lfpevpair(lfpodNopre).which_eventERP(1,:))>=trials_to_process) &...
+                                    (length(handles_drgb.drgb.lfpevpair(lfpodNopost).which_eventERP(1,:))>=trials_to_process)
+                                
+                                length_pre=length(handles_drgb.drgb.lfpevpair(lfpodNopre).which_eventERP(1,:));
+                                pre_mask=logical([zeros(1,length_pre-trials_to_process) ones(1,trials_to_process)]);
+                                trials_in_event_preHit=(handles_drgb.drgb.lfpevpair(lfpodNopre).which_eventERP(event1,:)==1);
+                                trials_in_event_preCR=(handles_drgb.drgb.lfpevpair(lfpodNopre).which_eventERP(event2,:)==1);
+                                
+                                trials_with_event_pre=(handles_drgb.drgb.lfpevpair(lfpodNopre).no_events_per_trial>0)&(handles_drgb.drgb.lfpevpair(lfpodNopre).no_events_per_trial<=max_events_per_sec)...
+                                    &(handles_drgb.drgb.lfpevpair(lfpodNopre).no_ref_evs_per_trial>0)&(handles_drgb.drgb.lfpevpair(lfpodNopre).no_ref_evs_per_trial<=max_events_per_sec);
+                                
+                                
+                                length_post=length(handles_drgb.drgb.lfpevpair(lfpodNopost).which_eventERP(1,:));
+                                post_mask=logical([ones(1,trials_to_process) zeros(1,length_post-trials_to_process)]);
+                                trials_in_event_postHit=(handles_drgb.drgb.lfpevpair(lfpodNopost).which_eventERP(event1,:)==1);
+                                trials_in_event_postCR=(handles_drgb.drgb.lfpevpair(lfpodNopost).which_eventERP(event2,:)==1);
+                                
+                                trials_with_event_post=(handles_drgb.drgb.lfpevpair(lfpodNopost).no_events_per_trial>0)&(handles_drgb.drgb.lfpevpair(lfpodNopost).no_events_per_trial<=max_events_per_sec)...
+                                    &(handles_drgb.drgb.lfpevpair(lfpodNopost).no_ref_evs_per_trial>0)&(handles_drgb.drgb.lfpevpair(lfpodNopost).no_ref_evs_per_trial<=max_events_per_sec);
+                                
+                                
+                                if (sum(trials_in_event_preHit&trials_with_event_pre&pre_mask)>=min_trials_per_event) & (sum(trials_in_event_preCR&trials_with_event_pre&pre_mask)>=min_trials_per_event) & ...
+                                        (sum(trials_in_event_postHit&trials_with_event_post&post_mask)>=min_trials_per_event) & (sum(trials_in_event_postCR&trials_with_event_post&post_mask)>=min_trials_per_event)
+                                    
+                                    
+                                    %pre Hits
+                                    this_dB_powerpreHit=zeros(sum(trials_in_event_preHit&pre_mask),length(frequency));
+                                    this_dB_powerpreHit(:,:)=handles_drgb.drgb.lfpevpair(lfpodNopre).log_P_tERP(trials_in_event_preHit&pre_mask,:,shift_ii(ii_shift));
+                                    
+                                    
+                                    %pre CRs
+                                    this_dB_powerpreCR=zeros(sum(trials_in_event_preCR&pre_mask),length(frequency));
+                                    this_dB_powerpreCR(:,:)=handles_drgb.drgb.lfpevpair(lfpodNopre).log_P_tERP(trials_in_event_preCR&pre_mask,:,shift_ii(ii_shift));
+                                    
+                                    
+                                    %post Hits
+                                    this_dB_powerpostHit=zeros(sum(trials_in_event_postHit&post_mask),length(frequency));
+                                    this_dB_powerpostHit(:,:)=handles_drgb.drgb.lfpevpair(lfpodNopost).log_P_tERP(trials_in_event_postHit&post_mask,:,shift_ii(ii_shift));
+                                    
+                                    
+                                    %post CRs
+                                    this_dB_powerpostCR=zeros(sum(trials_in_event_postCR&post_mask),length(frequency));
+                                    this_dB_powerpostCR(:,:)=handles_drgb.drgb.lfpevpair(lfpodNopost).log_P_tERP(trials_in_event_postCR&post_mask,:,shift_ii(ii_shift));
+                                    
+                                    for bwii=1:no_bandwidths
+                                        
+                                        no_ROCs=no_ROCs+1;
+                                        this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                        
+                                        %Enter the pre Hits
+                                        this_delta_dB_powerpreHit=zeros(sum(trials_in_event_preHit&pre_mask),1);
+                                        this_delta_dB_powerpreHit=mean(this_dB_powerpreHit(:,this_band),2);
+                                        roc_data=[];
+                                        roc_data(1:sum(trials_in_event_preHit&pre_mask),1)=this_delta_dB_powerpreHit;
+                                        roc_data(1:sum(trials_in_event_preHit&pre_mask),2)=zeros(sum(trials_in_event_preHit&pre_mask),1);
+                                        
+                                        %Enter pre CR
+                                        total_trials=sum(trials_in_event_preHit&pre_mask)+sum(trials_in_event_preCR&pre_mask);
+                                        this_delta_dB_powerpreCR=zeros(sum(trials_in_event_preCR&pre_mask),1);
+                                        this_delta_dB_powerpreCR=mean(this_dB_powerpreCR(:,this_band),2);
+                                        roc_data(sum(trials_in_event_preHit&pre_mask)+1:total_trials,1)=this_delta_dB_powerpreCR;
+                                        roc_data(sum(trials_in_event_preHit&pre_mask)+1:total_trials,2)=ones(sum(trials_in_event_preCR&pre_mask),1);
+                                        
+                                        
+                                        %Find pre ROC
+                                        ROCoutpre(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
+                                        ROCoutpre(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNopre).fileNo;
+                                        ROCgroupNopre(no_ROCs)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNopre).fileNo);
+                                        ROCoutpre(no_ROCs).timeWindow=winNo;
+                                        ROCbandwidthpre(no_ROCs)=bwii;
+                                        auROCpre(no_ROCs)=ROCoutpre(no_ROCs).roc.AUC-0.5;
+                                        p_valROCpre(no_ROCs)=ROCoutpre(no_ROCs).roc.p;
+                                        
+                                        p_vals_ROC=[p_vals_ROC ROCoutpre(no_ROCs).roc.p];
+                                        
+                                        %Enter the post Hits
+                                        this_delta_dB_powerpostHit=zeros(sum(trials_in_event_postHit&post_mask),1);
+                                        this_delta_dB_powerpostHit=mean(this_dB_powerpostHit(:,this_band),2);
+                                        roc_data=[];
+                                        roc_data(1:sum(trials_in_event_postHit&post_mask),1)=this_delta_dB_powerpostHit;
+                                        roc_data(1:sum(trials_in_event_postHit&post_mask),2)=zeros(sum(trials_in_event_postHit&post_mask),1);
+                                        
+                                        %Enter post CR
+                                        total_trials=sum(trials_in_event_postHit&post_mask)+sum(trials_in_event_postCR&post_mask);
+                                        this_delta_dB_powerpostCR=zeros(sum(trials_in_event_postCR&post_mask),1);
+                                        this_delta_dB_powerpostCR=mean(this_dB_powerpostCR(:,this_band),2);
+                                        roc_data(sum(trials_in_event_postHit&post_mask)+1:total_trials,1)=this_delta_dB_powerpostCR;
+                                        roc_data(sum(trials_in_event_postHit&post_mask)+1:total_trials,2)=ones(sum(trials_in_event_postCR&post_mask),1);
+                                        
+                                        
+                                        %Find post ROC
+                                        ROCoutpost(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
+                                        ROCoutpost(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNopost).fileNo;
+                                        ROCgroupNopost(no_ROCs)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNopost).fileNo);
+                                        ROCoutpost(no_ROCs).timeWindow=winNo;
+                                        ROCbandwidthpost(no_ROCs)=bwii;
+                                        auROCpost(no_ROCs)=ROCoutpost(no_ROCs).roc.AUC-0.5;
+                                        p_valROCpost(no_ROCs)=ROCoutpost(no_ROCs).roc.p;
+                                        
+                                        p_vals_ROC=[p_vals_ROC ROCoutpost(no_ROCs).roc.p];
+                                        
+                                        
+                                        %Are the delta dB LFP's different?
+                                        
+                                        %Hit
+                                        p_val(no_dBs,bwii)=ranksum(this_delta_dB_powerpreHit,this_delta_dB_powerpostHit);
+                                        p_vals=[p_vals p_val(no_dBs,bwii)];
+                                        groupNopre(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
+                                        groupNopost(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
+                                        events(no_dBs)=1;
+                                        
+                                        
+                                        %CR
+                                        p_val(no_dBs+1,bwii)=ranksum(this_delta_dB_powerpreCR,this_delta_dB_powerpostCR);
+                                        p_vals=[p_vals p_val(no_dBs+1,bwii)];
+                                        groupNopre(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
+                                        groupNopost(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
+                                        events(no_dBs+1)=2;
+                                        
+                                        if p_val(no_dBs,bwii)<0.05
+                                            dB_power_changeHit(no_ROCs)=1;
+                                        else
+                                            dB_power_changeHit(no_ROCs)=0;
+                                        end
+                                        
+                                        if p_val(no_dBs+1,bwii)<0.05
+                                            dB_power_changeCR(no_ROCs)=1;
+                                        else
+                                            dB_power_changeCR(no_ROCs)=0;
+                                        end
+                                        
+                                        %Plot the points and save the data
+                                        if groupNopre(no_dBs)==1
+                                            
+                                            
+                                            %Hit, all points
+                                            delta_dB_powerpreHit(no_ROCs)=mean(this_delta_dB_powerpreHit);
+                                            delta_dB_powerpostHit(no_ROCs)=mean(this_delta_dB_powerpostHit);
+                                            
+                                            
+                                            %CR, all points
+                                            delta_dB_powerpreCR(no_ROCs)=mean(this_delta_dB_powerpreCR);
+                                            delta_dB_powerpostCR(no_ROCs)=mean(this_delta_dB_powerpostCR);
+                                            
+                                        else
+                                            if groupNopre(no_dBs)==3
+                                                
+                                                %Hit, all points
+                                                delta_dB_powerpreHit(no_ROCs)=mean(this_delta_dB_powerpreHit);
+                                                delta_dB_powerpostHit(no_ROCs)=mean(this_delta_dB_powerpostHit);
+                                                
+                                                
+                                                %CR, all points
+                                                delta_dB_powerpreCR(no_ROCs)=mean(this_delta_dB_powerpreCR);
+                                                delta_dB_powerpostCR(no_ROCs)=mean(this_delta_dB_powerpostCR);
+                                                %                                             figure(bwii+4+12)
+                                                %                                             hold on
+                                                %                                             plot([3 4],[delta_dB_powerpreCR(no_ROCs) delta_dB_powerpostCR(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
+                                            end
+                                        end
+                                    end
+                                    
+                                    no_dBs=no_dBs+2;
+                                    
+                                    
+                                end
+                                
+                                
+                                
+                            end
+                            
+                            
+                            
+                        end
+                        
+                        
+                        
+                    end
+                end
+                
+            end
+            
+            
+            
+            pFDRROC=drsFDRpval(p_vals_ROC);
+            
+            %Now plot the bar graphs and do anovan for LFP power
+            p_vals_anovan=[];
+            
+            
+            %Plot cumulative histos for auROCs
+            dB_power_change=logical(dB_power_changeHit+dB_power_changeCR);
+            figNo=0;
+            p_val_ROC=[];
+            pvals_auROCperm=[];
+            
+            
+            for bwii=1:4
+                n_cum=0;
+                this_legend=[];
+                data_auROC=[];
+                pre_post_auROC=[];
+                gr_auROC=[];
+                for grs=1:2
+                    
+                    this_deltaauROC=[];
+                    this_deltaauROC=auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii))-auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii));
+                    delta_meanauROC(ii_shift,grs,bwii)=mean(this_deltaauROC);
+                    CI= bootci(1000, @mean, this_deltaauROC);
+                    CIauROCdeltaLow(ii_shift,grs,bwii)=mean(this_deltaauROC)-CI(1);
+                    CIauROCdeltaUpp(ii_shift,grs,bwii)=CI(2)-mean(this_deltaauROC);
+                    
+                    
+                    meanauROCpre(ii_shift,grs,bwii)=mean(auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)));
+                    CI= bootci(1000, @mean, auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)));
+                    CIauROCpreLowM(ii_shift,grs,bwii)=mean(auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)))-CI(1);
+                    CIauROCpreUppM(ii_shift,grs,bwii)=CI(2)-mean(auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)));
+                    
+                    
+                    meanauROCpost(ii_shift,grs,bwii)=mean(auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)));
+                    CI = bootci(1000, @mean, auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)));
+                    CIauROCpostLowM(ii_shift,grs,bwii)=mean(auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)))-CI(1);
+                    CIauROCpostUppM(ii_shift,grs,bwii)=CI(2)-mean(auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)));
+                    
+                    delta_meanauROCM(ii_shift,grs,bwii)=meanauROCpost(ii_shift,grs,bwii)-meanauROCpre(ii_shift,grs,bwii);
+                    
+                    
+                    %Save the data for anovan interaction
+                    %Pre
+                    data_auROC=[data_auROC auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii))];
+                    gr_auROC=[gr_auROC grs*ones(1,sum((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)))];
+                    pre_post_auROC=[pre_post_auROC ones(1,sum((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)))];
+                    
+                    %Post
+                    data_auROC=[data_auROC auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii))];
+                    gr_auROC=[gr_auROC grs*ones(1,sum((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)))];
+                    pre_post_auROC=[pre_post_auROC 2*ones(1,sum((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)))];
+                end
+                %             figNo=figNo+2;
+                %             x=x+3;
+                
+                %Calculate anovan for inteaction
+                [p,tbl,stats]=anovan(data_auROC,{pre_post_auROC gr_auROC},'model','interaction','varnames',{'pre_vs_post','halo_vs_no_halo'},'display','off');
+                fprintf(1, ['p value for anovan auROC interaction for ii_shift= %d ' freq_names{bwii} '= %d\n'],  ii_shift,p(3));
+                p_aovan_int(ii_shift,bwii)=p(3);
+                
+            end
+            
+        end
+        
+        pFDRauROCint=drsFDRpval(p_aovan_int(:));
+        fprintf(1, ['pFDR for auROC anovan interaction  = %d\n\n'],pFDRauROCint);
+        
+        %Plot the effect of silencing NA fibers with halorhodopsin
+        figure(1)
+        hold on
+        plot([-0.6 0.6],[0 0],'-','LineWidth',3,'Color',[0.7 0.7 0.7])
+        plot([0 0],[-0.25 0.25],'-','LineWidth',3,'Color',[0.7 0.7 0.7])
+        delta_time=([0:10]*0.1-0.5);
+        for bwii=1:4
+            delta_auROC=zeros(1,length(shift_ii));
+            delta_auROC=delta_meanauROC(:,1,bwii)-delta_meanauROC(:,2,bwii);
+            delta_CIlow=sqrt(CIauROCdeltaLow(:,1,bwii).^2+CIauROCdeltaLow(:,2,bwii).^2);
+            delta_CIupp=sqrt(CIauROCdeltaUpp(:,1,bwii).^2+CIauROCdeltaUpp(:,2,bwii).^2);
+            
+            for ii=1:length(delta_time)
+                plot([delta_time(ii)+0.02*(bwii-2.5) delta_time(ii)+0.02*(bwii-2.5)],[delta_auROC(ii) delta_auROC(ii)+delta_CIupp(ii)],these_lines{bwii},'LineWidth',1)
+                plot([delta_time(ii)+0.02*(bwii-2.5) delta_time(ii)+0.02*(bwii-2.5)],[delta_auROC(ii) delta_auROC(ii)-delta_CIlow(ii)],these_lines{bwii},'LineWidth',1)
+            end
+            plot(delta_time+0.02*(bwii-2.5),delta_auROC,'-','LineWidth',2,'Color',these_colors{bwii})
+            plot(delta_time(p_aovan_int(:,bwii)<=pFDRauROCint)+0.02*(bwii-2.5),delta_auROC(p_aovan_int(:,bwii)<pFDRauROCint),'*','Color',these_colors{bwii},'MarkerSize',10)
+            plot(delta_time(p_aovan_int(:,bwii)>pFDRauROCint)+0.02*(bwii-2.5),delta_auROC(p_aovan_int(:,bwii)>pFDRauROCint),'o','Color',these_colors{bwii},'MarkerFace',these_colors{bwii})
+            
+        end
+        
+        ylim([-0.25 0.25])
+        xlim([-0.6 0.6])
+        xlabel('dt to event (ms)')
+        ylabel('delta auROC')
+        title('Effect of silencing NA on auROC')
+        legend('Theta','Beta','Low gamma','High gamma')
+        set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2, 'Box', 'off')
 end
 
