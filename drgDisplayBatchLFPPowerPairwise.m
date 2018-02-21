@@ -37,7 +37,7 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 %% First enter the choices for what will be analyzed.
 % THESE VALUES ARE IMPORTANT and differ for each user
 
-
+% 
 % 
 % % For Daniel's acetoethylben_nlvsl_02042018.mat
 % % drgbChoicesDanielAPEBEnlvsl02042018
@@ -1091,37 +1091,37 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % trials_to_process=20;
 % min_trials_per_event=4;
 
-
-%Compare NRG delta LFP power with controls percent>80
-% drgbChoicesDanielNRG1IAMOallfiles21218
-% % For Daniel's NRG1isominallfiles21218.mat
-winNo=2;
-refWin=1;
-which_display=10;
+% 
+% %Compare NRG delta LFP power with controls percent>80
+% % drgbChoicesDanielNRG1IAMOallfiles21218
+% % % For Daniel's NRG1isominallfiles21218.mat
+% winNo=2;
+% refWin=1;
+% which_display=10;
+% % 
+% % 
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
 % 
 % 
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-
-
-eventType=[3 6];
-evTypeLabels={'S+','S-'};
-
-% Enter the files to be processed
-files=[1:25];
-
-groups=[ones(1,13), 2*ones(1,12)];
-group_names{1}='Experimental';
-group_names{2}='Control';
-
-output_suffix='_spmcompnrg1.mat';
-
-
-which_electrodes=[1:4,13:16]; %Prefrontal
-% which_electrodes=[5:12]; %Hippocampus
-
-min_trials_per_event=4;
-percent_windows=[80 100];
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% % Enter the files to be processed
+% files=[1:25];
+% 
+% groups=[ones(1,13), 2*ones(1,12)];
+% group_names{1}='Experimental';
+% group_names{2}='Control';
+% 
+% output_suffix='_spmcompnrg1.mat';
+% 
+% 
+% which_electrodes=[1:4,13:16]; %Prefrontal
+% % which_electrodes=[5:12]; %Hippocampus
+% 
+% min_trials_per_event=4;
+% percent_windows=[80 100];
 
 
 % %Compare NRG ERP delta LFP power with controls percent>80
@@ -1324,44 +1324,44 @@ percent_windows=[80 100];
 % shift_time=0.3;
 % shift_from_event=floor(shift_time/0.025);
 
-% 
-% 
-% %drgbChoicesDaniel_shift2_IAMO_ERP1312018
-% %IAMO_ERP_shift2_02052018.mat
-% % logP for ERP in was saved with no lag from the event
-% % For ERP figure  of Daniel's paper run with which_display=1
-% winNo=1;
-% % which_display=1;
-% which_display=8;
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-% % eventType=[3 6];
-% % evTypeLabels={'S+','S-'};
-% 
-% 
-% %Experiment pairs
-% %Important: The first file must be the experiment performed first
-% %For example in acetophenone ethyl benzoate no laser is first, laser is
-% %second
-% file_pairs=[
-%     10 1;
-%     11 2;
-%     12 3;
-%     13 4;
-%     14 5;
-%     15 6;
-%     16 7;
-%     17 8;
-%     18 9];
-% 
-% trials_to_process=20;
-% min_trials_per_event=3;
-% shift_time=0.3;
-% shift_from_event=floor(shift_time/0.025);
-% 
-% 
-% grpre=[1 3];
-% grpost=[2 4];
+
+
+%drgbChoicesDaniel_shift2_IAMO_ERP1312018
+%IAMO_ERP_shift2_02052018.mat
+% logP for ERP in was saved with no lag from the event
+% For ERP figure  of Daniel's paper run with which_display=1
+winNo=1;
+% which_display=1;
+which_display=8;
+eventType=[2 5];
+evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+
+
+%Experiment pairs
+%Important: The first file must be the experiment performed first
+%For example in acetophenone ethyl benzoate no laser is first, laser is
+%second
+file_pairs=[
+    10 1;
+    11 2;
+    12 3;
+    13 4;
+    14 5;
+    15 6;
+    16 7;
+    17 8;
+    18 9];
+
+trials_to_process=20;
+min_trials_per_event=3;
+shift_time=0.3;
+shift_from_event=floor(shift_time/0.025);
+
+
+grpre=[1 3];
+grpost=[2 4];
 
 %% The code processing pairwise batch LFP starts here
 
@@ -5517,5 +5517,8 @@ case 9
         title('Effect of silencing NA on auROC')
         legend('Theta','Beta','Low gamma','High gamma')
         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2, 'Box', 'off')
+        
+    case 12
+        %Justin
 end
 
