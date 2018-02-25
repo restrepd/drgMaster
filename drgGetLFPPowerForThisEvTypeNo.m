@@ -3,7 +3,7 @@ function [out_times,f,all_Power, all_Power_ref, all_Power_timecourse, this_trial
 %Generates a trial per trial phase histogram
 sessionNo=handles.sessionNo;
 Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
-freq=handles.burstLowF:1:handles.burstHighF;
+freq=handles.burstLowF:(handles.burstHighF-handles.burstLowF)/100:handles.burstHighF;
 
 window=round(handles.window*handles.drg.draq_p.ActualRate); 
 noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate); 

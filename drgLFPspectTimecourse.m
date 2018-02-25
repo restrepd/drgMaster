@@ -7,7 +7,7 @@ function drgLFPspectTimecourse(handles)
 
 
 
-freq=handles.burstLowF:1:handles.burstHighF;
+freq=f';
 
 
 %Timecourse doing average after log

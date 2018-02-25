@@ -201,35 +201,35 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % 
 % min_trials_per_event=4;
 
-% 
-% % % For Ming's Odorandlaser_firstandlast_Allfourgroups
-% % drgbChoicesMingFirstLast022218_Allfourgroups
-% % Used to test comparing low to high percent correct
-% 
-% winNo=2;
-% refWin=1;
-% which_display=9;
-% 
-% % eventType=[2 5];
-% % evTypeLabels={'Hit','CR'};
-% % trials_to_process=20;
-% % output_suffix='_spmouthit.mat';
-% 
-% eventType=[3 6];
-% evTypeLabels={'S+','S-'};
-% output_suffix='pernaivefirstlast_spmout.mat';
-% 
-% 
-% %Files to analyze
-% % files=[1:8];
-% files=[21:26];
-% 
-% percent_windows=[80 100;45 65];
-% 
-% file_label{1}='proficient';
-% file_label{2}='naive';
-% 
-% min_trials_per_event=4;
+
+% % For Ming's Odorandlaser_firstandlast_Allfourgroups
+% drgbChoicesMingFirstLast022218_Allfourgroups
+% Used to test comparing low to high percent correct
+
+winNo=2;
+refWin=1;
+which_display=9;
+
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% trials_to_process=20;
+% output_suffix='_spmouthit.mat';
+
+eventType=[3 6];
+evTypeLabels={'S+','S-'};
+output_suffix='pernaivefirstlast_spmout.mat';
+
+
+%Files to analyze
+% files=[1:8];
+files=[9:16];
+
+percent_windows=[80 100;45 65];
+
+file_label{1}='proficient';
+file_label{2}='naive';
+
+min_trials_per_event=4;
 
 
 % 
@@ -507,32 +507,32 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % grpre=[1 3];
 % grpost=[2 4];
 
-
-% Odorandlaser_firstandlast_orderchange_Allin.mat
-% For  New Fig. 2 analysis using Ming's drgbChoicesMingFirstLast01102018_orderchange_allin
-% To compare naive with experienced LFP power
-winNo=2;
-refWin=1;
-which_display=3;
-
-
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-eventType=[3 6];
-evTypeLabels={'S+','S-'};
-
-
-
-% Enter the files to be processed
-files=[13 14 15 16]; %ChETA
-
-
-% Enter the files to be processed
-% files=[19 20]; %ChR2
-% no_files=2;
-
-trials_to_process=30;
-min_trials_per_event=4;
+% 
+% % Odorandlaser_firstandlast_orderchange_Allin.mat
+% % For  New Fig. 2 analysis using Ming's drgbChoicesMingFirstLast01102018_orderchange_allin
+% % To compare naive with experienced LFP power
+% winNo=2;
+% refWin=1;
+% which_display=3;
+% 
+% 
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% 
+% 
+% 
+% % Enter the files to be processed
+% files=[13 14 15 16]; %ChETA
+% 
+% 
+% % Enter the files to be processed
+% % files=[19 20]; %ChR2
+% % no_files=2;
+% 
+% trials_to_process=30;
+% min_trials_per_event=4;
 
 
 % 
@@ -552,7 +552,7 @@ min_trials_per_event=4;
 % 
 % eventType=[3 6];
 % evTypeLabels={'S+','S-'}; %Note: This is currently not used
-% trials_to_process=14;
+% trials_to_process=30;
 % output_suffix='_spmout.mat';
 % 
 % %Experiment pairs
@@ -569,14 +569,18 @@ min_trials_per_event=4;
 % % ];
 % % no_file_pairs=4;
 % 
-% % %ChETA
+% %ChETA
 % file_pairs=[
 %     13 9;
 %     14 10;
 %     15 11;
 %     16 12;
 % ];
-% no_file_pairs=4;
+% 
+% % file_pairs=[
+% %     16 12
+% % ];
+% 
 % 
 % %ChR2
 % % file_pairs=[
@@ -2784,13 +2788,13 @@ switch which_display
         fprintf(1, ['Pairwise auROC analysis for ' evTypeLabels{1} ' and ' evTypeLabels{2} ' LFP power\n\n'])
         p_vals=[];
         
-          if exist('which_electrodes')==0
+        if exist('which_electrodes')==0
             which_electrodes=[1:16];
         end
         
-       
-              
-                    
+        sz_fp=size(file_pairs);
+        no_file_pairs=sz_fp(1);
+        
         for fps=1:no_file_pairs
             
             

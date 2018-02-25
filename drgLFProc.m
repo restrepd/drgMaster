@@ -41,7 +41,7 @@ roc_data=[];
 
 size_allp1=size(all_Power1);
 if handles.subtractRef==1
-   roc_data(1:size_allp1(1),1)= mean(this_all_dBpower1-this_ref_dBpower1,2);;
+   roc_data(1:size_allp1(1),1)= mean(this_all_dBpower1-this_ref_dBpower1,2);
 else
    roc_data(1:size_allp1(1),1)= mean(this_all_dBpower1,2);
 end
@@ -61,5 +61,6 @@ roc_out=roc_calc(roc_data);
 handles.time_start=time_start;
 handles.time_end=time_end;
 
-pffft=1
+fprintf(1, ['drgLFProc run from %d Hz to %d Hz\n\n'],handles.burstLowF,handles.burstHighF );
+
 
