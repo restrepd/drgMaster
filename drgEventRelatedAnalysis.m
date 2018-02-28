@@ -1,4 +1,4 @@
-function [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr,no_ref_evs_per_trial]=drgEventRelatedAnalysis(handles)
+function [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorrERP,no_ref_evs_per_trial]=drgEventRelatedAnalysis(handles)
 %Performs an event-related analysis. The event is signaled by a sharp chane
 %in the reference voltage. This is used to analyze lick-related changes in
 %LFP
@@ -16,6 +16,7 @@ no_events_per_trial=[];
 no_ref_events_per_trial=[];
 t_per_event_per_trial=[];
 time_per_event=[];
+perCorrERP=[];
 
 %Generates a trial per trial phase histogram
 sessionNo=handles.sessionNo;
@@ -123,6 +124,7 @@ for trNo=firstTr:lastTr
                 time(no_trials)=handles.drg.session(sessionNo).trial_start(trialNo);
                 which_trial(no_trials)=1;
                 perCorr_per_histo(no_trials)=50;
+                perCorrERP(no_trials)=perCorr(trialNo);
                 
                 
                 %Get LFP phase
