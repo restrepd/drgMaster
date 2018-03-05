@@ -236,6 +236,37 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 
 
 
+% % For Daniel NRGI future....
+% drgbChoicesMingFirstLast022318_Allfiles_fourgroups
+% Used to test comparing low to high percent correct
+
+winNo=2;
+refWin=1;
+which_display=9;
+
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% trials_to_process=20;
+% output_suffix='_spmouthit.mat';
+
+eventType=[3 6];
+evTypeLabels={'S+','S-'};
+output_suffix='pernaivefirstlast_spmout.mat';
+
+
+%Files to analyze
+% files=[1:16];  %Control
+files=[17:38];  %NRG1
+
+percent_windows=[80 100;45 65];
+
+file_label{1}='proficient';
+file_label{2}='naive';
+
+min_trials_per_event=4;
+which_electrodes=[1:4,13:16]; %Prefrontal
+% which_electrodes=[5:12]; %Hippocampus
+
 
 % 
 % % % For Daniel's acetoethylben_firstandlast91117
@@ -854,42 +885,42 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % shift_time=0.3;
 % shift_from_event=floor(shift_time/0.025);
 
-
-% drgbChoicesMingERPspikes02242018_orderchange_allin
-% Odorandlaser_ERPspikes_orderchange_Allin02242018
-% logP for ERP in was saved with no lag from the event
-% run with which_display=7;
-
-winNo=1;
-which_display=11;
-
-
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-% trials_to_process=20;
-% output_suffix='_spmouthit.mat';
-
-eventType=[3 6];
-evTypeLabels={'S+','S-'};
-trials_to_process=30;
-output_suffix='_spmout.mat';
-
-
-%Files to analyze
-% files=[53:71];  %Naive odor
-% files=[39:52];  %ChR2
-% files=[1:16];  %Experienced odor
-files=[17:38];  %ChETA
-
-file_label{1}='proficient';
-file_label{2}='learning';
-
-min_trials_per_event=4;
-
-shift_time=0.3;
-shift_from_event=floor(shift_time/0.025);
-
-percent_windows=[80 100;45 65];
+% 
+% % drgbChoicesMingERPspikes02242018_orderchange_allin
+% % Odorandlaser_ERPspikes_orderchange_Allin02242018
+% % logP for ERP in was saved with no lag from the event
+% % run with which_display=7;
+% 
+% winNo=1;
+% which_display=11;
+% 
+% 
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% % trials_to_process=20;
+% % output_suffix='_spmouthit.mat';
+% 
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% trials_to_process=30;
+% output_suffix='_spmout.mat';
+% 
+% 
+% %Files to analyze
+% % files=[53:71];  %Naive odor
+% % files=[39:52];  %ChR2
+% % files=[1:16];  %Experienced odor
+% files=[17:38];  %ChETA
+% 
+% file_label{1}='proficient';
+% file_label{2}='learning';
+% 
+% min_trials_per_event=4;
+% 
+% shift_time=0.3;
+% shift_from_event=floor(shift_time/0.025);
+% 
+% percent_windows=[80 100;45 65];
 
 % no_bandwidths=4;
 % low_freq=[500 1000 500 1000];
@@ -1237,8 +1268,6 @@ percent_windows=[80 100;45 65];
 % 
 % shift_time=0.3;
 % shift_from_event=floor(shift_time/0.025);
->>>>>>> 362cddba4db155729b2e4c347f0e0147096a5855
-
 
 
 % % drgbChoicesDanielNRG1IAMOfirstandlast12318
@@ -4805,10 +4834,11 @@ case 9
                             percent_mask=[];
                             trials_in_event_Ev1=[];
                             trials_in_event_Ev2=[];
-                            percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))&(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
+                            percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
+                                &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
                             trials_in_event_Ev1=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(event1,:)==1)&percent_mask;
                             trials_in_event_Ev2=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(event2,:)==1)&percent_mask;
-                            
+                             
 
                             if (sum(trials_in_event_Ev1)>=min_trials_per_event) & (sum( trials_in_event_Ev2)>=min_trials_per_event)
                                 
