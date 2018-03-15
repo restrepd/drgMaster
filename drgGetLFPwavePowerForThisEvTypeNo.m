@@ -1,6 +1,7 @@
-function [out_times,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPwavePowerForThisEvTypeNo(handles)
+function [out_t,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPwavePowerForThisEvTypeNo(handles)
 
 %Generates a trial per trial phase histogram
+odorOn=2;
 sessionNo=handles.sessionNo;
 Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
 dec_n=fix(handles.drg.session(sessionNo).draq_p.ActualRate/1000);
@@ -121,8 +122,7 @@ for trNo=firstTr:lastTr
                 end
                 switch handles.drg.drta_p.which_c_program
                     case {2,10}
-                        perCorr_pertr(no_trials)=perCorr(find(abs(handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo)-handles.drg.session(sessionNo).events(2).times)...
-                            <= handles.max_dt_between_events,1,'first'));
+                        perCorr_pertr(no_trials)=perCorr(drgFindEvNo(handles,trialNo,sessionNo,odorOn));
                     otherwise
                         perCorr_pertr(no_trials)=100;
                 end
@@ -148,5 +148,5 @@ end
 
 sz_apt=size(all_Power_timecourse);
 t = 0:DT:(sz_apt(3)*DT)-DT;
-out_times=t+min_t;
+out_t=t+out_times(1);
 

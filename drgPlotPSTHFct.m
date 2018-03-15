@@ -2,7 +2,7 @@ function handles=drgPlotPSTHFct(handles)
 %PSTH plot for a range of trials
 
 
-
+odorOn=2;
 drg=handles.drg;
 unitNo=handles.unitNo;
 firstTr=handles.trialNo;
@@ -85,8 +85,7 @@ for trNo=firstTr:lastTr
                 end
                 
                 
-                handles.drgb.unit(handles.drgb.unit_no).perCorr(noTrials)=perCorr(find(abs(handles.drg.session(1).events(handles.evTypeNo).times(evNo)-handles.drg.session(1).events(2).times)...
-                    <= handles.max_dt_between_events,1,'first'));
+                handles.drgb.unit(handles.drgb.unit_no).perCorr(noTrials)=perCorr(drgFindEvNo(handles,trialNo,sessionNo,odorOn));
                 
             end
         end

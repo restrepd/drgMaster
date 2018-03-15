@@ -13,9 +13,9 @@ n_phase_bins=handles.n_phase_bins;
 %Enter trials
 firstTr=handles.trialNo;
 lastTr=handles.lastTrialNo;
+odorOn=2;
 
-
-% [perCorr, encoding_trials, retrieval_trials, encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
+[perCorr, encoding_trials, retrieval_trials, encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
 
 try
     close 1
@@ -75,7 +75,7 @@ for trNo=firstTr:lastTr
                 no_trials=no_trials+1;
                 time(no_trials)=handles.drg.session(sessionNo).trial_start(trialNo);
                 which_trial(no_trials)=1;
-                perCorr_per_histo(no_trials)=50;
+                perCorr_per_histo(no_trials)= perCorr(drgFindEvNo(handles,trialNo,sessionNo,odorOn));
                 [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase, phase_histo, theta_wave]=drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
                 all_phase_histo(no_trials,1:n_phase_bins+1)=phase_histo;
                 all_theta_wave(no_trials,1:n_phase_bins+1)=theta_wave;

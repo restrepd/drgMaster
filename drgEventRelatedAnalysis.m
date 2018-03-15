@@ -5,6 +5,7 @@ function [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_tria
 
 [perCorr, encoding_trials, retrieval_trials,encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
 
+odorOn=2;
 
 if handles.displayData==1
     fprintf(1, '\n');
@@ -124,7 +125,8 @@ for trNo=firstTr:lastTr
                 time(no_trials)=handles.drg.session(sessionNo).trial_start(trialNo);
                 which_trial(no_trials)=1;
                 perCorr_per_histo(no_trials)=50;
-                perCorrERP(no_trials)=perCorr(trialNo);
+                perCorrERP(no_trials)=perCorr(drgFindEvNo(handles,trialNo,sessionNo,odorOn));
+
                 
                 
                 %Get LFP phase
@@ -430,7 +432,13 @@ if handles.displayData==1
     
     title('Event-related LFP')
     xlim([-0.5 0.5])
-    ylim([-300 300])
+    
+    pct1=prctile(meanERLFP_per_trial,1);
+    pct99=prctile(meanERLFP_per_trial,99);
+    max_mean=pct99+0.1*(pct99-pct1);
+    min_mean=pct1-0.1*(pct99-pct1);
+    ylim([min_mean max_mean])
+    
     ylabel('uV')
     xlabel('Time (s)')
     set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)

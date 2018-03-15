@@ -9,6 +9,7 @@ highF1=handles.burstLowF;
 highF2=handles.burstHighF;
 pad_time=handles.time_pad;
 n_phase_bins=handles.n_phase_bins;
+odorOn=2;
 
 %First LFP in this tetrode
 firstLFP=4*ceil(handles.peakLFPNo/4)-3;
@@ -89,8 +90,7 @@ for evNo=1:handles.drg.session(handles.sessionNo).events(handles.evTypeNo).noTim
             
             handles.drgb.PAC.all_phase_histo(no_trials,1:n_phase_bins+1)=mean(all_LFPs_phase_histo,1);
             handles.drgb.PAC.all_theta_wave(no_trials,1:n_phase_bins+1)=mean(all_LFPs_theta_wave,1);
-            handles.drgb.PAC.perCorr(no_trials)=perCorr(abs(handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo)-handles.drg.session(sessionNo).events(2).times)...
-                            <= handles.max_dt_between_events);
+            handles.drgb.PAC.perCorr(no_trials)=perCorr(drgFindEvNo(handles,trialNo,sessionNo,odorOn));
             handles.drgb.PAC.percent_lick(no_trials)=handles.drg.session(sessionNo).percent_lick(trialNo);
             
             if handles.displayData==0

@@ -9,6 +9,7 @@ if handles.displayData==1
     fprintf(1, '\n');
 end
 
+odorOn=2;
 lickLFPNo=19;
 which_event=[];
 inter_lick_intervals=[];
@@ -148,7 +149,7 @@ for trNo=firstTr:lastTr
                     
                     no_trials=no_trials+1;
                     lick_timecourse(no_trials,1:no_lick_dt)=lick_timecourse_this_trial(1,:);
-                    per_corr_per_trial(no_trials)=perCorr(trNo);
+                    per_corr_per_trial(no_trials)=perCorr(drgFindEvNo(handles,trialNo,sessionNo,odorOn));
                     
                     
                     if isfield(handles,'drgbchoices')
