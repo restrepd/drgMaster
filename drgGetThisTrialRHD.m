@@ -25,6 +25,9 @@ tic;
 fid = fopen(handles.drg.drta_p.fullName, 'r');
 
 s = dir(handles.drg.drta_p.fullName);
+if isempty(s)
+    f=errordlg('ERROR: rhd file does not exist!','rhd does not exist');
+end
 filesize = s.bytes;
 
 % Check 'magic number' at beginning of file to make sure this is an Intan

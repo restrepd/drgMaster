@@ -27,4 +27,6 @@ switch handles.analysisNoOsc
         drgLFProc(handles)
     case 13
         drgEventRelatedROCAnalysis(handles);
+    case 14
+        drgEventRelatedWaveletAnalysis(handles);
 end

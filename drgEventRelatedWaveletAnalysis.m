@@ -1,4 +1,4 @@
-function [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorrERP,no_ref_evs_per_trial]=drgEventRelatedAnalysis(handles)
+function [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorrERP,no_ref_evs_per_trial]=drgEventRelatedWaveletAnalysis(handles)
 %Performs an event-related analysis. The event is signaled by a sharp chane
 %in the reference voltage. This is used to analyze lick-related changes in
 %LFP
@@ -19,6 +19,7 @@ t_per_event_per_trial=[];
 time_per_event=[];
 perCorrERP=[];
 
+
 %Generates a trial per trial phase histogram
 sessionNo=handles.sessionNo;
 Fs=floor(handles.drg.session(sessionNo).draq_p.ActualRate);
@@ -29,6 +30,27 @@ highF2=handles.burstHighF;
 pad_time=handles.time_pad;
 n_phase_bins=handles.n_phase_bins;
 
+dec_n=fix(handles.drg.session(sessionNo).draq_p.ActualRate/1000);
+
+%Setup the wavelet scales
+%   scales = helperCWTTimeFreqVector(minfreq,maxfreq,f0,dt,NumVoices)
+%   f0 - center frequency of the wavelet in cycles/unit time
+%   dt - sampling interval
+%   NumVoices - number of voices per octave
+
+NumVoices=5;
+minfreq=handles.burstLowF;
+maxfreq=handles.burstHighF;
+dt=1/Fs;
+f0=5/(2*pi);
+
+a0 = 2^(1/NumVoices);
+minscale = f0/(maxfreq*dt);
+maxscale = f0/(minfreq*dt);
+minscale = floor(NumVoices*log2(minscale));
+maxscale = ceil(NumVoices*log2(maxscale));
+scales = a0.^(minscale:maxscale).*dt;
+
 window=round(handles.window*handles.drg.draq_p.ActualRate);
 noverlap=round(0.975*handles.window*handles.drg.draq_p.ActualRate);
 
@@ -36,7 +58,7 @@ no_time_pts=floor(handles.window*handles.drg.session(sessionNo).draq_p.ActualRat
 times=[1:no_time_pts]/handles.drg.session(sessionNo).draq_p.ActualRate;
 times=times-(handles.window/2);
 
-freq=handles.burstLowF:(handles.burstHighF-handles.burstLowF)/100:handles.burstHighF;
+
 
 %Enter trials
 firstTr=handles.trialNo;
@@ -137,8 +159,18 @@ for trNo=firstTr:lastTr
                 thisangleLFP = angle(hilbert(thfiltLFP)); % LFP phase
                 angleLFP = [angleLFP thisangleLFP];
                 
-                %Get the spectrogram
-                [S,f,t,P]=spectrogram(detrend(double(LFP)),window,noverlap,freq,handles.drg.session(handles.sessionNo).draq_p.ActualRate);
+                
+                %Now do the wavelet transform
+                decLFP=decimate(LFP,dec_n);
+                decFs=Fs/dec_n;
+               
+                cwtLFP = cwtft({detrend(double(decLFP)),1/decFs},'wavelet','morl','scales',scales);
+                Prev=abs(cwtLFP.cfs).^2;
+                P=Prev(end:-1:1,:);
+                DT=1/decFs;
+                t = 0:DT:(numel(decLFP)*DT)-DT;
+                frev=cwtLFP.frequencies;
+                f=frev(end:-1:1)';
                 
                 %Calculate the wings for the calculation of the event-triggered spectrogram
                 times_spec=t+min_t;
@@ -479,7 +511,7 @@ if handles.displayData==1
     end
     
     
-    drg_pcolor(repmat(out_times-mean(out_times),length(freq),1)',repmat(freq,length(out_times),1),mean_log_P_t')
+    drg_pcolor(repmat(out_times-mean(out_times),length(f),1)',repmat(f,1,length(out_times))',mean_log_P_t')
     
     
     colormap jet
@@ -487,7 +519,7 @@ if handles.displayData==1
     caxis([minLogP maxLogP]);
     xlabel('Time (sec)')
     ylabel('Frequency (Hz)');
-    title(['Event-related power spectrogram (dB) for ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
+    title(['Event-related power wavelet spectrogram (dB) for ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
     
     try
         close 2

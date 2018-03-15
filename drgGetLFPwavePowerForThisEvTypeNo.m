@@ -5,7 +5,7 @@ odorOn=2;
 sessionNo=handles.sessionNo;
 Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
 dec_n=fix(handles.drg.session(sessionNo).draq_p.ActualRate/1000);
-freq=handles.burstLowF:1:handles.burstHighF;
+freq=handles.burstLowF:(handles.burstHighF-handles.burstLowF)/100:handles.burstHighF;
 
 window=round(handles.window*handles.drg.draq_p.ActualRate); 
 noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate); 
