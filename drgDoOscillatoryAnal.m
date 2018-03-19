@@ -29,4 +29,6 @@ switch handles.analysisNoOsc
         drgEventRelatedROCAnalysis(handles);
     case 14
         drgEventRelatedWaveletAnalysis(handles);
+    case 15
+         drgERWAtimecourse(handles);
 end

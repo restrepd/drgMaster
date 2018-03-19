@@ -1549,11 +1549,11 @@ figNo=0;
 these_colors{1}='b';
 these_colors{2}='r';
 these_colors{3}='m';
-these_colors{8}='g';
+these_colors{4}='g';
 these_colors{5}='y';
 these_colors{6}='k';
 these_colors{7}='c';
-these_colors{4}='k';
+these_colors{8}='k';
 
 these_lines{1}='-b';
 these_lines{2}='-r';
@@ -5620,14 +5620,13 @@ case 9
                                         
                                         %Do per badwidth analysis
                                         for bwii=1:no_bandwidths
-                                            
-                                          
+
                                             this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
                                             
                                             %Enter the  Ev1
                                             this_delta_dB_powerEv=zeros(sum(trials_in_event_Ev),1);
                                             this_delta_dB_powerEv=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
-                                            evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB)=mean(this_delta_dB_powerEv);
+                                            evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)=mean(this_delta_dB_powerEv);
 
                                         end
                                         
@@ -5665,84 +5664,63 @@ case 9
         
         %Now plot the bounded line for
          
-        %Calculate the mean and 95% CI for Ev1
-        dB_Ev1_ci=zeros(length(frequency),2);
-        for ifreq=1:length(frequency)
-            %             pd=fitdist(delta_dB_powerEv1WB(:,ifreq),'Normal');
-            %             ci=paramci(pd);
-            %             dB_Ev1_ci(ifreq)=pd.mu-ci(1,1);
-            dB_Ev1_mean(ifreq)=mean(delta_dB_powerEv1WB(:,ifreq));
-            CI = bootci(1000, @mean, delta_dB_powerEv1WB(:,ifreq));
-            dB_Ev1_ci(ifreq,1)=CI(2)-dB_Ev1_mean(ifreq);
-            dB_Ev1_ci(ifreq,2)=-(CI(1)-dB_Ev1_mean(ifreq));
-        end
-        
+        %Calculate and plot the mean and 95% CI for each event
         figure(1)
-        [hl1, hp1] = boundedline(frequency,dB_Ev1_mean, dB_Ev1_ci, 'r');
-        
-        %Calculate the mean and 95% CI for Ev2
-        dB_Ev2_ci=zeros(length(frequency),2);
-        for ifreq=1:length(frequency)
-            dB_Ev2_mean(ifreq)=mean(delta_dB_powerEv2WB(:,ifreq));
-            CI = bootci(1000, @mean, delta_dB_powerEv2WB(:,ifreq));
-            dB_Ev2_ci(ifreq,1)=CI(2)-dB_Ev2_mean(ifreq);
-            dB_Ev2_ci(ifreq,2)=-(CI(1)-dB_Ev2_mean(ifreq));
+        for evNo=1:length(eventType)
+            dB_Ev_ci=zeros(length(frequency),2);
+            dB_Ev_mean=[];
+            for ifreq=1:length(frequency)
+                %             pd=fitdist(delta_dB_powerEv1WB(:,ifreq),'Normal');
+                %             ci=paramci(pd);
+                %             dB_Ev1_ci(ifreq)=pd.mu-ci(1,1);
+                dB_Ev_mean(ifreq)=mean(evNo_out(evNo).delta_dB_powerEvWB(:,ifreq));
+                CI = bootci(1000, @mean, evNo_out(evNo).delta_dB_powerEvWB(:,ifreq));
+                dB_Ev_ci(ifreq,1)=CI(2)-dB_Ev_mean(ifreq);
+                dB_Ev_ci(ifreq,2)=-(CI(1)-dB_Ev_mean(ifreq));
+            end
+            [hl1, hp1] = boundedline(frequency,dB_Ev_mean, dB_Ev_ci, these_colors{evNo});
         end
-        
-        hold on
-        [hl2, hp2] = boundedline(frequency,dB_Ev2_mean, dB_Ev2_ci, 'b');
+
+
         xlabel('Frequency (Hz)')
         ylabel('delta Power (dB)')
-        legend([hl1 hl2],'S+','S-')
+        legend('Hi1','', 'Hi2', '','Hi3','', 'Low4', '', 'Low5', '','Low6', '')
         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
         
         %Now plot the histograms and the average
         for bwii=1:4
             %Plot the average
             figure(bwii+1)
-            pos2=[0.8 0.1 0.1 0.8];
-            subplot('Position',pos2)
+            
             set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
             hold on
-            plot([1 0],[mean(delta_dB_powerEv1(ROCbandwidth==bwii)) mean(delta_dB_powerEv2(ROCbandwidth==bwii))],'-k','LineWidth', 3)
-            CI = bootci(1000, @mean, delta_dB_powerEv1(ROCbandwidth==bwii));
-            plot([1 1],CI,'-r','LineWidth',3)
-            plot(1,mean(delta_dB_powerEv1(ROCbandwidth==bwii)),'or','MarkerSize', 10,'MarkerFace','r')
-            CI = bootci(1000, @mean, delta_dB_powerEv2(ROCbandwidth==bwii));
-            plot([0 0],CI,'-b','LineWidth',3)
-            plot(0,mean(delta_dB_powerEv2(ROCbandwidth==bwii)),'ob','MarkerSize', 10,'MarkerFace','b')
-            ylabel('delta Power (dB)')
-            ylim([-10 15])
             
-            %Plot the histograms
+            data_dB=[];
+            spm=[];
+            conc=[];
             
-            maxdB=max([max(delta_dB_powerEv1(ROCbandwidth==bwii)) max(delta_dB_powerEv2(ROCbandwidth==bwii))]);
-            mindB=min([min(delta_dB_powerEv1(ROCbandwidth==bwii)) min(delta_dB_powerEv2(ROCbandwidth==bwii))]);
-            edges=[-15:1:15];
-            pos2=[0.1 0.1 0.6 0.8];
-            subplot('Position',pos2)
-            hold on
-            
-            h1=histogram(delta_dB_powerEv2(ROCbandwidth==bwii),edges);
-            h1.FaceColor='b';
-            h2=histogram(delta_dB_powerEv1(ROCbandwidth==bwii),edges);
-            h2.FaceColor='r';
-            xlabel('delta Power (dB)')
-            ylabel('# of electrodes')
-            legend('S-','S+')
-            xlim([-12 12])
-            ylim([0 70])
-            title(freq_names{bwii})
-            set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-            
-            
-            
-            a={ delta_dB_powerEv1(ROCbandwidth==bwii)' delta_dB_powerEv2(ROCbandwidth==bwii)'};
-            mode_statcond='perm';
-            [F df pvals_perm(bwii)] = statcond(a,'mode',mode_statcond,'naccu', 1000); % perform an unpaired ANOVA
-            fprintf(1, ['p value for premuted anovan dB delta power S+ vs S- ' freq_names{bwii} '= %d\n'],  pvals_perm(bwii));
-            
+            for evNo=1:length(eventType)
+                
+                bar(7-evNo,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(:,bwii)),'b','LineWidth', 3)
+                plot(7-evNo,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(:,bwii)),'ok','LineWidth', 3)
+                CI = bootci(1000, @mean, evNo_out(evNo).mean_delta_dB_powerEvperBW(:,bwii));
+                plot([7-evNo 7-evNo],CI,'-k','LineWidth',3)
+                plot((7-evNo)*ones(1,evNo_out(evNo).noWB),evNo_out(evNo).mean_delta_dB_powerEvperBW(:,bwii),'o',...
+                    'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+                data_dB=[data_dB evNo_out(evNo).mean_delta_dB_powerEvperBW(:,bwii)'];
+                switch evNo
+                    case {1,2,3}
+                        spm=[spm zeros(1,evNo_out(evNo).noWB)];
+                        
+                    case {4,5,6}
+                        spm=[spm ones(1,evNo_out(evNo).noWB)];
+                end
+                conc=[conc evNo*ones(1,evNo_out(evNo).noWB)];
+            end
+                
+           p=anovan(data_dB,{spm});     
         end
+        
         
         pFDRanovan=drsFDRpval(pvals_perm);
         fprintf(1, ['pFDR for premuted anovan p value  = %d\n\n'],pFDRanovan);
