@@ -142,6 +142,6 @@ for trNo=firstTr:lastTr
         end %for evNo
         
     end
-    
+    pffft=1;
 end
 

@@ -2,7 +2,6 @@ function drgLFPspectTimecourse(handles)
 %Generates a timecourse of the LFP power in decibels 10*log10(Power)
 
 
-
 [t,f,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo]=drgGetLFPPowerForThisEvTypeNo(handles);
 
 

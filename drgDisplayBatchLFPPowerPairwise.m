@@ -5674,22 +5674,16 @@ case 9
         for evNo=1:length(eventType)
             dB_Ev_ci=zeros(length(frequency),2);
             dB_Ev_mean=[];
-            for ifreq=1:length(frequency)
-                %             pd=fitdist(delta_dB_powerEv1WB(:,ifreq),'Normal');
-                %             ci=paramci(pd);
-                %             dB_Ev1_ci(ifreq)=pd.mu-ci(1,1);
-                dB_Ev_mean(ifreq)=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,ifreq));
-                CI = bootci(1000, @mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,ifreq));
-                dB_Ev_ci(ifreq,1)=CI(2)-dB_Ev_mean(ifreq);
-                dB_Ev_ci(ifreq,2)=-(CI(1)-dB_Ev_mean(ifreq));
-            end
-            [hl1, hp1] = boundedline(frequency,dB_Ev_mean, dB_Ev_ci, these_colors{evNo});
+            CI=[];
+            dB_Ev_mean=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:));
+            CI = bootci(1000, @mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:));
+            [hl1, hp1] = boundedline(frequency,dB_Ev_mean', CI', these_colors{evNo});
         end
         
         
         xlabel('Frequency (Hz)')
         ylabel('delta Power (dB)')
-        ylim([-5 10]);
+        ylim([-20 20]);
         title('Wideband spectrum proficient mice')
         %         legend('Hi1','', 'Hi2', '','Hi3','', 'Low4', '', 'Low5', '','Low6', '')
         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
@@ -5699,16 +5693,9 @@ case 9
         for evNo=1:length(eventType)
             dB_Ev_ci=zeros(length(frequency),2);
             dB_Ev_mean=[];
-            for ifreq=1:length(frequency)
-                %             pd=fitdist(delta_dB_powerEv1WB(:,ifreq),'Normal');
-                %             ci=paramci(pd);
-                %             dB_Ev1_ci(ifreq)=pd.mu-ci(1,1);
-                dB_Ev_mean(ifreq)=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,ifreq));
-                CI = bootci(1000, @mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,ifreq));
-                dB_Ev_ci(ifreq,1)=CI(2)-dB_Ev_mean(ifreq);
-                dB_Ev_ci(ifreq,2)=-(CI(1)-dB_Ev_mean(ifreq));
-            end
-            [hl1, hp1] = boundedline(frequency,dB_Ev_mean, dB_Ev_ci, these_colors{evNo});
+            dB_Ev_mean=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:));
+            CI = bootci(1000, @mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:));
+            [hl1, hp1] = boundedline(frequency,dB_Ev_mean', CI', these_colors{evNo});
         end
         
         
@@ -5718,6 +5705,7 @@ case 9
         title('Wideband spectrum naive mice')
         legend('Hi1','', 'Hi2', '','Hi3','', 'Low4', '', 'Low5', '','Low6', '')
         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+        ylim([-20 20])
         
         %Now plot the histograms and the average
         for bwii=1:4
