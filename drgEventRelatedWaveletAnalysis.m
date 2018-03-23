@@ -174,7 +174,7 @@ for trNo=firstTr:lastTr
                 
                 %Calculate the wings for the calculation of the event-triggered spectrogram
                 times_spec=t+min_t;
-                wing_ii=int64((handles.window/2)/(times_spec(2)-times_spec(1)));
+                wing_ii=int64((handles.window/5)/(times_spec(2)-times_spec(1)));
                 dt= times_spec(2)- times_spec(1);
                 out_times=double([-wing_ii:wing_ii])*dt;
                 
@@ -473,6 +473,7 @@ if handles.displayData==1
     
     ylabel('uV')
     xlabel('Time (s)')
+    ylim([-300 300])
     set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
         
     
@@ -537,19 +538,7 @@ if handles.displayData==1
     set(ax,'XTickLabel','')
     ylabel('dB')
     
-    %Phase rose plot
-    try
-        close 5
-    catch
-    end
-    
-    hFig5 = figure(5);
-    set(hFig5, 'units','normalized','position',[.69 .1 .3 .3])
-    
-    if no_events>0
-        polarhistogram(pi*phase/180,6)
-        title('LFP phase of events')
-    end
+
     
     try
         close 3
@@ -559,9 +548,13 @@ if handles.displayData==1
     hFig3 = figure(3);
     set(hFig3, 'units','normalized','position',[.25 .5 .25 .25])
     edges=[handles.time_start+handles.time_pad:0.1:handles.time_end-handles.time_pad];
-    histogram(time_per_event,edges)
+    h1=histogram(time_per_event,edges);
+    licks_per_sec=h1.Values*(1/0.1)*(1/no_trials);
+    bar(handles.time_start+handles.time_pad+0.05:0.1:handles.time_end-handles.time_pad-0.05,licks_per_sec,'b')
     title('Histogram for time of events')
     xlabel('Time (sec)')
+    ylabel('licks per sec')
+    ylim([0 18])
     pffft=1;
 end
 

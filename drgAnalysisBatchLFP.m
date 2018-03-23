@@ -35,6 +35,9 @@ function drgAnalysisBatchLFP(handles)
 % within one precent window
 %
 % 11 Compare auROC for ERP LFP powerin between two percent correct windows
+%
+% 12 Justin's analysis of LFP power differences for naive and proficient
+% mice
 
 %% Read the BatchParameters
 [parsFileName,parsPathName] = uigetfile({'drgLFPBatchAnalPars*.m'},'Select the .m file with all the parameters for LFP batch analysis');
@@ -4066,12 +4069,8 @@ case 9
         
         pffft=1;
         
-        
-    case 12
-        %Justin
-        
-    case 13
-        %Daniel
+    case 12  
+    %Justin
         %Generate Fig. 2  for Daniels' LFP power paper. For the proficient mice in the first and last sessions
         %plot the LFP spectrum for S+ vs S-, plot LFP power for S+ vs S- for each electrode and plot auROCs
         %NOTE: This does the analysis in all the files and DOES not distinguish between groups!!!
@@ -4082,9 +4081,12 @@ case 9
         p_vals_ROC=[];
         delta_dB_powerEv1=[];
         no_Ev1=0;
-        noWB=0;
+        for evNo=1:length(eventType)
+            evNo_out(evNo).noWB=0;
+        end
         delta_dB_powerEv1WB=[];
         delta_dB_powerEv2WB=[];
+
         
         fprintf(1, ['Pairwise auROC analysis for Fig 1 of Daniel''s paper\n\n'])
         p_vals=[];
@@ -4103,108 +4105,60 @@ case 9
                         
                         
                         if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
-                            
-                            if (length(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(1,:))>=trials_to_process)
+                            szpc=size(percent_windows);
+                            for per_ii=1:szpc(1)
+                                percent_mask=[];
+                                percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
+                                    &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
                                 
-                                trials=length(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(1,:));
-                                mask=logical([zeros(1,trials-trials_to_process) ones(1,trials_to_process)]);
-                                trials_in_eventEv1=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(event1,:)==1);
-                                trials_in_eventEv2=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(event2,:)==1);
-                                
-                                if (sum(trials_in_eventEv1)>=min_trials_per_event) & (sum(trials_in_eventEv2)>=min_trials_per_event)
-                                    
-                                    lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
-                                    
-                                    % Ev1
-                                    this_dB_powerrefEv1=zeros(sum(trials_in_eventEv1&mask),length(frequency));
-                                    this_dB_powerrefEv1(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_eventEv1&mask,:));
+                                for evNo=1:length(eventType)
                                     
                                     
-                                    this_dB_powerEv1=zeros(sum(trials_in_eventEv1&mask),length(frequency));
-                                    this_dB_powerEv1(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_eventEv1&mask,:));
+                                    trials_in_event_Ev=[];
+                                    trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
                                     
-                                    % Ev2
-                                    this_dB_powerrefEv2=zeros(sum(trials_in_eventEv2&mask),length(frequency));
-                                    this_dB_powerrefEv2(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_eventEv2&mask,:));
-                                    
-                                    
-                                    this_dB_powerEv2=zeros(sum(trials_in_eventEv2&mask),length(frequency));
-                                    this_dB_powerEv2(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_eventEv2&mask,:));
-                                    
-                                    
-                                    %Wide band spectrum
-                                    noWB=noWB+1;
-                                    
-                                    delta_dB_powerEv1WB(noWB,:)=mean(this_dB_powerEv1-this_dB_powerrefEv1,1);
-                                    delta_dB_powerEv2WB(noWB,:)=mean(this_dB_powerEv2-this_dB_powerrefEv2,1);
-                                    
-                                    
-                                    %Do per badwidth analysis
-                                    for bwii=1:no_bandwidths
+                                    if (sum(trials_in_event_Ev)>=min_trials_per_event)
                                         
-                                        no_ROCs=no_ROCs+1;
-                                        this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                        lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
                                         
-                                        %Enter the  Ev1
-                                        this_delta_dB_powerEv1=zeros(sum(trials_in_eventEv1&mask),1);
-                                        this_delta_dB_powerEv1=mean(this_dB_powerEv1(:,this_band)-this_dB_powerrefEv1(:,this_band),2);
-                                        roc_data=[];
-                                        roc_data(1:sum(trials_in_eventEv1&mask),1)=this_delta_dB_powerEv1;
-                                        roc_data(1:sum(trials_in_eventEv1&mask),2)=zeros(sum(trials_in_eventEv1&mask),1);
-                                        
-                                        %Enter  Ev2
-                                        total_trials=sum(trials_in_eventEv1&mask)+sum(trials_in_eventEv2&mask);
-                                        this_delta_dB_powerEv2=zeros(sum(trials_in_eventEv2&mask),1);
-                                        this_delta_dB_powerEv2=mean(this_dB_powerEv2(:,this_band)-this_dB_powerrefEv2(:,this_band),2);
-                                        roc_data(sum(trials_in_eventEv1&mask)+1:total_trials,1)=this_delta_dB_powerEv2;
-                                        roc_data(sum(trials_in_eventEv1&mask)+1:total_trials,2)=ones(sum(trials_in_eventEv2&mask),1);
+                                        % Ev1
+                                        this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
+                                        this_dB_powerref(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_event_Ev,:));
                                         
                                         
-                                        %Find  ROC
-                                        ROCout(no_ROCs).roc=roc_calc(roc_data,0,0.05,0);
-                                        ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo_ref).fileNo;
-                                        ROCgroupNo(no_ROCs)=handles_drgb.drgbchoices.group_no(handles_drgb.drgb.lfpevpair(lfpodNo_ref).fileNo);
-                                        ROCout(no_ROCs).timeWindow=winNo;
-                                        ROCbandwidth(no_ROCs)=bwii;
-                                        auROC(no_ROCs)=ROCout(no_ROCs).roc.AUC-0.5;
-                                        p_valROC(no_ROCs)=ROCout(no_ROCs).roc.p;
+                                        this_dB_power=zeros(sum(trials_in_event_Ev),length(frequency));
+                                        this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event_Ev,:));
                                         
-                                        p_vals_ROC=[p_vals_ROC ROCout(no_ROCs).roc.p];
+                                        %Wide band spectrum
+                                        evNo_out(evNo).noWB=evNo_out(evNo).noWB+1;
+                                        evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).noWB,1:length(frequency))=mean(this_dB_power-this_dB_powerref,1);
+                                        evNo_out(evNo).per_ii(evNo_out(evNo).noWB)=per_ii;
+                                        
+                                        %Do per badwidth analysis
+                                        for bwii=1:no_bandwidths
+                                            
+                                            this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                            
+                                            %Enter the  Ev1
+                                            this_delta_dB_powerEv=zeros(sum(trials_in_event_Ev),1);
+                                            this_delta_dB_powerEv=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
+                                            evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)=mean(this_delta_dB_powerEv);
+                                            
+                                        end
                                         
                                         
-                                        delta_dB_powerEv1(no_ROCs)=mean(this_delta_dB_powerEv1);
-                                        delta_dB_powerEv2(no_ROCs)=mean(this_delta_dB_powerEv2);
+                                        fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
+                                        
+                                    else
                                         
                                         
-                                        %Plot this point
-                                        figure(bwii+1)
-                                        pos2=[0.8 0.1 0.1 0.8];
-                                        subplot('Position',pos2)
-                                        hold on
-                                        plot([1 0],[delta_dB_powerEv1(no_ROCs) delta_dB_powerEv2(no_ROCs)],'-o', 'Color',[0.7 0.7 0.7])
-                                        set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+                                        fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
                                         
                                         
                                     end
                                     
-                                    
-                                    
-                                else
-                                    
-                                    if (sum(trials_in_eventEv1)<min_trials_per_event)
-                                        fprintf(1, ['%d trials in event No %d fewer than minimum trials per event %d for file No %d electrode %d\n'],sum(trials_in_eventEv1),event1, min_trials_per_event,files(fileNo),elec);
-                                    end
-                                    
-                                    if (sum(trials_in_eventEv2)<min_trials_per_event)
-                                        fprintf(1, ['%d trials in event No %d fewer than minimum trials per event %d for file No %d electrode %d\n'],sum(trials_in_eventEv2),event2, min_trials_per_event,files(fileNo),elec);
-                                    end
                                     
                                 end
-                                
-                            else
-                                
-                                fprintf(1, ['%d trials fewer than %d trials to process for file No %d electrode %d\n'],length(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(1,:)),trials_to_process,files(fileNo),elec);
-                                
                             end
                         else
                             
@@ -4216,7 +4170,7 @@ case 9
                     else
                         fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],files(fileNo),elec);
                         
-                       
+                        
                     end
                 end
             end
@@ -4227,84 +4181,100 @@ case 9
         
         %Now plot the bounded line for
         
-        %Calculate the mean and 95% CI for Ev1
-        dB_Ev1_ci=zeros(length(frequency),2);
-        for ifreq=1:length(frequency)
-            %             pd=fitdist(delta_dB_powerEv1WB(:,ifreq),'Normal');
-            %             ci=paramci(pd);
-            %             dB_Ev1_ci(ifreq)=pd.mu-ci(1,1);
-            dB_Ev1_mean(ifreq)=mean(delta_dB_powerEv1WB(:,ifreq));
-            CI = bootci(1000, @mean, delta_dB_powerEv1WB(:,ifreq));
-            dB_Ev1_ci(ifreq,1)=CI(2)-dB_Ev1_mean(ifreq);
-            dB_Ev1_ci(ifreq,2)=-(CI(1)-dB_Ev1_mean(ifreq));
-        end
-        
+        %Calculate and plot the mean and 95% CI for each event
         figure(1)
-        [hl1, hp1] = boundedline(frequency,dB_Ev1_mean, dB_Ev1_ci, 'r');
-        
-        %Calculate the mean and 95% CI for Ev2
-        dB_Ev2_ci=zeros(length(frequency),2);
-        for ifreq=1:length(frequency)
-            dB_Ev2_mean(ifreq)=mean(delta_dB_powerEv2WB(:,ifreq));
-            CI = bootci(1000, @mean, delta_dB_powerEv2WB(:,ifreq));
-            dB_Ev2_ci(ifreq,1)=CI(2)-dB_Ev2_mean(ifreq);
-            dB_Ev2_ci(ifreq,2)=-(CI(1)-dB_Ev2_mean(ifreq));
+        for evNo=1:length(eventType)
+            dB_Ev_ci=zeros(length(frequency),2);
+            dB_Ev_mean=[];
+            CI=[];
+            dB_Ev_mean=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:));
+            CI = bootci(1000, @mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:));
+            [hl1, hp1] = boundedline(frequency,dB_Ev_mean', CI', these_colors{evNo});
         end
         
-        hold on
-        [hl2, hp2] = boundedline(frequency,dB_Ev2_mean, dB_Ev2_ci, 'b');
+        
         xlabel('Frequency (Hz)')
         ylabel('delta Power (dB)')
-        legend([hl1 hl2],'S+','S-')
+        ylim([-20 20]);
+        title('Wideband spectrum proficient mice')
+        %         legend('Hi1','', 'Hi2', '','Hi3','', 'Low4', '', 'Low5', '','Low6', '')
         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+        
+        %Calculate and plot the mean and 95% CI for each event
+        figure(2)
+        for evNo=1:length(eventType)
+            dB_Ev_ci=zeros(length(frequency),2);
+            dB_Ev_mean=[];
+            dB_Ev_mean=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:));
+            CI = bootci(1000, @mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:));
+            [hl1, hp1] = boundedline(frequency,dB_Ev_mean', CI', these_colors{evNo});
+        end
+        
+        
+        xlabel('Frequency (Hz)')
+        ylabel('delta Power (dB)')
+           ylim([-5 10]);
+        title('Wideband spectrum naive mice')
+        legend('Hi1','', 'Hi2', '','Hi3','', 'Low4', '', 'Low5', '','Low6', '')
+        set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+        ylim([-20 20])
         
         %Now plot the histograms and the average
         for bwii=1:4
             %Plot the average
-            figure(bwii+1)
-            pos2=[0.8 0.1 0.1 0.8];
-            subplot('Position',pos2)
+            figure(bwii+2)
+            
             set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
             hold on
-            plot([1 0],[mean(delta_dB_powerEv1(ROCbandwidth==bwii)) mean(delta_dB_powerEv2(ROCbandwidth==bwii))],'-k','LineWidth', 3)
-            CI = bootci(1000, @mean, delta_dB_powerEv1(ROCbandwidth==bwii));
-            plot([1 1],CI,'-r','LineWidth',3)
-            plot(1,mean(delta_dB_powerEv1(ROCbandwidth==bwii)),'or','MarkerSize', 10,'MarkerFace','r')
-            CI = bootci(1000, @mean, delta_dB_powerEv2(ROCbandwidth==bwii));
-            plot([0 0],CI,'-b','LineWidth',3)
-            plot(0,mean(delta_dB_powerEv2(ROCbandwidth==bwii)),'ob','MarkerSize', 10,'MarkerFace','b')
-            ylabel('delta Power (dB)')
-            ylim([-10 15])
             
-            %Plot the histograms
+            data_dB=[];
+            spm=[];
+            conc=[];
             
-            maxdB=max([max(delta_dB_powerEv1(ROCbandwidth==bwii)) max(delta_dB_powerEv2(ROCbandwidth==bwii))]);
-            mindB=min([min(delta_dB_powerEv1(ROCbandwidth==bwii)) min(delta_dB_powerEv2(ROCbandwidth==bwii))]);
-            edges=[-15:1:15];
-            pos2=[0.1 0.1 0.6 0.8];
-            subplot('Position',pos2)
-            hold on
+            for evNo=1:length(eventType)
+                
+                for per_ii=1:2
+                    if per_ii==1
+                        bar_offset=14-evNo*2+1;
+                        bar(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==2,bwii)),'r','LineWidth', 3)
+                        plot(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==2,bwii)),'ok','LineWidth', 3)
+                        CI = bootci(1000, @mean, evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==2,bwii));
+                        plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                        plot((bar_offset)*ones(1,sum(evNo_out(evNo).per_ii==2)),evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==2,bwii),'o',...
+                            'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+                        data_dB=[data_dB evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==2,bwii)'];
+                        switch evNo
+                            case {1,2,3}
+                                spm=[spm zeros(1,evNo_out(evNo).noWB)];
+                                
+                            case {4,5,6}
+                                spm=[spm ones(1,evNo_out(evNo).noWB)];
+                        end
+                        conc=[conc evNo*ones(1,evNo_out(evNo).noWB)];
+                    else
+                        bar_offset=14-evNo*2;
+                        bar(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==1,bwii)),'b','LineWidth', 3)
+                        plot(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==1,bwii)),'ok','LineWidth', 3)
+                        CI = bootci(1000, @mean, evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==1,bwii));
+                        plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                        plot((bar_offset)*ones(1,sum(evNo_out(evNo).per_ii==1)),evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==1,bwii),'o',...
+                            'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+                        data_dB=[data_dB evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==1,bwii)'];
+                        switch evNo
+                            case {1,2,3}
+                                spm=[spm zeros(1,evNo_out(evNo).noWB)];
+                                
+                            case {4,5,6}
+                                spm=[spm ones(1,evNo_out(evNo).noWB)];
+                        end
+                        conc=[conc evNo*ones(1,evNo_out(evNo).noWB)];
+                    end
+                end
+            end
             
-            h1=histogram(delta_dB_powerEv2(ROCbandwidth==bwii),edges);
-            h1.FaceColor='b';
-            h2=histogram(delta_dB_powerEv1(ROCbandwidth==bwii),edges);
-            h2.FaceColor='r';
-            xlabel('delta Power (dB)')
-            ylabel('# of electrodes')
-            legend('S-','S+')
-            xlim([-12 12])
-            ylim([0 70])
-            title(freq_names{bwii})
-            set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-            
-            
-            
-            a={ delta_dB_powerEv1(ROCbandwidth==bwii)' delta_dB_powerEv2(ROCbandwidth==bwii)'};
-            mode_statcond='perm';
-            [F df pvals_perm(bwii)] = statcond(a,'mode',mode_statcond,'naccu', 1000); % perform an unpaired ANOVA
-            fprintf(1, ['p value for premuted anovan dB delta power S+ vs S- ' freq_names{bwii} '= %d\n'],  pvals_perm(bwii));
-            
+            p=anovan(data_dB,{spm});
         end
+        
         
         pFDRanovan=drsFDRpval(pvals_perm);
         fprintf(1, ['pFDR for premuted anovan p value  = %d\n\n'],pFDRanovan);
@@ -4342,7 +4312,7 @@ case 9
             ylim([0 30])
         end
         
-         
+        
         
         %Plot percent significant ROC
         figNo=figNo+1;
