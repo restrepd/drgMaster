@@ -120,7 +120,7 @@ for trNo=firstTr:lastTr
                     P_ref=Pout(:,(out_times>=handles.startRef+handles.time_pad)&(out_times<=handles.endRef-handles.time_pad));
                     all_Power_ref(no_trials,1:length(f))=mean(P_ref,2);
                 end
-                switch handles.drg.drta_p.which_c_program
+                  switch handles.drg.drta_p.which_c_program
                     case {2,10}
                         perCorr_pertr(no_trials)=perCorr(drgFindEvNo(handles,trialNo,sessionNo,odorOn));
                     otherwise
@@ -128,14 +128,37 @@ for trNo=firstTr:lastTr
                 end
                 if handles.displayData==0
                     for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
-                        if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
-                            which_event(evTypeNo,no_trials)=1;
-                        else
-                            which_event(evTypeNo,no_trials)=0;
-                        end
-                    end
-                    
+                        switch handles.evTypeNo
+                            case 1
+                                %tstart is the reference event
+                                if handles.drgbchoices.evTypeNos(evTypeNo)==1
+                                    %This is tstart
+                                    if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
+                                        which_event(evTypeNo,no_trials)=1;
+                                    else
+                                        which_event(evTypeNo,no_trials)=0;
+                                    end
+                                else
+                                    %These are not tstart, and the time
+                                    %should be compared at OdorOn
+                                      %This is tstart
+                                    if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(2).times(evNo))>0
+                                        which_event(evTypeNo,no_trials)=1;
+                                    else
+                                        which_event(evTypeNo,no_trials)=0;
+                                    end
+                                end
+                            otherwise
+                                %OdorOn is the reference event
+                                if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
+                                    which_event(evTypeNo,no_trials)=1;
+                                else
+                                    which_event(evTypeNo,no_trials)=0;
+                                end
+                        end  
+                    end 
                 end
+                
             end
         end %for evNo
         
@@ -145,8 +168,11 @@ end
 
 %Sometimes the number of points differs by one point between trials.
 %Generate a time vector with the correct number of points
-
-sz_apt=size(all_Power_timecourse);
-t = 0:DT:(sz_apt(3)*DT)-DT;
-out_t=t+out_times(1);
+if no_trials>0
+    sz_apt=size(all_Power_timecourse);
+    t = 0:DT:(sz_apt(3)*DT)-DT;
+    out_t=t+out_times(1);
+else
+    out_t=[];
+end
 

@@ -128,11 +128,8 @@ for trNo=firstTr:lastTr
                                 else
                                     which_event(evTypeNo,no_trials)=0;
                                 end
-                        end
-                        
-                        
-                        
-                    end
+                        end  
+                    end 
                 end
                 
             end
