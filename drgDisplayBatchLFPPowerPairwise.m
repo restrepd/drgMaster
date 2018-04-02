@@ -157,32 +157,33 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % grpre=[1 3];
 % grpost=[2 4];
 
-% 
-% % % For Justin's spmc_LFP_20180201
-% 
-% winNo=2;
-% refWin=1;
-% % which_display=3;
-% which_display=12;
-% 
-% %
-% % eventType=[2 5];
-% % evTypeLabels={'Hit','CR'};
-% % comp_window=10;
-% 
-% eventType=[8:13];
-% evTypeLabels={'Hi1','Hi2','Hi3','Low4','Low5','Low6'};
-% concs=[log10(10) log10(3.2) log10(1) log10(0.32) log10(0.1) log10(0.032)];
-% 
-% % Enter the files to be processed
-% files=[2:8];
-% 
-% trials_to_process=30;
-% min_trials_per_event=1;
-% output_suffix='_test.mat';
-% 
-% percent_windows=[80 100;
-%                 45 65];
+
+% % For Justin's spmc_LFP_20180201
+
+winNo=2;
+refWin=1;
+% which_display=3;
+which_display=12;
+
+%
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% comp_window=10;
+
+eventType=[8:13];
+evTypeLabels={'Hi1','Hi2','Hi3','Low4','Low5','Low6'};
+concs=[log10(10) log10(3.2) log10(1) log10(0.32) log10(0.1) log10(0.032)];
+concs2 = [0.032 0.1 0.32 1 3.2 10];
+
+% Enter the files to be processed
+files=[2:8];
+
+trials_to_process=30;
+min_trials_per_event=1;
+output_suffix='_test.mat';
+
+percent_windows=[80 100;
+                45 65];
 
 
 
@@ -1035,41 +1036,41 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % shift_from_event=floor(shift_time/0.025);
 
 
-
-% % For drgbChoicesDanielAPEBE_ERPfirstandlast1102018
-% acetoethylben_waveERPfirstandlast03232018.mat
-% logP for ERP in was saved with no lag from the event
-% run with which_display=11;
-
-winNo=1;
-% which_display=11;
-which_display=13;
-
-
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-% trials_to_process=20;
-% output_suffix='_spmouthit.mat';
-
-eventType=[3 6];
-evTypeLabels={'S+','S-'};
-output_suffix='_spmout.mat';
-
-
-%Files to analyze
-files=[1:18]; 
-
-file_label{1}='proficient';
-file_label{2}='naive';
-
-min_trials_per_event=4;
-
-shift_time=-0.15;
-shift_from_event=floor(shift_time/ 9.9963e-04);
-
-delta_t_ii=20;
-
-percent_windows=[80 100;45 65];
+% 
+% % % For drgbChoicesDanielAPEBE_ERPfirstandlast1102018
+% % acetoethylben_waveERPfirstandlast03232018.mat
+% % logP for ERP in was saved with no lag from the event
+% % run with which_display=11;
+% 
+% winNo=1;
+% % which_display=11;
+% which_display=13;
+% 
+% 
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% % trials_to_process=20;
+% % output_suffix='_spmouthit.mat';
+% 
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% output_suffix='_spmout.mat';
+% 
+% 
+% %Files to analyze
+% files=[1:18];
+% 
+% file_label{1}='proficient';
+% file_label{2}='naive';
+% 
+% min_trials_per_event=4;
+% 
+% shift_time=-0.15;
+% shift_from_event=floor(shift_time/ 9.9963e-04);
+% 
+% delta_t_ii=20;
+% 
+% percent_windows=[80 100;45 65];
 
 % 
 % % % For Daniel's drgbChoicesDanielEAPA_ERPshiftfirstandlast1232018
@@ -5721,6 +5722,8 @@ case 9
             which_electrodes=[1:16];
         end
         
+        no_ROCs=0;
+        
         for fileNo=1:no_files
             for elec=1:16
                 if sum(which_electrodes==elec)>0
@@ -5736,8 +5739,10 @@ case 9
                                 percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
                                     &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
                                 
+                                theseEvNos=[];
                                 for evNo=1:length(eventType)
                                     
+                                    noWB_for_evNo(evNo)=-1;
                                     
                                     trials_in_event_Ev=[];
                                     trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
@@ -5759,7 +5764,9 @@ case 9
                                         evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).noWB,1:length(frequency))=mean(this_dB_power-this_dB_powerref,1);
                                         evNo_out(evNo).per_ii(evNo_out(evNo).noWB)=per_ii;
                                         
-                                        %Do per badwidth analysis
+                                        noWB_for_evNo(evNo)=evNo_out(evNo).noWB;
+                                        
+                                        %Do per bandwidth analysis
                                         for bwii=1:no_bandwidths
                                             
                                             this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
@@ -5767,9 +5774,10 @@ case 9
                                             %Enter the  Ev1
                                             this_delta_dB_powerEv=zeros(sum(trials_in_event_Ev),1);
                                             this_delta_dB_powerEv=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
+                                            theseEvNos(evNo,bwii).this_delta_dB_powerEv=this_delta_dB_powerEv;
                                             evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)=mean(this_delta_dB_powerEv);
                                             if evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)<-20
-                                                 fprintf(1, ['mean dB less than -20 dB in fiele no %d, electrode %d\n'],files(fileNo),elec);
+                                                 fprintf(1, ['mean dB less than -20 dB in file no %d, electrode %d\n'],files(fileNo),elec);
                                             end
                                             
                                         end
@@ -5787,6 +5795,54 @@ case 9
                                     
                                     
                                 end
+                                
+                                for evNo1=1:length(eventType)
+                                    for evNo2=evNo1+1:length(eventType)
+                                        if (noWB_for_evNo(evNo1)~=-1)&(noWB_for_evNo(evNo2)~=-1)
+                                            
+                                            for bwii=1:4
+                                                
+                                                %Enter Ev1
+                                                trials_in_event_Ev1=length(theseEvNos(evNo1,bwii).this_delta_dB_powerEv);
+                                                this_delta_dB_powerEv1=zeros(trials_in_event_Ev1,1);
+                                                this_delta_dB_powerEv1=theseEvNos(evNo1,bwii).this_delta_dB_powerEv;
+                                                roc_data=[];
+                                                roc_data(1:sum(trials_in_event_Ev1),1)=this_delta_dB_powerEv1;
+                                                roc_data(1:sum(trials_in_event_Ev1),2)=zeros(sum(trials_in_event_Ev1),1);
+                                                
+                                                %Enter Ev2
+                                                trials_in_event_Ev2=length(theseEvNos(evNo2,bwii).this_delta_dB_powerEv);
+                                                total_trials=trials_in_event_Ev1+trials_in_event_Ev2;
+                                                this_delta_dB_powerEv2=zeros(trials_in_event_Ev2,1);
+                                                this_delta_dB_powerEv2=theseEvNos(evNo2,bwii).this_delta_dB_powerEv;
+                                                roc_data(sum(trials_in_event_Ev1)+1:total_trials,1)=this_delta_dB_powerEv2;
+                                                roc_data(sum(trials_in_event_Ev1)+1:total_trials,2)=ones(sum(trials_in_event_Ev2),1);
+                                                
+                                                
+                                                %Find  ROC
+                                                if (trials_in_event_Ev1>=5)&(trials_in_event_Ev2>=5)
+                                                    no_ROCs=no_ROCs+1;
+                                                    roc=roc_calc(roc_data,0,0.05,0);
+                                                    ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo_ref).fileNo;
+                                                    ROCelec(no_ROCs)=elec;
+                                                    ROCbandwidth(no_ROCs)=bwii;
+                                                    ROCper_ii(no_ROCs)=per_ii;
+                                                    ROCEvNo1(no_ROCs)=evNo1;
+                                                    ROCEvNo2(no_ROCs)=evNo2;
+                                                    auROC(no_ROCs)=roc.AUC-0.5;
+                                                    p_valROC(no_ROCs)=roc.p;
+                                                    
+                                                    p_vals_ROC=[p_vals_ROC roc.p];
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                                
+                                
+                                
+                                
+                                
                             end
                         else
                             
@@ -5811,7 +5867,7 @@ case 9
         
         %Calculate and plot the mean and 95% CI for each event
         figure(1)
-        dim = {[0.15 0.15 0.2 0.2], [0.15 0.15 0.2 0.17], [0.15 0.15 0.2 0.14], [0.15 0.15 0.2 0.11], [0.15 0.15 0.2 0.08], [0.15 0.15 0.2 0.05]};
+        conc_anno_loc = {[0.15 0.15 0.2 0.2], [0.15 0.15 0.2 0.17], [0.15 0.15 0.2 0.14], [0.15 0.15 0.2 0.11], [0.15 0.15 0.2 0.08], [0.15 0.15 0.2 0.05]};
         for evNo=1:length(eventType)
             dB_Ev_ci=zeros(length(frequency),2);
             dB_Ev_mean=[];
@@ -5819,7 +5875,7 @@ case 9
             dB_Ev_mean=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:));
             CI = bootci(1000, @mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:));
             [hl1, hp1] = boundedline(frequency,dB_Ev_mean', CI', these_colors{evNo});
-            annotation('textbox',dim{evNo},'String',evTypeLabels(evNo),'Color',these_colors{evNo},'EdgeColor','none');
+            annotation('textbox',conc_anno_loc{evNo},'String',evTypeLabels(evNo),'Color',these_colors{evNo},'EdgeColor','none');
             %             rectangle('Position',[0.15 0.15 0.2 0.2],'FaceColor','w','EdgeColor','k');
         end
         
@@ -5828,7 +5884,6 @@ case 9
         ylabel('delta Power (dB)')
         ylim([-20 20]);
         title('Wideband spectrum proficient mice')
-        %         movegui(gcf,'southwest')
         set(gcf,'OuterPosition',[93 36 576 513]);
         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
         
@@ -5840,7 +5895,7 @@ case 9
             dB_Ev_mean=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:));
             CI = bootci(1000, @mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:));
             [hl1, hp1] = boundedline(frequency,dB_Ev_mean', CI', these_colors{evNo});
-            annotation('textbox',dim{evNo},'String',evTypeLabels(evNo),'Color',these_colors{evNo},'EdgeColor','none');
+            annotation('textbox',conc_anno_loc{evNo},'String',evTypeLabels(evNo),'Color',these_colors{evNo},'EdgeColor','none');
             rectangle('Position',[0.15 0.15 0.2 0.2],'FaceColor','w','EdgeColor','k');
         end
         
@@ -5848,15 +5903,13 @@ case 9
         ylabel('delta Power (dB)')
         ylim([-5 10]);
         title('Wideband spectrum naive mice')
-        %         movegui(gcf,'northwest')
         set(gcf,'OuterPosition',[93 550 576 513]);
-        %         legend('Hi1','', 'Hi2', '','Hi3','', 'Low4', '', 'Low5', '','Low6', '')
         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
         ylim([-20 20])
         
-        %         fig_pos = {'north','northeast','south','southeast'};
         fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
         bar_lab = {'Naive','Proficient'};
+        
         %Now plot the histograms and the average
         for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
@@ -5871,7 +5924,7 @@ case 9
             
             for evNo=1:length(eventType)
                 
-                for per_ii=1:2      %performance bins. blue =
+                for per_ii=1:2      %performance bins. blue = naive, red = proficient
                     
                         bar_offset=21-evNo*3+(per_ii-1);
                         if per_ii==1
@@ -5893,28 +5946,23 @@ case 9
                                 spm=[spm ones(1,evNo_out(evNo).noWB)];
                         end
                         conc=[conc evNo*ones(1,evNo_out(evNo).noWB)];
-                        rounded_conc = round(concs,1);
               
-                    annotation('textbox',dim{per_ii},'String',bar_lab(per_ii),'Color',these_colors{per_ii},'EdgeColor','none');
+                    annotation('textbox',conc_anno_loc{per_ii},'String',bar_lab(per_ii),'Color',these_colors{per_ii},'EdgeColor','none');
                 end
             end
-            title(freq_names{bwii})
-            %             set(gcf,fig_pos{bwii})
+            title(freq_names{bwii})            
             set(gcf,'OuterPosition',fig_pos{bwii});
-            
-            %             annotation('textbox',dim{per_ii},'String',bar_lab(per_ii),'Color',these_colors{evNo},'EdgeColor','none');
+            bar_lab_loc = [3.5 6.5 9.5 12.5 15.5 18.5];
+            xticks(bar_lab_loc)
+            xticklabels(concs2)
+            xlabel('Concentration (%)')
+            ylabel('Delta power (dB)')
             %             p=anovan(data_dB,{spm});
         end
-        
-        
-        
+            
         pFDRanovan=drsFDRpval(pvals_perm);
         fprintf(1, ['pFDR for premuted anovan p value  = %d\n\n'],pFDRanovan);
-        
-        
-        
         fprintf(1, '\n\n')
-        
         
         pFDRauROC=drsFDRpval(p_vals_ROC);
         fprintf(1, ['pFDR for auROC  = %d\n\n'],pFDRauROC);
