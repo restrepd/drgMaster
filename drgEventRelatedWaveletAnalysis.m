@@ -463,7 +463,7 @@ if handles.displayData==1
     
     
     title('Event-related LFP')
-    xlim([-0.5 0.5])
+    xlim([-0.2 0.2])
     
     pct1=prctile(meanERLFP_per_trial,1);
     pct99=prctile(meanERLFP_per_trial,99);
@@ -473,7 +473,7 @@ if handles.displayData==1
     
     ylabel('uV')
     xlabel('Time (s)')
-    ylim([-300 300])
+    %ylim([-300 300])
     set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
         
     
