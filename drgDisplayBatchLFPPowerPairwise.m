@@ -157,33 +157,33 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 % grpre=[1 3];
 % grpost=[2 4];
 
-
-% % For Justin's spmc_LFP_20180201
-
-winNo=2;
-refWin=1;
-% which_display=3;
-which_display=12;
-
-%
-% eventType=[2 5];
-% evTypeLabels={'Hit','CR'};
-% comp_window=10;
-
-eventType=[8:13];
-evTypeLabels={'Hi1','Hi2','Hi3','Low4','Low5','Low6'};
-concs=[log10(10) log10(3.2) log10(1) log10(0.32) log10(0.1) log10(0.032)];
-concs2 = [0.032 0.1 0.32 1 3.2 10];
-
-% Enter the files to be processed
-files=[2:8];
-
-trials_to_process=30;
-min_trials_per_event=1;
-output_suffix='_test.mat';
-
-percent_windows=[80 100;
-                45 65];
+% 
+% % % For Justin's spmc_LFP_20180201
+% 
+% winNo=2;
+% refWin=1;
+% % which_display=3;
+% which_display=12;
+% 
+% %
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% % comp_window=10;
+% 
+% eventType=[8:13];
+% evTypeLabels={'Hi1','Hi2','Hi3','Low4','Low5','Low6'};
+% concs=[log10(10) log10(3.2) log10(1) log10(0.32) log10(0.1) log10(0.032)];
+% concs2 = [0.032 0.1 0.32 1 3.2 10];
+% 
+% % Enter the files to be processed
+% files=[2:8];
+% 
+% trials_to_process=30;
+% min_trials_per_event=1;
+% output_suffix='_test.mat';
+% 
+% percent_windows=[80 100;
+%                 45 65];
 
 
 
@@ -1036,41 +1036,41 @@ percent_windows=[80 100;
 % shift_from_event=floor(shift_time/0.025);
 
 
-% 
-% % % For drgbChoicesDanielAPEBE_ERPfirstandlast1102018
-% % acetoethylben_waveERPfirstandlast03232018.mat
-% % logP for ERP in was saved with no lag from the event
-% % run with which_display=11;
-% 
-% winNo=1;
-% % which_display=11;
-% which_display=13;
-% 
-% 
-% % eventType=[2 5];
-% % evTypeLabels={'Hit','CR'};
-% % trials_to_process=20;
-% % output_suffix='_spmouthit.mat';
-% 
-% eventType=[3 6];
-% evTypeLabels={'S+','S-'};
-% output_suffix='_spmout.mat';
-% 
-% 
-% %Files to analyze
-% files=[1:18];
-% 
-% file_label{1}='proficient';
-% file_label{2}='naive';
-% 
-% min_trials_per_event=4;
-% 
-% shift_time=-0.15;
-% shift_from_event=floor(shift_time/ 9.9963e-04);
-% 
-% delta_t_ii=20;
-% 
-% percent_windows=[80 100;45 65];
+
+% % For drgbChoicesDanielAPEBE_ERPfirstandlast1102018
+% acetoethylben_waveERPfirstandlast03232018.mat
+% logP for ERP in was saved with no lag from the event
+% run with which_display=11;
+
+winNo=1;
+% which_display=11;
+which_display=13;
+
+
+% eventType=[2 5];
+% evTypeLabels={'Hit','CR'};
+% trials_to_process=20;
+% output_suffix='_spmouthit.mat';
+
+eventType=[3 6];
+evTypeLabels={'S+','S-'};
+output_suffix='_spmout.mat';
+
+
+%Files to analyze
+files=[1:18];
+
+file_label{1}='proficient';
+file_label{2}='naive';
+
+min_trials_per_event=4;
+
+shift_time=-0.15;
+shift_from_event=floor(shift_time/ 9.9963e-04);
+
+delta_t_ii=20;
+
+percent_windows=[80 100;45 65];
 
 % 
 % % % For Daniel's drgbChoicesDanielEAPA_ERPshiftfirstandlast1232018

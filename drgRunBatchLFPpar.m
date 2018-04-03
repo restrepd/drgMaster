@@ -156,6 +156,7 @@ if all_files_present==1
                 handlespf.peakLFPNo=lfpNo;
                 handlespf.burstLFPNo=lfpNo;
                 handlespf.referenceEvent=handles.drgbchoices.referenceEvent;
+                handlespf.subtractRef=handles.drgbchoices.subtractRef;
                 
                 %Run the analysis for each time window
                 
@@ -307,6 +308,8 @@ if all_files_present==1
                     perCorr=[];
                     which_event=[];
                     
+                    
+                    
                     %Please note this is the same function called in drgMaster 
                     [t,f,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo, perCorr,which_event]=drgGetLFPwavePowerForThisEvTypeNo(handlespf)
               
@@ -336,6 +339,7 @@ if all_files_present==1
                     handlespf.burstHighF=handlespf.LFPPowerSpectrumHighF;
                     
                     handlespf.peakLFPNo=19; %These are licks
+
                     [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr,no_ref_evs_per_trial]=drgEventRelatedWaveletAnalysis(handlespf)
                     
                     lfp_per_file(filNum).out_times=out_times;

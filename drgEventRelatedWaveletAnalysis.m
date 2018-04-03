@@ -259,7 +259,12 @@ for trNo=firstTr:lastTr
                 %Get events
                 
                 %Trim off the time pads
-                ii_start=floor(((handles.time_start-handles.startRef)+(handles.window/2))*handles.drg.session(sessionNo).draq_p.ActualRate);
+                if handles.subtractRef==0
+                   ii_start=1+floor(((handles.window/2))*handles.drg.session(sessionNo).draq_p.ActualRate);
+                else
+                   ii_start=floor(((handles.time_start-handles.startRef)+(handles.window/2))*handles.drg.session(sessionNo).draq_p.ActualRate);
+                end
+                
                 delta_ii_end=floor((handles.window)*handles.drg.session(sessionNo).draq_p.ActualRate);
                 ref=referenceLFP(ii_start:end-delta_ii_end-1);
                 thaLFP=thisangleLFP(ii_start:end-delta_ii_end-1);
