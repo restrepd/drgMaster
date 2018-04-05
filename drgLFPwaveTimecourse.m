@@ -14,6 +14,11 @@ if handles.subtractRef==0
     if handles.autoscale==1
         maxLogP=prctile(log_P_timecourse(:),99);
         minLogP=prctile(log_P_timecourse(:),1);
+        %Note: Diego added this on purpose to limit the range to 10 dB
+        %This results in emphasizing changes in the top 10 dB
+        if maxLogP-minLogP>12
+            minLogP=maxLogP-12;
+        end
     else
         maxLogP=handles.maxLogP;
         minLogP=handles.minLogP;
@@ -26,17 +31,18 @@ else
     if handles.autoscale==1
         maxLogP=prctile(log_P_timecourse(:)-log_P_timecourse_ref(:),99);
         minLogP=prctile(log_P_timecourse(:)-log_P_timecourse_ref(:),1);
+        %Note: Diego added this on purpose to limit the range to 10 dB
+        %This results in emphasizing changes in the top 10 dB
+        if maxLogP-minLogP>12
+            minLogP=maxLogP-12;
+        end
     else
         maxLogP=handles.maxLogP;
         minLogP=handles.minLogP;
     end
 end
 
-%Note: Diego added this on purpose to limit the range to 10 dB
-%This results in emphasizing changes in the top 10 dB
-if maxLogP-minLogP>12
-    minLogP=maxLogP-12;
-end
+
 
 try
     close 1

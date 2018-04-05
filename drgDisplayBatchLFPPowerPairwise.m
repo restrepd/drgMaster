@@ -1037,15 +1037,50 @@ function drgDisplayBatchLFPPowerPairwise(handles)
 
 
 
-% % For drgbChoicesDanielAPEBE_ERPfirstandlast1102018
-% acetoethylben_waveERPfirstandlast03232018.mat
-% logP for ERP in was saved with no lag from the event
-% run with which_display=11;
+% % % For drgbChoicesDanielAPEBE_ERPfirstandlast1102018
+% % acetoethylben_waveERPfirstandlast03232018.mat
+% % logP for ERP in was saved with no lag from the event
+% % run with which_display=11;
+% 
+% winNo=1;
+% % which_display=11;
+% which_display=13;
+% 
+% 
+% % eventType=[2 5];
+% % evTypeLabels={'Hit','CR'};
+% % trials_to_process=20;
+% % output_suffix='_spmouthit.mat';
+% 
+% eventType=[3 6];
+% evTypeLabels={'S+','S-'};
+% output_suffix='_spmout.mat';
+% 
+% 
+% %Files to analyze
+% files=[1:18];
+% 
+% file_label{1}='proficient';
+% file_label{2}='naive';
+% 
+% min_trials_per_event=4;
+% 
+% shift_time=-0.15;
+% shift_from_event=floor(shift_time/ 9.9963e-04);
+% 
+% delta_t_ii=20;
+% 
+% percent_windows=[80 100;45 65];
 
-winNo=1;
-% which_display=11;
-which_display=13;
 
+% 
+% % For Daniel NRGI future....
+% drgbChoicesMingFirstLast022318_Allfiles_fourgroups
+% Used to test comparing low to high percent correct
+
+winNo=2;
+refWin=1;
+which_display=9;
 
 % eventType=[2 5];
 % evTypeLabels={'Hit','CR'};
@@ -1054,23 +1089,27 @@ which_display=13;
 
 eventType=[3 6];
 evTypeLabels={'S+','S-'};
-output_suffix='_spmout.mat';
+output_suffix='controlmin85ERP02prefront_spmout.mat';
 
 
 %Files to analyze
-files=[1:18];
+files=[19:34];  %Control
+% files=[1:18];  %NRG1
+
+percent_windows=[85 100;45 65];
+% percent_windows=[85 100;0 40];
+% percent_windows=[45 65;0 40];
 
 file_label{1}='proficient';
 file_label{2}='naive';
+% file_label{1}='proficient';
+% file_label{2}='rever';
+% file_label{1}='naive';
+% file_label{2}='rever';
 
 min_trials_per_event=4;
-
-shift_time=-0.15;
-shift_from_event=floor(shift_time/ 9.9963e-04);
-
-delta_t_ii=20;
-
-percent_windows=[80 100;45 65];
+which_electrodes=[1:4,13:16]; %Prefrontal
+%  which_electrodes=[5:12]; %Hippocampus
 
 % 
 % % % For Daniel's drgbChoicesDanielEAPA_ERPshiftfirstandlast1232018

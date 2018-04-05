@@ -500,21 +500,23 @@ if handles.displayData==1
     mean_log_P_t=zeros(length(f),length(out_times));
     mean_log_P_t(:,:)=mean(log_P_t,1);
     
-     %Get max and min
+    %Get max and min
     if handles.autoscale==1
         maxLogP=prctile(mean_log_P_t(:),99);
         minLogP=prctile(mean_log_P_t(:),1);
+        
+        %Note: Diego added this on purpose to limit the range to 10 dB
+        %This results in emphasizing changes in the top 10 dB
+        if maxLogP-minLogP>10
+            minLogP=maxLogP-10;
+        end
     else
         maxLogP=handles.maxLogP;
         minLogP=handles.minLogP;
     end
     
     
-    %Note: Diego added this on purpose to limit the range to 10 dB
-    %This results in emphasizing changes in the top 10 dB
-    if maxLogP-minLogP>10
-        minLogP=maxLogP-10;
-    end
+   
     
     
     drg_pcolor(repmat(out_times-mean(out_times),length(f),1)',repmat(f,1,length(out_times))',mean_log_P_t')
