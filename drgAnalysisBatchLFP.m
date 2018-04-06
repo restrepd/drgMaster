@@ -4151,7 +4151,7 @@ case 9
         pffft=1;    
         
      case 12
-        %Justin
+       %Justin
         %Generate Fig. 2  for Daniels' LFP power paper. For the proficient mice in the first and last sessions
         %plot the LFP spectrum for S+ vs S-, plot LFP power for S+ vs S- for each electrode and plot auROCs
         %NOTE: This does the analysis in all the files and DOES not distinguish between groups!!!
@@ -4328,7 +4328,7 @@ case 9
             dB_Ev_mean=[];
             CI=[];
             dB_Ev_mean=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:));
-            CI = bootci(1000, @mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:));
+            CI = bootci(1000, {@mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:)},'type','cper');
             [hl1, hp1] = boundedline(frequency,dB_Ev_mean', CI', these_colors{evNo});
             annotation('textbox',conc_anno_loc{evNo},'String',evTypeLabels(evNo),'Color',these_colors{evNo},'EdgeColor','none');
             %             rectangle('Position',[0.15 0.15 0.2 0.2],'FaceColor','w','EdgeColor','k');
@@ -4348,7 +4348,7 @@ case 9
             dB_Ev_ci=zeros(length(frequency),2);
             dB_Ev_mean=[];
             dB_Ev_mean=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:));
-            CI = bootci(1000, @mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:));
+            CI = bootci(1000, {@mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:)},'type','cper');
             [hl1, hp1] = boundedline(frequency,dB_Ev_mean', CI', these_colors{evNo});
             annotation('textbox',conc_anno_loc{evNo},'String',evTypeLabels(evNo),'Color',these_colors{evNo},'EdgeColor','none');
             rectangle('Position',[0.15 0.15 0.2 0.2],'FaceColor','w','EdgeColor','k');
@@ -4388,7 +4388,7 @@ case 9
                             bar(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)),'b','LineWidth', 3)
                         end
                         plot(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)),'ok','LineWidth', 3)
-                        CI = bootci(1000, @mean, evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii));
+                        CI = bootci(1000, {@mean, evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)},'type','cper');
                         plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
                         plot((bar_offset)*ones(1,sum(evNo_out(evNo).per_ii==per_ii)),evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii),'o',...
                             'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
@@ -4430,28 +4430,33 @@ case 9
                 no_pairs=0;
                 EvNo1=[];
                 EvNo2=[];
+                per_sig=zeros(length(eventType),length(eventType));
                 for evNo1=1:length(eventType)
-                    for evNo2=evNo1:length(eventType)
+                    for evNo2=evNo1+1:length(eventType)
                         
 
                         no_pairs=no_pairs+1;
-                        these_ROCs=(ROCbandwidth==bwii)&(ROCEvNo1==evNo1)&(ROCEvNo2==evNo2);
+                        these_ROCs=(ROCbandwidth==bwii)&(ROCEvNo1==evNo1)&(ROCEvNo2==evNo2)&(ROCper_ii==pcii);
                         sig(no_pairs)=sum((p_valROC<=pFDRauROC)&these_ROCs);
                         not_sig(no_pairs)=sum(these_ROCs)-sum((p_valROC<=pFDRauROC)&these_ROCs);
                         EvNo1(no_pairs)=evNo1;
                         EvNo2(no_pairs)=evNo2;
-                        
-                        if evNo1~=evNo2
                         per_sig(evNo1,evNo2)=100*sig(no_pairs)/(sig(no_pairs)+not_sig(no_pairs));
-                        else
-                            per_sig(evNo1,evNo2)=0;
+
+                    end
+                end
+                
+                for evNo1=1:length(eventType)
+                    for evNo2=evNo1+1:length(eventType)
+
+                        if per_sig(evNo1,evNo2)==0
+                            per_sig(evNo1,evNo2)=100/64;
                         end
-                        
                     end
                 end
                 
                 %Plot the pseudocolor for percent significant auROCs
-                figNo=figNo+1;
+                figNo = get(gcf,'Number')+1;
                 try
                     close(figNo)
                 catch
@@ -4462,23 +4467,43 @@ case 9
                 evNos_for_2=[1:length(eventType)]';
                 
                 drg_pcolor(repmat(evNos_for_1,length(eventType),1),repmat(evNos_for_2,1,length(eventType)),per_sig)
-                colormap jet
+                cmjet=colormap(jet);
+                cmjet(1,1)=0.7;
+                cmjet(1,2)=0.7;
+                cmjet(1,3)=0.7;
+                colormap(cmjet)
+                
+                hold on
+                plot([4 4],[1 4],'-w','LineWidth', 5)
+                plot([4 7],[4 4],'-w','LineWidth', 5)
+                
                 ax=gca;
                 set(ax,'XTickLabel','')
                 ylabel('dB')
+                xticks([1.5:1:length(eventType)+1])
+                xticklabels(handles_pars.concs2)
+                yticks([1.5:1:length(eventType)+1])
+                yticklabels(handles_pars.concs2)
                 
-                hold on
-                title('Percent auROC significantly different from zero')
+                title(['Percent auROC significantly different from zero ' freq_names{bwii} ' ' bar_lab(pcii)])
                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
                 
                 pfft=1
             end
         end
         
-       
-        pffft=1;
+        ppno=0;
+        for pair_no1=1:no_pairs
+            for pair_no2=pair_no1+1:no_pairs
+                ppno=ppno+1;
+                [pChiSq(ppno), Q]= chi2test([sig(pair_no1), not_sig(pair_no1); sig(pair_no2), not_sig(pair_no2)]);
+                fprintf(1, ['pchi  = %d\n'],pChiSq(ppno));
+            end
+        end
         
-        save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix],'auROC_sig');
+        pFDRchisq=drsFDRpval(pChiSq);
+        fprintf(1, ['pFDR for ChiSquared  = %d\n\n'],pFDRchisq);
+%         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix],'auROC_sig');
         
     case 13
         
