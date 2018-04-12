@@ -39,7 +39,7 @@ function drgAnalysisBatchLFP(handles)
 % 12 Justin's analysis of LFP power differences for naive and proficient
 % mice
 %
-% 13 Compare auROC for ERP LFP power between two percent correct
+% 13 Compare auROC for ERP wavelet LFP power between two percent correct
 %     windows at different ERP delta t values
 
 %% Read the BatchParameters
@@ -51,24 +51,53 @@ eval(['handles_pars=' parsFileName(1:end-2) ';'])
 handles.parsFileName=parsFileName;
 handles.parsPathName=parsPathName;
 
-
-winNo=handles_pars.winNo;
-which_display=handles_pars.which_display;
-eventType=handles_pars.eventType;
-evTypeLabels=handles_pars.evTypeLabels;
-file_pairs=handles_pars.file_pairs;
-trials_to_process=handles_pars.trials_to_process;
-min_trials_per_event=handles_pars.min_trials_per_event;
-shift_time=handles_pars.shift_time;
-shift_from_event=handles_pars.shift_from_event;
-grpre=handles_pars.grpre;
-grpost=handles_pars.grpost;
-file_label=handles_pars.file_label;
-front_mask=handles_pars.front_mask;
-output_suffix=handles_pars.output_suffix;
-percent_windows=handles_pars.percent_windows;
+if isfield(handles_pars,'winNo')
+    winNo=handles_pars.winNo;
+end
+if isfield(handles_pars,'which_display')
+    which_display=handles_pars.which_display;
+end
+if isfield(handles_pars,'eventType')
+    eventType=handles_pars.eventType;
+end
+if isfield(handles_pars,'evTypeLabels')
+    evTypeLabels=handles_pars.evTypeLabels;
+end
+if isfield(handles_pars,'file_pairs')
+    file_pairs=handles_pars.file_pairs;
+end
+if isfield(handles_pars,'trials_to_process')
+    trials_to_process=handles_pars.trials_to_process;
+end
+if isfield(handles_pars,'min_trials_per_event')
+    min_trials_per_event=handles_pars.min_trials_per_event;
+end
+if isfield(handles_pars,'shift_time')
+    shift_time=handles_pars.shift_time;
+end
+if isfield(handles_pars,'shift_from_event')
+    shift_from_event=handles_pars.shift_from_event;
+end
+if isfield(handles_pars,'grpost')
+    grpost=handles_pars.grpost;
+end
+if isfield(handles_pars,'file_label')
+    file_label=handles_pars.file_label;
+end
+if isfield(handles_pars,'front_mask')
+    front_mask=handles_pars.front_mask;
+end
+if isfield(handles_pars,'output_suffix')
+    output_suffix=handles_pars.output_suffix;
+end
+if isfield(handles_pars,'percent_windows')
+    percent_windows=handles_pars.percent_windows;
+end
+if isfield(handles_pars,'delta_t_ii')
+    delta_t_ii=handles_pars.delta_t_ii;
+end
 if isfield(handles_pars,'which_electrodes')
-   which_electrodes=handles_pars.which_electrodes;
+    which_electrodes=handles_pars.which_electrodes;
 end
 files=handles_pars.files;
 concs2=handles_pars.concs2;
@@ -117,7 +146,7 @@ fprintf(1, ['\ndrgDisplayBatchLFPPowerPairwise run for ' handles.drgb.outFileNam
 
 switch which_display
 
-    case {1,6,7,8,11}
+    case {1,6,7,8,11,13}
 
         frequency=handles_drgb.drgb.lfpevpair(1).fERP;
         max_events_per_sec=(handles_drgb.drgbchoices.timeEnd(winNo)-handles_drgb.drgbchoices.timeStart(winNo))*handles_drgb.max_events_per_sec;
@@ -4503,11 +4532,13 @@ case 9
         
         pFDRchisq=drsFDRpval(pChiSq);
         fprintf(1, ['pFDR for ChiSquared  = %d\n\n'],pFDRchisq);
+        
+        pfft=1
 %         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix],'auROC_sig');
         
     case 13
         
-        %Compare auROC for ERP LFP power between two percent correct
+        %Compare auROC for ERP wavelet LFP power between two percent correct
         %windows at different ERP delta t values
         no_dBs=1;
         delta_dB_power_fp1=[];
@@ -4824,13 +4855,8 @@ case 9
             plot(sii_times(p(bwii,:)<=pFDRROC_chisq),(sig_per_proficient(bwii,p(bwii,:)<=pFDRROC_chisq)+sig_per_naive(bwii,p(bwii,:)<=pFDRROC_chisq))/2,'*k')
          end
         
-%         pFDRanovanauROC=drsFDRpval(pval_auROCperm);
-%         fprintf(1, ['\npFDR for premuted anovan p value for difference between ' file_label{1} ' and ' file_label{2} ' for auROC = %d\n\n'],pFDRanovanauROC);
-%         
-%         
-%         
-%         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix],'learn_sig','learn_not_sig','prof_sig','prof_not_sig');
-%         
-        pffft=1;    
+     
+         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
+   
 end
 
