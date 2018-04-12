@@ -44,19 +44,20 @@ warning('off')
 % use acetoethylben_electrode9202017.mat
 
 
-% For Alexia's tstart learning vs. proficeint Fig. 3B
-% bf_tstartLFPDRaftersim_troubleshoot.mat
-% it also works with bf_tstartLFPDRaftersim101717.mat
+% % For Alexia's tstart learning vs. proficeint Fig. 3B
+% % bf_tstartLFPDRaftersim_troubleshoot.mat
+% % it also works with bf_tstartLFPDRaftersim101717.mat
 % winNo=3;
 % which_display=3;
 % eventType=1; %tstart
 % evTypeLabels={'tstart'};
 
-% For Alexia's odorOn (CS) learning vs. proficeint
-% winNo=2;
-% which_display=4;
-% eventType=1; %OdorOn
-% evTypeLabels={'CS'};
+% For Alexia's odorOn (CS) learning vs. proficeint Fig. 3B
+% % bf_spmLFPDRaftersim,mat
+winNo=2;
+which_display=3;
+eventType=1; %OdorOn
+evTypeLabels={'CS'};
 
 
 % For Alexia's Hit, CR, FA with time in reference to odorOn
@@ -118,13 +119,13 @@ warning('off')
 % % acetoethylben_firstandlast91117.mat
 % % ethylacetatepropylacetatefirstandlast92617.mat
 
-winNo=2;
-which_display=9;
-eventType1=2;
-eventType=2;
-eventTypeRef=5;
-evTypeLabel='Hit';
-evTypeRefLabel='CR';
+% winNo=2;
+% which_display=9;
+% eventType1=2;
+% eventType=2;
+% eventTypeRef=5;
+% evTypeLabel='Hit';
+% evTypeRefLabel='CR';
 
 % eventType=[9 10 11 12 13 14]; %Hit and CR
 % no_event_types=6;

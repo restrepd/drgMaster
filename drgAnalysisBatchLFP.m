@@ -4180,7 +4180,7 @@ case 9
         pffft=1;    
         
      case 12
-       %Justin
+        %Justin
         %Generate Fig. 2  for Daniels' LFP power paper. For the proficient mice in the first and last sessions
         %plot the LFP spectrum for S+ vs S-, plot LFP power for S+ vs S- for each electrode and plot auROCs
         %NOTE: This does the analysis in all the files and DOES not distinguish between groups!!!
@@ -4261,7 +4261,7 @@ case 9
                                             theseEvNos(evNo,bwii).this_delta_dB_powerEv=this_delta_dB_powerEv;
                                             evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)=mean(this_delta_dB_powerEv);
                                             if evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)<-20
-                                                 fprintf(1, ['mean dB less than -20 dB in file no %d, electrode %d\n'],files(fileNo),elec);
+                                                fprintf(1, ['mean dB less than -20 dB in file no %d, electrode %d\n'],files(fileNo),elec);
                                             end
                                             
                                         end
@@ -4322,10 +4322,6 @@ case 9
                                         end
                                     end
                                 end
-                                
-                                
-                                
-                                
                                 
                             end
                         else
@@ -4410,31 +4406,31 @@ case 9
                 
                 for per_ii=1:2      %performance bins. blue = naive, red = proficient
                     
-                        bar_offset=21-evNo*3+(per_ii-1);
-                        if per_ii==1
-                            bar(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)),'r','LineWidth', 3)
-                        else
-                            bar(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)),'b','LineWidth', 3)
-                        end
-                        plot(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)),'ok','LineWidth', 3)
-                        CI = bootci(1000, {@mean, evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)},'type','cper');
-                        plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                        plot((bar_offset)*ones(1,sum(evNo_out(evNo).per_ii==per_ii)),evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii),'o',...
-                            'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-                        data_dB=[data_dB evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)'];
-                        switch evNo
-                            case {1,2,3}
-                                spm=[spm zeros(1,evNo_out(evNo).noWB)];
-                                
-                            case {4,5,6}
-                                spm=[spm ones(1,evNo_out(evNo).noWB)];
-                        end
-                        conc=[conc evNo*ones(1,evNo_out(evNo).noWB)];
-              
+                    bar_offset=21-evNo*3+(per_ii-1);
+                    if per_ii==1
+                        bar(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)),'r','LineWidth', 3)
+                    else
+                        bar(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)),'b','LineWidth', 3)
+                    end
+                    plot(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)),'ok','LineWidth', 3)
+                    CI = bootci(1000, {@mean, evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)},'type','cper');
+                    plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                    plot((bar_offset)*ones(1,sum(evNo_out(evNo).per_ii==per_ii)),evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii),'o',...
+                        'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+                    data_dB=[data_dB evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)'];
+                    switch evNo
+                        case {1,2,3}
+                            spm=[spm zeros(1,evNo_out(evNo).noWB)];
+                            
+                        case {4,5,6}
+                            spm=[spm ones(1,evNo_out(evNo).noWB)];
+                    end
+                    conc=[conc evNo*ones(1,evNo_out(evNo).noWB)];
+                    
                     annotation('textbox',conc_anno_loc{per_ii},'String',bar_lab(per_ii),'Color',these_colors{per_ii},'EdgeColor','none');
                 end
             end
-            title(freq_names{bwii})            
+            title(freq_names{bwii})
             set(gcf,'OuterPosition',fig_pos{bwii});
             bar_lab_loc = [3.5 6.5 9.5 12.5 15.5 18.5];
             xticks(bar_lab_loc)
@@ -4443,16 +4439,16 @@ case 9
             ylabel('Delta power (dB)')
             %             p=anovan(data_dB,{spm});
         end
-            
-
+        
+        
         pFDRauROC=drsFDRpval(p_vals_ROC);
         fprintf(1, ['pFDR for auROC  = %d\n\n'],pFDRauROC);
         %Plot cumulative histos for auROCs
         
-   
-
+        
+        
         %Plot percent significant ROC
-      
+        
         figNo=0;
         for bwii=1:4
             for pcii=1:szpc(1)
@@ -4463,7 +4459,7 @@ case 9
                 for evNo1=1:length(eventType)
                     for evNo2=evNo1+1:length(eventType)
                         
-
+                        
                         no_pairs=no_pairs+1;
                         these_ROCs=(ROCbandwidth==bwii)&(ROCEvNo1==evNo1)&(ROCEvNo2==evNo2)&(ROCper_ii==pcii);
                         sig(no_pairs)=sum((p_valROC<=pFDRauROC)&these_ROCs);
@@ -4471,13 +4467,13 @@ case 9
                         EvNo1(no_pairs)=evNo1;
                         EvNo2(no_pairs)=evNo2;
                         per_sig(evNo1,evNo2)=100*sig(no_pairs)/(sig(no_pairs)+not_sig(no_pairs));
-
+                        
                     end
                 end
                 
                 for evNo1=1:length(eventType)
                     for evNo2=evNo1+1:length(eventType)
-
+                        
                         if per_sig(evNo1,evNo2)==0
                             per_sig(evNo1,evNo2)=100/64;
                         end
@@ -4495,16 +4491,19 @@ case 9
                 evNos_for_1=1:length(eventType);
                 evNos_for_2=[1:length(eventType)]';
                 
-                drg_pcolor(repmat(evNos_for_1,length(eventType),1),repmat(evNos_for_2,1,length(eventType)),per_sig)
+                drg_pcolor(repmat(evNos_for_2,1,length(eventType)),repmat(evNos_for_1,length(eventType),1),per_sig)
                 cmjet=colormap(jet);
                 cmjet(1,1)=0.7;
                 cmjet(1,2)=0.7;
                 cmjet(1,3)=0.7;
                 colormap(cmjet)
+                caxis([0 100])
                 
                 hold on
-                plot([4 4],[1 4],'-w','LineWidth', 5)
-                plot([4 7],[4 4],'-w','LineWidth', 5)
+%                 plot([4 4],[1 4],'-w','LineWidth', 5)
+%                 plot([4 7],[4 4],'-w','LineWidth', 5)
+                plot([4 4],[3 6],'-w','LineWidth', 5)
+                plot([1 4],[3 3],'-w','LineWidth', 5)
                 
                 ax=gca;
                 set(ax,'XTickLabel','')
@@ -4514,12 +4513,34 @@ case 9
                 yticks([1.5:1:length(eventType)+1])
                 yticklabels(handles_pars.concs2)
                 
-                title(['Percent auROC significantly different from zero ' freq_names{bwii} ' ' bar_lab(pcii)])
+                title(['Percent auROC significantly different from zero ' freq_names{bwii} bar_lab(pcii)])
+                xlabel('Concentration (%)')
+                ylabel('Concentration (%)')
                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
                 
                 pfft=1
             end
         end
+        
+        figNo = get(gcf,'Number')+1;
+        try
+            close(figNo)
+        catch
+        end
+        figure(figNo)
+        
+        
+%         set(hFig2, 'units','normalized','position',[.83 .1 .05 .3])
+        minLogP = 1;
+        maxLogP = 100;
+        prain=[minLogP:(maxLogP-minLogP)/99:maxLogP];
+        drg_pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
+        colormap jet
+        shading interp
+        ax=gca;
+        set(ax,'XTickLabel','')
+        set(gcf,'Position',[200 200 100 300])
+        pffft=1
         
         ppno=0;
         for pair_no1=1:no_pairs
@@ -4532,9 +4553,7 @@ case 9
         
         pFDRchisq=drsFDRpval(pChiSq);
         fprintf(1, ['pFDR for ChiSquared  = %d\n\n'],pFDRchisq);
-        
-        pfft=1
-%         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix],'auROC_sig');
+        save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
         
     case 13
         
