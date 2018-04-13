@@ -44,6 +44,39 @@ warning('off')
 % use acetoethylben_electrode9202017.mat
 
 
+
+
+% 
+% % For Alexia's tstart learning vs. proficeint Fig. 3B
+% % bf_tstartLFPDRaftersim04122018.mat
+% winNo=3;
+% which_display=3;
+% eventType=1; %tstart
+% evTypeLabels={'tstart'};
+
+% For Alexia's per trial Hit, CR, FA with time in reference to tstart
+% bf_tstartLFPDRaftersim04122018.mat
+winNo=3;
+which_display=10;
+eventType=[2 4 5];
+evTypeLabels={'Hit','CR','FA'};
+
+% For Alexia's Hit, CR, FA with time in reference to tstart
+% bf_tstartLFPDRaftersim04122018.mat
+% winNo=3;
+% which_display=1;
+% eventType=[2 4];
+% evTypeLabels={'Hit','CR'};
+
+
+% % For Alexia's odorOn (CS) learning vs. proficeint Fig. 3B
+% % bf_spmLFPDRaftersim04122018.mat
+% winNo=2;
+% which_display=3;
+% eventType=1; %OdorOn
+% evTypeLabels={'CS'};
+
+
 % % For Alexia's tstart learning vs. proficeint Fig. 3B
 % % bf_tstartLFPDRaftersim_troubleshoot.mat
 % % it also works with bf_tstartLFPDRaftersim101717.mat
@@ -52,12 +85,13 @@ warning('off')
 % eventType=1; %tstart
 % evTypeLabels={'tstart'};
 
+
 % For Alexia's odorOn (CS) learning vs. proficeint Fig. 3B
 % % bf_spmLFPDRaftersim,mat
-winNo=2;
-which_display=3;
-eventType=1; %OdorOn
-evTypeLabels={'CS'};
+% winNo=2;
+% which_display=3;
+% eventType=1; %OdorOn
+% evTypeLabels={'CS'};
 
 
 % For Alexia's Hit, CR, FA with time in reference to odorOn
@@ -1229,11 +1263,12 @@ switch which_display
                         dB_p_v1_mean(per_bin,evTN1,:)=mean(this_dB_p_v1,1);
                         dB_p_v1_SEM(per_bin,evTN1,:)=std(this_dB_p_v1,0,1)/sqrt(no_values(eventType1,winNo,grNo,per_bin));
                         %Calculate the 95% CI
-                        for ifreq=1:length(frequency)
-                            pd=fitdist(this_dB_p_v1(:,ifreq),'Normal');
-                            ci=paramci(pd);
-                            dB_p_v1_ci(per_bin,evTN1,ifreq)=pd.mu-ci(1,1);
-                        end
+                        
+                        mean_this_dB_p_v1=mean(this_dB_p_v1,1);
+                        CI_this_dB_p_v1 = bootci(1000, {@mean, this_dB_p_v1,1})';
+                        CI_this_dB_p_v1(:,1)=mean_this_dB_p_v1'-CI_this_dB_p_v1(:,1);
+                        CI_this_dB_p_v1(:,2)=CI_this_dB_p_v1(:,2)-mean_this_dB_p_v1';
+                        dB_p_v1_ci(per_bin,evTN1,1:length(frequency),1:2)=CI_this_dB_p_v1;
                         these_experiments=experimentNo(eventType1,winNo,grNo,per_bin,1:no_values(eventType1,winNo,grNo,per_bin));
                         
                     end
@@ -1281,10 +1316,10 @@ switch which_display
                     this_dB_p_v1_mean=zeros(1,length(handles_drgb.drgb.freq_for_LFPpower));
                     this_dB_p_v1_mean(1,:)=dB_p_v1_mean(per_bin,evTN1,:);
                     
-                    this_dB_p_v1_ci=zeros(1,length(handles_drgb.drgb.freq_for_LFPpower));
-                    this_dB_p_v1_ci(1,:)=dB_p_v1_ci(per_bin,evTN1,:);
-                    
-                    [hl, hp] = boundedline(frequency,this_dB_p_v1_mean, this_dB_p_v1_ci, these_colors{per_bin});
+                    this_dB_p_v1_ci=zeros(length(handles_drgb.drgb.freq_for_LFPpower),2);
+                    this_dB_p_v1_ci(:,:)=dB_p_v1_ci(per_bin,evTN1,:,:);
+                  
+                    [hl, hp] = boundedline(frequency,this_dB_p_v1_mean, this_dB_p_v1_ci, these_colors{per_bin},'transparency',0.1);
                     
                     if calc_pval(per_bin)==1
                         for ifreq=1:length(frequency)
@@ -1312,9 +1347,11 @@ switch which_display
                     
                 end
                 
+                pct99=prctile(dB_p_v1_mean(:),99);
+                pct01=prctile(dB_p_v1_mean(:),1);
                 
-                max_y=max(dB_p_v1_mean(:)+abs(dB_p_v1_ci(:)))+0.05*(max(dB_p_v1_mean(:)+abs(dB_p_v1_ci(:)))-min(dB_p_v1_mean(:)-abs(dB_p_v1_ci(:))));
-                min_y=min(dB_p_v1_mean(:)-abs(dB_p_v1_ci(:)))-0.05*(max(dB_p_v1_mean(:)+abs(dB_p_v1_ci(:)))-min(dB_p_v1_mean(:)-abs(dB_p_v1_ci(:))));
+                max_y=pct99+0.1*(pct99-pct01);
+                min_y=pct01-0.1*(pct99-pct01);
                 ylim([min_y max_y])
                 
                 

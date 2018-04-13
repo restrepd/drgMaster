@@ -29,7 +29,7 @@ function drgAnalysisBatchLFP(handles)
 % 8 Compare auROC for ERP LFP in the last few trials of pre with first few trials of post
 %   Used for New Fig. 7 of Daniel's paper
 %
-% 9 Compare auROC for power LFP in two percent windows for all of the files 
+% 9 Compare auROC for power LFP for two events in two percent windows for all of the files 
 %
 % 10 Compare auROC for power LFP for two groups (e.g. NRG1 vs control)
 % within one precent window
@@ -99,8 +99,12 @@ end
 if isfield(handles_pars,'which_electrodes')
     which_electrodes=handles_pars.which_electrodes;
 end
-files=handles_pars.files;
-concs2=handles_pars.concs2;
+if isfield(handles_pars,'files')
+    files=handles_pars.files;
+end
+if isfield(handles_pars,'concs2')
+    concs2=handles_pars.concs2;
+end
 
 if ~isfield(handles_pars,'no_bandwidths')
     no_bandwidths=4;
@@ -3372,7 +3376,7 @@ switch which_display
         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2, 'Box', 'off')
         
 case 9
-    %Compare LFP power auROC in two percent windows for all of the files 
+    %Compare LFP power auROC for two events in two percent windows for all of the files 
     no_dBs=1;
     delta_dB_power_fp1=[];
     no_ROCs=0;
@@ -3547,7 +3551,7 @@ case 9
             
             xlabel('auROC')
             ylabel('# of electrodes')
-            legend(file_label{2},file_label{1})
+            legend(file_label{1},file_label{2})
             title(['auROC for ' freq_names{bwii}])
             xlim([-0.3 0.6])
             ylim([0 80])
