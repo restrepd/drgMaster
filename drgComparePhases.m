@@ -65,8 +65,10 @@ for trNo=firstTr:lastTr
                     'SampleRate',Fs);
                 thisfiltLFPref=filtfilt(bpFiltLFPref,LFPref);
                 thisanglerefLFP = angle(hilbert(thisfiltLFPref)); % phase modulation of theta amplitude
-                anglerefLFP(no_trials,1:delta_ii/20) = decimate(thisanglerefLFP(pad_ii+1:pad_ii+delta_ii),20);
-                filtLFPref(no_trials,1:delta_ii/20)=decimate(thisfiltLFPref(pad_ii+1:pad_ii+delta_ii),20);
+                dectha=decimate(thisanglerefLFP(pad_ii+1:pad_ii+delta_ii),20);
+                anglerefLFP(no_trials,1:length(dectha)) = dectha;
+                decthl=decimate(thisfiltLFPref(pad_ii+1:pad_ii+delta_ii),20);
+                filtLFPref(no_trials,1:length(decthl))=decthl;
                 
                 %Get LFPexp phase
                 bpFiltLFPexp = designfilt('bandpassiir','FilterOrder',20, ...
@@ -74,13 +76,15 @@ for trNo=firstTr:lastTr
                     'SampleRate',Fs);
                 thisfiltLFPexp=filtfilt(bpFiltLFPexp,LFPexp);
                 thisangleLFPexp = angle(hilbert(thisfiltLFPexp)); % LFPexp phase
-                angleLFPexp(no_trials,1:delta_ii/20) = decimate(thisangleLFPexp(pad_ii+1:pad_ii+delta_ii),20);
-                filtLFPexp(no_trials,1:delta_ii/20)=decimate(thisfiltLFPexp(pad_ii+1:pad_ii+delta_ii),20);
+                decale=decimate(thisangleLFPexp(pad_ii+1:pad_ii+delta_ii),20);
+                angleLFPexp(no_trials,1:length(decale)) = decale;
+                decfle=decimate(thisfiltLFPexp(pad_ii+1:pad_ii+delta_ii),20);
+                filtLFPexp(no_trials,1:length(decfle))=decfle;
                 
                 rho(no_trials)=corr(thisfiltLFPref(pad_ii+1:pad_ii+delta_ii)',thisfiltLFPexp(pad_ii+1:pad_ii+delta_ii)');
                 
                 %Delta phase
-                delta_phase_timecourse(no_trials,1:delta_ii/20)=decimate(thisangleLFPexp(pad_ii+1:pad_ii+delta_ii)-thisanglerefLFP(pad_ii+1:pad_ii+delta_ii),20);
+                delta_phase_timecourse(no_trials,1:length(decthl))=decimate(thisangleLFPexp(pad_ii+1:pad_ii+delta_ii)-thisanglerefLFP(pad_ii+1:pad_ii+delta_ii),20);
                 
                 if handles.displayData==0
                     for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
