@@ -340,7 +340,7 @@ if all_files_present==1
                     
                     handlespf.peakLFPNo=19; %These are licks
 
-                    [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr,no_ref_evs_per_trial]=drgEventRelatedWaveletAnalysis(handlespf)
+                    [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr,no_ref_evs_per_trial]=drgEventRelatedWaveletAnalysis(handlespf);
                     
                     lfp_per_file(filNum).out_times=out_times;
                     
@@ -355,6 +355,41 @@ if all_files_present==1
                     lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).trial_map=trial_map;
                     lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).perCorrERP=perCorr;
                     lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).no_ref_evs_per_trial=no_ref_evs_per_trial;
+                    
+                end
+                
+                %Do the phase comparison analysis
+                if sum(handles.drgbchoices.analyses==6)>0
+                    low_freq=[6 15 35 65];
+                    high_freq=[12 30 55 95];
+                    
+                    for freq_ii=1:4
+                        handlespf.peakLowF=low_freq(freq_ii);
+                        handlespf.peakHighF=high_freq(freq_ii);
+                        handlespf.burstLowF=low_freq(freq_ii);
+                        handlespf.burstHighF=high_freq(freq_ii);
+                        
+                        for elec1=1:16
+                            for elec2=elec1+1:16
+                                
+                                handlespf.peakLFPNo=elec1;
+                                handlespf.burstLFPNo=elec2;
+                                
+                                [rho,which_event,no_trials,angleLFPexp,angleLFPref,filtLFPexp,filtLFPref]=drgComparePhases(handles);
+                                
+                                lfp_per_file(filNum).out_times=out_times;
+                                
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).no_trials=no_trials;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).which_event=which_event;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).rho=rho;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).angleLFPexp=angleLFPexp;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).angleLFPref=angleLFPref;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).filtLFPexp=filtLFPexp;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).filtLFPref=filtLFPref;
+                                
+                            end
+                        end
+                    end
                     
                 end
 

@@ -20,11 +20,11 @@ switch handles.analysisNoOsc
     case 9
         drgLFPwaveTimecourse(handles)
     case 10 
-        drgComparePhases(handles)
+        drgComparePhases(handles);
     case 11
         drgEventRelatedAnalysis(handles);
     case 12
-        drgLFProc(handles)
+        drgLFProc(handles);
     case 13
         drgEventRelatedROCAnalysis(handles);
     case 14
