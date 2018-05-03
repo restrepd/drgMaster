@@ -1,5 +1,5 @@
-function [rho,which_event,no_trials,angleLFPexp,angleLFPref,filtLFPexp,filtLFPref]=drgComparePhases(handles)
-
+function [rho,which_event,no_trials,angleLFPexp,filtLFPexp,filtLFPref]=drgComparePhases(handles)
+tic
 %This function compares the Hibert transform phases and
 %computes the correlation between the filtered LFPs
 anglerefLFP = [];
@@ -50,6 +50,7 @@ for trNo=firstTr:lastTr
         if excludeTrial==0
             
             %Note: handles.peakLFPNo is the reference LFP
+            
             [LFPref, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
             [LFPexp, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
             
@@ -76,10 +77,12 @@ for trNo=firstTr:lastTr
                     'SampleRate',Fs);
                 thisfiltLFPexp=filtfilt(bpFiltLFPexp,LFPexp);
                 thisangleLFPexp = angle(hilbert(thisfiltLFPexp)); % LFPexp phase
+             
                 decale=decimate(thisangleLFPexp(pad_ii+1:pad_ii+delta_ii),20);
                 angleLFPexp(no_trials,1:length(decale)) = decale;
                 decfle=decimate(thisfiltLFPexp(pad_ii+1:pad_ii+delta_ii),20);
                 filtLFPexp(no_trials,1:length(decfle))=decfle;
+                
                 
                 rho(no_trials)=corr(thisfiltLFPref(pad_ii+1:pad_ii+delta_ii)',thisfiltLFPexp(pad_ii+1:pad_ii+delta_ii)');
                 
@@ -120,6 +123,7 @@ for trNo=firstTr:lastTr
                 end
                 
             end
+            
         end
     end
     
@@ -140,6 +144,7 @@ for jj=1:floor((handles.time_end-handles.time_start-2*pad_time)/delta_t)
     end
 end
 
+toc
 
 if handles.displayData==1
     try
@@ -264,6 +269,7 @@ if handles.displayData==1
     
     pffft=1;
 end
+
 
 
 

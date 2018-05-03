@@ -360,10 +360,10 @@ if all_files_present==1
                 
                 %Do the phase comparison analysis
                 if sum(handles.drgbchoices.analyses==6)>0
-                    low_freq=[6 15 35 65];
-                    high_freq=[12 30 55 95];
+                    low_freq=[6 65];
+                    high_freq=[12 95];
                     
-                    for freq_ii=1:4
+                    for freq_ii=1:2
                         handlespf.peakLowF=low_freq(freq_ii);
                         handlespf.peakHighF=high_freq(freq_ii);
                         handlespf.burstLowF=low_freq(freq_ii);
@@ -375,15 +375,11 @@ if all_files_present==1
                                 handlespf.peakLFPNo=elec1;
                                 handlespf.burstLFPNo=elec2;
                                 
-                                [rho,which_event,no_trials,angleLFPexp,angleLFPref,filtLFPexp,filtLFPref]=drgComparePhases(handles);
-                                
-                                lfp_per_file(filNum).out_times=out_times;
-                                
+                                [rho,which_event,no_trials,angleLFPexp,filtLFPexp,filtLFPref]=drgComparePhases(handlespf);
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).no_trials=no_trials;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).which_event=which_event;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).rho=rho;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).angleLFPexp=angleLFPexp;
-                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).angleLFPref=angleLFPref;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).filtLFPexp=filtLFPexp;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).filtLFPref=filtLFPref;
                                 
