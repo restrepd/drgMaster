@@ -171,17 +171,19 @@ if ~isempty(this_trialNo)
                     %record the inter lick interval
                     ii_ili_ref=ii_ili_ref+1;
                     inter_lick_intervals_ref(ii_ili_ref)=these_lick_times(this_lick_ii)-these_lick_times(this_lick_ii-1);
+                else
+                    ii_ili_ref=ii_ili_ref+1;
+                    inter_lick_intervals_ref(ii_ili_ref)=these_lick_times(this_lick_ii);
                 end
                 
                 %Enter the event (lick) in the timecourse only if it is
                 %not within a burst of high frequency noise
-                if ii_ili_ref>0
-                    if inter_lick_intervals_ref(ii_ili_ref)>handles.smallest_inter_lick_interval
-                        %stamp the lick
-                        stamped_lick_ii=stamped_lick_ii+1;
-                        these_stamped_lick_times(stamped_lick_ii)=(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
-                    end
+                if inter_lick_intervals_ref(ii_ili_ref)>handles.smallest_inter_lick_interval
+                    %stamp the lick
+                    stamped_lick_ii=stamped_lick_ii+1;
+                    these_stamped_lick_times(stamped_lick_ii)=(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
                 end
+                
                 
                 end_event=find(refLFP_ref(ii:end)<thershold_ref,1,'first');
                 if isempty(end_event)

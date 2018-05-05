@@ -189,26 +189,28 @@ for trNo=firstTr:lastTr
                                 %record the inter lick interval
                                 ii_ili_ref=ii_ili_ref+1;
                                 inter_lick_intervals_ref(ii_ili_ref)=these_lick_times(this_lick_ii)-these_lick_times(this_lick_ii-1);
+                            else
+                                ii_ili_ref=ii_ili_ref+1;
+                                inter_lick_intervals(ii_ili_ref)=these_lick_times(this_lick_ii);
                             end
                             
                             %Enter the event (lick) in the timecourse only if it is
                             %not within a burst of high frequency noise
-                            if ii_ili_ref>0
-                                if inter_lick_intervals_ref(ii_ili_ref)>handles.smallest_inter_lick_interval
-                                    
-                                    %Make sure that the array is large enough
-                                    this_time=handles.startRef+pad_time+(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
-                                    [mint,mint_ii]=min(abs(times_spec-this_time));
-                                    
-                                    if (mint_ii+wing_ii<=length(times_spec))&(mint_ii-wing_ii>=1)
-                                        no_ref_evs_this_trial=no_ref_evs_this_trial+1;
-                                        no_ref_events_per_trial(no_trials)=no_ref_evs_this_trial;
-                                        lot=length(out_times);
-                                        ref_Power_these_events(no_ref_evs_this_trial,1:length(f),1:length(out_times))=P(:,mint_ii-wing_ii:mint_ii+wing_ii);
-                                    end
-                                    
+                            if inter_lick_intervals_ref(ii_ili_ref)>handles.smallest_inter_lick_interval
+                                
+                                %Make sure that the array is large enough
+                                this_time=handles.startRef+pad_time+(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
+                                [mint,mint_ii]=min(abs(times_spec-this_time));
+                                
+                                if (mint_ii+wing_ii<=length(times_spec))&(mint_ii-wing_ii>=1)
+                                    no_ref_evs_this_trial=no_ref_evs_this_trial+1;
+                                    no_ref_events_per_trial(no_trials)=no_ref_evs_this_trial;
+                                    lot=length(out_times);
+                                    ref_Power_these_events(no_ref_evs_this_trial,1:length(f),1:length(out_times))=P(:,mint_ii-wing_ii:mint_ii+wing_ii);
                                 end
+                                
                             end
+                            
                             
                             end_event=find(refLFP_ref(ii:end)<thershold_ref,1,'first');
                             if isempty(end_event)
@@ -268,40 +270,42 @@ for trNo=firstTr:lastTr
                             %record the inter lick interval
                             ii_ili=ii_ili+1;
                             inter_lick_intervals(ii_ili)=these_lick_times(this_lick_ii)-these_lick_times(this_lick_ii-1);
+                        else
+                            ii_ili=ii_ili+1;
+                            inter_lick_intervals(ii_ili)=these_lick_times(this_lick_ii);
                         end
                         
                         %Enter the event (lick) in the timecourse only if it is
                         %not within a burst of high frequency noise
-                        if ii_ili>0
-                            if inter_lick_intervals(ii_ili)>handles.smallest_inter_lick_interval
+                        if inter_lick_intervals(ii_ili)>handles.smallest_inter_lick_interval
+                            
+                            %Make sure that the array is large enough
+                            this_time=handles.time_start+pad_time+(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
+                            [mint,mint_ii]=min(abs(times_spec-this_time));
+                            
+                            if (mint_ii+wing_ii<=length(times_spec))&(mint_ii-wing_ii>=1)
+                                no_events=no_events+1;
+                                events(no_events)=ii;
+                                time_per_event(no_events)=handles.time_start+pad_time+(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
+                                phase(no_events)=thaLFP(ii);
+                                no_evs_this_trial=no_evs_this_trial+1;
+                                phase_this_trial(no_evs_this_trial)=thaLFP(ii);
                                 
-                                %Make sure that the array is large enough
-                                this_time=handles.time_start+pad_time+(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
-                                [mint,mint_ii]=min(abs(times_spec-this_time));
+                                t_per_event_per_trial(no_trials,no_evs_this_trial)=time_per_event(no_events);
                                 
-                                if (mint_ii+wing_ii<=length(times_spec))&(mint_ii-wing_ii>=1)
-                                    no_events=no_events+1;
-                                    events(no_events)=ii;
-                                    time_per_event(no_events)=handles.time_start+pad_time+(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
-                                    phase(no_events)=thaLFP(ii);
-                                    no_evs_this_trial=no_evs_this_trial+1;
-                                    phase_this_trial(no_evs_this_trial)=thaLFP(ii);
-                                    
-                                    t_per_event_per_trial(no_trials,no_evs_this_trial)=time_per_event(no_events);
-                                    
-                                    ERLFP(no_events,:)=LFP(1,floor(ii_start+ii-(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate):...
-                                        floor(ii_start+ii+(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate));
-                                    
-                                    ERLFP_this_trial(no_evs_this_trial,:)=LFP(1,floor(ii_start+ii-(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate):...
-                                        floor(ii_start+ii+(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate));
-                                    
-                                    lot=length(out_times);
-                                    all_Power_these_events(no_evs_this_trial,1:length(f),1:length(out_times))=P(:,mint_ii-wing_ii:mint_ii+wing_ii);
-                                    
-                                end
+                                ERLFP(no_events,:)=LFP(1,floor(ii_start+ii-(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate):...
+                                    floor(ii_start+ii+(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate));
+                                
+                                ERLFP_this_trial(no_evs_this_trial,:)=LFP(1,floor(ii_start+ii-(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate):...
+                                    floor(ii_start+ii+(handles.window/2)*handles.drg.session(sessionNo).draq_p.ActualRate));
+                                
+                                lot=length(out_times);
+                                all_Power_these_events(no_evs_this_trial,1:length(f),1:length(out_times))=P(:,mint_ii-wing_ii:mint_ii+wing_ii);
                                 
                             end
+                            
                         end
+                        
                         
                         end_event=find(ref(ii:end)<thershold_ref,1,'first');
                         if isempty(end_event)

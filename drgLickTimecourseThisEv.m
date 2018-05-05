@@ -118,15 +118,18 @@ for trNo=firstTr:lastTr
                                 %record the inter lick interval
                                 ii_ili=ii_ili+1;
                                 inter_lick_intervals(ii_ili)=these_lick_times(this_lick_ii)-these_lick_times(this_lick_ii-1);
+                            else
+                                ii_ili=ii_ili+1;
+                                inter_lick_intervals(ii_ili)=these_lick_times(this_lick_ii);
                             end
                             
                             %Enter the lick in the timecourse only if it is
                             %not within a burst of high frequency noise
-                            if ii_ili>0
-                                if inter_lick_intervals(ii_ili)>handles.smallest_inter_lick_interval
-                                    lick_timecourse_this_trial(1,this_jj)=lick_timecourse_this_trial(1,this_jj)+1;
-                                end
+                            
+                            if inter_lick_intervals(ii_ili)>handles.smallest_inter_lick_interval
+                                lick_timecourse_this_trial(1,this_jj)=lick_timecourse_this_trial(1,this_jj)+1;
                             end
+                            
                         end
                         
                         

@@ -223,6 +223,9 @@ for trNo=firstTr:lastTr
                                 %record the inter lick interval
                                 ii_ili_ref=ii_ili_ref+1;
                                 inter_lick_intervals_ref(ii_ili_ref)=these_lick_times(this_lick_ii)-these_lick_times(this_lick_ii-1);
+                            else
+                                ii_ili_ref=ii_ili_ref+1;
+                                inter_lick_intervals_ref(ii_ili_ref)=these_lick_times(this_lick_ii);
                             end
                             
                             %Enter the event (lick) in the timecourse only if it is
@@ -302,6 +305,9 @@ for trNo=firstTr:lastTr
                             %record the inter lick interval
                             ii_ili=ii_ili+1;
                             inter_lick_intervals(ii_ili)=these_lick_times(this_lick_ii)-these_lick_times(this_lick_ii-1);
+                        else
+                            ii_ili=ii_ili+1;
+                            inter_lick_intervals(ii_ili)=these_lick_times(this_lick_ii);
                         end
                         
                         %Enter the event (lick) in the timecourse only if it is
