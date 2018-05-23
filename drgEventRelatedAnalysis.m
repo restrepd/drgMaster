@@ -191,26 +191,26 @@ for trNo=firstTr:lastTr
                                 inter_lick_intervals_ref(ii_ili_ref)=these_lick_times(this_lick_ii)-these_lick_times(this_lick_ii-1);
                             else
                                 ii_ili_ref=ii_ili_ref+1;
-                                inter_lick_intervals(ii_ili_ref)=these_lick_times(this_lick_ii);
+                                inter_lick_intervals_ref(ii_ili_ref)=these_lick_times(this_lick_ii);
                             end
                             
                             %Enter the event (lick) in the timecourse only if it is
                             %not within a burst of high frequency noise
-                            if inter_lick_intervals_ref(ii_ili_ref)>handles.smallest_inter_lick_interval
-                                
-                                %Make sure that the array is large enough
-                                this_time=handles.startRef+pad_time+(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
-                                [mint,mint_ii]=min(abs(times_spec-this_time));
-                                
-                                if (mint_ii+wing_ii<=length(times_spec))&(mint_ii-wing_ii>=1)
-                                    no_ref_evs_this_trial=no_ref_evs_this_trial+1;
-                                    no_ref_events_per_trial(no_trials)=no_ref_evs_this_trial;
-                                    lot=length(out_times);
-                                    ref_Power_these_events(no_ref_evs_this_trial,1:length(f),1:length(out_times))=P(:,mint_ii-wing_ii:mint_ii+wing_ii);
+                            if ~isempty(inter_lick_intervals_ref)
+                                if inter_lick_intervals_ref(ii_ili_ref)>handles.smallest_inter_lick_interval
+                                    
+                                    %Make sure that the array is large enough
+                                    this_time=handles.startRef+pad_time+(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
+                                    [mint,mint_ii]=min(abs(times_spec-this_time));
+                                    
+                                    if (mint_ii+wing_ii<=length(times_spec))&(mint_ii-wing_ii>=1)
+                                        no_ref_evs_this_trial=no_ref_evs_this_trial+1;
+                                        no_ref_events_per_trial(no_trials)=no_ref_evs_this_trial;
+                                        lot=length(out_times);
+                                        ref_Power_these_events(no_ref_evs_this_trial,1:length(f),1:length(out_times))=P(:,mint_ii-wing_ii:mint_ii+wing_ii);
+                                    end
                                 end
-                                
                             end
-                            
                             
                             end_event=find(refLFP_ref(ii:end)<thershold_ref,1,'first');
                             if isempty(end_event)

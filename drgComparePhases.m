@@ -1,5 +1,5 @@
 function [rho,which_event,no_trials,angleLFPexp,filtLFPexp,filtLFPref]=drgComparePhases(handles)
-tic
+
 %This function compares the Hibert transform phases and
 %computes the correlation between the filtered LFPs
 anglerefLFP = [];
@@ -144,7 +144,7 @@ for jj=1:floor((handles.time_end-handles.time_start-2*pad_time)/delta_t)
     end
 end
 
-toc
+
 
 if handles.displayData==1
     try
