@@ -45,7 +45,7 @@ function drgAnalysisBatchLFP(handles)
 % 14  Justin's analysis of LFP power differences for naive and proficient
 % mice. Analyzed per mouse
 %
-% 15  Justin's fitlm analysis of LFP power differences for naive and proficient
+% 15  Justin's fitglm analysis of LFP power differences for naive and proficient
 % mice. Analyzed per mouse
 
 
@@ -5422,7 +5422,7 @@ case 9
                             
                             %For each electrode compute the fitlm
                             %Do fitlm
-                            pfft=1
+ 
                             
                             % Store the variables in a table.
                             tbl = table(fitlm_results(no_fitlms).delta_dB_Power',fitlm_results(no_fitlms).concs',fitlm_results(no_fitlms).spm',fitlm_results(no_fitlms).last_rewarded','VariableNames',{'delta_dB','log10_Odor_Concentration','spm','was_last_rewarded'});
@@ -5435,6 +5435,109 @@ case 9
                             fitlm_results(no_fitlms).p_val_conc=fitlm_results(no_fitlms).lm.Coefficients{2,4};
                             fitlm_results(no_fitlms).p_val_spm=fitlm_results(no_fitlms).lm.Coefficients{3,4};
                             fitlm_results(no_fitlms).p_val_last_reward=fitlm_results(no_fitlms).lm.Coefficients{4,4};
+                            fitlm_results(no_fitlms).AIC(7)=fitlm_results(no_fitlms).lm.ModelCriterion.AIC;
+                            fitlm_results(no_fitlms).BIC(7)=fitlm_results(no_fitlms).lm.ModelCriterion.BIC;
+                             
+                            % Fit a linear regression model for delta_dB~log10_Odor_Concentration+was_last_rewarded
+                            lm = fitlm(tbl,'delta_dB~log10_Odor_Concentration+was_last_rewarded');
+                            fitlm_results(no_fitlms).AIC(6)=lm.ModelCriterion.AIC;
+                            fitlm_results(no_fitlms).BIC(6)=lm.ModelCriterion.BIC;
+                            
+                             % Fit a linear regression model for spm+was_last_rewarded
+                            lm = fitlm(tbl,'delta_dB~spm+was_last_rewarded');
+                            fitlm_results(no_fitlms).AIC(5)=lm.ModelCriterion.AIC;
+                            fitlm_results(no_fitlms).BIC(5)=lm.ModelCriterion.BIC;
+                            
+                             % Fit a linear regression model for delta_dB~log10_Odor_Concentration+spm
+                            lm = fitlm(tbl,'delta_dB~log10_Odor_Concentration+spm');
+                            fitlm_results(no_fitlms).AIC(4)=lm.ModelCriterion.AIC;
+                            fitlm_results(no_fitlms).BIC(4)=lm.ModelCriterion.BIC;
+                            
+                            % Fit a linear regression model for last
+                            % rewarded
+                            lm = fitlm(tbl,'delta_dB~was_last_rewarded');
+                            fitlm_results(no_fitlms).AIC(3)=lm.ModelCriterion.AIC;
+                            fitlm_results(no_fitlms).BIC(3)=lm.ModelCriterion.BIC;
+                            
+                            % Fit a linear regression model for spm
+                            lm = fitlm(tbl,'delta_dB~spm');
+                            fitlm_results(no_fitlms).AIC(2)=lm.ModelCriterion.AIC;
+                            fitlm_results(no_fitlms).BIC(2)=lm.ModelCriterion.BIC;
+                            
+                          % Fit a linear regression model for conc
+                            lm = fitlm(tbl,'delta_dB~log10_Odor_Concentration');
+                            fitlm_results(no_fitlms).AIC(1)=lm.ModelCriterion.AIC;
+                            fitlm_results(no_fitlms).BIC(1)=lm.ModelCriterion.BIC;
+                            
+                            %Plot dB power for each electrode
+                            try
+                                close(1)
+                            catch
+                            end
+                            hFig1=figure(1);
+                            set(hFig1, 'units','normalized','position',[.07 .1 .75 .3])
+                            
+                            subplot(1,3,1)
+                            plot(fitlm_results(no_fitlms).concs',fitlm_results(no_fitlms).delta_dB_Power','ob')
+                            minc=min(fitlm_results(no_fitlms).concs');
+                            mindB=lm.Coefficients{1,1}+(lm.Coefficients{2,1})*minc;
+                            maxc=max(fitlm_results(no_fitlms).concs');
+                            maxdB=lm.Coefficients{1,1}+(lm.Coefficients{2,1})*maxc;
+                            hold on
+                            plot([minc maxc],[mindB maxdB],'-r')
+                            xlabel('log(concentration)')
+                            ylabel('dB power')
+                            
+                            subplot(1,3,2)
+                            plot(fitlm_results(no_fitlms).spm',fitlm_results(no_fitlms).delta_dB_Power','ob')
+                            hold on
+                            %Splus bar
+                            bar(1,mean(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).spm==1)))
+                            %Confidence intervals
+                            SEMsp = std(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).spm==1))...
+                                /sqrt(length(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).spm==1)));               % Standard Error
+                            tssp = tinv([0.05  0.95],sum(fitlm_results(no_fitlms).spm==1)-1);      % T-Score
+                            CIsp = mean(mean(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).spm==1))) + tssp*SEMsp;
+                            plot([1 1],CIsp,'-r','Linewidth',3)
+                            %Sminus bar
+                            bar(0,mean(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).spm==0)))% Confidence Intervals
+                            %Confidence intervals
+                            SEMsm = std(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).spm==0))...
+                                /sqrt(length(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).spm==0)));               % Standard Error
+                            tssm = tinv([0.05  0.95],sum(fitlm_results(no_fitlms).spm==0)-1);      % T-Score
+                            CIsm = mean(mean(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).spm==0))) + tssp*SEMsp;
+                            plot([0 0],CIsm,'-r','Linewidth',3)
+                            xlabel('S= or S-')
+                            ylabel('db power')
+                            title(['no_fitlms ' num2str(no_fitlms)])
+                            
+                            %last_rewarded
+                            subplot(1,3,3)
+                            plot(fitlm_results(no_fitlms).last_rewarded',fitlm_results(no_fitlms).delta_dB_Power','ob')
+                            hold on
+                            %Not rewarded bar
+                            bar(1,mean(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).last_rewarded==1)))
+                            %Confidence intervals
+                            SEMsp = std(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).last_rewarded==1))...
+                                /sqrt(length(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).last_rewarded==1)));               % Standard Error
+                            tssp = tinv([0.05  0.95],sum(fitlm_results(no_fitlms).last_rewarded==1)-1);      % T-Score
+                            CIsp = mean(mean(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).last_rewarded==1))) + tssp*SEMsp;
+                            plot([1 1],CIsp,'-r','Linewidth',3)
+                            %Rewarded bar
+                            bar(0,mean(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).last_rewarded==0)))% Confidence Intervals
+                            %Confidence intervals
+                            SEMsm = std(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).last_rewarded==0))...
+                                /sqrt(length(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).last_rewarded==0)));               % Standard Error
+                            tssm = tinv([0.05  0.95],sum(fitlm_results(no_fitlms).last_rewarded==0)-1);      % T-Score
+                            CIsm = mean(mean(fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).last_rewarded==0))) + tssp*SEMsp;
+                            plot([0 0],CIsm,'-r','Linewidth',3)
+                            
+                            
+                            xlabel('Last rewarded')
+                            ylabel('db power')
+                            
+                            pfft=1;
+                            
                         end
                         
                     end
@@ -5450,12 +5553,20 @@ case 9
             pvc(ii)=fitlm_results(ii).p_val_conc;
             pvspm(ii)=fitlm_results(ii).p_val_spm;
             pv_last_rewards(ii)=fitlm_results(ii).p_val_last_reward;
+            for jj=1:7
+               aic(ii,jj)=fitlm_results(ii).AIC(jj); 
+               bic(ii,jj)=fitlm_results(ii).BIC(jj); 
+            end
         end
         
         %Plot a bar graph showing the percent of significant estimated coefficents for the fitlm regression model
-        figure(1)
+        try
+            close(2)
+        catch
+        end
+        hFig2=figure(2);
         hold on
-       
+        
         xpos=0;
         for perii=1:2
            for bwii=1:4
@@ -5487,11 +5598,395 @@ case 9
         title('blue=concentration, red=spm, magenta=last reward, proficient left, naive right') 
         ylabel('Percent significant regression coefficients')
         
-        %We should use aic() Akaike?s Information Criterion for estimated
+        %Plot AICs
+        figNo=2;
+        for perii=1:2
+            figNo=figNo+1;
+            try
+                close(figNo)
+            catch
+            end
+            hFig2=figure(figNo);
+            
+            if perii==1
+                title('AICs for naive mice')
+            else
+                title('AICs for proficient mice')
+            end
+            
+            
+            
+            for bwii=1:4
+                subplot(1,4,bwii)
+                hold on
+                for ii=1:7
+                    [f_aic,x_aic] = drg_ecdf(aic((periis==perii)&(bwiis==bwii),ii));
+                    plot(x_aic,f_aic,these_colors{ii})
+                end
+                  
+            end
+            
+            
+        end
+
+
+        %We should use aic() Akaike's Information Criterion for estimated
         %model with either conc or spm
         %https://en.wikipedia.org/wiki/Akaike_information_criterion
         %This is working well with fitlm, but should we try fitglm?
         %https://www.mathworks.com/help/stats/generalized-linear-regression.html
+        %Should we make last rewarded 2 if the last two were rewarded?
+        
+        fprintf(1, '\n\n')
+
+        
+        save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
+        
+        
+        case 16
+        %Justin
+        %fitglm of delta power to: spm, concentration, previous reward, percent
+        %This does the analysis in all the files and DOES not distinguish between groups!!!
+        %https://en.wikipedia.org/wiki/Generalized_linear_model
+     
+
+
+
+        no_fitglms=0;
+        fitglm_results=[];
+        bar_lab = {'Proficient','Naive'};
+        
+        
+        fprintf(1, ['fitglm analysis for Justin''s paper\n\n'])
+        
+        no_files=length(files);
+        
+        if exist('which_electrodes')==0
+            which_electrodes=[1:16];
+        end
+        
+        
+        szpc=size(percent_windows);
+        for per_ii=1:szpc(1)
+            for bwii=1:no_bandwidths
+                for mouseNo=1:max(handles_drgb.drgbchoices.mouse_no)
+                    for elec=1:16
+                        if sum(which_electrodes==elec)>0
+                            
+                            no_fitglms=no_fitglms+1;
+                            fitglm_results(no_fitglms).per_ii=per_ii;
+                            fitglm_results(no_fitglms).mouseNo=mouseNo;
+                            fitglm_results(no_fitglms).elec=elec;
+                            fitglm_results(no_fitglms).no_trials=0;
+                            fitglm_results(no_fitglms).bwii=bwii;
+                            fitglm_results(no_fitglms).elec=elec;
+                            
+                            %For each electrode compute the delta dB and
+                            %input parameters for the fitglm
+                            for fileNo=1:no_files
+                                if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
+                                    lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                                    
+                                    if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
+                                        
+                                        
+                                        if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
+                                            
+                                            percent_mask=[];
+                                            percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
+                                                &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
+                                            
+                                            for evNo=1:length(eventType)
+                                                
+                                                trials_in_event_Ev=[];
+                                                trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
+                                                
+                                                if (sum(trials_in_event_Ev)>=1)
+                                                    
+                                                    lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                                    
+                                                    % Ev1
+                                                    this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
+                                                    this_dB_powerref(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_event_Ev,:));
+                                                    
+                                                    
+                                                    this_dB_power=zeros(sum(trials_in_event_Ev),length(frequency));
+                                                    this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event_Ev,:));
+                                                    
+
+                                                    this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                                    
+                                                    %Enter the  Ev1
+                                                    this_delta_dB_powerEv=zeros(sum(trials_in_event_Ev),1);
+                                                    this_delta_dB_powerEv=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
+                                                    
+                                                    fitglm_results(no_fitglms).concs(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
+                                                        handles_pars.concs(evNo);
+                                                    fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
+                                                        this_delta_dB_powerEv;
+                                                    
+                                                    fitglm_results(no_fitglms).percent(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
+                                                        handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower(trials_in_event_Ev);
+                                                    
+                                                    %Is this S= or S-?
+                                                    if evNo<=length(eventType)/2
+                                                        %This is S+
+                                                        fitglm_results(no_fitglms).spm(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
+                                                            ones(1,sum(trials_in_event_Ev));
+                                                    else
+                                                        %This is S-
+                                                        fitglm_results(no_fitglms).spm(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
+                                                            zeros(1,sum(trials_in_event_Ev));
+                                                    end
+                                                    
+                                                    %Was the mouse rewarded
+                                                    %in the last trial?
+                                                    Hit_trials=[];
+                                                    Hit_trials=handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(2,:)==1;
+                                                    last_Hit_trials=zeros(1,length(Hit_trials));
+                                                    last_Hit_trials(2:end)=Hit_trials(1:end-1);
+                                                    fitglm_results(no_fitglms).last_rewarded(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
+                                                        last_Hit_trials(trials_in_event_Ev);
+                                                    fitglm_results(no_fitglms).no_trials=fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev);
+
+                                                    fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), evNo,files(fileNo),elec);
+                                                end
+                                                
+                                            end
+                                        else
+                                            
+                                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                                            
+                                            
+                                        end
+                                        
+                                        
+                                    else
+                                        fprintf(1, ['Empty LFP reference for file No %d electrode %d\n'],files(fileNo),elec);
+                                        
+                                        
+                                    end
+                                    
+                                    
+                                end
+                            end %file No
+                            
+                            %For each electrode compute the fitglm
+                            %Do fitglm
+ 
+                            
+                            % Store the variables in a table.
+                            tbl = table(fitglm_results(no_fitglms).delta_dB_Power',fitglm_results(no_fitglms).concs',fitglm_results(no_fitglms).spm',fitglm_results(no_fitglms).last_rewarded','VariableNames',{'delta_dB','log10_Odor_Concentration','spm','was_last_rewarded'});
+                            
+                            % Fit a linear regression model
+                            fitglm_results(no_fitglms).lm = fitglm(tbl,'delta_dB~log10_Odor_Concentration+spm+was_last_rewarded');
+                            
+                            %Save the two p values for concentration and
+                            %spm
+                            fitglm_results(no_fitglms).p_val_conc=fitglm_results(no_fitglms).lm.Coefficients{2,4};
+                            fitglm_results(no_fitglms).p_val_spm=fitglm_results(no_fitglms).lm.Coefficients{3,4};
+                            fitglm_results(no_fitglms).p_val_last_reward=fitglm_results(no_fitglms).lm.Coefficients{4,4};
+                            fitglm_results(no_fitglms).AIC(7)=fitglm_results(no_fitglms).lm.ModelCriterion.AIC;
+                            fitglm_results(no_fitglms).BIC(7)=fitglm_results(no_fitglms).lm.ModelCriterion.BIC;
+                             
+                            % Fit a linear regression model for delta_dB~log10_Odor_Concentration+was_last_rewarded
+                            lm = fitglm(tbl,'delta_dB~log10_Odor_Concentration+was_last_rewarded');
+                            fitglm_results(no_fitglms).AIC(6)=lm.ModelCriterion.AIC;
+                            fitglm_results(no_fitglms).BIC(6)=lm.ModelCriterion.BIC;
+                            
+                             % Fit a linear regression model for spm+was_last_rewarded
+                            lm = fitglm(tbl,'delta_dB~spm+was_last_rewarded');
+                            fitglm_results(no_fitglms).AIC(5)=lm.ModelCriterion.AIC;
+                            fitglm_results(no_fitglms).BIC(5)=lm.ModelCriterion.BIC;
+                            
+                             % Fit a linear regression model for delta_dB~log10_Odor_Concentration+spm
+                            lm = fitglm(tbl,'delta_dB~log10_Odor_Concentration+spm');
+                            fitglm_results(no_fitglms).AIC(4)=lm.ModelCriterion.AIC;
+                            fitglm_results(no_fitglms).BIC(4)=lm.ModelCriterion.BIC;
+                            
+                            % Fit a linear regression model for last
+                            % rewarded
+                            lm = fitglm(tbl,'delta_dB~was_last_rewarded');
+                            fitglm_results(no_fitglms).AIC(3)=lm.ModelCriterion.AIC;
+                            fitglm_results(no_fitglms).BIC(3)=lm.ModelCriterion.BIC;
+                            
+                            % Fit a linear regression model for spm
+                            lm = fitglm(tbl,'delta_dB~spm');
+                            fitglm_results(no_fitglms).AIC(2)=lm.ModelCriterion.AIC;
+                            fitglm_results(no_fitglms).BIC(2)=lm.ModelCriterion.BIC;
+                            
+                          % Fit a linear regression model for conc
+                            lm = fitglm(tbl,'delta_dB~log10_Odor_Concentration');
+                            fitglm_results(no_fitglms).AIC(1)=lm.ModelCriterion.AIC;
+                            fitglm_results(no_fitglms).BIC(1)=lm.ModelCriterion.BIC;
+                            
+                            %Plot dB power for each electrode
+                            try
+                                close(1)
+                            catch
+                            end
+                            hFig1=figure(1);
+                            set(hFig1, 'units','normalized','position',[.07 .1 .75 .3])
+                            
+                            subplot(1,3,1)
+                            plot(fitglm_results(no_fitglms).concs',fitglm_results(no_fitglms).delta_dB_Power','ob')
+                            minc=min(fitglm_results(no_fitglms).concs');
+                            mindB=lm.Coefficients{1,1}+(lm.Coefficients{2,1})*minc;
+                            maxc=max(fitglm_results(no_fitglms).concs');
+                            maxdB=lm.Coefficients{1,1}+(lm.Coefficients{2,1})*maxc;
+                            hold on
+                            plot([minc maxc],[mindB maxdB],'-r')
+                            xlabel('log(concentration)')
+                            ylabel('dB power')
+                            
+                            subplot(1,3,2)
+                            plot(fitglm_results(no_fitglms).spm',fitglm_results(no_fitglms).delta_dB_Power','ob')
+                            hold on
+                            %Splus bar
+                            bar(1,mean(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).spm==1)))
+                            %Confidence intervals
+                            SEMsp = std(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).spm==1))...
+                                /sqrt(length(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).spm==1)));               % Standard Error
+                            tssp = tinv([0.05  0.95],sum(fitglm_results(no_fitglms).spm==1)-1);      % T-Score
+                            CIsp = mean(mean(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).spm==1))) + tssp*SEMsp;
+                            plot([1 1],CIsp,'-r','Linewidth',3)
+                            %Sminus bar
+                            bar(0,mean(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).spm==0)))% Confidence Intervals
+                            %Confidence intervals
+                            SEMsm = std(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).spm==0))...
+                                /sqrt(length(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).spm==0)));               % Standard Error
+                            tssm = tinv([0.05  0.95],sum(fitglm_results(no_fitglms).spm==0)-1);      % T-Score
+                            CIsm = mean(mean(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).spm==0))) + tssp*SEMsp;
+                            plot([0 0],CIsm,'-r','Linewidth',3)
+                            xlabel('S= or S-')
+                            ylabel('db power')
+                            title(['no_fitglms ' num2str(no_fitglms)])
+                            
+                            %last_rewarded
+                            subplot(1,3,3)
+                            plot(fitglm_results(no_fitglms).last_rewarded',fitglm_results(no_fitglms).delta_dB_Power','ob')
+                            hold on
+                            %Not rewarded bar
+                            bar(1,mean(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).last_rewarded==1)))
+                            %Confidence intervals
+                            SEMsp = std(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).last_rewarded==1))...
+                                /sqrt(length(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).last_rewarded==1)));               % Standard Error
+                            tssp = tinv([0.05  0.95],sum(fitglm_results(no_fitglms).last_rewarded==1)-1);      % T-Score
+                            CIsp = mean(mean(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).last_rewarded==1))) + tssp*SEMsp;
+                            plot([1 1],CIsp,'-r','Linewidth',3)
+                            %Rewarded bar
+                            bar(0,mean(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).last_rewarded==0)))% Confidence Intervals
+                            %Confidence intervals
+                            SEMsm = std(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).last_rewarded==0))...
+                                /sqrt(length(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).last_rewarded==0)));               % Standard Error
+                            tssm = tinv([0.05  0.95],sum(fitglm_results(no_fitglms).last_rewarded==0)-1);      % T-Score
+                            CIsm = mean(mean(fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).last_rewarded==0))) + tssp*SEMsp;
+                            plot([0 0],CIsm,'-r','Linewidth',3)
+                            
+                            
+                            xlabel('Last rewarded')
+                            ylabel('db power')
+                            
+                            pfft=1;
+                            
+                        end
+                        
+                    end
+                end %mouseNo
+               
+            end %bandwidth
+        end %end perii
+        
+        %Now parse through the p values
+        for ii=1:no_fitglms
+            periis(ii)=fitglm_results(ii).per_ii;
+            bwiis(ii)=fitglm_results(ii).bwii;
+            pvc(ii)=fitglm_results(ii).p_val_conc;
+            pvspm(ii)=fitglm_results(ii).p_val_spm;
+            pv_last_rewards(ii)=fitglm_results(ii).p_val_last_reward;
+            for jj=1:7
+               aic(ii,jj)=fitglm_results(ii).AIC(jj); 
+               bic(ii,jj)=fitglm_results(ii).BIC(jj); 
+            end
+        end
+        
+        %Plot a bar graph showing the percent of significant estimated coefficents for the fitglm regression model
+        try
+            close(2)
+        catch
+        end
+        hFig2=figure(2);
+        hold on
+        
+        xpos=0;
+        for perii=1:2
+           for bwii=1:4
+               %Concentration dependence
+               percent_sig_conc=100*sum(pvc((periis==perii)&(bwiis==bwii))<=0.05)/sum((periis==perii)&(bwiis==bwii));
+                fprintf(1, ['percent significant for dependence of delta dB on concentration for ' freq_names{bwii} ' ' bar_lab{perii} '= %d, n= %d\n' ]...
+                    ,percent_sig_conc,sum((periis==perii)&(bwiis==bwii)));
+                xpos=xpos+1;
+                bar(xpos,percent_sig_conc,'b')
+                
+                %spm dependence
+                percent_sig_spm=100*sum(pvspm((periis==perii)&(bwiis==bwii))<=0.05)/sum((periis==perii)&(bwiis==bwii));
+                fprintf(1, ['percent significant for dependence of delta dB on spm for ' freq_names{bwii} ' ' bar_lab{perii} '= %d, n= %d\n' ]...
+                    ,percent_sig_spm,sum((periis==perii)&(bwiis==bwii)));
+                xpos=xpos+1;
+                bar(xpos,percent_sig_spm,'r')
+                
+                %last reward
+                percent_sig_last=100*sum(pv_last_rewards((periis==perii)&(bwiis==bwii))<=0.05)/sum((periis==perii)&(bwiis==bwii));
+                fprintf(1, ['percent significant for dependence of delta dB on last_rewards for ' freq_names{bwii} ' ' bar_lab{perii} '= %d, n= %d\n\n' ]...
+                    ,percent_sig_last,sum((periis==perii)&(bwiis==bwii)));
+                 xpos=xpos+1;
+                bar(xpos,percent_sig_last,'m')
+                xpos=xpos+2;
+           end
+           xpos=xpos+4;
+        end
+        
+        title('blue=concentration, red=spm, magenta=last reward, proficient left, naive right') 
+        ylabel('Percent significant regression coefficients')
+        
+        %Plot AICs
+        figNo=2;
+        for perii=1:2
+            figNo=figNo+1;
+            try
+                close(figNo)
+            catch
+            end
+            hFig2=figure(figNo);
+            
+            if perii==1
+                title('AICs for naive mice')
+            else
+                title('AICs for proficient mice')
+            end
+            
+            
+            
+            for bwii=1:4
+                subplot(1,4,bwii)
+                hold on
+                for ii=1:7
+                    [f_aic,x_aic] = drg_ecdf(aic((periis==perii)&(bwiis==bwii),ii));
+                    plot(x_aic,f_aic,these_colors{ii})
+                end
+                  
+            end
+            
+            
+        end
+
+
+        %We should use aic() Akaike's Information Criterion for estimated
+        %model with either conc or spm
+        %https://en.wikipedia.org/wiki/Akaike_information_criterion
+        %This is working well with fitglm, but should we try fitglm?
+        %https://www.mathworks.com/help/stats/generalized-linear-regression.html
+        %Should we make last rewarded 2 if the last two were rewarded?
         
         fprintf(1, '\n\n')
 

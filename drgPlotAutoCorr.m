@@ -8,8 +8,8 @@ sessionNo=handles.drg.unit(handles.unitNo).sessionNo;
 firstTr=handles.trialNo;
 lastTr=handles.lastTrialNo;
 
-bin_size=0.002;
-auto_width=0.05;
+bin_size=0.001;
+auto_width=0.02;
 nobins=fix(2*(auto_width/bin_size));
 delta_times=[-auto_width+bin_size/2:bin_size:auto_width-bin_size/2];
 noTrials=0;

@@ -22,7 +22,7 @@ function varargout = drgMaster(varargin)
 
 % Edit the above text to modify the response to help drgMaster
 
-% Last Modified by GUIDE v2.5 30-Apr-2017 10:59:21
+% Last Modified by GUIDE v2.5 19-Jul-2018 08:54:30
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -91,6 +91,7 @@ handles.phaseHz=10;
 handles.unitNo=1;
 handles.analysisNoBeh=1;
 handles.notch60=0;
+handles.notch50=0;
 handles.displayData=1;
 handles.save_drgb=0;
 handles.save_events=0;
@@ -1145,3 +1146,17 @@ function corr_window_CreateFcn(hObject, eventdata, handles)
 if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
     set(hObject,'BackgroundColor','white');
 end
+
+
+% --- Executes on button press in is_50Hz_notch_filter_on.
+function is_50Hz_notch_filter_on_Callback(hObject, eventdata, handles)
+% hObject    handle to is_50Hz_notch_filter_on (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of is_50Hz_notch_filter_on
+
+% Hint: get(hObject,'Value') returns toggle state of is60HzNotchOn
+handles.notch50=get(hObject,'Value');
+% Update the handles structure
+guidata(hObject, handles);

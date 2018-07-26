@@ -47,6 +47,13 @@ try
         data=filtfilt(notch60HzFilt,data);
     end
     
+    if handles.notch50==1
+        notch50HzFilt = designfilt('bandstopiir','FilterOrder',2, ...
+            'HalfPowerFrequency1',49,'HalfPowerFrequency2',51, ...
+            'DesignMethod','butter','SampleRate',floor(handles.drg.session(sessionNo).draq_p.ActualRate));
+        data=filtfilt(notch50HzFilt,data);
+    end
+    
     %Get the data
     ii_from=floor(((handles.drg.session(sessionNo).events(evTypeNo).times(evNo)-handles.drg.session(sessionNo).trial_start(trialNo))+time_start)...
         *handles.drg.draq_p.ActualRate+1);

@@ -5,4 +5,6 @@ switch handles.analysisNoOsc
         drgLFPspikeTrigPerTr(handles)
     case 2
         handles=drgSpikePhase(handles);
+    case 3
+        drgSpikeShape(handles)
 end

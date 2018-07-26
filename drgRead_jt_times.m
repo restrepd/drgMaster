@@ -341,6 +341,7 @@ for unitNo=1:numUnits
     
     %Do OdorOn
     evTypeNo=2; %This is odorOn
+    
     for evNo=1:drg.session(filNum).events(evTypeNo).noTimes
         
         %Get an S+ trial
@@ -392,6 +393,7 @@ for unitNo=1:numUnits
         end
         
     end
+   
     %
     %         %Do S+
     %         evTypeNo=5; %This is S+

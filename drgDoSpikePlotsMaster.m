@@ -21,4 +21,6 @@ switch handles.analysisNoSpikes
         drgPlotPSTHEv1vs2Fct(handles)
     case 10
         drgPlotPSTH_in_phase_Ev1vs2Fct(handles)
+    case 11
+        drgPlotISIhisto(handles)
 end
