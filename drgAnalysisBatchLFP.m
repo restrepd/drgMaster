@@ -45,9 +45,11 @@ function drgAnalysisBatchLFP(handles)
 % 14  Justin's analysis of LFP power differences for naive and proficient
 % mice. Analyzed per mouse
 %
-% 15  Justin's fitglm analysis of LFP power differences for naive and proficient
+% 15  Justin's fitlm analysis of LFP power differences for naive and proficient
 % mice. Analyzed per mouse
-
+%
+% 16  Justin's fitglm analysis of LFP power differences for naive and proficient
+% mice. Analyzed per mouse
 
 
 %% Read the BatchParameters
@@ -112,6 +114,9 @@ if isfield(handles_pars,'files')
 end
 if isfield(handles_pars,'concs2')
     concs2=handles_pars.concs2;
+end
+if isfield(handles_pars,'per_lab')
+    per_lab=handles_pars.per_lab;
 end
 
 if ~isfield(handles_pars,'no_bandwidths')
@@ -3559,7 +3564,7 @@ case 9
             
             xlabel('auROC')
             ylabel('# of electrodes')
-            legend(file_label{1},file_label{2})
+%             legend(file_label{1},file_label{2})
             title(['auROC for ' freq_names{bwii}])
             xlim([-0.3 0.6])
             ylim([0 80])
@@ -4192,7 +4197,7 @@ case 9
         pffft=1;    
         
      case 12
-       %Justin
+        %Justin's concentration dependence per session
         %Generate Fig. 2  for Daniels' LFP power paper. For the proficient mice in the first and last sessions
         %plot the LFP spectrum for S+ vs S-, plot LFP power for S+ vs S- for each electrode and plot auROCs
         %NOTE: This does the analysis in all the files and DOES not distinguish between groups!!!
@@ -4221,140 +4226,141 @@ case 9
         no_ROCs=0;
         
         for fileNo=1:no_files
-            for elec=1:16
-                if sum(which_electrodes==elec)>0
-                    lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
-                    
-                    if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
+            if sum(files==fileNo)>0
+                for elec=1:16
+                    if sum(which_electrodes==elec)>0
+                        lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
                         
-                        
-                        if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
-                            szpc=size(percent_windows);
-                            for per_ii=1:szpc(1)
-                                percent_mask=[];
-                                percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
-                                    &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
-                                
-                                theseEvNos=[];
-                                for evNo=1:length(eventType)
+                        if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
+                            
+                            
+                            if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
+                                szpc=size(percent_windows);
+                                for per_ii=1:szpc(1)
+                                    percent_mask=[];
+                                    percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
+                                        &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
                                     
-                                    noWB_for_evNo(evNo)=-1;
-                                    
-                                    trials_in_event_Ev=[];
-                                    trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
-                                    
-                                    if (sum(trials_in_event_Ev)>=min_trials_per_event)
+                                    theseEvNos=[];
+                                    for evNo=1:length(eventType)
                                         
-                                        lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                        noWB_for_evNo(evNo)=-1;
                                         
-                                        % Ev1
-                                        this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
-                                        this_dB_powerref(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_event_Ev,:));
+                                        trials_in_event_Ev=[];
+                                        trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
                                         
-                                        
-                                        this_dB_power=zeros(sum(trials_in_event_Ev),length(frequency));
-                                        this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event_Ev,:));
-                                        
-                                        %Wide band spectrum
-                                        evNo_out(evNo).noWB=evNo_out(evNo).noWB+1;
-                                        evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).noWB,1:length(frequency))=mean(this_dB_power-this_dB_powerref,1);
-                                        evNo_out(evNo).per_ii(evNo_out(evNo).noWB)=per_ii;
-                                        
-                                        noWB_for_evNo(evNo)=evNo_out(evNo).noWB;
-                                        
-                                        %Do per bandwidth analysis
-                                        for bwii=1:no_bandwidths
+                                        if (sum(trials_in_event_Ev)>=min_trials_per_event)
                                             
-                                            this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                            lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
                                             
-                                            %Enter the  Ev1
-                                            this_delta_dB_powerEv=zeros(sum(trials_in_event_Ev),1);
-                                            this_delta_dB_powerEv=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
-                                            theseEvNos(evNo,bwii).this_delta_dB_powerEv=this_delta_dB_powerEv;
-                                            evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)=mean(this_delta_dB_powerEv);
-                                            if evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)<-20
-                                                 fprintf(1, ['mean dB less than -20 dB in file no %d, electrode %d\n'],files(fileNo),elec);
+                                            % Ev1
+                                            this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
+                                            this_dB_powerref(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_event_Ev,:));
+                                            
+                                            
+                                            this_dB_power=zeros(sum(trials_in_event_Ev),length(frequency));
+                                            this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event_Ev,:));
+                                            
+                                            %Wide band spectrum
+                                            evNo_out(evNo).noWB=evNo_out(evNo).noWB+1;
+                                            evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).noWB,1:length(frequency))=mean(this_dB_power-this_dB_powerref,1);
+                                            evNo_out(evNo).per_ii(evNo_out(evNo).noWB)=per_ii;
+                                            
+                                            noWB_for_evNo(evNo)=evNo_out(evNo).noWB;
+                                            
+                                            %Do per bandwidth analysis
+                                            for bwii=1:no_bandwidths
+                                                
+                                                this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                                
+                                                %Enter the  Ev1
+                                                this_delta_dB_powerEv=zeros(sum(trials_in_event_Ev),1);
+                                                this_delta_dB_powerEv=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
+                                                theseEvNos(evNo,bwii).this_delta_dB_powerEv=this_delta_dB_powerEv;
+                                                evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)=mean(this_delta_dB_powerEv);
+                                                if evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)<-20
+                                                    fprintf(1, ['mean dB less than -20 dB in file no %d, electrode %d\n'],files(fileNo),elec);
+                                                end
+                                                
                                             end
+                                            
+                                            
+                                            fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
+                                            
+                                        else
+                                            
+                                            
+                                            fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
+                                            
                                             
                                         end
                                         
                                         
-                                        fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
-                                        
-                                    else
-                                        
-                                        
-                                        fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
-                                        
-                                        
                                     end
                                     
-                                    
-                                end
-                                
-                                for evNo1=1:length(eventType)
-                                    for evNo2=evNo1+1:length(eventType)
-                                        if (noWB_for_evNo(evNo1)~=-1)&(noWB_for_evNo(evNo2)~=-1)
-                                            
-                                            for bwii=1:4
+                                    for evNo1=1:length(eventType)
+                                        for evNo2=evNo1+1:length(eventType)
+                                            if (noWB_for_evNo(evNo1)~=-1)&(noWB_for_evNo(evNo2)~=-1)
                                                 
-                                                %Enter Ev1
-                                                trials_in_event_Ev1=length(theseEvNos(evNo1,bwii).this_delta_dB_powerEv);
-                                                this_delta_dB_powerEv1=zeros(trials_in_event_Ev1,1);
-                                                this_delta_dB_powerEv1=theseEvNos(evNo1,bwii).this_delta_dB_powerEv;
-                                                roc_data=[];
-                                                roc_data(1:sum(trials_in_event_Ev1),1)=this_delta_dB_powerEv1;
-                                                roc_data(1:sum(trials_in_event_Ev1),2)=zeros(sum(trials_in_event_Ev1),1);
-                                                
-                                                %Enter Ev2
-                                                trials_in_event_Ev2=length(theseEvNos(evNo2,bwii).this_delta_dB_powerEv);
-                                                total_trials=trials_in_event_Ev1+trials_in_event_Ev2;
-                                                this_delta_dB_powerEv2=zeros(trials_in_event_Ev2,1);
-                                                this_delta_dB_powerEv2=theseEvNos(evNo2,bwii).this_delta_dB_powerEv;
-                                                roc_data(sum(trials_in_event_Ev1)+1:total_trials,1)=this_delta_dB_powerEv2;
-                                                roc_data(sum(trials_in_event_Ev1)+1:total_trials,2)=ones(sum(trials_in_event_Ev2),1);
-                                                
-                                                
-                                                %Find  ROC
-                                                if (trials_in_event_Ev1>=5)&(trials_in_event_Ev2>=5)
-                                                    no_ROCs=no_ROCs+1;
-                                                    roc=roc_calc(roc_data,0,0.05,0);
-                                                    ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo_ref).fileNo;
-                                                    ROCelec(no_ROCs)=elec;
-                                                    ROCbandwidth(no_ROCs)=bwii;
-                                                    ROCper_ii(no_ROCs)=per_ii;
-                                                    ROCEvNo1(no_ROCs)=evNo1;
-                                                    ROCEvNo2(no_ROCs)=evNo2;
-                                                    auROC(no_ROCs)=roc.AUC-0.5;
-                                                    p_valROC(no_ROCs)=roc.p;
+                                                for bwii=1:4
                                                     
-                                                    p_vals_ROC=[p_vals_ROC roc.p];
+                                                    %Enter Ev1
+                                                    trials_in_event_Ev1=length(theseEvNos(evNo1,bwii).this_delta_dB_powerEv);
+                                                    this_delta_dB_powerEv1=zeros(trials_in_event_Ev1,1);
+                                                    this_delta_dB_powerEv1=theseEvNos(evNo1,bwii).this_delta_dB_powerEv;
+                                                    roc_data=[];
+                                                    roc_data(1:sum(trials_in_event_Ev1),1)=this_delta_dB_powerEv1;
+                                                    roc_data(1:sum(trials_in_event_Ev1),2)=zeros(sum(trials_in_event_Ev1),1);
+                                                    
+                                                    %Enter Ev2
+                                                    trials_in_event_Ev2=length(theseEvNos(evNo2,bwii).this_delta_dB_powerEv);
+                                                    total_trials=trials_in_event_Ev1+trials_in_event_Ev2;
+                                                    this_delta_dB_powerEv2=zeros(trials_in_event_Ev2,1);
+                                                    this_delta_dB_powerEv2=theseEvNos(evNo2,bwii).this_delta_dB_powerEv;
+                                                    roc_data(sum(trials_in_event_Ev1)+1:total_trials,1)=this_delta_dB_powerEv2;
+                                                    roc_data(sum(trials_in_event_Ev1)+1:total_trials,2)=ones(sum(trials_in_event_Ev2),1);
+                                                    
+                                                    
+                                                    %Find  ROC
+                                                    if (trials_in_event_Ev1>=5)&(trials_in_event_Ev2>=5)
+                                                        no_ROCs=no_ROCs+1;
+                                                        roc=roc_calc(roc_data,0,0.05,0);
+                                                        ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo_ref).fileNo;
+                                                        ROCelec(no_ROCs)=elec;
+                                                        ROCbandwidth(no_ROCs)=bwii;
+                                                        ROCper_ii(no_ROCs)=per_ii;
+                                                        ROCEvNo1(no_ROCs)=evNo1;
+                                                        ROCEvNo2(no_ROCs)=evNo2;
+                                                        auROC(no_ROCs)=roc.AUC-0.5;
+                                                        p_valROC(no_ROCs)=roc.p;
+                                                        
+                                                        p_vals_ROC=[p_vals_ROC roc.p];
+                                                    end
                                                 end
                                             end
                                         end
                                     end
+                                    
+                                    
+                                    
+                                    
+                                    
                                 end
+                            else
                                 
-                                
-                                
-                                
+                                fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
                                 
                             end
-                        else
                             
-                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                            
+                        else
+                            fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],files(fileNo),elec);
+                            
                             
                         end
-                        
-                        
-                    else
-                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],files(fileNo),elec);
-                        
-                        
                     end
                 end
             end
-            
         end
         fprintf(1, '\n\n')
         
@@ -4404,7 +4410,7 @@ case 9
         ylim([-20 20])
         
         fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
-        bar_lab = {'Naive','Proficient'};
+        
         
         %Now plot the histograms and the average
         for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
@@ -4443,7 +4449,7 @@ case 9
                         end
                         conc=[conc evNo*ones(1,evNo_out(evNo).noWB)];
               
-                    annotation('textbox',conc_anno_loc{per_ii},'String',bar_lab(per_ii),'Color',these_colors{per_ii},'EdgeColor','none');
+                    annotation('textbox',conc_anno_loc{per_ii},'String',per_lab(per_ii),'Color',these_colors{per_ii},'EdgeColor','none');
                 end
             end
             title(freq_names{bwii})            
@@ -4526,7 +4532,7 @@ case 9
                 yticks([1.5:1:length(eventType)+1])
                 yticklabels(handles_pars.concs2)
                 
-                title(['Percent auROC significantly different from zero ' freq_names{bwii} ' ' bar_lab(pcii)])
+                title(['Percent auROC significantly different from zero ' freq_names{bwii} ' ' per_lab(pcii)])
                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
                 
                 pfft=1
@@ -4566,7 +4572,6 @@ case 9
         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
         
     case 13
-        
         %Compare auROC for ERP wavelet LFP power between two percent correct
         %windows at different ERP delta t values
         no_dBs=1;
@@ -4890,8 +4895,8 @@ case 9
     
         
     case 14
-        %Justin
-        %Generate Fig. 2  for Daniels' LFP power paper. For the proficient mice in the first and last sessions
+        %Justin's per mouse analysis
+        %For the proficient mice in the first and last sessions
         %plot the LFP spectrum for S+ vs S-, plot LFP power for S+ vs S- for each electrode and plot auROCs
         %NOTE: This does the analysis in all the files and DOES not distinguish between groups!!!
         no_dBs=1;
@@ -4935,94 +4940,97 @@ case 9
                         end
                         
                         for fileNo=1:no_files
-                            if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
-                                lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
-                                
-                                if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
+                            if sum(files==fileNo)>0
+                                if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
+                                    lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
                                     
-                                    
-                                    if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
-                                        
-                                        percent_mask=[];
-                                        percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
-                                            &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
+                                    if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
                                         
                                         
-                                        for evNo=1:length(eventType)
+                                        if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
                                             
-                                            noWB_for_evNo(evNo)=-1;
+                                            percent_mask=[];
+                                            percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
+                                                &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
                                             
-                                            trials_in_event_Ev=[];
-                                            trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
                                             
-                                            if (sum(trials_in_event_Ev)>=1)
+                                            for evNo=1:length(eventType)
                                                 
-                                                lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                                noWB_for_evNo(evNo)=-1;
                                                 
-                                                % Ev1
-                                                this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
-                                                this_dB_powerref(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_event_Ev,:));
+                                                trials_in_event_Ev=[];
+                                                trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
                                                 
-                                                
-                                                this_dB_power=zeros(sum(trials_in_event_Ev),length(frequency));
-                                                this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event_Ev,:));
-                                                
-                                                %Wide band spectrum
-                                                evNo_out(evNo).noWB=evNo_out(evNo).noWB+1;
-                                                evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).noWB,1:length(frequency))=mean(this_dB_power-this_dB_powerref,1);
-                                                evNo_out(evNo).per_ii(evNo_out(evNo).noWB)=per_ii;
-                                                
-                                                noWB_for_evNo(evNo)=evNo_out(evNo).noWB;
-                                                
-                                                %Do per bandwidth analysis
-                                                for bwii=1:no_bandwidths
+                                                if (sum(trials_in_event_Ev)>=1)
                                                     
-                                                    this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                                    lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
                                                     
-                                                    %Enter the  Ev1
-                                                    this_delta_dB_powerEv=zeros(sum(trials_in_event_Ev),1);
-                                                    this_delta_dB_powerEv=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
+                                                    % Ev1
+                                                    this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
+                                                    this_dB_powerref(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_event_Ev,:));
                                                     
-                                                    theseEvNos(evNo,bwii).this_delta_dB_powerEv(theseEvNos(evNo,bwii).noEv+1:theseEvNos(evNo,bwii).noEv+sum(trials_in_event_Ev))=this_delta_dB_powerEv;
                                                     
-                                                    theseEvNos(evNo,bwii).noEv=theseEvNos(evNo,bwii).noEv+sum(trials_in_event_Ev);
+                                                    this_dB_power=zeros(sum(trials_in_event_Ev),length(frequency));
+                                                    this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event_Ev,:));
                                                     
-                                                                                                         evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)=mean(this_delta_dB_powerEv);
-                                                    %                                                     if evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)<-20
-                                                    %                                                         fprintf(1, ['mean dB less than -20 dB in file no %d, electrode %d\n'],files(fileNo),elec);
-                                                    %                                                     end
+                                                    %Wide band spectrum
+                                                    evNo_out(evNo).noWB=evNo_out(evNo).noWB+1;
+                                                    evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).noWB,1:length(frequency))=mean(this_dB_power-this_dB_powerref,1);
+                                                    evNo_out(evNo).per_ii(evNo_out(evNo).noWB)=per_ii;
+                                                    
+                                                    noWB_for_evNo(evNo)=evNo_out(evNo).noWB;
+                                                    
+                                                    %Do per bandwidth analysis
+                                                    for bwii=1:no_bandwidths
+                                                        
+                                                        this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                                        
+                                                        %Enter the  Ev1
+                                                        this_delta_dB_powerEv=zeros(sum(trials_in_event_Ev),1);
+                                                        this_delta_dB_powerEv=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
+                                                        
+                                                        theseEvNos(evNo,bwii).this_delta_dB_powerEv(theseEvNos(evNo,bwii).noEv+1:theseEvNos(evNo,bwii).noEv+sum(trials_in_event_Ev))=this_delta_dB_powerEv;
+                                                        
+                                                        theseEvNos(evNo,bwii).noEv=theseEvNos(evNo,bwii).noEv+sum(trials_in_event_Ev);
+                                                        
+                                                        evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)=mean(this_delta_dB_powerEv);
+                                                        %                                                     if evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)<-20
+                                                        %                                                         fprintf(1, ['mean dB less than -20 dB in file no %d, electrode %d\n'],files(fileNo),elec);
+                                                        %                                                     end
+                                                        
+                                                    end
+                                                    
+                                                    
+                                                    fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
+                                                    
+                                                else
+                                                    
+                                                    
+                                                    fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
+                                                    
                                                     
                                                 end
-                                                
-                                                
-                                                fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
-                                                
-                                            else
-                                                
-                                                
-                                                fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
                                                 
                                                 
                                             end
                                             
                                             
+                                        else
+                                            
+                                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                                            
                                         end
                                         
                                         
                                     else
+                                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],files(fileNo),elec);
                                         
-                                        fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
                                         
                                     end
-                                    
-                                    
-                                else
-                                    fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],files(fileNo),elec);
-                                    
-                                    
-                                end
-                            end %if mouseNo
+                                end %if mouseNo
+                            end
                         end %fileNo
+                        
                         
                         
                         can_calculate_auroc=1;
@@ -5060,9 +5068,18 @@ case 9
                                                 ROCper_ii(no_ROCs)=per_ii;
                                                 ROCEvNo1(no_ROCs)=evNo1;
                                                 ROCEvNo2(no_ROCs)=evNo2;
+                                                if ((abs(evNo1-2)<=1)&(abs(evNo2-5)<=1))||((abs(evNo1-5)<=1)&(abs(evNo2-2)<=1))
+                                                  ROC_between(no_ROCs)=1;
+                                                else
+                                                  ROC_between(no_ROCs)=0; 
+                                                end
+                                                if abs(evNo1-evNo2)==1
+                                                    ROC_neighbor(no_ROCs)=1;
+                                                else
+                                                    ROC_neighbor(no_ROCs)=0;
+                                                end
                                                 auROC(no_ROCs)=roc.AUC-0.5;
                                                 p_valROC(no_ROCs)=roc.p;
-                                                
                                                 p_vals_ROC=[p_vals_ROC roc.p];
                                             end
                                         end
@@ -5087,57 +5104,59 @@ case 9
         fprintf(1, '\n\n')
 
         
-        %Now plot the bounded line for
-        
-        %Calculate and plot the mean and 95% CI for each event
-        figure(1)
-        conc_anno_loc = {[0.15 0.15 0.2 0.2], [0.15 0.15 0.2 0.17], [0.15 0.15 0.2 0.14], [0.15 0.15 0.2 0.11], [0.15 0.15 0.2 0.08], [0.15 0.15 0.2 0.05]};
-        for evNo=1:length(eventType)
-            dB_Ev_ci=zeros(length(frequency),2);
-            dB_Ev_mean=[];
-            CI=[];
-            dB_Ev_mean=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:));
-            CI = bootci(1000, {@mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:)},'type','cper');
-            [hl1, hp1] = boundedline(frequency,dB_Ev_mean', CI', these_colors{evNo});
-            annotation('textbox',conc_anno_loc{evNo},'String',evTypeLabels(evNo),'Color',these_colors{evNo},'EdgeColor','none');
-            %             rectangle('Position',[0.15 0.15 0.2 0.2],'FaceColor','w','EdgeColor','k');
-        end
-        
-        
-        xlabel('Frequency (Hz)')
-        ylabel('delta Power (dB)')
-        ylim([-20 20]);
-        title('Wideband spectrum proficient mice')
-        set(gcf,'OuterPosition',[93 36 576 513]);
-        set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-        
-        %Calculate and plot the mean and 95% CI for each event
-        figure(2)
-        for evNo=1:length(eventType)
-            dB_Ev_ci=zeros(length(frequency),2);
-            dB_Ev_mean=[];
-            dB_Ev_mean=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:));
-            CI = bootci(1000, {@mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:)},'type','cper');
-            [hl1, hp1] = boundedline(frequency,dB_Ev_mean', CI', these_colors{evNo});
-            annotation('textbox',conc_anno_loc{evNo},'String',evTypeLabels(evNo),'Color',these_colors{evNo},'EdgeColor','none');
-            rectangle('Position',[0.15 0.15 0.2 0.2],'FaceColor','w','EdgeColor','k');
-        end
-        
-        xlabel('Frequency (Hz)')
-        ylabel('delta Power (dB)')
-        ylim([-5 10]);
-        title('Wideband spectrum naive mice')
-        set(gcf,'OuterPosition',[93 550 576 513]);
-        set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-        ylim([-20 20])
-        
-        fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
-        bar_lab = {'Naive','Proficient'};
+%         %Wide band plots are not useful, and have been commented out 
+%         
+%         %Calculate and plot the mean and 95% CI for each event
+%         figure(1)
+%         conc_anno_loc = {[0.15 0.15 0.2 0.2], [0.15 0.15 0.2 0.17], [0.15 0.15 0.2 0.14], [0.15 0.15 0.2 0.11], [0.15 0.15 0.2 0.08], [0.15 0.15 0.2 0.05]};
+%         for evNo=1:length(eventType)
+%             dB_Ev_ci=zeros(length(frequency),2);
+%             dB_Ev_mean=[];
+%             CI=[];
+%             dB_Ev_mean=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:));
+%             CI = bootci(1000, {@mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==1,:)},'type','cper');
+%             [hl1, hp1] = boundedline(frequency,dB_Ev_mean', CI', these_colors{evNo});
+%             annotation('textbox',conc_anno_loc{evNo},'String',evTypeLabels(evNo),'Color',these_colors{evNo},'EdgeColor','none');
+%             %             rectangle('Position',[0.15 0.15 0.2 0.2],'FaceColor','w','EdgeColor','k');
+%         end
+%         
+%         
+%         xlabel('Frequency (Hz)')
+%         ylabel('delta Power (dB)')
+%         ylim([-20 20]);
+%         title('Wideband spectrum proficient mice')
+%         set(gcf,'OuterPosition',[93 36 576 513]);
+%         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+%         
+%         %Calculate and plot the mean and 95% CI for each event
+%         figure(2)
+%         for evNo=1:length(eventType)
+%             dB_Ev_ci=zeros(length(frequency),2);
+%             dB_Ev_mean=[];
+%             dB_Ev_mean=mean(evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:));
+%             CI = bootci(1000, {@mean, evNo_out(evNo).delta_dB_powerEvWB(evNo_out(evNo).per_ii==2,:)},'type','cper');
+%             [hl1, hp1] = boundedline(frequency,dB_Ev_mean', CI', these_colors{evNo});
+%             annotation('textbox',conc_anno_loc{evNo},'String',evTypeLabels(evNo),'Color',these_colors{evNo},'EdgeColor','none');
+%             rectangle('Position',[0.15 0.15 0.2 0.2],'FaceColor','w','EdgeColor','k');
+%         end
+%         
+%         xlabel('Frequency (Hz)')
+%         ylabel('delta Power (dB)')
+%         ylim([-5 10]);
+%         title('Wideband spectrum naive mice')
+%         set(gcf,'OuterPosition',[93 550 576 513]);
+%         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+%         ylim([-20 20])
+%         
+%         fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
+%         
         
         %Now plot the histograms and the average
+        conc_anno_loc = {[0.15 0.15 0.2 0.2], [0.15 0.15 0.2 0.17], [0.15 0.15 0.2 0.14], [0.15 0.15 0.2 0.11], [0.15 0.15 0.2 0.08], [0.15 0.15 0.2 0.05]};
+        fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
         for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
-            figure(bwii+2)
+            figure(bwii)
             
             set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
             hold on
@@ -5150,7 +5169,7 @@ case 9
                 
                 for per_ii=1:2      %performance bins. blue = naive, red = proficient
                     
-                    bar_offset=21-evNo*3+(per_ii-1);
+                    bar_offset=21-evNo*3+(2-per_ii);
                     if per_ii==1
                         bar(bar_offset,mean(evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).per_ii==per_ii,bwii)),'r','LineWidth', 3)
                     else
@@ -5171,7 +5190,7 @@ case 9
                     end
                     conc=[conc evNo*ones(1,evNo_out(evNo).noWB)];
                     
-                    annotation('textbox',conc_anno_loc{per_ii},'String',bar_lab(per_ii),'Color',these_colors{per_ii},'EdgeColor','none');
+                    annotation('textbox',conc_anno_loc{per_ii},'String',per_lab(per_ii),'Color',these_colors{3-per_ii},'EdgeColor','none');
                 end
             end
             title(freq_names{bwii})
@@ -5183,17 +5202,148 @@ case 9
             ylabel('Delta power (dB)')
             %             p=anovan(data_dB,{spm});
         end
-        
+         
         
         pFDRauROC=drsFDRpval(p_vals_ROC);
         fprintf(1, ['pFDR for auROC  = %d\n\n'],pFDRauROC);
-        %Plot cumulative histos for auROCs
         
+        %Plot cumulative histos for auROCs within vs between S+ and S-
+        for bwii=1:4
+            
+            
+            figNo = get(gcf,'Number')+1;
+            try
+                close(figNo)
+            catch
+            end
+            figure(figNo)
+            
+            hold on
+            
+            %Naive between
+            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)));
+            plot(x_aic,f_aic,'b')
+            
+            %Proficient between
+            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)));
+            plot(x_aic,f_aic,'r')
+            
+            %Naive within
+            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)));
+            plot(x_aic,f_aic,'Color',[0.8 0.8 1])
+            
+            %Proficient within
+            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)));
+            plot(x_aic,f_aic,'Color',[1 0.8 0.8])
+            
+            legend('Naive between','Proficient between','Naive within','Proficient within')
+            xlabel('auROC')
+            ylabel('Cumulative probability')
+            title(freq_names{bwii})
+            
+            %Save the data for anovan
+            data_auROC=[];
+            prof_naive=[];
+            between=[];
+            
+            %Naive between
+            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1))];
+            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)))];
+            between=[between ones(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)))];
+            
+            %Proficient between
+            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1))];
+            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)))];
+            between=[between ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)))];
+            
+            %Naive within
+            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0))];
+            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)))];
+            between=[between zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)))];
+            
+            %Proficient within
+            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0))];
+            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)))];
+            between=[between zeros(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)))];
+            
+            %Calculate anovan for inteaction
+            [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
+            fprintf(1, ['p value for anovan auROC for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
+            fprintf(1, ['p value for anovan auROC for within vs between for ' freq_names{bwii} '= %d \n'],  p(2));
+            p_anova_np(bwii)=p(1);
+            p_anova_wb(bwii)=p(2);
+        end
+        
+       %Plot cumulative histos for auROCs within vs between S+ and S- using
+       %only ROCs for adjacent concentrations
+        for bwii=1:4
+            
+            
+            figNo = get(gcf,'Number')+1;
+            try
+                close(figNo)
+            catch
+            end
+            figure(figNo)
+            
+            hold on
+            
+            %Naive between
+            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)));
+            plot(x_aic,f_aic,'b')
+            
+            %Proficient between
+            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)));
+            plot(x_aic,f_aic,'r')
+            
+            %Naive within
+            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)));
+            plot(x_aic,f_aic,'Color',[0.8 0.8 1])
+            
+            %Proficient within
+            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)));
+            plot(x_aic,f_aic,'Color',[1 0.8 0.8])
+            
+            legend('Naive between','Proficient between','Naive within','Proficient within')
+            xlabel('auROC')
+            ylabel('Cumulative probability')
+            title([freq_names{bwii} ' Adjacent concentrations'])
+            
+            %Save the data for anovan
+            data_auROC=[];
+            prof_naive=[];
+            between=[];
+            
+            %Naive between
+            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1))];
+            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))];
+            between=[between ones(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))];
+            
+            %Proficient between
+            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1&(ROC_neighbor==1)))];
+            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))];
+            between=[between ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))];
+            
+            %Naive within
+            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1))];
+            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))];
+            between=[between zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))];
+            
+            %Proficient within
+            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1))];
+            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))];
+            between=[between zeros(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))];
+            
+            %Calculate anovan for inteaction
+            [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
+            fprintf(1, ['p value for anovan auROC adjacent concentrations for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
+            fprintf(1, ['p value for anovan auROC adjacent concentrations  for within vs between for ' freq_names{bwii} '= %d \n'],  p(2));
+            p_anova_np_adj(bwii)=p(1);
+            p_anova_wb_adj(bwii)=p(2);
+        end
         
         
         %Plot percent significant ROC
-        
-        figNo=0;
         for bwii=1:4
             for pcii=1:szpc(1)
                 no_pairs=0;
@@ -5203,7 +5353,7 @@ case 9
                 for evNo1=1:length(eventType)
                     for evNo2=evNo1+1:length(eventType)
                         
-                        
+                     
                         no_pairs=no_pairs+1;
                         these_ROCs=(ROCbandwidth==bwii)&(ROCEvNo1==evNo1)&(ROCEvNo2==evNo2)&(ROCper_ii==pcii);
                         sig(no_pairs)=sum((p_valROC<=pFDRauROC)&these_ROCs);
@@ -5254,7 +5404,7 @@ case 9
                 yticks([1.5:1:length(eventType)+1])
                 yticklabels(handles_pars.concs2)
                 
-                title(['Percent auROC significantly different from zero ' freq_names{bwii} ' ' bar_lab(pcii)])
+                title(['Percent auROC significantly different from zero ' freq_names{bwii} ' ' per_lab(pcii)])
                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
                 
                 pfft=1 
@@ -5287,9 +5437,15 @@ case 9
             end
         end
         
-        pFDRchisq=drsFDRpval(pChiSq);
-        fprintf(1, ['pFDR for ChiSquared  = %d\n\n'],pFDRchisq);
+        try
+            pFDRchisq=drsFDRpval(pChiSq);
+            fprintf(1, ['pFDR for ChiSquared  = %d\n\n'],pFDRchisq);
+        catch
+        end
         
+        %We should add a bar graph to compare percent significant ROCs for
+        %within vs between (with/wo adjacency requirement)
+          
         pfft=1
         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
         
@@ -5303,7 +5459,7 @@ case 9
 
         no_fitlms=0;
         fitlm_results=[];
-        bar_lab = {'Proficient','Naive'};
+        
         
         
         fprintf(1, ['fitlm analysis for Justin''s paper\n\n'])
@@ -5333,90 +5489,92 @@ case 9
                             %For each electrode compute the delta dB and
                             %input parameters for the fitlm
                             for fileNo=1:no_files
-                                if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
-                                    lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
-                                    
-                                    if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
+                                if sum(files==fileNo)>0
+                                    if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
+                                        lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
                                         
-                                        
-                                        if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
+                                        if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
                                             
-                                            percent_mask=[];
-                                            percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
-                                                &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
                                             
-                                            for evNo=1:length(eventType)
+                                            if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
                                                 
-                                                trials_in_event_Ev=[];
-                                                trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
+                                                percent_mask=[];
+                                                percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
+                                                    &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
                                                 
-                                                if (sum(trials_in_event_Ev)>=1)
+                                                for evNo=1:length(eventType)
                                                     
-                                                    lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                                    trials_in_event_Ev=[];
+                                                    trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
                                                     
-                                                    % Ev1
-                                                    this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
-                                                    this_dB_powerref(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_event_Ev,:));
-                                                    
-                                                    
-                                                    this_dB_power=zeros(sum(trials_in_event_Ev),length(frequency));
-                                                    this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event_Ev,:));
-                                                    
-
-                                                    this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
-                                                    
-                                                    %Enter the  Ev1
-                                                    this_delta_dB_powerEv=zeros(sum(trials_in_event_Ev),1);
-                                                    this_delta_dB_powerEv=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
-                                                    
-                                                    fitlm_results(no_fitlms).concs(fitlm_results(no_fitlms).no_trials+1:fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev))=...
-                                                        handles_pars.concs(evNo);
-                                                    fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).no_trials+1:fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev))=...
-                                                        this_delta_dB_powerEv;
-                                                    
-                                                    fitlm_results(no_fitlms).percent(fitlm_results(no_fitlms).no_trials+1:fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev))=...
-                                                        handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower(trials_in_event_Ev);
-                                                    
-                                                    %Is this S= or S-?
-                                                    if evNo<=length(eventType)/2
-                                                        %This is S+
-                                                        fitlm_results(no_fitlms).spm(fitlm_results(no_fitlms).no_trials+1:fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev))=...
-                                                            ones(1,sum(trials_in_event_Ev));
-                                                    else
-                                                        %This is S-
-                                                        fitlm_results(no_fitlms).spm(fitlm_results(no_fitlms).no_trials+1:fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev))=...
-                                                            zeros(1,sum(trials_in_event_Ev));
+                                                    if (sum(trials_in_event_Ev)>=1)
+                                                        
+                                                        lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                                        
+                                                        % Ev1
+                                                        this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
+                                                        this_dB_powerref(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_event_Ev,:));
+                                                        
+                                                        
+                                                        this_dB_power=zeros(sum(trials_in_event_Ev),length(frequency));
+                                                        this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event_Ev,:));
+                                                        
+                                                        
+                                                        this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                                        
+                                                        %Enter the  Ev1
+                                                        this_delta_dB_powerEv=zeros(sum(trials_in_event_Ev),1);
+                                                        this_delta_dB_powerEv=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
+                                                        
+                                                        fitlm_results(no_fitlms).concs(fitlm_results(no_fitlms).no_trials+1:fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev))=...
+                                                            handles_pars.concs(evNo);
+                                                        fitlm_results(no_fitlms).delta_dB_Power(fitlm_results(no_fitlms).no_trials+1:fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev))=...
+                                                            this_delta_dB_powerEv;
+                                                        
+                                                        fitlm_results(no_fitlms).percent(fitlm_results(no_fitlms).no_trials+1:fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev))=...
+                                                            handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower(trials_in_event_Ev);
+                                                        
+                                                        %Is this S= or S-?
+                                                        if evNo<=length(eventType)/2
+                                                            %This is S+
+                                                            fitlm_results(no_fitlms).spm(fitlm_results(no_fitlms).no_trials+1:fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev))=...
+                                                                ones(1,sum(trials_in_event_Ev));
+                                                        else
+                                                            %This is S-
+                                                            fitlm_results(no_fitlms).spm(fitlm_results(no_fitlms).no_trials+1:fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev))=...
+                                                                zeros(1,sum(trials_in_event_Ev));
+                                                        end
+                                                        
+                                                        %Was the mouse rewarded
+                                                        %in the last trial?
+                                                        Hit_trials=[];
+                                                        Hit_trials=handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(2,:)==1;
+                                                        last_Hit_trials=zeros(1,length(Hit_trials));
+                                                        last_Hit_trials(2:end)=Hit_trials(1:end-1);
+                                                        fitlm_results(no_fitlms).last_rewarded(fitlm_results(no_fitlms).no_trials+1:fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev))=...
+                                                            last_Hit_trials(trials_in_event_Ev);
+                                                        fitlm_results(no_fitlms).no_trials=fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev);
+                                                        
+                                                        fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), evNo,files(fileNo),elec);
                                                     end
                                                     
-                                                    %Was the mouse rewarded
-                                                    %in the last trial?
-                                                    Hit_trials=[];
-                                                    Hit_trials=handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(2,:)==1;
-                                                    last_Hit_trials=zeros(1,length(Hit_trials));
-                                                    last_Hit_trials(2:end)=Hit_trials(1:end-1);
-                                                    fitlm_results(no_fitlms).last_rewarded(fitlm_results(no_fitlms).no_trials+1:fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev))=...
-                                                        last_Hit_trials(trials_in_event_Ev);
-                                                    fitlm_results(no_fitlms).no_trials=fitlm_results(no_fitlms).no_trials+sum(trials_in_event_Ev);
-
-                                                    fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), evNo,files(fileNo),elec);
                                                 end
+                                            else
+                                                
+                                                fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                                                
                                                 
                                             end
-                                        else
                                             
-                                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                                            
+                                        else
+                                            fprintf(1, ['Empty LFP reference for file No %d electrode %d\n'],files(fileNo),elec);
                                             
                                             
                                         end
                                         
                                         
-                                    else
-                                        fprintf(1, ['Empty LFP reference for file No %d electrode %d\n'],files(fileNo),elec);
-                                        
-                                        
                                     end
-                                    
-                                    
                                 end
                             end %file No
                             
@@ -5572,21 +5730,21 @@ case 9
            for bwii=1:4
                %Concentration dependence
                percent_sig_conc=100*sum(pvc((periis==perii)&(bwiis==bwii))<=0.05)/sum((periis==perii)&(bwiis==bwii));
-                fprintf(1, ['percent significant for dependence of delta dB on concentration for ' freq_names{bwii} ' ' bar_lab{perii} '= %d, n= %d\n' ]...
+                fprintf(1, ['percent significant for dependence of delta dB on concentration for ' freq_names{bwii} ' ' per_lab{perii} '= %d, n= %d\n' ]...
                     ,percent_sig_conc,sum((periis==perii)&(bwiis==bwii)));
                 xpos=xpos+1;
                 bar(xpos,percent_sig_conc,'b')
                 
                 %spm dependence
                 percent_sig_spm=100*sum(pvspm((periis==perii)&(bwiis==bwii))<=0.05)/sum((periis==perii)&(bwiis==bwii));
-                fprintf(1, ['percent significant for dependence of delta dB on spm for ' freq_names{bwii} ' ' bar_lab{perii} '= %d, n= %d\n' ]...
+                fprintf(1, ['percent significant for dependence of delta dB on spm for ' freq_names{bwii} ' ' per_lab{perii} '= %d, n= %d\n' ]...
                     ,percent_sig_spm,sum((periis==perii)&(bwiis==bwii)));
                 xpos=xpos+1;
                 bar(xpos,percent_sig_spm,'r')
                 
                 %last reward
                 percent_sig_last=100*sum(pv_last_rewards((periis==perii)&(bwiis==bwii))<=0.05)/sum((periis==perii)&(bwiis==bwii));
-                fprintf(1, ['percent significant for dependence of delta dB on last_rewards for ' freq_names{bwii} ' ' bar_lab{perii} '= %d, n= %d\n\n' ]...
+                fprintf(1, ['percent significant for dependence of delta dB on last_rewards for ' freq_names{bwii} ' ' per_lab{perii} '= %d, n= %d\n\n' ]...
                     ,percent_sig_last,sum((periis==perii)&(bwiis==bwii)));
                  xpos=xpos+1;
                 bar(xpos,percent_sig_last,'m')
@@ -5654,7 +5812,7 @@ case 9
 
         no_fitglms=0;
         fitglm_results=[];
-        bar_lab = {'Proficient','Naive'};
+       
         
         
         fprintf(1, ['fitglm analysis for Justin''s paper\n\n'])
@@ -5684,90 +5842,92 @@ case 9
                             %For each electrode compute the delta dB and
                             %input parameters for the fitglm
                             for fileNo=1:no_files
-                                if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
-                                    lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
-                                    
-                                    if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
+                                if sum(files==fileNo)>0
+                                    if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
+                                        lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
                                         
-                                        
-                                        if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
+                                        if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
                                             
-                                            percent_mask=[];
-                                            percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
-                                                &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
                                             
-                                            for evNo=1:length(eventType)
+                                            if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
                                                 
-                                                trials_in_event_Ev=[];
-                                                trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
+                                                percent_mask=[];
+                                                percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower>=percent_windows(per_ii,1))...
+                                                    &(handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower<=percent_windows(per_ii,2));
                                                 
-                                                if (sum(trials_in_event_Ev)>=1)
+                                                for evNo=1:length(eventType)
                                                     
-                                                    lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                                    trials_in_event_Ev=[];
+                                                    trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
                                                     
-                                                    % Ev1
-                                                    this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
-                                                    this_dB_powerref(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_event_Ev,:));
-                                                    
-                                                    
-                                                    this_dB_power=zeros(sum(trials_in_event_Ev),length(frequency));
-                                                    this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event_Ev,:));
-                                                    
-
-                                                    this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
-                                                    
-                                                    %Enter the  Ev1
-                                                    this_delta_dB_powerEv=zeros(sum(trials_in_event_Ev),1);
-                                                    this_delta_dB_powerEv=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
-                                                    
-                                                    fitglm_results(no_fitglms).concs(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
-                                                        handles_pars.concs(evNo);
-                                                    fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
-                                                        this_delta_dB_powerEv;
-                                                    
-                                                    fitglm_results(no_fitglms).percent(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
-                                                        handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower(trials_in_event_Ev);
-                                                    
-                                                    %Is this S= or S-?
-                                                    if evNo<=length(eventType)/2
-                                                        %This is S+
-                                                        fitglm_results(no_fitglms).spm(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
-                                                            ones(1,sum(trials_in_event_Ev));
-                                                    else
-                                                        %This is S-
-                                                        fitglm_results(no_fitglms).spm(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
-                                                            zeros(1,sum(trials_in_event_Ev));
+                                                    if (sum(trials_in_event_Ev)>=1)
+                                                        
+                                                        lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                                        
+                                                        % Ev1
+                                                        this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
+                                                        this_dB_powerref(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower(trials_in_event_Ev,:));
+                                                        
+                                                        
+                                                        this_dB_power=zeros(sum(trials_in_event_Ev),length(frequency));
+                                                        this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower(trials_in_event_Ev,:));
+                                                        
+                                                        
+                                                        this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                                        
+                                                        %Enter the  Ev1
+                                                        this_delta_dB_powerEv=zeros(sum(trials_in_event_Ev),1);
+                                                        this_delta_dB_powerEv=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
+                                                        
+                                                        fitglm_results(no_fitglms).concs(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
+                                                            handles_pars.concs(evNo);
+                                                        fitglm_results(no_fitglms).delta_dB_Power(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
+                                                            this_delta_dB_powerEv;
+                                                        
+                                                        fitglm_results(no_fitglms).percent(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
+                                                            handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower(trials_in_event_Ev);
+                                                        
+                                                        %Is this S= or S-?
+                                                        if evNo<=length(eventType)/2
+                                                            %This is S+
+                                                            fitglm_results(no_fitglms).spm(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
+                                                                ones(1,sum(trials_in_event_Ev));
+                                                        else
+                                                            %This is S-
+                                                            fitglm_results(no_fitglms).spm(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
+                                                                zeros(1,sum(trials_in_event_Ev));
+                                                        end
+                                                        
+                                                        %Was the mouse rewarded
+                                                        %in the last trial?
+                                                        Hit_trials=[];
+                                                        Hit_trials=handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(2,:)==1;
+                                                        last_Hit_trials=zeros(1,length(Hit_trials));
+                                                        last_Hit_trials(2:end)=Hit_trials(1:end-1);
+                                                        fitglm_results(no_fitglms).last_rewarded(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
+                                                            last_Hit_trials(trials_in_event_Ev);
+                                                        fitglm_results(no_fitglms).no_trials=fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev);
+                                                        
+                                                        fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), evNo,files(fileNo),elec);
                                                     end
                                                     
-                                                    %Was the mouse rewarded
-                                                    %in the last trial?
-                                                    Hit_trials=[];
-                                                    Hit_trials=handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower(2,:)==1;
-                                                    last_Hit_trials=zeros(1,length(Hit_trials));
-                                                    last_Hit_trials(2:end)=Hit_trials(1:end-1);
-                                                    fitglm_results(no_fitglms).last_rewarded(fitglm_results(no_fitglms).no_trials+1:fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev))=...
-                                                        last_Hit_trials(trials_in_event_Ev);
-                                                    fitglm_results(no_fitglms).no_trials=fitglm_results(no_fitglms).no_trials+sum(trials_in_event_Ev);
-
-                                                    fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), evNo,files(fileNo),elec);
                                                 end
+                                            else
+                                                
+                                                fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                                                
                                                 
                                             end
-                                        else
                                             
-                                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                                            
+                                        else
+                                            fprintf(1, ['Empty LFP reference for file No %d electrode %d\n'],files(fileNo),elec);
                                             
                                             
                                         end
                                         
                                         
-                                    else
-                                        fprintf(1, ['Empty LFP reference for file No %d electrode %d\n'],files(fileNo),elec);
-                                        
-                                        
                                     end
-                                    
-                                    
                                 end
                             end %file No
                             
@@ -5923,21 +6083,21 @@ case 9
            for bwii=1:4
                %Concentration dependence
                percent_sig_conc=100*sum(pvc((periis==perii)&(bwiis==bwii))<=0.05)/sum((periis==perii)&(bwiis==bwii));
-                fprintf(1, ['percent significant for dependence of delta dB on concentration for ' freq_names{bwii} ' ' bar_lab{perii} '= %d, n= %d\n' ]...
+                fprintf(1, ['percent significant for dependence of delta dB on concentration for ' freq_names{bwii} ' ' per_lab{perii} '= %d, n= %d\n' ]...
                     ,percent_sig_conc,sum((periis==perii)&(bwiis==bwii)));
                 xpos=xpos+1;
                 bar(xpos,percent_sig_conc,'b')
                 
                 %spm dependence
                 percent_sig_spm=100*sum(pvspm((periis==perii)&(bwiis==bwii))<=0.05)/sum((periis==perii)&(bwiis==bwii));
-                fprintf(1, ['percent significant for dependence of delta dB on spm for ' freq_names{bwii} ' ' bar_lab{perii} '= %d, n= %d\n' ]...
+                fprintf(1, ['percent significant for dependence of delta dB on spm for ' freq_names{bwii} ' ' per_lab{perii} '= %d, n= %d\n' ]...
                     ,percent_sig_spm,sum((periis==perii)&(bwiis==bwii)));
                 xpos=xpos+1;
                 bar(xpos,percent_sig_spm,'r')
                 
                 %last reward
                 percent_sig_last=100*sum(pv_last_rewards((periis==perii)&(bwiis==bwii))<=0.05)/sum((periis==perii)&(bwiis==bwii));
-                fprintf(1, ['percent significant for dependence of delta dB on last_rewards for ' freq_names{bwii} ' ' bar_lab{perii} '= %d, n= %d\n\n' ]...
+                fprintf(1, ['percent significant for dependence of delta dB on last_rewards for ' freq_names{bwii} ' ' per_lab{perii} '= %d, n= %d\n\n' ]...
                     ,percent_sig_last,sum((periis==perii)&(bwiis==bwii)));
                  xpos=xpos+1;
                 bar(xpos,percent_sig_last,'m')

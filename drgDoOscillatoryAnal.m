@@ -2,7 +2,7 @@ function drgDoOscillatoryAnal(handles)
 
 switch handles.analysisNoOsc
     case 1
-        drgThetaAmpPhaseTrialRange(handles)
+        drgThetaAmpPhaseTrialRange(handles);
     case 2
         drgMIvsHiLoTrialRange(handles)
     case 3
