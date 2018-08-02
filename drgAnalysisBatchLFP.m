@@ -5071,13 +5071,9 @@ case 9
                                                 if ((abs(evNo1-2)<=1)&(abs(evNo2-5)<=1))||((abs(evNo1-5)<=1)&(abs(evNo2-2)<=1))
                                                   ROC_between(no_ROCs)=1;
                                                 else
-                                                  ROC_between(no_ROCs)=0; 
+                                                    ROC_between(no_ROCs)=0;
                                                 end
-                                                if abs(evNo1-evNo2)==1
-                                                    ROC_neighbor(no_ROCs)=1;
-                                                else
-                                                    ROC_neighbor(no_ROCs)=0;
-                                                end
+                                                ROC_neighbor(no_ROCs)=abs(evNo1-evNo2);
                                                 auROC(no_ROCs)=roc.AUC-0.5;
                                                 p_valROC(no_ROCs)=roc.p;
                                                 p_vals_ROC=[p_vals_ROC roc.p];
@@ -5193,7 +5189,7 @@ case 9
                     annotation('textbox',conc_anno_loc{per_ii},'String',per_lab(per_ii),'Color',these_colors{3-per_ii},'EdgeColor','none');
                 end
             end
-            title(freq_names{bwii})
+            title([freq_names{bwii} ' average delta dB power per electrode'])
             set(gcf,'OuterPosition',fig_pos{bwii});
             bar_lab_loc = [3.5 6.5 9.5 12.5 15.5 18.5];
             xticks(bar_lab_loc)
@@ -5309,7 +5305,7 @@ case 9
             ylabel('Cumulative probability')
             title([freq_names{bwii} ' Adjacent concentrations'])
             
-            %Save the data for anovan
+            %Save the data for anovan for adjacent ROCs
             data_auROC=[];
             prof_naive=[];
             between=[];
@@ -5342,6 +5338,73 @@ case 9
             p_anova_wb_adj(bwii)=p(2);
         end
         
+        %Plot cumulative histos for auROCs within vs between S+ and S- using
+       %only ROCs for concentrations separated by two log steps
+        for bwii=1:4
+            
+            
+            figNo = get(gcf,'Number')+1;
+            try
+                close(figNo)
+            catch
+            end
+            figure(figNo)
+            
+            hold on
+            
+            %Naive between
+            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)));
+            plot(x_aic,f_aic,'b')
+            
+            %Proficient between
+            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)));
+            plot(x_aic,f_aic,'r')
+            
+            %Naive within
+            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)));
+            plot(x_aic,f_aic,'Color',[0.8 0.8 1])
+            
+            %Proficient within
+            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)));
+            plot(x_aic,f_aic,'Color',[1 0.8 0.8])
+            
+            legend('Naive between','Proficient between','Naive within','Proficient within')
+            xlabel('auROC')
+            ylabel('Cumulative probability')
+            title([freq_names{bwii} ' concentrations separated by two log steps'])
+            
+            %Save the data for anovan for adjacent ROCs
+            data_auROC=[];
+            prof_naive=[];
+            between=[];
+            
+            %Naive between
+            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2))];
+            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)))];
+            between=[between ones(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)))];
+            
+            %Proficient between
+            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1&(ROC_neighbor==2)))];
+            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)))];
+            between=[between ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)))];
+            
+            %Naive within
+            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2))];
+            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)))];
+            between=[between zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)))];
+            
+            %Proficient within
+            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2))];
+            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)))];
+            between=[between zeros(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)))];
+            
+            %Calculate anovan for inteaction
+            [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
+            fprintf(1, ['p value for anovan auROC two log step concentrations for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
+            fprintf(1, ['p value for anovan auROC two log step concentrations  for within vs between for ' freq_names{bwii} '= %d \n'],  p(2));
+            p_anova_np_adj(bwii)=p(1);
+            p_anova_wb_adj(bwii)=p(2);
+        end
         
         %Plot percent significant ROC
         for bwii=1:4
