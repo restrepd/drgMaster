@@ -6403,10 +6403,7 @@ switch which_display
         
     case 17
         %Justin's per mouse analysis for PAC
-        %For the proficient mice in the first and last sessions
-        %plot the LFP spectrum for S+ vs S-, plot LFP power for S+ vs S- for each electrode and plot auROCs
         %NOTE: This does the analysis in all the files and DOES not distinguish between groups!!!
-        no_ROCs=0;
         ROCout=[];
         p_vals_ROC=[];
         mean_MI_No=0;
@@ -6496,7 +6493,7 @@ switch which_display
                                                         this_meanVectorAngle_Ev=zeros(sum(trials_in_event_Ev),1);
                                                         this_meanVectorAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorAngle(trials_in_event_Ev);
                                                         theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_meanVectorAngle_Ev;
-                                                         
+                                                        
                                                         %Enter the peakAngle
                                                         this_peakAngle_Ev=zeros(sum(trials_in_event_Ev),1);
                                                         this_peakAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).peakAngle(trials_in_event_Ev);
@@ -6550,6 +6547,7 @@ switch which_display
                                 mean_MI_evNo_per_mouse(mean_MI_No_per_mouse)=evNo;
                                 mean_MI_pacii_per_mouse(mean_MI_No_per_mouse)=pacii;
                                 mean_MI_mouseNo_per_mouse(mean_MI_No_per_mouse)=mouseNo;
+                                mean_MI_electNo_per_mouse(mean_MI_No_per_mouse)=elec;
                                 
                                 %Calculate per mouse meanVectorLength
                                 this_mouse_meanVectorLength=[];
@@ -6568,59 +6566,59 @@ switch which_display
                                 
                             end
                         end
-                         
-                        for evNo1=1:length(eventType)
-                            for evNo2=evNo1+1:length(eventType)
-                                
-                                for pacii=1:3
-                                    
-                                    %Enter Ev1
-                                    trials_in_event_Ev1=length(theseEvNos_thisMouse_thisElec(evNo1,pacii).this_MI_Ev);
-                                    this_MI_Ev1=zeros(trials_in_event_Ev1,1);
-                                    this_MI_Ev1=theseEvNos_thisMouse_thisElec(evNo1,pacii).this_MI_Ev;
-                                    roc_data=[];
-                                    roc_data(1:sum(trials_in_event_Ev1),1)=this_MI_Ev1;
-                                    roc_data(1:sum(trials_in_event_Ev1),2)=zeros(sum(trials_in_event_Ev1),1);
-                                    
-                                    %Enter Ev2
-                                    trials_in_event_Ev2=length(theseEvNos_thisMouse_thisElec(evNo2,pacii).this_MI_Ev);
-                                    total_trials=trials_in_event_Ev1+trials_in_event_Ev2;
-                                    this_MI_Ev2=zeros(trials_in_event_Ev2,1);
-                                    this_MI_Ev2=theseEvNos_thisMouse_thisElec(evNo2,pacii).this_MI_Ev;
-                                    roc_data(sum(trials_in_event_Ev1)+1:total_trials,1)=this_MI_Ev2;
-                                    roc_data(sum(trials_in_event_Ev1)+1:total_trials,2)=ones(sum(trials_in_event_Ev2),1);
-                                    
-                                    
-                                    %Find  ROC
-                                    if (trials_in_event_Ev1>=5)&(trials_in_event_Ev2>=5)
-                                        no_ROCs=no_ROCs+1;
-                                        roc=roc_calc(roc_data,0,0.05,0);
-                                        ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
-                                        ROCelec(no_ROCs)=elec;
-                                        ROCpacii(no_ROCs)=pacii;
-                                        ROCper_ii(no_ROCs)=per_ii;
-                                        ROCEvNo1(no_ROCs)=evNo1;
-                                        ROCEvNo2(no_ROCs)=evNo2;
-                                        if ((abs(evNo1-2)<=1)&(abs(evNo2-5)<=1))||((abs(evNo1-5)<=1)&(abs(evNo2-2)<=1))
-                                            ROC_between(no_ROCs)=1;
-                                        else
-                                            ROC_between(no_ROCs)=0;
-                                        end
-                                        ROC_neighbor(no_ROCs)=abs(evNo1-evNo2);
-                                        auROC(no_ROCs)=roc.AUC-0.5;
-                                        p_valROC(no_ROCs)=roc.p;
-                                        p_vals_ROC=[p_vals_ROC roc.p];
-                                        
-                                        if (per_ii==1)&(pacii==4)&(roc.AUC-0.5>0.3)
-                                            %This is here to stop and plot the ROC
-                                            %roc_out=roc_calc(roc_data);
-                                            pffft=1;
-                                        end
-                                    end
-                                end
-                                
-                            end
-                        end
+                        
+                        %                         for evNo1=1:length(eventType)
+                        %                             for evNo2=evNo1+1:length(eventType)
+                        %
+                        %                                 for pacii=1:3
+                        %
+                        %                                     %Enter Ev1
+                        %                                     trials_in_event_Ev1=length(theseEvNos_thisMouse_thisElec(evNo1,pacii).this_MI_Ev);
+                        %                                     this_MI_Ev1=zeros(trials_in_event_Ev1,1);
+                        %                                     this_MI_Ev1=theseEvNos_thisMouse_thisElec(evNo1,pacii).this_MI_Ev;
+                        %                                     roc_data=[];
+                        %                                     roc_data(1:sum(trials_in_event_Ev1),1)=this_MI_Ev1;
+                        %                                     roc_data(1:sum(trials_in_event_Ev1),2)=zeros(sum(trials_in_event_Ev1),1);
+                        %
+                        %                                     %Enter Ev2
+                        %                                     trials_in_event_Ev2=length(theseEvNos_thisMouse_thisElec(evNo2,pacii).this_MI_Ev);
+                        %                                     total_trials=trials_in_event_Ev1+trials_in_event_Ev2;
+                        %                                     this_MI_Ev2=zeros(trials_in_event_Ev2,1);
+                        %                                     this_MI_Ev2=theseEvNos_thisMouse_thisElec(evNo2,pacii).this_MI_Ev;
+                        %                                     roc_data(sum(trials_in_event_Ev1)+1:total_trials,1)=this_MI_Ev2;
+                        %                                     roc_data(sum(trials_in_event_Ev1)+1:total_trials,2)=ones(sum(trials_in_event_Ev2),1);
+                        %
+                        %
+                        %                                     %Find  ROC
+                        %                                     if (trials_in_event_Ev1>=5)&(trials_in_event_Ev2>=5)
+                        %                                         no_ROCs=no_ROCs+1;
+                        %                                         roc=roc_calc(roc_data,0,0.05,0);
+                        %                                         ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
+                        %                                         ROCelec(no_ROCs)=elec;
+                        %                                         ROCpacii(no_ROCs)=pacii;
+                        %                                         ROCper_ii(no_ROCs)=per_ii;
+                        %                                         ROCEvNo1(no_ROCs)=evNo1;
+                        %                                         ROCEvNo2(no_ROCs)=evNo2;
+                        %                                         if ((abs(evNo1-2)<=1)&(abs(evNo2-5)<=1))||((abs(evNo1-5)<=1)&(abs(evNo2-2)<=1))
+                        %                                             ROC_between(no_ROCs)=1;
+                        %                                         else
+                        %                                             ROC_between(no_ROCs)=0;
+                        %                                         end
+                        %                                         ROC_neighbor(no_ROCs)=abs(evNo1-evNo2);
+                        %                                         auROC(no_ROCs)=roc.AUC-0.5;
+                        %                                         p_valROC(no_ROCs)=roc.p;
+                        %                                         p_vals_ROC=[p_vals_ROC roc.p];
+                        %
+                        %                                         if (per_ii==1)&(pacii==4)&(roc.AUC-0.5>0.3)
+                        %                                             %This is here to stop and plot the ROC
+                        %                                             %roc_out=roc_calc(roc_data);
+                        %                                             pffft=1;
+                        %                                         end
+                        %                                     end
+                        %                                 end
+                        %
+                        %                             end
+                        %                         end
                         
                         
                         
@@ -6754,7 +6752,7 @@ switch which_display
             p_anova_wb_adj(pacii)=p(2);
         end
         
-        %Now plot the average MI per electrode per mouse 
+        %Now plot the average MI per electrode per mouse
         conc_anno_loc = {[0.15 0.6 0.2 0.2], [0.15 0.6 0.2 0.17], [0.15 0.6 0.2 0.14], [0.15 0.6 0.2 0.11], [0.15 0.6 0.2 0.08], [0.15 0.6 0.2 0.05]};
         fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
         for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -6821,7 +6819,7 @@ switch which_display
             p_anova_wb_adj(pacii)=p(2);
         end
         
-         %Now plot the average meanVectorLength per electrode per mouse 
+        %Now plot the average meanVectorLength per electrode per mouse
         conc_anno_loc = {[0.15 0.6 0.2 0.2], [0.15 0.6 0.2 0.17], [0.15 0.6 0.2 0.14], [0.15 0.6 0.2 0.11], [0.15 0.6 0.2 0.08], [0.15 0.6 0.2 0.05]};
         fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
         for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -6884,7 +6882,7 @@ switch which_display
             fprintf(1, ['p value for anovan vector length per mouse for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
             fprintf(1, ['p value for anovan vector length per mouse for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
             fprintf(1, ['p value for anovan vector length per mouse for events x naive-proficient for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
-
+            
         end
         
         %Plot the meanVectorAngle
@@ -6905,7 +6903,42 @@ switch which_display
             
             shift_x=0.03;
             
-            for per_ii=1:2
+            for per_ii=2:-1:1
+               
+            
+                
+                %Plot lines between individual points
+                for mouseNo=1:max(mean_MI_mouseNo_per_mouse)
+                    for elect=1:16
+                        if per_ii==1
+                            plot(log10(concs2)+shift_x,...
+                                mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)),...
+                                '-','lineWidth',0.5,'Color',[1 0.7 0.7])
+                        else
+                            plot(log10(concs2)-shift_x,...
+                                mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)),...
+                                '-','LineWidth',0.5,'Color',[0.7 0.7 1])
+                        end
+                    end
+                end
+                
+                
+                %Plot individual points
+                for evNo=1:length(eventType)
+                    if per_ii==1
+                        plot((log10(concs2(evNo))+shift_x)*ones(1,sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))),...
+                            mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)),...
+                            'o','MarkerFaceColor',[1 0.7 0.7],'MarkerEdgeColor',[1 0.7 0.7])
+                    else
+                        plot((log10(concs2(evNo))-shift_x)*ones(1,sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))),...
+                            mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)),...
+                            'o','MarkerFaceColor',[1 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 1])
+                    end
+                end
+                
+            end
+            
+            for per_ii=2:-1:1
                 for evNo=1:length(eventType)
                     circ_meanVA(evNo)=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180)/pi;
                     CI(1:2,evNo) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180},'type','cper')/pi;
@@ -6915,27 +6948,13 @@ switch which_display
                     prof_naive=[prof_naive per_ii*ones(1,sum((mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)))];
                     events=[events evNo*ones(1,sum((mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)))];
                 end
-%                 for evNo=1:length(eventType)
-%                     CI = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180},'type','cper')/pi;
-%                     plot([concs2(evNo) concs2(evNo)],CI,'-k','LineWidth',3)
-%                 end
-                %PLot individual points
-                for evNo=1:length(eventType)
-                    if per_ii==1
-                    plot((log10(concs2(evNo))+shift_x)*ones(1,sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))),...
-                        mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)),'o','MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-                    else
-                      plot((log10(concs2(evNo))-shift_x)*ones(1,sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))),...
-                        mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)),'o','MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-                    end
-                end
                 if per_ii==1
-                    plot(log10(concs2)+shift_x,circ_meanVA,'-or');
+                    plot(log10(concs2)+shift_x,circ_meanVA,'-o','LineWidth',3,'MarkerEdgeColor','r','MarkerFaceColor','r','Color','r');
                 else
-                    plot(log10(concs2)-shift_x,circ_meanVA,'-ob');
+                    plot(log10(concs2)-shift_x,circ_meanVA,'-o','LineWidth',3,'MarkerEdgeColor','b','MarkerFaceColor','b','Color','b');
                 end
-
             end
+            
             legend('Proficient','Naive')
             title(['Vector Angle for PAC theta/' freq_names{pacii+1}])
             xlabel('log10(percent dilution)')
@@ -6946,379 +6965,379 @@ switch which_display
             fprintf(1, ['p value for anovan vector angle per mouse for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
             fprintf(1, ['p value for anovan vector angle per mouse for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
             fprintf(1, ['p value for anovan vector angle per mouse for events x naive-proficient for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
-
-        end
-        
-  
-        
-        
-        %Plot cumulative histos for auROCs within vs between S+ and S-
-        for pacii=1:3
             
-            
-            figNo = get(gcf,'Number')+1;
-            try
-                close(figNo)
-            catch
-            end
-            figure(figNo)
-            
-            hold on
-            
-            %Naive between
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)));
-            plot(x_aic,f_aic,'b')
-            
-            %Proficient between
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)));
-            plot(x_aic,f_aic,'r')
-            
-            %Naive within
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)));
-            plot(x_aic,f_aic,'Color',[0.8 0.8 1])
-            
-            %Proficient within
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)));
-            plot(x_aic,f_aic,'Color',[1 0.8 0.8])
-            
-            legend('Naive between','Proficient between','Naive within','Proficient within')
-            xlabel('auROC')
-            ylabel('Cumulative probability')
-            title(freq_names{pacii})
-            
-            %Save the data for anovan
-            data_auROC=[];
-            prof_naive=[];
-            between=[];
-            
-            %Naive between
-            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1))];
-            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)))];
-            between=[between ones(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)))];
-            
-            %Proficient between
-            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1))];
-            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)))];
-            between=[between ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)))];
-            
-            %Naive within
-            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0))];
-            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)))];
-            between=[between zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)))];
-            
-            %Proficient within
-            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0))];
-            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)))];
-            between=[between zeros(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)))];
-            
-            %Calculate anovan for inteaction
-            [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
-            fprintf(1, ['p value for anovan auROC for naive vs proficient for ' freq_names{pacii+1} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan auROC for within vs between for ' freq_names{pacii+1} '= %d \n'],  p(2));
-            p_anova_np(pacii)=p(1);
-            p_anova_wb(pacii)=p(2);
-        end
-        
-        %Plot cumulative histos for auROCs within vs between S+ and S- using
-        %only ROCs for adjacent concentrations
-        for pacii=1:3
-            
-            
-            figNo = get(gcf,'Number')+1;
-            try
-                close(figNo)
-            catch
-            end
-            figure(figNo)
-            
-            hold on
-            
-            %Naive between
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1)));
-            plot(x_aic,f_aic,'b')
-            
-            %Proficient between
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1)));
-            plot(x_aic,f_aic,'r')
-            
-            %Naive within
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1)));
-            plot(x_aic,f_aic,'Color',[0.8 0.8 1])
-            
-            %Proficient within
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1)));
-            plot(x_aic,f_aic,'Color',[1 0.8 0.8])
-            
-            legend('Naive between','Proficient between','Naive within','Proficient within')
-            xlabel('auROC')
-            ylabel('Cumulative probability')
-            title([freq_names{pacii} ' Adjacent concentrations'])
-            
-            %Save the data for anovan for adjacent ROCs
-            data_auROC=[];
-            prof_naive=[];
-            between=[];
-            
-            %Naive between
-            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1))];
-            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1)))];
-            between=[between ones(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1)))];
-            
-            %Proficient between
-            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1&(ROC_neighbor==1)))];
-            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1)))];
-            between=[between ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1)))];
-            
-            %Naive within
-            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1))];
-            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1)))];
-            between=[between zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1)))];
-            
-            %Proficient within
-            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1))];
-            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1)))];
-            between=[between zeros(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1)))];
-            
-            %Calculate anovan for inteaction
-            [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
-            fprintf(1, ['p value for anovan MI auROC adjacent concentrations for naive vs proficient for PAC theta/' freq_names{pacii} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan MI auROC adjacent concentrations  for within vs between for PAC theta/' freq_names{pacii} '= %d \n'],  p(2));
-            p_anova_np_adj(pacii)=p(1);
-            p_anova_wb_adj(pacii)=p(2);
-        end
-        
-        %Plot cumulative histos for auROCs within vs between S+ and S- using
-        %only ROCs for concentrations separated by two log steps
-        for pacii=1:3
-            
-            
-            figNo = get(gcf,'Number')+1;
-            try
-                close(figNo)
-            catch
-            end
-            figure(figNo)
-            
-            hold on
-            
-            %Naive between
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2)));
-            plot(x_aic,f_aic,'b')
-            
-            %Proficient between
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2)));
-            plot(x_aic,f_aic,'r')
-            
-            %Naive within
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2)));
-            plot(x_aic,f_aic,'Color',[0.8 0.8 1])
-            
-            %Proficient within
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2)));
-            plot(x_aic,f_aic,'Color',[1 0.8 0.8])
-            
-            legend('Naive between','Proficient between','Naive within','Proficient within')
-            xlabel('auROC')
-            ylabel('Cumulative probability')
-            title([freq_names{pacii} ' concentrations separated by two log steps'])
-            
-            %Save the data for anovan for adjacent ROCs
-            data_auROC=[];
-            prof_naive=[];
-            between=[];
-            
-            %Naive between
-            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2))];
-            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2)))];
-            between=[between ones(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2)))];
-            
-            %Proficient between
-            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1&(ROC_neighbor==2)))];
-            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2)))];
-            between=[between ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2)))];
-            
-            %Naive within
-            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2))];
-            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2)))];
-            between=[between zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2)))];
-            
-            %Proficient within
-            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2))];
-            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2)))];
-            between=[between zeros(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2)))];
-            
-            %Calculate anovan for inteaction
-            [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
-            fprintf(1, ['p value for anovan MI auROC two log step concentrations for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan MI auROC two log step concentrations for within vs between for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-            p_anova_np_adj(pacii)=p(1);
-            p_anova_wb_adj(pacii)=p(2);
-        end
-        
-        %Plot percent significant ROC
-        no_within=zeros(2,4);
-        no_sig_within=zeros(2,4);
-        no_between=zeros(2,4);
-        no_sig_between=zeros(2,4);
-        no_within1=zeros(2,4);
-        no_sig_within1=zeros(2,4);
-        no_between1=zeros(2,4);
-        no_sig_between1=zeros(2,4);
-        no_within2=zeros(2,4);
-        no_sig_within2=zeros(2,4);
-        no_between2=zeros(2,4);
-        no_sig_between2=zeros(2,4);
-        
-        for pacii=1:3
-            for pcii=1:szpc(1)
-                no_pairs=0;
-                EvNo1=[];
-                EvNo2=[];
-                per_sig=zeros(length(eventType),length(eventType));
-                for evNo1=1:length(eventType)
-                    for evNo2=evNo1+1:length(eventType)
-                        
-                        
-                        no_pairs=no_pairs+1;
-                        these_ROCs=(ROCpacii==pacii)&(ROCEvNo1==evNo1)&(ROCEvNo2==evNo2)&(ROCper_ii==pcii);
-                        sig(no_pairs)=sum((p_valROC<=pFDRauROC)&these_ROCs);
-                        not_sig(no_pairs)=sum(these_ROCs)-sum((p_valROC<=pFDRauROC)&these_ROCs);
-                        EvNo1(no_pairs)=evNo1;
-                        EvNo2(no_pairs)=evNo2;
-                        per_sig(evNo1,evNo2)=100*sig(no_pairs)/(sig(no_pairs)+not_sig(no_pairs));
-                        
-                        
-                        if ((evNo1==1)&(evNo2==2))||((evNo1==2)&(evNo2==1))||((evNo1==1)&(evNo2==3))||((evNo1==3)&(evNo2==1))...
-                                ||((evNo1==2)&(evNo2==3))||((evNo1==3)&(evNo2==2))||((evNo1==4)&(evNo2==5))||((evNo1==5)&(evNo2==4))...
-                                ||((evNo1==4)&(evNo2==6))||((evNo1==6)&(evNo2==4))||((evNo1==5)&(evNo2==6))||((evNo1==6)&(evNo2==5))
-                            %This is within
-                            no_sig_within(pcii,pacii)=no_sig_within(pcii,pacii)+sum((p_valROC<=pFDRauROC)&these_ROCs);
-                            no_within(pcii,pacii)=no_within(pcii,pacii)+sum(these_ROCs);
-                            if abs(evNo1-evNo2)==1
-                                no_sig_within1(pcii,pacii)=no_sig_within1(pcii,pacii)+sum((p_valROC<=pFDRauROC)&these_ROCs);
-                                no_within1(pcii,pacii)=no_within1(pcii,pacii)+sum(these_ROCs);
-                            end
-                            if abs(evNo1-evNo2)==2
-                                no_sig_within2(pcii,pacii)=no_sig_within2(pcii,pacii)+sum((p_valROC<=pFDRauROC)&these_ROCs);
-                                no_within2(pcii,pacii)=no_within2(pcii,pacii)+sum(these_ROCs);
-                            end
-                        else
-                            %This is bewteen
-                            no_sig_between(pcii,pacii)=no_sig_between(pcii,pacii)+sum((p_valROC<=pFDRauROC)&these_ROCs);
-                            no_between(pcii,pacii)=no_between(pcii,pacii)+sum(these_ROCs);
-                            if abs(evNo1-evNo2)==1
-                                no_sig_between1(pcii,pacii)=no_sig_between1(pcii,pacii)+sum((p_valROC<=pFDRauROC)&these_ROCs);
-                                no_between1(pcii,pacii)=no_between1(pcii,pacii)+sum(these_ROCs);
-                            end
-                            if abs(evNo1-evNo2)==2
-                                no_sig_between2(pcii,pacii)=no_sig_between2(pcii,pacii)+sum((p_valROC<=pFDRauROC)&these_ROCs);
-                                no_between2(pcii,pacii)=no_between2(pcii,pacii)+sum(these_ROCs);
-                            end
-                        end
-                        
-                    end
-                end
-                
-                for evNo1=1:length(eventType)
-                    for evNo2=evNo1+1:length(eventType)
-                        
-                        if per_sig(evNo1,evNo2)==0
-                            per_sig(evNo1,evNo2)=100/64;
-                        end
-                    end
-                end
-                
-                %Plot the pseudocolor for percent significant auROCs
-                figNo = get(gcf,'Number')+1;
-                try
-                    close(figNo)
-                catch
-                end
-                figure(figNo)
-                
-                evNos_for_1=1:length(eventType);
-                evNos_for_2=[1:length(eventType)]';
-                
-                drg_pcolor(repmat(evNos_for_1,length(eventType),1),repmat(evNos_for_2,1,length(eventType)),per_sig)
-                cmjet=colormap(jet);
-                cmjet(1,1)=0.7;
-                cmjet(1,2)=0.7;
-                cmjet(1,3)=0.7;
-                colormap(cmjet)
-                
-                hold on
-                plot([4 4],[1 4],'-w','LineWidth', 5)
-                plot([4 7],[4 4],'-w','LineWidth', 5)
-                
-                ax=gca;
-                set(ax,'XTickLabel','')
-                ylabel('dB')
-                xticks([1.5:1:length(eventType)+1])
-                xticklabels(handles_pars.concs2)
-                yticks([1.5:1:length(eventType)+1])
-                yticklabels(handles_pars.concs2)
-                
-                title(['% significant MI auROC for PAC theta/' freq_names{pacii+1} ' ' per_lab(pcii)])
-                set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-                
-                pfft=1
-            end
         end
         
         
-        
-        
-        figNo = get(gcf,'Number')+1;
-        try
-            close(figNo)
-        catch
-        end
-        hFig=figure(figNo)
-        
-        
-        set(hFig, 'units','normalized','position',[.83 .1 .05 .3])
-        
-        prain=[0:100/99:100];
-        drg_pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
-        colormap jet
-        shading interp
-        ax=gca;
-        set(ax,'XTickLabel','')
-        
-        %Plot percent significant ROCs
-        figNo = get(gcf,'Number')+1;
-        try
-            close(figNo)
-        catch
-        end
-        hFig=figure(figNo)
-        
-        for pacii=1:3
-            subplot(2,2,pacii)
-            hold on
-            %Plot within naive
-            bar(1,100*no_sig_within(2,pacii)/no_within(2,pacii),'b')
-            bar(2,100*no_sig_within1(2,pacii)/no_within1(2,pacii),'b')
-            bar(3,100*no_sig_within2(2,pacii)/no_within2(2,pacii),'b')
-            
-            %Plot within proficient
-            bar(4,100*no_sig_within(1,pacii)/no_within(1,pacii),'r')
-            bar(5,100*no_sig_within1(1,pacii)/no_within1(1,pacii),'r')
-            bar(6,100*no_sig_within2(1,pacii)/no_within2(1,pacii),'r')
-            
-            %Plot between naive
-            bar(9,100*no_sig_between(2,pacii)/no_between(2,pacii),'b')
-            bar(10,100*no_sig_between1(2,pacii)/no_between1(2,pacii),'b')
-            bar(11,100*no_sig_between2(2,pacii)/no_between2(2,pacii),'b')
-            
-            %Plot between proficient
-            bar(12,100*no_sig_between(1,pacii)/no_between(1,pacii),'r')
-            bar(13,100*no_sig_between1(1,pacii)/no_between1(1,pacii),'r')
-            bar(14,100*no_sig_between2(1,pacii)/no_between2(1,pacii),'r')
-            
-            title(['% significant MI auROC for theta/' freq_names{pacii+1} ' PAC'])
-        end
-        
+        %
+        %
+        %         %Plot cumulative histos for auROCs within vs between S+ and S-
+        %         for pacii=1:3
+        %
+        %
+        %             figNo = get(gcf,'Number')+1;
+        %             try
+        %                 close(figNo)
+        %             catch
+        %             end
+        %             figure(figNo)
+        %
+        %             hold on
+        %
+        %             %Naive between
+        %             [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)));
+        %             plot(x_aic,f_aic,'b')
+        %
+        %             %Proficient between
+        %             [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)));
+        %             plot(x_aic,f_aic,'r')
+        %
+        %             %Naive within
+        %             [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)));
+        %             plot(x_aic,f_aic,'Color',[0.8 0.8 1])
+        %
+        %             %Proficient within
+        %             [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)));
+        %             plot(x_aic,f_aic,'Color',[1 0.8 0.8])
+        %
+        %             legend('Naive between','Proficient between','Naive within','Proficient within')
+        %             xlabel('auROC')
+        %             ylabel('Cumulative probability')
+        %             title(freq_names{pacii})
+        %
+        %             %Save the data for anovan
+        %             data_auROC=[];
+        %             prof_naive=[];
+        %             between=[];
+        %
+        %             %Naive between
+        %             data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1))];
+        %             prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)))];
+        %             between=[between ones(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)))];
+        %
+        %             %Proficient between
+        %             data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1))];
+        %             prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)))];
+        %             between=[between ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)))];
+        %
+        %             %Naive within
+        %             data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0))];
+        %             prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)))];
+        %             between=[between zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)))];
+        %
+        %             %Proficient within
+        %             data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0))];
+        %             prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)))];
+        %             between=[between zeros(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)))];
+        %
+        %             %Calculate anovan for inteaction
+        %             [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
+        %             fprintf(1, ['p value for anovan auROC for naive vs proficient for ' freq_names{pacii+1} '= %d \n'],  p(1));
+        %             fprintf(1, ['p value for anovan auROC for within vs between for ' freq_names{pacii+1} '= %d \n'],  p(2));
+        %             p_anova_np(pacii)=p(1);
+        %             p_anova_wb(pacii)=p(2);
+        %         end
+        %
+        %         %Plot cumulative histos for auROCs within vs between S+ and S- using
+        %         %only ROCs for adjacent concentrations
+        %         for pacii=1:3
+        %
+        %
+        %             figNo = get(gcf,'Number')+1;
+        %             try
+        %                 close(figNo)
+        %             catch
+        %             end
+        %             figure(figNo)
+        %
+        %             hold on
+        %
+        %             %Naive between
+        %             [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1)));
+        %             plot(x_aic,f_aic,'b')
+        %
+        %             %Proficient between
+        %             [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1)));
+        %             plot(x_aic,f_aic,'r')
+        %
+        %             %Naive within
+        %             [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1)));
+        %             plot(x_aic,f_aic,'Color',[0.8 0.8 1])
+        %
+        %             %Proficient within
+        %             [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1)));
+        %             plot(x_aic,f_aic,'Color',[1 0.8 0.8])
+        %
+        %             legend('Naive between','Proficient between','Naive within','Proficient within')
+        %             xlabel('auROC')
+        %             ylabel('Cumulative probability')
+        %             title([freq_names{pacii} ' Adjacent concentrations'])
+        %
+        %             %Save the data for anovan for adjacent ROCs
+        %             data_auROC=[];
+        %             prof_naive=[];
+        %             between=[];
+        %
+        %             %Naive between
+        %             data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1))];
+        %             prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1)))];
+        %             between=[between ones(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1)))];
+        %
+        %             %Proficient between
+        %             data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1&(ROC_neighbor==1)))];
+        %             prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1)))];
+        %             between=[between ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==1)))];
+        %
+        %             %Naive within
+        %             data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1))];
+        %             prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1)))];
+        %             between=[between zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1)))];
+        %
+        %             %Proficient within
+        %             data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1))];
+        %             prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1)))];
+        %             between=[between zeros(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==1)))];
+        %
+        %             %Calculate anovan for inteaction
+        %             [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
+        %             fprintf(1, ['p value for anovan MI auROC adjacent concentrations for naive vs proficient for PAC theta/' freq_names{pacii} '= %d \n'],  p(1));
+        %             fprintf(1, ['p value for anovan MI auROC adjacent concentrations  for within vs between for PAC theta/' freq_names{pacii} '= %d \n'],  p(2));
+        %             p_anova_np_adj(pacii)=p(1);
+        %             p_anova_wb_adj(pacii)=p(2);
+        %         end
+        %
+        %         %Plot cumulative histos for auROCs within vs between S+ and S- using
+        %         %only ROCs for concentrations separated by two log steps
+        %         for pacii=1:3
+        %
+        %
+        %             figNo = get(gcf,'Number')+1;
+        %             try
+        %                 close(figNo)
+        %             catch
+        %             end
+        %             figure(figNo)
+        %
+        %             hold on
+        %
+        %             %Naive between
+        %             [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2)));
+        %             plot(x_aic,f_aic,'b')
+        %
+        %             %Proficient between
+        %             [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2)));
+        %             plot(x_aic,f_aic,'r')
+        %
+        %             %Naive within
+        %             [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2)));
+        %             plot(x_aic,f_aic,'Color',[0.8 0.8 1])
+        %
+        %             %Proficient within
+        %             [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2)));
+        %             plot(x_aic,f_aic,'Color',[1 0.8 0.8])
+        %
+        %             legend('Naive between','Proficient between','Naive within','Proficient within')
+        %             xlabel('auROC')
+        %             ylabel('Cumulative probability')
+        %             title([freq_names{pacii} ' concentrations separated by two log steps'])
+        %
+        %             %Save the data for anovan for adjacent ROCs
+        %             data_auROC=[];
+        %             prof_naive=[];
+        %             between=[];
+        %
+        %             %Naive between
+        %             data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2))];
+        %             prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2)))];
+        %             between=[between ones(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2)))];
+        %
+        %             %Proficient between
+        %             data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1&(ROC_neighbor==2)))];
+        %             prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2)))];
+        %             between=[between ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==1)&(ROC_neighbor==2)))];
+        %
+        %             %Naive within
+        %             data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2))];
+        %             prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2)))];
+        %             between=[between zeros(1,sum((ROCper_ii==2)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2)))];
+        %
+        %             %Proficient within
+        %             data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2))];
+        %             prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2)))];
+        %             between=[between zeros(1,sum((ROCper_ii==1)&(ROCpacii==pacii)&(ROC_between==0)&(ROC_neighbor==2)))];
+        %
+        %             %Calculate anovan for inteaction
+        %             [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
+        %             fprintf(1, ['p value for anovan MI auROC two log step concentrations for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+        %             fprintf(1, ['p value for anovan MI auROC two log step concentrations for within vs between for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
+        %             p_anova_np_adj(pacii)=p(1);
+        %             p_anova_wb_adj(pacii)=p(2);
+        %         end
+        %
+        %         %Plot percent significant ROC
+        %         no_within=zeros(2,4);
+        %         no_sig_within=zeros(2,4);
+        %         no_between=zeros(2,4);
+        %         no_sig_between=zeros(2,4);
+        %         no_within1=zeros(2,4);
+        %         no_sig_within1=zeros(2,4);
+        %         no_between1=zeros(2,4);
+        %         no_sig_between1=zeros(2,4);
+        %         no_within2=zeros(2,4);
+        %         no_sig_within2=zeros(2,4);
+        %         no_between2=zeros(2,4);
+        %         no_sig_between2=zeros(2,4);
+        %
+        %         for pacii=1:3
+        %             for pcii=1:szpc(1)
+        %                 no_pairs=0;
+        %                 EvNo1=[];
+        %                 EvNo2=[];
+        %                 per_sig=zeros(length(eventType),length(eventType));
+        %                 for evNo1=1:length(eventType)
+        %                     for evNo2=evNo1+1:length(eventType)
+        %
+        %
+        %                         no_pairs=no_pairs+1;
+        %                         these_ROCs=(ROCpacii==pacii)&(ROCEvNo1==evNo1)&(ROCEvNo2==evNo2)&(ROCper_ii==pcii);
+        %                         sig(no_pairs)=sum((p_valROC<=pFDRauROC)&these_ROCs);
+        %                         not_sig(no_pairs)=sum(these_ROCs)-sum((p_valROC<=pFDRauROC)&these_ROCs);
+        %                         EvNo1(no_pairs)=evNo1;
+        %                         EvNo2(no_pairs)=evNo2;
+        %                         per_sig(evNo1,evNo2)=100*sig(no_pairs)/(sig(no_pairs)+not_sig(no_pairs));
+        %
+        %
+        %                         if ((evNo1==1)&(evNo2==2))||((evNo1==2)&(evNo2==1))||((evNo1==1)&(evNo2==3))||((evNo1==3)&(evNo2==1))...
+        %                                 ||((evNo1==2)&(evNo2==3))||((evNo1==3)&(evNo2==2))||((evNo1==4)&(evNo2==5))||((evNo1==5)&(evNo2==4))...
+        %                                 ||((evNo1==4)&(evNo2==6))||((evNo1==6)&(evNo2==4))||((evNo1==5)&(evNo2==6))||((evNo1==6)&(evNo2==5))
+        %                             %This is within
+        %                             no_sig_within(pcii,pacii)=no_sig_within(pcii,pacii)+sum((p_valROC<=pFDRauROC)&these_ROCs);
+        %                             no_within(pcii,pacii)=no_within(pcii,pacii)+sum(these_ROCs);
+        %                             if abs(evNo1-evNo2)==1
+        %                                 no_sig_within1(pcii,pacii)=no_sig_within1(pcii,pacii)+sum((p_valROC<=pFDRauROC)&these_ROCs);
+        %                                 no_within1(pcii,pacii)=no_within1(pcii,pacii)+sum(these_ROCs);
+        %                             end
+        %                             if abs(evNo1-evNo2)==2
+        %                                 no_sig_within2(pcii,pacii)=no_sig_within2(pcii,pacii)+sum((p_valROC<=pFDRauROC)&these_ROCs);
+        %                                 no_within2(pcii,pacii)=no_within2(pcii,pacii)+sum(these_ROCs);
+        %                             end
+        %                         else
+        %                             %This is bewteen
+        %                             no_sig_between(pcii,pacii)=no_sig_between(pcii,pacii)+sum((p_valROC<=pFDRauROC)&these_ROCs);
+        %                             no_between(pcii,pacii)=no_between(pcii,pacii)+sum(these_ROCs);
+        %                             if abs(evNo1-evNo2)==1
+        %                                 no_sig_between1(pcii,pacii)=no_sig_between1(pcii,pacii)+sum((p_valROC<=pFDRauROC)&these_ROCs);
+        %                                 no_between1(pcii,pacii)=no_between1(pcii,pacii)+sum(these_ROCs);
+        %                             end
+        %                             if abs(evNo1-evNo2)==2
+        %                                 no_sig_between2(pcii,pacii)=no_sig_between2(pcii,pacii)+sum((p_valROC<=pFDRauROC)&these_ROCs);
+        %                                 no_between2(pcii,pacii)=no_between2(pcii,pacii)+sum(these_ROCs);
+        %                             end
+        %                         end
+        %
+        %                     end
+        %                 end
+        %
+        %                 for evNo1=1:length(eventType)
+        %                     for evNo2=evNo1+1:length(eventType)
+        %
+        %                         if per_sig(evNo1,evNo2)==0
+        %                             per_sig(evNo1,evNo2)=100/64;
+        %                         end
+        %                     end
+        %                 end
+        %
+        %                 %Plot the pseudocolor for percent significant auROCs
+        %                 figNo = get(gcf,'Number')+1;
+        %                 try
+        %                     close(figNo)
+        %                 catch
+        %                 end
+        %                 figure(figNo)
+        %
+        %                 evNos_for_1=1:length(eventType);
+        %                 evNos_for_2=[1:length(eventType)]';
+        %
+        %                 drg_pcolor(repmat(evNos_for_1,length(eventType),1),repmat(evNos_for_2,1,length(eventType)),per_sig)
+        %                 cmjet=colormap(jet);
+        %                 cmjet(1,1)=0.7;
+        %                 cmjet(1,2)=0.7;
+        %                 cmjet(1,3)=0.7;
+        %                 colormap(cmjet)
+        %
+        %                 hold on
+        %                 plot([4 4],[1 4],'-w','LineWidth', 5)
+        %                 plot([4 7],[4 4],'-w','LineWidth', 5)
+        %
+        %                 ax=gca;
+        %                 set(ax,'XTickLabel','')
+        %                 ylabel('dB')
+        %                 xticks([1.5:1:length(eventType)+1])
+        %                 xticklabels(handles_pars.concs2)
+        %                 yticks([1.5:1:length(eventType)+1])
+        %                 yticklabels(handles_pars.concs2)
+        %
+        %                 title(['% significant MI auROC for PAC theta/' freq_names{pacii+1} ' ' per_lab(pcii)])
+        %                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+        %
+        %                 pfft=1
+        %             end
+        %         end
+        %
+        %
+        %
+        %
+        %         figNo = get(gcf,'Number')+1;
+        %         try
+        %             close(figNo)
+        %         catch
+        %         end
+        %         hFig=figure(figNo)
+        %
+        %
+        %         set(hFig, 'units','normalized','position',[.83 .1 .05 .3])
+        %
+        %         prain=[0:100/99:100];
+        %         drg_pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
+        %         colormap jet
+        %         shading interp
+        %         ax=gca;
+        %         set(ax,'XTickLabel','')
+        %
+        %         %Plot percent significant ROCs
+        %         figNo = get(gcf,'Number')+1;
+        %         try
+        %             close(figNo)
+        %         catch
+        %         end
+        %         hFig=figure(figNo)
+        %
+        %         for pacii=1:3
+        %             subplot(2,2,pacii)
+        %             hold on
+        %             %Plot within naive
+        %             bar(1,100*no_sig_within(2,pacii)/no_within(2,pacii),'b')
+        %             bar(2,100*no_sig_within1(2,pacii)/no_within1(2,pacii),'b')
+        %             bar(3,100*no_sig_within2(2,pacii)/no_within2(2,pacii),'b')
+        %
+        %             %Plot within proficient
+        %             bar(4,100*no_sig_within(1,pacii)/no_within(1,pacii),'r')
+        %             bar(5,100*no_sig_within1(1,pacii)/no_within1(1,pacii),'r')
+        %             bar(6,100*no_sig_within2(1,pacii)/no_within2(1,pacii),'r')
+        %
+        %             %Plot between naive
+        %             bar(9,100*no_sig_between(2,pacii)/no_between(2,pacii),'b')
+        %             bar(10,100*no_sig_between1(2,pacii)/no_between1(2,pacii),'b')
+        %             bar(11,100*no_sig_between2(2,pacii)/no_between2(2,pacii),'b')
+        %
+        %             %Plot between proficient
+        %             bar(12,100*no_sig_between(1,pacii)/no_between(1,pacii),'r')
+        %             bar(13,100*no_sig_between1(1,pacii)/no_between1(1,pacii),'r')
+        %             bar(14,100*no_sig_between2(1,pacii)/no_between2(1,pacii),'r')
+        %
+        %             title(['% significant MI auROC for theta/' freq_names{pacii+1} ' PAC'])
+        %         end
+        %
         %         ppno=0;
         %         for pair_no1=1:no_pairs
         %             for pair_no2=pair_no1+1:no_pairs
@@ -7340,7 +7359,7 @@ switch which_display
         pfft=1
         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
         
-    
+        
         
         
 end

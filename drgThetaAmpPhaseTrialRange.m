@@ -12,6 +12,7 @@ pad_time=handles.time_pad;
 n_phase_bins=handles.n_phase_bins;
 
 %Empty vectors
+handles.drgb.PAC.no_trials=0;
 handles.drgb.PAC.meanVectorLength=[];
 handles.drgb.PAC.meanVectorAngle=[];
 handles.drgb.PAC.peakAngle=[];
