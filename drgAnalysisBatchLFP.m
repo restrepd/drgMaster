@@ -4925,7 +4925,7 @@ switch which_display
         
         fprintf(1, ['Pairwise auROC analysis for Fig 1 of Justin''s paper\n\n'])
         p_vals=[];
-        no_files=max(files);
+        no_files=length(files);
         
         if exist('which_electrodes')==0
             which_electrodes=[1:16];
@@ -4956,8 +4956,9 @@ switch which_display
                         for fileNo=1:no_files
                             if sum(files==fileNo)>0
                                 if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
+                                 
                                     lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
-                                    
+                                 
                                     if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
                                         
                                         
@@ -5272,7 +5273,11 @@ switch which_display
                         bar(bar_offset,mean(delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))),'b','LineWidth', 3)
                     end
                     plot(bar_offset,mean(delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))),'ok','LineWidth', 3)
-                    CI = bootci(1000, {@mean, delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))},'type','cper');
+                    try
+                        CI = bootci(1000, {@mean, delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))},'type','cper');
+                    catch
+                        pffft=1;
+                    end
                     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
                     %In the future add lines linking the points
                     plot((bar_offset)*ones(1,sum((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))),...
