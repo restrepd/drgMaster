@@ -4925,7 +4925,7 @@ switch which_display
         
         fprintf(1, ['Pairwise auROC analysis for Fig 1 of Justin''s paper\n\n'])
         p_vals=[];
-        no_files=length(files);
+        no_files=max(files);
         
         if exist('which_electrodes')==0
             which_electrodes=[1:16];
@@ -4953,11 +4953,14 @@ switch which_display
                             end
                         end
                         
+                        mouse_has_files=0;
                         for fileNo=1:no_files
                             if sum(files==fileNo)>0
                                 if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
-                                 
-                                    lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                                    
+                                    mouse_has_files=1;
+                                    
+                                    lfpodNo_ref=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==refWin));
                                  
                                     if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
                                         
@@ -4978,7 +4981,7 @@ switch which_display
                                                 
                                                 if (sum(trials_in_event_Ev)>=1)
                                                     
-                                                    lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                                    lfpodNo=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==winNo));
                                                     
                                                     % Ev1
                                                     this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
@@ -5020,12 +5023,12 @@ switch which_display
                                                     end
                                                     
                                                     
-                                                    fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
+                                                    fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,fileNo,elec);
                                                     
                                                 else
                                                     
                                                     
-                                                    fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
+                                                    fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,fileNo,elec);
                                                     
                                                     
                                                 end
@@ -5036,13 +5039,13 @@ switch which_display
                                             
                                         else
                                             
-                                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],fileNo,elec);
                                             
                                         end
                                         
                                         
                                     else
-                                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],files(fileNo),elec);
+                                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],fileNo,elec);
                                         
                                         
                                     end
@@ -5050,77 +5053,78 @@ switch which_display
                             end
                         end %fileNo
                         
-                         %Calculate per mouse MI
-                        for evNo=1:length(eventType)
-                            for bwii=1:4
-                                delta_dB_No_per_mouse=delta_dB_No_per_mouse+1;
-                                this_mouse_delta_dB=[];
-                                this_mouse_delta_dB=theseEvNos_thisMouse_thisElec(evNo,bwii).this_delta_dB_Ev(theseEvNos_thisMouse_thisElec(evNo,bwii).whichMouse==mouseNo);
-                                delta_dB_per_mouse(delta_dB_No_per_mouse)=mean(this_mouse_delta_dB);
-                                delta_dB_perii_per_mouse(delta_dB_No_per_mouse)=per_ii;
-                                delta_dB_evNo_per_mouse(delta_dB_No_per_mouse)=evNo;
-                                delta_dB_bwii_per_mouse(delta_dB_No_per_mouse)=bwii;
-                                delta_dB_mouseNo_per_mouse(delta_dB_No_per_mouse)=mouseNo;
+                        if mouse_has_files==1
+                            %Calculate per mouse MI
+                            for evNo=1:length(eventType)
+                                for bwii=1:4
+                                    delta_dB_No_per_mouse=delta_dB_No_per_mouse+1;
+                                    this_mouse_delta_dB=[];
+                                    this_mouse_delta_dB=theseEvNos_thisMouse_thisElec(evNo,bwii).this_delta_dB_Ev(theseEvNos_thisMouse_thisElec(evNo,bwii).whichMouse==mouseNo);
+                                    delta_dB_per_mouse(delta_dB_No_per_mouse)=mean(this_mouse_delta_dB);
+                                    delta_dB_perii_per_mouse(delta_dB_No_per_mouse)=per_ii;
+                                    delta_dB_evNo_per_mouse(delta_dB_No_per_mouse)=evNo;
+                                    delta_dB_bwii_per_mouse(delta_dB_No_per_mouse)=bwii;
+                                    delta_dB_mouseNo_per_mouse(delta_dB_No_per_mouse)=mouseNo;
+                                end
                             end
-                        end
-                        
-                        can_calculate_auroc=1;
-                        if can_calculate_auroc==1
-                            for evNo1=1:length(eventType)
-                                for evNo2=evNo1+1:length(eventType)
-                                    if (noWB_for_evNo(evNo1)~=-1)&(noWB_for_evNo(evNo2)~=-1)
-                                        
-                                        for bwii=1:4
+                            
+                            can_calculate_auroc=1;
+                            if can_calculate_auroc==1
+                                for evNo1=1:length(eventType)
+                                    for evNo2=evNo1+1:length(eventType)
+                                        if (noWB_for_evNo(evNo1)~=-1)&(noWB_for_evNo(evNo2)~=-1)
                                             
-                                            %Enter Ev1
-                                            trials_in_event_Ev1=length(theseEvNos(evNo1,bwii).this_delta_dB_powerEv);
-                                            this_delta_dB_powerEv1=zeros(trials_in_event_Ev1,1);
-                                            this_delta_dB_powerEv1=theseEvNos(evNo1,bwii).this_delta_dB_powerEv;
-                                            roc_data=[];
-                                            roc_data(1:sum(trials_in_event_Ev1),1)=this_delta_dB_powerEv1;
-                                            roc_data(1:sum(trials_in_event_Ev1),2)=zeros(sum(trials_in_event_Ev1),1);
-                                            
-                                            %Enter Ev2
-                                            trials_in_event_Ev2=length(theseEvNos(evNo2,bwii).this_delta_dB_powerEv);
-                                            total_trials=trials_in_event_Ev1+trials_in_event_Ev2;
-                                            this_delta_dB_powerEv2=zeros(trials_in_event_Ev2,1);
-                                            this_delta_dB_powerEv2=theseEvNos(evNo2,bwii).this_delta_dB_powerEv;
-                                            roc_data(sum(trials_in_event_Ev1)+1:total_trials,1)=this_delta_dB_powerEv2;
-                                            roc_data(sum(trials_in_event_Ev1)+1:total_trials,2)=ones(sum(trials_in_event_Ev2),1);
-                                            
-                                            
-                                            %Find  ROC
-                                            if (trials_in_event_Ev1>=5)&(trials_in_event_Ev2>=5)
-                                                no_ROCs=no_ROCs+1;
-                                                roc=roc_calc(roc_data,0,0.05,0);
-                                                ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo_ref).fileNo;
-                                                ROCelec(no_ROCs)=elec;
-                                                ROCbandwidth(no_ROCs)=bwii;
-                                                ROCper_ii(no_ROCs)=per_ii;
-                                                ROCEvNo1(no_ROCs)=evNo1;
-                                                ROCEvNo2(no_ROCs)=evNo2;
-                                                if ((abs(evNo1-2)<=1)&(abs(evNo2-5)<=1))||((abs(evNo1-5)<=1)&(abs(evNo2-2)<=1))
-                                                    ROC_between(no_ROCs)=1;
-                                                else
-                                                    ROC_between(no_ROCs)=0;
-                                                end
-                                                ROC_neighbor(no_ROCs)=abs(evNo1-evNo2);
-                                                auROC(no_ROCs)=roc.AUC-0.5;
-                                                p_valROC(no_ROCs)=roc.p;
-                                                p_vals_ROC=[p_vals_ROC roc.p];
+                                            for bwii=1:4
                                                 
-                                                if (per_ii==1)&(bwii==4)&(roc.AUC-0.5>0.3)
-                                                    %This is here to stop and plot the ROC
-                                                    %roc_out=roc_calc(roc_data);
-                                                    pffft=1;
+                                                %Enter Ev1
+                                                trials_in_event_Ev1=length(theseEvNos(evNo1,bwii).this_delta_dB_powerEv);
+                                                this_delta_dB_powerEv1=zeros(trials_in_event_Ev1,1);
+                                                this_delta_dB_powerEv1=theseEvNos(evNo1,bwii).this_delta_dB_powerEv;
+                                                roc_data=[];
+                                                roc_data(1:sum(trials_in_event_Ev1),1)=this_delta_dB_powerEv1;
+                                                roc_data(1:sum(trials_in_event_Ev1),2)=zeros(sum(trials_in_event_Ev1),1);
+                                                
+                                                %Enter Ev2
+                                                trials_in_event_Ev2=length(theseEvNos(evNo2,bwii).this_delta_dB_powerEv);
+                                                total_trials=trials_in_event_Ev1+trials_in_event_Ev2;
+                                                this_delta_dB_powerEv2=zeros(trials_in_event_Ev2,1);
+                                                this_delta_dB_powerEv2=theseEvNos(evNo2,bwii).this_delta_dB_powerEv;
+                                                roc_data(sum(trials_in_event_Ev1)+1:total_trials,1)=this_delta_dB_powerEv2;
+                                                roc_data(sum(trials_in_event_Ev1)+1:total_trials,2)=ones(sum(trials_in_event_Ev2),1);
+                                                
+                                                
+                                                %Find  ROC
+                                                if (trials_in_event_Ev1>=5)&(trials_in_event_Ev2>=5)
+                                                    no_ROCs=no_ROCs+1;
+                                                    roc=roc_calc(roc_data,0,0.05,0);
+                                                    ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo_ref).fileNo;
+                                                    ROCelec(no_ROCs)=elec;
+                                                    ROCbandwidth(no_ROCs)=bwii;
+                                                    ROCper_ii(no_ROCs)=per_ii;
+                                                    ROCEvNo1(no_ROCs)=evNo1;
+                                                    ROCEvNo2(no_ROCs)=evNo2;
+                                                    if ((abs(evNo1-2)<=1)&(abs(evNo2-5)<=1))||((abs(evNo1-5)<=1)&(abs(evNo2-2)<=1))
+                                                        ROC_between(no_ROCs)=1;
+                                                    else
+                                                        ROC_between(no_ROCs)=0;
+                                                    end
+                                                    ROC_neighbor(no_ROCs)=abs(evNo1-evNo2);
+                                                    auROC(no_ROCs)=roc.AUC-0.5;
+                                                    p_valROC(no_ROCs)=roc.p;
+                                                    p_vals_ROC=[p_vals_ROC roc.p];
+                                                    
+                                                    if (per_ii==1)&(bwii==4)&(roc.AUC-0.5>0.3)
+                                                        %This is here to stop and plot the ROC
+                                                        %roc_out=roc_calc(roc_data);
+                                                        pffft=1;
+                                                    end
                                                 end
                                             end
                                         end
                                     end
                                 end
+                                
                             end
-                            
-                            
                             
                             
                             
@@ -5273,11 +5277,7 @@ switch which_display
                         bar(bar_offset,mean(delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))),'b','LineWidth', 3)
                     end
                     plot(bar_offset,mean(delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))),'ok','LineWidth', 3)
-                    try
-                        CI = bootci(1000, {@mean, delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))},'type','cper');
-                    catch
-                        pffft=1;
-                    end
+                    CI = bootci(1000, {@mean, delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))},'type','cper');
                     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
                     %In the future add lines linking the points
                     plot((bar_offset)*ones(1,sum((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))),...
@@ -5744,7 +5744,7 @@ switch which_display
                             for fileNo=1:no_files
                                 if sum(files==fileNo)>0
                                     if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
-                                        lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                                        lfpodNo_ref=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==refWin));
                                         
                                         if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
                                             
@@ -5762,7 +5762,7 @@ switch which_display
                                                     
                                                     if (sum(trials_in_event_Ev)>=1)
                                                         
-                                                        lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                                        lfpodNo=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==winNo));
                                                         
                                                         % Ev1
                                                         this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
@@ -5814,14 +5814,14 @@ switch which_display
                                                 end
                                             else
                                                 
-                                                fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                                                fprintf(1, ['Empty allPower for file No %d electrode %d\n'],fileNo,elec);
                                                 
                                                 
                                             end
                                             
                                             
                                         else
-                                            fprintf(1, ['Empty LFP reference for file No %d electrode %d\n'],files(fileNo),elec);
+                                            fprintf(1, ['Empty LFP reference for file No %d electrode %d\n'],fileNo,elec);
                                             
                                             
                                         end
@@ -6097,7 +6097,7 @@ switch which_display
                             for fileNo=1:no_files
                                 if sum(files==fileNo)>0
                                     if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
-                                        lfpodNo_ref=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                                        lfpodNo_ref=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==refWin));
                                         
                                         if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
                                             
@@ -6115,7 +6115,7 @@ switch which_display
                                                     
                                                     if (sum(trials_in_event_Ev)>=1)
                                                         
-                                                        lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                                        lfpodNo=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==winNo));
                                                         
                                                         % Ev1
                                                         this_dB_powerref=zeros(sum(trials_in_event_Ev),length(frequency));
@@ -6167,14 +6167,14 @@ switch which_display
                                                 end
                                             else
                                                 
-                                                fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                                                fprintf(1, ['Empty allPower for file No %d electrode %d\n'],fileNo,elec);
                                                 
                                                 
                                             end
                                             
                                             
                                         else
-                                            fprintf(1, ['Empty LFP reference for file No %d electrode %d\n'],files(fileNo),elec);
+                                            fprintf(1, ['Empty LFP reference for file No %d electrode %d\n'],fileNo,elec);
                                             
                                             
                                         end
@@ -6448,7 +6448,7 @@ switch which_display
                             %If this file is in the list of files the user wants to process in drgAnalysisBatchLFP continue
                             if sum(files==fileNo)>0
                                 if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
-                                    lfpodNo=find((files_per_lfp==files(fileNo))&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                    lfpodNo=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==winNo));
                                     
                                     if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo)))
                                         
@@ -6508,12 +6508,12 @@ switch which_display
                                                     end
                                                     
                                                     
-                                                    fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
+                                                    fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,fileNo,elec);
                                                     
                                                 else
                                                     
                                                     
-                                                    fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,files(fileNo),elec);
+                                                    fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,fileNo,elec);
                                                     
                                                     
                                                 end
