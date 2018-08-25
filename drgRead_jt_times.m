@@ -67,8 +67,8 @@ if strcmp(drg.drta_p.fullName(end-3:end-3),'.')
     drg.drta_p.fullName=[drg.drg_directory drg.jt_times_file(10:end-4) '.rhd'];
 else
     %This is .dg
-    drg.drta_p.FileName=[drg.jt_times_file(10:end-4) '.dg'];
-    drg.drta_p.fullName=[drg.drg_directory drg.jt_times_file(10:end-4) '.dg'];
+    drg.drta_p.FileName=[drg.jt_times_file(10:end-3) '.dg'];
+    drg.drta_p.fullName=[drg.drg_directory drg.jt_times_file(10:end-3) '.dg'];
 end
 
 
