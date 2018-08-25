@@ -162,7 +162,7 @@ event2=eventType(2);
 %Ask user for the drgb output .mat file and load those data
 [handles.drgb.outFileName,handles.PathName] = uigetfile('*.mat','Select the drgb output file');
 load([handles.PathName handles.drgb.outFileName])
-
+ 
 if ~isfield(handles_pars,'files')
     files=[1:handles_drgb.drgbchoices.no_files];
 end
@@ -179,7 +179,7 @@ switch which_display
         frequency=handles_drgb.drgb.freq_for_LFPpower;
 end
 
-
+ 
 
 %These are the colors for the different lines
 
@@ -4958,7 +4958,7 @@ switch which_display
                             if sum(files==fileNo)>0
                                 if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
                                     
-                                    mouse_has_files=1;
+                                    
                                     
                                     lfpodNo_ref=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==refWin));
                                  
@@ -5019,7 +5019,7 @@ switch which_display
                                                         %                                                     if evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)<-20
                                                         %                                                         fprintf(1, ['mean dB less than -20 dB in file no %d, electrode %d\n'],files(fileNo),elec);
                                                         %                                                     end
-                                                        
+                                                        mouse_has_files=1;
                                                     end
                                                     
                                                     
@@ -5187,6 +5187,7 @@ switch which_display
         %
         %         fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
         %
+         
         
         %Now plot the histograms and the average per session
         conc_anno_loc = {[0.15 0.15 0.2 0.2], [0.15 0.15 0.2 0.17], [0.15 0.15 0.2 0.14], [0.15 0.15 0.2 0.11], [0.15 0.15 0.2 0.08], [0.15 0.15 0.2 0.05]};
@@ -5207,6 +5208,7 @@ switch which_display
             data_dB=[];
             spm=[];
             conc=[];
+            
             
             for evNo=1:length(eventType)
                 

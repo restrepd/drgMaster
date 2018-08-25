@@ -53,6 +53,24 @@ drg.draq_d=draq_d;
 drg.draq_p=draq_p;
 drg.drta_p=drta_p;
 
+%Change in drta_p the name and directory to the current 
+%jt_times name and directory
+%Note: this is here to fix a bug that happens
+%when the name of the file and jt_times are changed after
+%running drta
+
+drg.drta_p.PathName=[drg.drg_directory];
+%Find if the file is .rhd or .dg
+if strcmp(drg.drta_p.fullName(end-3:end-3),'.')
+    %This is .rhd
+    drg.drta_p.FileName=[drg.jt_times_file(10:end-4) '.rhd'];
+    drg.drta_p.fullName=[drg.drg_directory drg.jt_times_file(10:end-4) '.rhd'];
+else
+    %This is .dg
+    drg.drta_p.FileName=[drg.jt_times_file(10:end-4) '.dg'];
+    drg.drta_p.fullName=[drg.drg_directory drg.jt_times_file(10:end-4) '.dg'];
+end
+
 
 %Enter events in drg
 drg.nEventTypes=draq_d.nEventTypes;
