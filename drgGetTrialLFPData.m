@@ -47,11 +47,14 @@ try
         data=filtfilt(notch60HzFilt,data);
     end
     
-    if handles.notch50==1
-        notch50HzFilt = designfilt('bandstopiir','FilterOrder',2, ...
-            'HalfPowerFrequency1',49,'HalfPowerFrequency2',51, ...
-            'DesignMethod','butter','SampleRate',floor(handles.drg.session(sessionNo).draq_p.ActualRate));
-        data=filtfilt(notch50HzFilt,data);
+    try
+        if handles.notch50==1
+            notch50HzFilt = designfilt('bandstopiir','FilterOrder',2, ...
+                'HalfPowerFrequency1',49,'HalfPowerFrequency2',51, ...
+                'DesignMethod','butter','SampleRate',floor(handles.drg.session(sessionNo).draq_p.ActualRate));
+            data=filtfilt(notch50HzFilt,data);
+        end
+    catch
     end
     
     %Get the data

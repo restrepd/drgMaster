@@ -58,6 +58,7 @@ for filNum=first_file:handles.drgbchoices.no_files
     lfp_per_file(filNum).lfpevpair=[];
     lfp_per_file(filNum).f=[];
     lfp_per_file(filNum).out_times=[];
+   
     
     %Make sure that all the files exist
     jtFileName=handles.drgbchoices.FileName{filNum};
@@ -78,13 +79,15 @@ for filNum=first_file:handles.drgbchoices.no_files
     
 end
 
+tempFileNo=1;
+
 if all_files_present==1
     
     gcp;
     no_files=handles.drgbchoices.no_files;
     parfor filNum=first_file:no_files
         
-        %         for filNum=first_file:handles.drgbchoices.no_files
+    %for filNum=first_file:handles.drgbchoices.no_files
         
         file_no=filNum
         handlespf=struct();
@@ -105,9 +108,9 @@ if all_files_present==1
         S=load(fullName,my_drg{:});
         handlespf.drg=S.drg;
         
-        if handles.read_entire_file==1
-            handlespf=drgReadAllDraOrDg(handlespf);
-        end
+%         if handles.read_entire_file==1
+%             handlespf=drgReadAllDraOrDg(handlespf);
+%         end
         
         switch handlespf.drg.session(handlespf.sessionNo).draq_p.dgordra
             case 1
@@ -186,7 +189,7 @@ if all_files_present==1
                     %Please note this is the same function called in drgMaster
                     %when you choose LFP Power Timecourse Trial Range, which calls drgLFPspectTimecourse
                     [t,f,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo, perCorr,which_event]=drgGetLFPPowerForThisEvTypeNo(handlespf);
-                    
+                     
                     
                     lfp_per_file(filNum).f=f;
                     
@@ -422,10 +425,16 @@ if all_files_present==1
                 end
                 
                 fprintf(1, 'File number: %d, window number: %d, lfp number: %d\n',filNum,winNo,lfpNo);
+                
+                
             end
             
         end
-
+        
+        %Save this file
+        this_jt=handlespf.drgbchoices.FileName{filNum};
+        drgSavePar([handles.drgb.outPathName 'temp/'],this_jt(10:end),lfp_per_file(filNum),filNum)
+        
     end
     
     
