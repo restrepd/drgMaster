@@ -5328,22 +5328,30 @@ switch which_display
             figure(figNo)
             
             hold on
-            
+             
             %Naive between
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)));
-            plot(x_aic,f_aic,'b')
+            if length(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)))>3
+                [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)));
+                plot(x_aic,f_aic,'b')
+            end
             
             %Proficient between
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)));
-            plot(x_aic,f_aic,'r')
+            if length(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)))>3
+                [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)));
+                plot(x_aic,f_aic,'r')
+            end
             
             %Naive within
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)));
-            plot(x_aic,f_aic,'Color',[0.8 0.8 1])
+            if length(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)))>3
+                [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)));
+                plot(x_aic,f_aic,'Color',[0.8 0.8 1])
+            end
             
             %Proficient within
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)));
-            plot(x_aic,f_aic,'Color',[1 0.8 0.8])
+            if length(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)))>3
+                [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)));
+                plot(x_aic,f_aic,'Color',[1 0.8 0.8])
+            end
             
             legend('Naive between','Proficient between','Naive within','Proficient within')
             xlabel('auROC')
@@ -5383,142 +5391,152 @@ switch which_display
             p_anova_wb(bwii)=p(2);
         end
         
-        %Plot cumulative histos for auROCs within vs between S+ and S- using
-        %only ROCs for adjacent concentrations
-        for bwii=1:4
+        if sum(ROC_between)>0
             
-            
-            figNo = get(gcf,'Number')+1;
-            try
-                close(figNo)
-            catch
+            %Plot cumulative histos for auROCs within vs between S+ and S- using
+            %only ROCs for adjacent concentrations
+            for bwii=1:4
+                
+                
+                figNo = get(gcf,'Number')+1;
+                try
+                    close(figNo)
+                catch
+                end
+                figure(figNo)
+                
+                hold on
+                
+                %Naive between
+                if ~isempty(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))
+                    [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)));
+                    plot(x_aic,f_aic,'b')
+                end
+                
+                %Proficient between
+                if ~isempty(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))
+                    [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)));
+                    plot(x_aic,f_aic,'r')
+                end
+                
+                %Naive within
+                if ~isempty(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))
+                    [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)));
+                    plot(x_aic,f_aic,'Color',[0.8 0.8 1])
+                end
+                
+                %Proficient within
+                if ~isempty(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))
+                    [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)));
+                    plot(x_aic,f_aic,'Color',[1 0.8 0.8])
+                end
+                
+                legend('Naive between','Proficient between','Naive within','Proficient within')
+                xlabel('auROC')
+                ylabel('Cumulative probability')
+                title([freq_names{bwii} ' Adjacent concentrations'])
+                
+                %Save the data for anovan for adjacent ROCs
+                data_auROC=[];
+                prof_naive=[];
+                between=[];
+                
+                %Naive between
+                data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1))];
+                prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))];
+                between=[between ones(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))];
+                
+                %Proficient between
+                data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1&(ROC_neighbor==1)))];
+                prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))];
+                between=[between ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))];
+                
+                %Naive within
+                data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1))];
+                prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))];
+                between=[between zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))];
+                
+                %Proficient within
+                data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1))];
+                prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))];
+                between=[between zeros(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))];
+                
+                %Calculate anovan for inteaction
+                [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
+                fprintf(1, ['p value for anovan auROC adjacent concentrations for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
+                fprintf(1, ['p value for anovan auROC adjacent concentrations  for within vs between for ' freq_names{bwii} '= %d \n'],  p(2));
+                p_anova_np_adj(bwii)=p(1);
+                p_anova_wb_adj(bwii)=p(2);
             end
-            figure(figNo)
             
-            hold on
-            
-            %Naive between
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)));
-            plot(x_aic,f_aic,'b')
-            
-            %Proficient between
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)));
-            plot(x_aic,f_aic,'r')
-            
-            %Naive within
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)));
-            plot(x_aic,f_aic,'Color',[0.8 0.8 1])
-            
-            %Proficient within
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)));
-            plot(x_aic,f_aic,'Color',[1 0.8 0.8])
-            
-            legend('Naive between','Proficient between','Naive within','Proficient within')
-            xlabel('auROC')
-            ylabel('Cumulative probability')
-            title([freq_names{bwii} ' Adjacent concentrations'])
-            
-            %Save the data for anovan for adjacent ROCs
-            data_auROC=[];
-            prof_naive=[];
-            between=[];
-            
-            %Naive between
-            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1))];
-            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))];
-            between=[between ones(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))];
-            
-            %Proficient between
-            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1&(ROC_neighbor==1)))];
-            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))];
-            between=[between ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==1)))];
-            
-            %Naive within
-            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1))];
-            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))];
-            between=[between zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))];
-            
-            %Proficient within
-            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1))];
-            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))];
-            between=[between zeros(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==1)))];
-            
-            %Calculate anovan for inteaction
-            [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
-            fprintf(1, ['p value for anovan auROC adjacent concentrations for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan auROC adjacent concentrations  for within vs between for ' freq_names{bwii} '= %d \n'],  p(2));
-            p_anova_np_adj(bwii)=p(1);
-            p_anova_wb_adj(bwii)=p(2);
-        end
-        
-        %Plot cumulative histos for auROCs within vs between S+ and S- using
-        %only ROCs for concentrations separated by two log steps
-        for bwii=1:4
-            
-            
-            figNo = get(gcf,'Number')+1;
-            try
-                close(figNo)
-            catch
+            %Plot cumulative histos for auROCs within vs between S+ and S- using
+            %only ROCs for concentrations separated by two log steps
+            for bwii=1:4
+                
+                
+                figNo = get(gcf,'Number')+1;
+                try
+                    close(figNo)
+                catch
+                end
+                figure(figNo)
+                
+                hold on
+                
+                %Naive between
+                [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)));
+                plot(x_aic,f_aic,'b')
+                
+                %Proficient between
+                [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)));
+                plot(x_aic,f_aic,'r')
+                
+                %Naive within
+                [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)));
+                plot(x_aic,f_aic,'Color',[0.8 0.8 1])
+                
+                %Proficient within
+                [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)));
+                plot(x_aic,f_aic,'Color',[1 0.8 0.8])
+                
+                legend('Naive between','Proficient between','Naive within','Proficient within')
+                xlabel('auROC')
+                ylabel('Cumulative probability')
+                title([freq_names{bwii} ' concentrations separated by two log steps'])
+                
+                %Save the data for anovan for adjacent ROCs
+                data_auROC=[];
+                prof_naive=[];
+                between=[];
+                
+                %Naive between
+                data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2))];
+                prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)))];
+                between=[between ones(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)))];
+                
+                %Proficient between
+                data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1&(ROC_neighbor==2)))];
+                prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)))];
+                between=[between ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)))];
+                
+                %Naive within
+                data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2))];
+                prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)))];
+                between=[between zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)))];
+                
+                %Proficient within
+                data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2))];
+                prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)))];
+                between=[between zeros(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)))];
+                
+                %Calculate anovan for inteaction
+                [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
+                fprintf(1, ['p value for anovan auROC two log step concentrations for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
+                fprintf(1, ['p value for anovan auROC two log step concentrations  for within vs between for ' freq_names{bwii} '= %d \n'],  p(2));
+                p_anova_np_adj(bwii)=p(1);
+                p_anova_wb_adj(bwii)=p(2);
             end
-            figure(figNo)
-            
-            hold on
-            
-            %Naive between
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)));
-            plot(x_aic,f_aic,'b')
-            
-            %Proficient between
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)));
-            plot(x_aic,f_aic,'r')
-            
-            %Naive within
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)));
-            plot(x_aic,f_aic,'Color',[0.8 0.8 1])
-            
-            %Proficient within
-            [f_aic,x_aic] = drg_ecdf(auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)));
-            plot(x_aic,f_aic,'Color',[1 0.8 0.8])
-            
-            legend('Naive between','Proficient between','Naive within','Proficient within')
-            xlabel('auROC')
-            ylabel('Cumulative probability')
-            title([freq_names{bwii} ' concentrations separated by two log steps'])
-            
-            %Save the data for anovan for adjacent ROCs
-            data_auROC=[];
-            prof_naive=[];
-            between=[];
-            
-            %Naive between
-            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2))];
-            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)))];
-            between=[between ones(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)))];
-            
-            %Proficient between
-            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1&(ROC_neighbor==2)))];
-            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)))];
-            between=[between ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==1)&(ROC_neighbor==2)))];
-            
-            %Naive within
-            data_auROC=[data_auROC auROC((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2))];
-            prof_naive=[prof_naive zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)))];
-            between=[between zeros(1,sum((ROCper_ii==2)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)))];
-            
-            %Proficient within
-            data_auROC=[data_auROC auROC((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2))];
-            prof_naive=[prof_naive ones(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)))];
-            between=[between zeros(1,sum((ROCper_ii==1)&(ROCbandwidth==bwii)&(ROC_between==0)&(ROC_neighbor==2)))];
-            
-            %Calculate anovan for inteaction
-            [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
-            fprintf(1, ['p value for anovan auROC two log step concentrations for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan auROC two log step concentrations  for within vs between for ' freq_names{bwii} '= %d \n'],  p(2));
-            p_anova_np_adj(bwii)=p(1);
-            p_anova_wb_adj(bwii)=p(2);
         end
-        
         %Plot percent significant ROC
         no_within=zeros(2,4);
         no_sig_within=zeros(2,4);
