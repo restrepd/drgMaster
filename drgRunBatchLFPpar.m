@@ -13,6 +13,8 @@ tic
 [choiceFileName,choiceBatchPathName] = uigetfile({'drgbChoices*.m'},'Select the .m file with all the choices for analysis');
 fprintf(1, ['\ndrgRunBatchLFP run for ' choiceFileName '\n\n']);
 
+tempDirName=['temp' choiceFileName(12:end)];
+
 addpath(choiceBatchPathName)
 eval(['handles=' choiceFileName(1:end-2) ';'])
 handles.choiceFileName=choiceFileName;
@@ -21,30 +23,29 @@ handles.choiceBatchPathName=choiceBatchPathName;
 new_no_files=handles.drgbchoices.no_files;
 choicePathName=handles.drgbchoices.PathName;
 choiceFileName=handles.drgbchoices.FileName;
-
-%Very, very important!
+ %Very, very important!
 handles.evTypeNo=handles.drgbchoices.referenceEvent;
 
 %If you want to skip files that have already been processed enter the number of the first file
 % first_file=handles.drgb.first_file;
 
-%NOTE: For the moment because of parallel processing I am defaulting to
-%start with file 1
-first_file=1;
-
-if first_file==1
-    handles.drgb.lfpevpair_no=0;
-    handles.drgb.lfp_per_exp_no=0;
-    first_out=1;
-else
-    load([handles.drgb.outPathName handles.drgb.outFileName])
-    handles.drgb=handles_drgb.drgb;
-    %The user may add new files
-    handles.drgbchoices.no_files=new_no_files;
-    handles.drgbchoices.PathName=choicePathName;
-    handles.drgbchoices.FileName=choiceFileName;
-    first_out=0;
-end
+% %NOTE: For the moment because of parallel processing I am defaulting to
+% %start with file 1
+% first_file=1;
+% 
+% if first_file==1
+%     handles.drgb.lfpevpair_no=0;
+%     handles.drgb.lfp_per_exp_no=0;
+%     first_out=1;
+% else
+%     load([handles.drgb.outPathName handles.drgb.outFileName])
+%     handles.drgb=handles_drgb.drgb;
+%     %The user may add new files
+%     handles.drgbchoices.no_files=new_no_files;
+%     handles.drgbchoices.PathName=choicePathName;
+%     handles.drgbchoices.FileName=choiceFileName;
+%     first_out=0;
+% end
 
 test_batch=handles.drgbchoices.test_batch;
 
@@ -77,11 +78,11 @@ for filNum=first_file:handles.drgbchoices.no_files
         all_files_present=0;
     end
     this_jt=handles.drgbchoices.FileName{filNum};
-    handles.temp_exist(filNum)=exist([handles.drgb.outPathName 'temp/temp_' this_jt(10:end)]);
+    handles.temp_exist(filNum)=exist([handles.drgb.outPathName tempDirName '/temp_' this_jt(10:end)]);
     
     if handles.temp_exist(filNum)==2
         %If it was processed load the temp result
-        load([handles.drgb.outPathName 'temp/temp_' this_jt(10:end)])
+        load([handles.drgb.outPathName tempDirName '/temp_' this_jt(10:end)])
         lfp_per_file(filNum)=this_lfp_per_file;
     end
 end
@@ -90,6 +91,7 @@ end
 if all_files_present==1
     
     gcp;
+
     no_files=handles.drgbchoices.no_files;
     parfor filNum=first_file:no_files
         
@@ -450,8 +452,9 @@ if all_files_present==1
             end
             
             %Save this temp file
-            drgSavePar([handlespf.drgb.outPathName 'temp/'],this_jt(10:end),lfp_per_file(filNum),filNum)
+            drgSavePar([handlespf.drgb.outPathName tempDirName '/'],this_jt(10:end),lfp_per_file(filNum),filNum)
             
+                    
         end
     end
     

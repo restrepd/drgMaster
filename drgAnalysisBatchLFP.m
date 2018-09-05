@@ -4958,13 +4958,13 @@ switch which_display
                             if sum(files==fileNo)>0
                                 if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
                                     
-                                    
+                                     
                                     
                                     lfpodNo_ref=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==refWin));
                                  
                                     if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
                                         
-                                        
+                                         
                                         if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
                                             
                                             percent_mask=[];
@@ -5092,7 +5092,7 @@ switch which_display
                                                 roc_data(sum(trials_in_event_Ev1)+1:total_trials,1)=this_delta_dB_powerEv2;
                                                 roc_data(sum(trials_in_event_Ev1)+1:total_trials,2)=ones(sum(trials_in_event_Ev2),1);
                                                 
-                                                
+                                                 
                                                 %Find  ROC
                                                 if (trials_in_event_Ev1>=5)&(trials_in_event_Ev2>=5)
                                                     no_ROCs=no_ROCs+1;
@@ -5661,23 +5661,23 @@ switch which_display
             subplot(2,2,bwii)
             hold on
             %Plot within naive
-            bar(1,100*no_sig_within(2,bwii)/no_within(2,bwii),'b')
-            bar(2,100*no_sig_within1(2,bwii)/no_within1(2,bwii),'b')
+%             bar(1,100*no_sig_within(2,bwii)/no_within(2,bwii),'b')
+%             bar(2,100*no_sig_within1(2,bwii)/no_within1(2,bwii),'b')
             bar(3,100*no_sig_within2(2,bwii)/no_within2(2,bwii),'b')
             
             %Plot within proficient
-            bar(4,100*no_sig_within(1,bwii)/no_within(1,bwii),'r')
-            bar(5,100*no_sig_within1(1,bwii)/no_within1(1,bwii),'r')
+%             bar(4,100*no_sig_within(1,bwii)/no_within(1,bwii),'r')
+%             bar(5,100*no_sig_within1(1,bwii)/no_within1(1,bwii),'r')
             bar(6,100*no_sig_within2(1,bwii)/no_within2(1,bwii),'r')
             
-            %Plot between naive
-            bar(9,100*no_sig_between(2,bwii)/no_between(2,bwii),'b')
-            bar(10,100*no_sig_between1(2,bwii)/no_between1(2,bwii),'b')
+%             %Plot between naive
+%             bar(9,100*no_sig_between(2,bwii)/no_between(2,bwii),'b')
+%             bar(10,100*no_sig_between1(2,bwii)/no_between1(2,bwii),'b')
             bar(11,100*no_sig_between2(2,bwii)/no_between2(2,bwii),'b')
             
             %Plot between proficient
-            bar(12,100*no_sig_between(1,bwii)/no_between(1,bwii),'r')
-            bar(13,100*no_sig_between1(1,bwii)/no_between1(1,bwii),'r')
+%             bar(12,100*no_sig_between(1,bwii)/no_between(1,bwii),'r')
+%             bar(13,100*no_sig_between1(1,bwii)/no_between1(1,bwii),'r')
             bar(14,100*no_sig_between2(1,bwii)/no_between2(1,bwii),'r')
             
             title(['Percent significant auROC ' freq_names{bwii} ])
