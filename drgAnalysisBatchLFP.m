@@ -4552,7 +4552,7 @@ switch which_display
             close(figNo)
         catch
         end
-        hFig=figure(figNo)
+        hFig=figure(figNo);
         
         
         set(hFig, 'units','normalized','position',[.83 .1 .05 .3])
@@ -5643,83 +5643,121 @@ switch which_display
                 title(['Percent auROC significantly different from zero ' freq_names{bwii} ' ' per_lab(pcii)])
                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
                 
-                pfft=1
+                pfft=1;
             end
         end
         
         
         
-        
-        figNo = get(gcf,'Number')+1;
-        try
-            close(figNo)
-        catch
-        end
-        hFig=figure(figNo)
-        
-        
-        set(hFig, 'units','normalized','position',[.83 .1 .05 .3])
-        
-        prain=[0:100/99:100];
-        drg_pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
-        colormap jet
-        shading interp
-        ax=gca;
-        set(ax,'XTickLabel','')
-        
-        %Plot percent significant ROCs
-        figNo = get(gcf,'Number')+1;
-        try
-            close(figNo)
-        catch
-        end
-        hFig=figure(figNo)
-        
-        for bwii=1:4
-            subplot(2,2,bwii)
-            hold on
-            %Plot within naive
-%             bar(1,100*no_sig_within(2,bwii)/no_within(2,bwii),'b')
-%             bar(2,100*no_sig_within1(2,bwii)/no_within1(2,bwii),'b')
-            bar(3,100*no_sig_within2(2,bwii)/no_within2(2,bwii),'b')
-            
-            %Plot within proficient
-%             bar(4,100*no_sig_within(1,bwii)/no_within(1,bwii),'r')
-%             bar(5,100*no_sig_within1(1,bwii)/no_within1(1,bwii),'r')
-            bar(6,100*no_sig_within2(1,bwii)/no_within2(1,bwii),'r')
-            
-%             %Plot between naive
-%             bar(9,100*no_sig_between(2,bwii)/no_between(2,bwii),'b')
-%             bar(10,100*no_sig_between1(2,bwii)/no_between1(2,bwii),'b')
-            bar(11,100*no_sig_between2(2,bwii)/no_between2(2,bwii),'b')
-            
-            %Plot between proficient
-%             bar(12,100*no_sig_between(1,bwii)/no_between(1,bwii),'r')
-%             bar(13,100*no_sig_between1(1,bwii)/no_between1(1,bwii),'r')
-            bar(14,100*no_sig_between2(1,bwii)/no_between2(1,bwii),'r')
-            
-            title(['Percent significant auROC ' freq_names{bwii} ])
-        end
-        
-        ppno=0;
-        for pair_no1=1:no_pairs
-            for pair_no2=pair_no1+1:no_pairs
-                ppno=ppno+1;
-                [pChiSq(ppno), Q]= chi2test([sig(pair_no1), not_sig(pair_no1); sig(pair_no2), not_sig(pair_no2)]);
-                fprintf(1, ['pchi  = %d\n'],pChiSq(ppno));
+        if sum(ROC_between)>0
+            figNo = get(gcf,'Number')+1;
+            try
+                close(figNo)
+            catch
             end
+            hFig=figure(figNo);
+            
+            
+            set(hFig, 'units','normalized','position',[.83 .1 .05 .3])
+            
+            prain=[0:100/99:100];
+            drg_pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
+            colormap jet
+            shading interp
+            ax=gca;
+            set(ax,'XTickLabel','')
+            
+            %Plot percent significant ROCs
+            figNo = get(gcf,'Number')+1;
+            try
+                close(figNo)
+            catch
+            end
+            hFig=figure(figNo);
+            
+            for bwii=1:4
+                subplot(2,2,bwii)
+                hold on
+                %Plot within naive
+                %             bar(1,100*no_sig_within(2,bwii)/no_within(2,bwii),'b')
+                %             bar(2,100*no_sig_within1(2,bwii)/no_within1(2,bwii),'b')
+                bar(3,100*no_sig_within2(2,bwii)/no_within2(2,bwii),'b')
+                
+                %Plot within proficient
+                %             bar(4,100*no_sig_within(1,bwii)/no_within(1,bwii),'r')
+                %             bar(5,100*no_sig_within1(1,bwii)/no_within1(1,bwii),'r')
+                bar(6,100*no_sig_within2(1,bwii)/no_within2(1,bwii),'r')
+                
+                %             %Plot between naive
+                %             bar(9,100*no_sig_between(2,bwii)/no_between(2,bwii),'b')
+                %             bar(10,100*no_sig_between1(2,bwii)/no_between1(2,bwii),'b')
+                bar(11,100*no_sig_between2(2,bwii)/no_between2(2,bwii),'b')
+                
+                %Plot between proficient
+                %             bar(12,100*no_sig_between(1,bwii)/no_between(1,bwii),'r')
+                %             bar(13,100*no_sig_between1(1,bwii)/no_between1(1,bwii),'r')
+                bar(14,100*no_sig_between2(1,bwii)/no_between2(1,bwii),'r')
+                
+                title(['Percent significant auROC ' freq_names{bwii} ])
+            end
+            
+        else
+            figNo = get(gcf,'Number')+1;
+            try
+                close(figNo)
+            catch
+            end
+            hFig=figure(figNo);
+            
+            
+            set(hFig, 'units','normalized','position',[.83 .1 .05 .3])
+            
+            prain=[0:100/99:100];
+            drg_pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
+            colormap jet
+            shading interp
+            ax=gca;
+            set(ax,'XTickLabel','')
+            
+            %Plot percent significant ROCs
+            figNo = get(gcf,'Number')+1;
+            try
+                close(figNo)
+            catch
+            end
+            hFig=figure(figNo);
+            
+            for bwii=1:4
+                subplot(2,2,bwii)
+                hold on
+                %Plot within naive
+                             bar(1,100*no_sig_within(2,bwii)/no_within(2,bwii),'b')
+                %             bar(2,100*no_sig_within1(2,bwii)/no_within1(2,bwii),'b')
+                %           bar(3,100*no_sig_within2(2,bwii)/no_within2(2,bwii),'b')
+                
+                %Plot within proficient
+                             bar(2,100*no_sig_within(1,bwii)/no_within(1,bwii),'r')
+                %             bar(5,100*no_sig_within1(1,bwii)/no_within1(1,bwii),'r')
+                %           bar(6,100*no_sig_within2(1,bwii)/no_within2(1,bwii),'r')
+                
+                %             %Plot between naive
+                %             bar(9,100*no_sig_between(2,bwii)/no_between(2,bwii),'b')
+                %             bar(10,100*no_sig_between1(2,bwii)/no_between1(2,bwii),'b')
+                %bar(11,100*no_sig_between2(2,bwii)/no_between2(2,bwii),'b')
+                
+                %Plot between proficient
+                %             bar(12,100*no_sig_between(1,bwii)/no_between(1,bwii),'r')
+                %             bar(13,100*no_sig_between1(1,bwii)/no_between1(1,bwii),'r')
+%                 bar(14,100*no_sig_between2(1,bwii)/no_between2(1,bwii),'r')
+                
+                title(['Percent significant auROC ' freq_names{bwii} ])
+                legend('Naive','Proficient')
+            end
+           
         end
         
-        try
-            pFDRchisq=drsFDRpval(pChiSq);
-            fprintf(1, ['pFDR for ChiSquared  = %d\n\n'],pFDRchisq);
-        catch
-        end
         
-        %We should add a bar graph to compare percent significant ROCs for
-        %within vs between (with/wo adjacency requirement)
-        
-        pfft=1
+      
         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
         
     case 15
