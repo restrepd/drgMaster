@@ -4925,6 +4925,12 @@ switch which_display
         delta_dB_powerEv1WB=[];
         delta_dB_powerEv2WB=[];
         delta_dB_No_per_mouse=0;
+        delta_dB_per_mouse=[];
+        delta_dB_perii_per_mouse=[];
+        delta_dB_evNo_per_mouse=[];
+        delta_dB_bwii_per_mouse=[];
+        delta_dB_mouseNo_per_mouse=[];
+        delta_dB_electrode_per_mouse=[];
         
         
         
@@ -5070,6 +5076,7 @@ switch which_display
                                     delta_dB_evNo_per_mouse(delta_dB_No_per_mouse)=evNo;
                                     delta_dB_bwii_per_mouse(delta_dB_No_per_mouse)=bwii;
                                     delta_dB_mouseNo_per_mouse(delta_dB_No_per_mouse)=mouseNo;
+                                    delta_dB_electrode_per_mouse(delta_dB_No_per_mouse)=elec;
                                 end
                             end
                             
@@ -5272,6 +5279,8 @@ switch which_display
             data_delta_dB=[];
             prof_naive=[];
             events=[];
+            mice=[];
+            electrodes=[];
                     
             for evNo=1:length(eventType)
                 
@@ -5296,6 +5305,8 @@ switch which_display
                     data_delta_dB=[data_delta_dB delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))];
                     prof_naive=[prof_naive per_ii*ones(1,sum((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)))];
                     events=[events evNo*ones(1,sum((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)))];
+                    mice=[mice delta_dB_mouseNo_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))];
+                    electrodes=[electrodes delta_dB_electrode_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii))];
                 end
             end
             title([freq_names{bwii} ' average delta dB power per mouse, per electrode'])
@@ -5305,15 +5316,15 @@ switch which_display
             xticklabels(concs2)
             xlabel('Concentration (%)')
             ylabel('Delta power (dB)')
-            %             p=anovan(data_dB,{spm});
+            
             
             
             %Calculate anovan for inteaction
-            [p,tbl,stats]=anovan(data_delta_dB,{prof_naive events},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
-            fprintf(1, ['p value for anovan delta dB per session for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan delta dB per session for events ' freq_names{bwii} '= %d \n'],  p(2));
-            fprintf(1, ['p value for anovan delta dB per session for events x naive-proficient for ' freq_names{bwii} '= %d \n\n'],  p(3));
-
+            [p,tbl,stats]=anovan(data_delta_dB,{prof_naive events mice electrodes},'varnames',{'proficient_vs_naive','events','mice','electrodes'},'display','off','random',[3 4]);
+            fprintf(1, ['p value for anovan delta dB histogram per mouse for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
+            fprintf(1, ['p value for anovan delta dB histogram  per mouse for events ' freq_names{bwii} '= %d \n'],  p(2));
+            fprintf(1, ['p value for anovan delta dB histogram  per mouse for mice for ' freq_names{bwii} '= %d \n'],  p(3));
+            fprintf(1, ['p value for anovan delta dB histogram per mouse for electrodes for ' freq_names{bwii} '= %d \n\n'],  p(4));
             
         end
         
@@ -6525,80 +6536,83 @@ switch which_display
                                             percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>=percent_windows(per_ii,1))...
                                                 &(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_windows(per_ii,2));
                                             
-                                            
-                                            for evNo=1:length(eventType)
+                                            if ~isempty(percent_mask)
                                                 
-                                                noWB_for_evNo(evNo)=-1;
-                                                
-                                                trials_in_event_Ev=[];
-                                                trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
-                                                
-                                                if (sum(trials_in_event_Ev)>=1)
+                                                for evNo=1:length(eventType)
                                                     
-                                                    %Do per bandwidth analysis
-                                                    for pacii=1:3
+                                                    noWB_for_evNo(evNo)=-1;
+                                                    
+                                                    trials_in_event_Ev=[];
+                                                    trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
+                                                    
+                                                    if (sum(trials_in_event_Ev)>=1)
                                                         
-                                                        %Enter the modulation index
-                                                        this_MI_Ev=zeros(sum(trials_in_event_Ev),1);
-                                                        this_MI_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).mod_indx(trials_in_event_Ev);
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii).this_MI_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_MI_Ev;
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=mouseNo*ones(1,length(this_MI_Ev));
-                                                        
-                                                        %Save per session
-                                                        %value for MI
-                                                        mean_MI_No=mean_MI_No+1;
-                                                        mean_MI(mean_MI_No)=mean(this_MI_Ev);
-                                                        mean_MI_perii(mean_MI_No)=per_ii;
-                                                        mean_MI_evNo(mean_MI_No)=evNo;
-                                                        mean_MI_pacii(mean_MI_No)=pacii;
-                                                        mean_MI_fileNo(mean_MI_No)=fileNo;
-                                                        
-                                                        if mean_MI(mean_MI_No)>=0.035
-                                                            fprintf(1, ['MI larger than 0.035 for mouse no %d, file no %d, electrode, %d, pac no %d, perii %d, conc, %d\n'],mouseNo, fileNo, elec, pacii, per_ii, evNo);
+                                                        %Do per bandwidth analysis
+                                                        for pacii=1:3
+                                                            
+                                                            %Enter the modulation index
+                                                            this_MI_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_MI_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).mod_indx(trials_in_event_Ev);
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii).this_MI_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_MI_Ev;
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=mouseNo*ones(1,length(this_MI_Ev));
+                                                            
+                                                            %Save per session
+                                                            %value for MI
+                                                            mean_MI_No=mean_MI_No+1;
+                                                            mean_MI(mean_MI_No)=mean(this_MI_Ev);
+                                                            mean_MI_perii(mean_MI_No)=per_ii;
+                                                            mean_MI_evNo(mean_MI_No)=evNo;
+                                                            mean_MI_pacii(mean_MI_No)=pacii;
+                                                            mean_MI_fileNo(mean_MI_No)=fileNo;
+                                                            
+                                                            if mean_MI(mean_MI_No)>=0.035
+                                                                fprintf(1, ['MI larger than 0.035 for mouse no %d, file no %d, electrode, %d, pac no %d, perii %d, conc, %d\n'],mouseNo, fileNo, elec, pacii, per_ii, evNo);
+                                                            end
+                                                            
+                                                            %Enter the meanVectorLength
+                                                            this_meanVectorLength_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_meanVectorLength_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorLength(trials_in_event_Ev);
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorLength_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_meanVectorLength_Ev;
+                                                            
+                                                            %Enter the meanVectorAngle
+                                                            this_meanVectorAngle_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_meanVectorAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorAngle(trials_in_event_Ev);
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_meanVectorAngle_Ev;
+                                                            
+                                                            %Enter the peakAngle
+                                                            this_peakAngle_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_peakAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).peakAngle(trials_in_event_Ev);
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii).this_peakAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_peakAngle_Ev;
+                                                            
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii).noEv=theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev);
                                                         end
                                                         
-                                                        %Enter the meanVectorLength
-                                                        this_meanVectorLength_Ev=zeros(sum(trials_in_event_Ev),1);
-                                                        this_meanVectorLength_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorLength(trials_in_event_Ev);
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorLength_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_meanVectorLength_Ev;
                                                         
-                                                        %Enter the meanVectorAngle
-                                                        this_meanVectorAngle_Ev=zeros(sum(trials_in_event_Ev),1);
-                                                        this_meanVectorAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorAngle(trials_in_event_Ev);
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_meanVectorAngle_Ev;
+                                                        fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), evNo,fileNo,elec);
                                                         
-                                                        %Enter the peakAngle
-                                                        this_peakAngle_Ev=zeros(sum(trials_in_event_Ev),1);
-                                                        this_peakAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).peakAngle(trials_in_event_Ev);
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii).this_peakAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_peakAngle_Ev;
+                                                    else
                                                         
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii).noEv=theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev);
+                                                        
+                                                        fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,fileNo,elec);
+                                                        
+                                                        
                                                     end
-                                                    
-                                                    
-                                                    fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), evNo,fileNo,elec);
-                                                    
-                                                else
-                                                    
-                                                    
-                                                    fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,fileNo,elec);
                                                     
                                                     
                                                 end
                                                 
-                                                
+                                            else
+                                                fprintf(1, ['Empty percent_mask for file No %d electrode %d\n'],fileNo,elec);
                                             end
-                                            
-                                            
                                         else
                                             
-                                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],fileNo,elec);
                                             
                                         end
                                         
                                         
                                     else
-                                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],files(fileNo),elec);
+                                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],fileNo,elec);
                                         
                                         
                                     end
@@ -6684,33 +6698,34 @@ switch which_display
                         for evNo=1:length(eventType)
                             for pacii=1:3
                                 
-                                %Calculate per mouse MI
-                                mean_MI_No_per_mouse=mean_MI_No_per_mouse+1;
-                                this_mouse_MI=[];
-                                this_mouse_MI=theseEvNos_thisMouse_thisElec(evNo,pacii).this_MI_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
-                                mean_MI_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_MI);
-                                
-                                mean_MI_perii_per_mouse(mean_MI_No_per_mouse)=per_ii;
-                                mean_MI_evNo_per_mouse(mean_MI_No_per_mouse)=evNo;
-                                mean_MI_pacii_per_mouse(mean_MI_No_per_mouse)=pacii;
-                                mean_MI_mouseNo_per_mouse(mean_MI_No_per_mouse)=mouseNo;
-                                mean_MI_electNo_per_mouse(mean_MI_No_per_mouse)=elec;
-                                
-                                %Calculate per mouse meanVectorLength
-                                this_mouse_meanVectorLength=[];
-                                this_mouse_meanVectorLength=theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorLength_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
-                                mean_meanVectorLength_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_meanVectorLength);
-                                
-                                %Calculate per mouse meanVectorAngle
-                                this_mouse_meanVectorAngle=[];
-                                this_mouse_meanVectorAngle=theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
-                                mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_meanVectorAngle'*pi/180)';
-                                
-                                %Calculate per mouse peakAngle
-                                this_mouse_peakAngle=[];
-                                this_mouse_peakAngle=theseEvNos_thisMouse_thisElec(evNo,pacii).this_peakAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
-                                mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_peakAngle'*pi/180)';
-                                
+                                if theseEvNos_thisMouse_thisElec(evNo,pacii).noEv>0
+                                    %Calculate per mouse MI
+                                    mean_MI_No_per_mouse=mean_MI_No_per_mouse+1;
+                                    this_mouse_MI=[];
+                                    this_mouse_MI=theseEvNos_thisMouse_thisElec(evNo,pacii).this_MI_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
+                                    mean_MI_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_MI);
+                                    
+                                    mean_MI_perii_per_mouse(mean_MI_No_per_mouse)=per_ii;
+                                    mean_MI_evNo_per_mouse(mean_MI_No_per_mouse)=evNo;
+                                    mean_MI_pacii_per_mouse(mean_MI_No_per_mouse)=pacii;
+                                    mean_MI_mouseNo_per_mouse(mean_MI_No_per_mouse)=mouseNo;
+                                    mean_MI_electNo_per_mouse(mean_MI_No_per_mouse)=elec;
+                                    
+                                    %Calculate per mouse meanVectorLength
+                                    this_mouse_meanVectorLength=[];
+                                    this_mouse_meanVectorLength=theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorLength_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
+                                    mean_meanVectorLength_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_meanVectorLength);
+                                    
+                                    %Calculate per mouse meanVectorAngle
+                                    this_mouse_meanVectorAngle=[];
+                                    this_mouse_meanVectorAngle=theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
+                                    mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_meanVectorAngle'*pi/180)';
+                                    
+                                    %Calculate per mouse peakAngle
+                                    this_mouse_peakAngle=[];
+                                    this_mouse_peakAngle=theseEvNos_thisMouse_thisElec(evNo,pacii).this_peakAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
+                                    mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_peakAngle'*pi/180)';
+                                end
                             end
                         end
                         
@@ -7179,80 +7194,84 @@ switch which_display
                                             percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>=percent_windows(per_ii,1))...
                                                 &(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_windows(per_ii,2));
                                             
-                                            
-                                            for evNo=1:length(eventType)
-                                                
-                                                noWB_for_evNo(evNo)=-1;
-                                                
-                                                trials_in_event_Ev=[];
-                                                trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
-                                                
-                                                if (sum(trials_in_event_Ev)>=1)
+                                            if ~isempty(percent_mask)
+                                                for evNo=1:length(eventType)
                                                     
-                                                    %Do per bandwidth analysis
-                                                    for pacii=1:3
+                                                    noWB_for_evNo(evNo)=-1;
+                                                    
+                                                    trials_in_event_Ev=[];
+                                                    trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
+                                                    
+                                                    if (sum(trials_in_event_Ev)>=1)
                                                         
-                                                        %Enter the modulation index
-                                                        this_MI_Ev=zeros(sum(trials_in_event_Ev),1);
-                                                        this_MI_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).mod_indx(trials_in_event_Ev);
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii).this_MI_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_MI_Ev;
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=mouseNo*ones(1,length(this_MI_Ev));
-                                                        
-                                                        %Save per session
-                                                        %value for MI
-                                                        mean_MI_No=mean_MI_No+1;
-                                                        mean_MI(mean_MI_No)=mean(this_MI_Ev);
-                                                        mean_MI_perii(mean_MI_No)=per_ii;
-                                                        mean_MI_evNo(mean_MI_No)=evNo;
-                                                        mean_MI_pacii(mean_MI_No)=pacii;
-                                                        mean_MI_fileNo(mean_MI_No)=fileNo;
-                                                        
-                                                        if mean_MI(mean_MI_No)>=0.035
-                                                            fprintf(1, ['MI larger than 0.035 for mouse no %d, file no %d, electrode, %d, pac no %d, perii %d, conc, %d\n'],mouseNo, fileNo, elec, pacii, per_ii, evNo);
+                                                        %Do per bandwidth analysis
+                                                        for pacii=1:3
+                                                            
+                                                            %Enter the modulation index
+                                                            this_MI_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_MI_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).mod_indx(trials_in_event_Ev);
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii).this_MI_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_MI_Ev;
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=mouseNo*ones(1,length(this_MI_Ev));
+                                                            
+                                                            %Save per session
+                                                            %value for MI
+                                                            mean_MI_No=mean_MI_No+1;
+                                                            mean_MI(mean_MI_No)=mean(this_MI_Ev);
+                                                            mean_MI_perii(mean_MI_No)=per_ii;
+                                                            mean_MI_evNo(mean_MI_No)=evNo;
+                                                            mean_MI_pacii(mean_MI_No)=pacii;
+                                                            mean_MI_fileNo(mean_MI_No)=fileNo;
+                                                            
+                                                            if mean_MI(mean_MI_No)>=0.035
+                                                                fprintf(1, ['MI larger than 0.035 for mouse no %d, file no %d, electrode, %d, pac no %d, perii %d, conc, %d\n'],mouseNo, fileNo, elec, pacii, per_ii, evNo);
+                                                            end
+                                                            
+                                                            %Enter the meanVectorLength
+                                                            this_meanVectorLength_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_meanVectorLength_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorLength(trials_in_event_Ev);
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorLength_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_meanVectorLength_Ev;
+                                                            
+                                                            %Enter the meanVectorAngle
+                                                            this_meanVectorAngle_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_meanVectorAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorAngle(trials_in_event_Ev);
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_meanVectorAngle_Ev;
+                                                            
+                                                            %Enter the peakAngle
+                                                            this_peakAngle_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_peakAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).peakAngle(trials_in_event_Ev);
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii).this_peakAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_peakAngle_Ev;
+                                                            
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii).noEv=theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev);
                                                         end
                                                         
-                                                        %Enter the meanVectorLength
-                                                        this_meanVectorLength_Ev=zeros(sum(trials_in_event_Ev),1);
-                                                        this_meanVectorLength_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorLength(trials_in_event_Ev);
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorLength_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_meanVectorLength_Ev;
                                                         
-                                                        %Enter the meanVectorAngle
-                                                        this_meanVectorAngle_Ev=zeros(sum(trials_in_event_Ev),1);
-                                                        this_meanVectorAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorAngle(trials_in_event_Ev);
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_meanVectorAngle_Ev;
+                                                        fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), evNo,fileNo,elec);
                                                         
-                                                        %Enter the peakAngle
-                                                        this_peakAngle_Ev=zeros(sum(trials_in_event_Ev),1);
-                                                        this_peakAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).peakAngle(trials_in_event_Ev);
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii).this_peakAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev))=this_peakAngle_Ev;
+                                                    else
                                                         
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii).noEv=theseEvNos_thisMouse_thisElec(evNo,pacii).noEv+sum(trials_in_event_Ev);
+                                                        
+                                                        fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,fileNo,elec);
+                                                        
+                                                        
                                                     end
-                                                    
-                                                    
-                                                    fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), evNo,fileNo,elec);
-                                                    
-                                                else
-                                                    
-                                                    
-                                                    fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,fileNo,elec);
                                                     
                                                     
                                                 end
                                                 
+                                            else
+                                                
+                                                fprintf(1, ['Empty percent_mask for file No %d electrode %d\n'],fileNo,elec);
                                                 
                                             end
-                                            
-                                            
                                         else
                                             
-                                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],fileNo,elec);
                                             
                                         end
                                         
                                         
                                     else
-                                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],files(fileNo),elec);
+                                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],fileNo,elec);
                                         
                                         
                                     end
@@ -7336,41 +7355,50 @@ switch which_display
                             end
                         end
                         
-                        
-                        %Calculate per mouse PAC measures
-                        for evNo=1:length(eventType)
-                            for pacii=1:3
-                                
-                                %Calculate per mouse MI
-                                mean_MI_No_per_mouse=mean_MI_No_per_mouse+1;
-                                this_mouse_MI=[];
-                                this_mouse_MI=theseEvNos_thisMouse_thisElec(evNo,pacii).this_MI_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
-                                mean_MI_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_MI);
-                                
-                                mean_MI_perii_per_mouse(mean_MI_No_per_mouse)=per_ii;
-                                mean_MI_evNo_per_mouse(mean_MI_No_per_mouse)=evNo;
-                                mean_MI_pacii_per_mouse(mean_MI_No_per_mouse)=pacii;
-                                mean_MI_mouseNo_per_mouse(mean_MI_No_per_mouse)=mouseNo;
-                                mean_MI_electNo_per_mouse(mean_MI_No_per_mouse)=elec;
-                                
-                                %Calculate per mouse meanVectorLength
-                                this_mouse_meanVectorLength=[];
-                                this_mouse_meanVectorLength=theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorLength_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
-                                mean_meanVectorLength_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_meanVectorLength);
-                                
-                                %Calculate per mouse meanVectorAngle
-                                this_mouse_meanVectorAngle=[];
-                                this_mouse_meanVectorAngle=theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
-                                mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_meanVectorAngle'*pi/180)';
-                                
-                                %Calculate per mouse peakAngle
-                                this_mouse_peakAngle=[];
-                                this_mouse_peakAngle=theseEvNos_thisMouse_thisElec(evNo,pacii).this_peakAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
-                                mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_peakAngle'*pi/180)';
-                                
+                        if theseEvNos_thisMouse_thisElec(evNo,pacii).noEv>0
+                            %Calculate per mouse PAC measures
+                            for evNo=1:length(eventType)
+                                for pacii=1:3
+                                    
+                                    %Calculate per mouse MI
+                                    mean_MI_No_per_mouse=mean_MI_No_per_mouse+1;
+                                    this_mouse_MI=[];
+                                    this_mouse_MI=theseEvNos_thisMouse_thisElec(evNo,pacii).this_MI_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
+                                    mean_MI_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_MI);
+                                    
+                                    mean_MI_perii_per_mouse(mean_MI_No_per_mouse)=per_ii;
+                                    mean_MI_evNo_per_mouse(mean_MI_No_per_mouse)=evNo;
+                                    mean_MI_pacii_per_mouse(mean_MI_No_per_mouse)=pacii;
+                                    mean_MI_mouseNo_per_mouse(mean_MI_No_per_mouse)=mouseNo;
+                                    mean_MI_electNo_per_mouse(mean_MI_No_per_mouse)=elec;
+                                    
+                                    %Calculate per mouse meanVectorLength
+                                    this_mouse_meanVectorLength=[];
+                                    this_mouse_meanVectorLength=theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorLength_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
+                                    mean_meanVectorLength_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_meanVectorLength);
+                                    
+                                    %Calculate per mouse meanVectorAngle
+                                    this_mouse_meanVectorAngle=[];
+                                    this_mouse_meanVectorAngle=theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
+                                    if isempty(this_mouse_meanVectorAngle)
+                                        mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=NaN;
+                                    else
+                                        mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_meanVectorAngle'*pi/180)';
+                                    end
+                                    
+                                    %Calculate per mouse peakAngle
+                                    this_mouse_peakAngle=[];
+                                    this_mouse_peakAngle=theseEvNos_thisMouse_thisElec(evNo,pacii).this_peakAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
+                                    if isempty(this_mouse_peakAngle)
+                                        mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=NaN;
+                                    else
+                                        mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_peakAngle'*pi/180)';
+                                    end
+                                    
+                                end
                             end
+                            
                         end
-                        
                     end
                     
                 end
@@ -7427,7 +7455,11 @@ switch which_display
             legend('Naive between','Proficient between','Naive within','Proficient within')
             xlabel('auROC')
             ylabel('Cumulative probability')
-            title(['Theta/' freq_names{pacii+1} ' PAC, all concentrations'])
+            if length(eventType)>2
+            title(['Theta/' freq_names{pacii+1} ' PAC mean angle ROC, all concentrations'])
+            else
+               title(['Theta/' freq_names{pacii+1} ' PAC mean angle ROC, S+ vs S-']) 
+            end
             
             %Save the data for anovan
             data_auROC=[];
@@ -7456,8 +7488,8 @@ switch which_display
             
             %Calculate anovan for inteaction
             [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
-            fprintf(1, ['p value for anovan auROC for naive vs proficient for Theta/' freq_names{pacii+1} ' PAC= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan auROC for within vs between for for Theta/' freq_names{pacii+1} ' PAC= %d \n'],  p(2));
+            fprintf(1, ['p value for anovan mean angle auROC for naive vs proficient for Theta/' freq_names{pacii+1} ' PAC= %d \n'],  p(1));
+            fprintf(1, ['p value for anovan mean angle auROC for within vs between for for Theta/' freq_names{pacii+1} ' PAC= %d \n'],  p(2));
         end
         
         if sum(ROC_between)>0
@@ -7504,7 +7536,7 @@ switch which_display
                 legend('Naive between','Proficient between','Naive within','Proficient within')
                 xlabel('auROC')
                 ylabel('Cumulative probability')
-                title(['Theta/' freq_names{pacii+1} ' PAC, Adjacent concentrations'])
+                title(['Theta/' freq_names{pacii+1} ' PAC mean angle ROC, Adjacent concentrations'])
                 
                 %Save the data for anovan for adjacent ROCs
                 data_auROC=[];
@@ -7533,8 +7565,8 @@ switch which_display
                 
                 %Calculate anovan for inteaction
                 [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
-                fprintf(1, ['p value for anovan auROC adjacent concentrations for naive vs proficient for Theta/' freq_names{pacii+1} ' PAC= %d \n'],  p(1));
-                fprintf(1, ['p value for anovan auROC adjacent concentrations  for within vs between for Theta/' freq_names{pacii+1} ' PAC= %d \n'],  p(2));
+                fprintf(1, ['p value for anovan mean angle auROC adjacent concentrations for naive vs proficient for Theta/' freq_names{pacii+1} ' PAC= %d \n'],  p(1));
+                fprintf(1, ['p value for anovan mean angle auROC adjacent concentrations  for within vs between for Theta/' freq_names{pacii+1} ' PAC= %d \n'],  p(2));
           
             end
             
@@ -7572,7 +7604,7 @@ switch which_display
                 legend('Naive between','Proficient between','Naive within','Proficient within')
                 xlabel('auROC')
                 ylabel('Cumulative probability')
-                title(['Theta/' freq_names{pacii+1} ' PAC, concentrations separated by two log steps'])
+                title(['Theta/' freq_names{pacii+1} ' PAC mean angle ROC, concentrations separated by two log steps'])
                 
                 %Save the data for anovan for adjacent ROCs
                 data_auROC=[];
@@ -7601,8 +7633,8 @@ switch which_display
                 
                 %Calculate anovan for inteaction
                 [p,tbl,stats]=anovan(data_auROC,{prof_naive between},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
-                fprintf(1, ['p value for anovan auROC two log step concentrations for naive vs proficient for Theta/' freq_names{pacii+1} ' PAC= %d \n'],  p(1));
-                fprintf(1, ['p value for anovan auROC two log step concentrations  for within vs between for Theta/' freq_names{pacii+1} ' PAC= %d \n'],  p(2));
+                fprintf(1, ['p value for anovan mean angle auROC two log step concentrations for naive vs proficient for Theta/' freq_names{pacii+1} ' PAC= %d \n'],  p(1));
+                fprintf(1, ['p value for anovan mean angle auROC two log step concentrations  for within vs between for Theta/' freq_names{pacii+1} ' PAC= %d \n'],  p(2));
             end
         end
         
@@ -7712,7 +7744,7 @@ switch which_display
                 yticks([1.5:1:length(eventType)+1])
                 yticklabels(handles_pars.concs2)
                 
-                title(['Percent auROC significantly different from zero for Theta/' freq_names{pacii+1} ' PAC, ' per_lab(pcii)])
+                title(['Percent mean angle significant auROC  for Theta/' freq_names{pacii+1} ' PAC, ' per_lab(pcii)])
                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
                 
                 pfft=1;
@@ -7896,94 +7928,100 @@ switch which_display
                                             percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>=percent_windows(per_ii,1))...
                                                 &(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_windows(per_ii,2));
                                             
-                                            
-                                            for evNo=1:length(eventType)
+                                            if ~isempty(percent_mask)
                                                 
-                                                noWB_for_evNo(evNo)=-1;
-                                                
-                                                trials_in_event_Ev=[];
-                                                trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
-                                                
-                                                if (sum(trials_in_event_Ev)>=1)
+                                                for evNo=1:length(eventType)
                                                     
-                                                    %Do per bandwidth analysis
-                                                    for pacii=1:3
+                                                    noWB_for_evNo(evNo)=-1;
+                                                    
+                                                    trials_in_event_Ev=[];
+                                                    trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
+                                                    
+                                                    if (sum(trials_in_event_Ev)>=1)
                                                         
-                                                        group_no=handles_drgb.drgbchoices.group_no(fileNo);
-                                                        
-                                                        %Enter the modulation index
-                                                        this_MI_Ev=zeros(sum(trials_in_event_Ev),1);
-                                                        this_MI_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).mod_indx(trials_in_event_Ev);
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_MI_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_MI_Ev;
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).whichMouse(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=mouseNo*ones(1,length(this_MI_Ev));
-                                                        
-                                                        %Save per session
-                                                        %value for MI
-                                                        mean_MI_No=mean_MI_No+1;
-                                                        mean_MI(mean_MI_No)=mean(this_MI_Ev);
-                                                        mean_MI_perii(mean_MI_No)=per_ii;
-                                                        mean_MI_evNo(mean_MI_No)=evNo;
-                                                        mean_MI_pacii(mean_MI_No)=pacii;
-                                                        mean_MI_fileNo(mean_MI_No)=fileNo;
-                                                        per_session_group_no(mean_MI_No)=handles_drgb.drgbchoices.group_no(fileNo);
-                                                        
-                                                        
-                                                        if mean_MI(mean_MI_No)>=0.035
-                                                            fprintf(1, ['MI larger than 0.035 for mouse no %d, file no %d, electrode, %d, pac no %d, perii %d, conc, %d\n'],mouseNo, fileNo, elec, pacii, per_ii, evNo);
+                                                        %Do per bandwidth analysis
+                                                        for pacii=1:3
+                                                            
+                                                            group_no=handles_drgb.drgbchoices.group_no(fileNo);
+                                                            
+                                                            %Enter the modulation index
+                                                            this_MI_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_MI_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).mod_indx(trials_in_event_Ev);
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_MI_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_MI_Ev;
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).whichMouse(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=mouseNo*ones(1,length(this_MI_Ev));
+                                                            
+                                                            %Save per session
+                                                            %value for MI
+                                                            mean_MI_No=mean_MI_No+1;
+                                                            mean_MI(mean_MI_No)=mean(this_MI_Ev);
+                                                            mean_MI_perii(mean_MI_No)=per_ii;
+                                                            mean_MI_evNo(mean_MI_No)=evNo;
+                                                            mean_MI_pacii(mean_MI_No)=pacii;
+                                                            mean_MI_fileNo(mean_MI_No)=fileNo;
+                                                            per_session_group_no(mean_MI_No)=handles_drgb.drgbchoices.group_no(fileNo);
+                                                            
+                                                            
+                                                            if mean_MI(mean_MI_No)>=0.035
+                                                                fprintf(1, ['MI larger than 0.035 for mouse no %d, file no %d, electrode, %d, pac no %d, perii %d, conc, %d\n'],mouseNo, fileNo, elec, pacii, per_ii, evNo);
+                                                            end
+                                                            
+                                                            %Enter the meanVectorLength
+                                                            this_meanVectorLength_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_meanVectorLength_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorLength(trials_in_event_Ev);
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_meanVectorLength_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_meanVectorLength_Ev;
+                                                            
+                                                            mean_VL(mean_MI_No)=mean(this_meanVectorLength_Ev);
+                                                            
+                                                            %Enter the meanVectorAngle
+                                                            this_meanVectorAngle_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_meanVectorAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorAngle(trials_in_event_Ev);
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_meanVectorAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_meanVectorAngle_Ev;
+                                                            
+                                                            mean_VA(mean_MI_No)=mean(this_meanVectorAngle_Ev);
+                                                            
+                                                            %Enter the peakAngle
+                                                            this_peakAngle_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_peakAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).peakAngle(trials_in_event_Ev);
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_peakAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_peakAngle_Ev;
+                                                            
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev);
+                                                            
+                                                            mean_PA(mean_MI_No)=mean(this_peakAngle_Ev);
+                                                            
+                                                            if fileNo==5
+                                                                pffft=1;
+                                                            end
                                                         end
                                                         
-                                                        %Enter the meanVectorLength
-                                                        this_meanVectorLength_Ev=zeros(sum(trials_in_event_Ev),1);
-                                                        this_meanVectorLength_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorLength(trials_in_event_Ev);
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_meanVectorLength_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_meanVectorLength_Ev;
                                                         
-                                                        mean_VL(mean_MI_No)=mean(this_meanVectorLength_Ev);
+                                                        fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), evNo,fileNo,elec);
                                                         
-                                                        %Enter the meanVectorAngle
-                                                        this_meanVectorAngle_Ev=zeros(sum(trials_in_event_Ev),1);
-                                                        this_meanVectorAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanVectorAngle(trials_in_event_Ev);
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_meanVectorAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_meanVectorAngle_Ev;
+                                                    else
                                                         
-                                                        mean_VA(mean_MI_No)=mean(this_meanVectorAngle_Ev);
                                                         
-                                                        %Enter the peakAngle
-                                                        this_peakAngle_Ev=zeros(sum(trials_in_event_Ev),1);
-                                                        this_peakAngle_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).peakAngle(trials_in_event_Ev);
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_peakAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_peakAngle_Ev;
+                                                        fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,fileNo,elec);
                                                         
-                                                        theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev);
                                                         
-                                                        mean_PA(mean_MI_No)=mean(this_peakAngle_Ev);
-                                                        
-                                                        if fileNo==5
-                                                            pffft=1;
-                                                        end
                                                     end
                                                     
                                                     
-                                                    fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), evNo,fileNo,elec);
-                                                    
-                                                else
-                                                    
-                                                    
-                                                    fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,fileNo,elec);
-                                                    
-                                                    
                                                 end
-                                                 
+                                                
+                                            else
+                                                
+                                                fprintf(1, ['Empty percent_mask for file No %d electrode %d\n'],fileNo,elec);
                                                 
                                             end
                                             
-                                            
                                         else
                                             
-                                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],files(fileNo),elec);
+                                            fprintf(1, ['Empty allPower for file No %d electrode %d\n'],fileNo,elec);
                                             
                                         end
                                         
                                         
                                     else
-                                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],files(fileNo),elec);
+                                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],fileNo,elec);
                                         
                                         
                                     end
@@ -7991,57 +8029,59 @@ switch which_display
                             end
                         end %fileNo
                         
-
-                        %Calculate per mouse PAC measures
-                        for evNo=1:length(eventType)
-                            for pacii=1:3
-                                for group_no=1:max(handles_drgb.drgbchoices.group_no)
-                                %Calculate per mouse MI
-                                mean_MI_No_per_mouse=mean_MI_No_per_mouse+1;
-                                this_mouse_MI=[];
-                                this_mouse_MI=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_MI_Ev;
-                                if ~isempty(this_mouse_MI)
-                                    mean_MI_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_MI);
-                                else
-                                    mean_MI_per_mouse(mean_MI_No_per_mouse)=NaN;
+                        if theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv>0
+                            
+                            %Calculate per mouse PAC measures
+                            for evNo=1:length(eventType)
+                                for pacii=1:3
+                                    for group_no=1:max(handles_drgb.drgbchoices.group_no)
+                                        %Calculate per mouse MI
+                                        mean_MI_No_per_mouse=mean_MI_No_per_mouse+1;
+                                        this_mouse_MI=[];
+                                        this_mouse_MI=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_MI_Ev;
+                                        if ~isempty(this_mouse_MI)
+                                            mean_MI_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_MI);
+                                        else
+                                            mean_MI_per_mouse(mean_MI_No_per_mouse)=NaN;
+                                        end
+                                        
+                                        mean_MI_perii_per_mouse(mean_MI_No_per_mouse)=per_ii;
+                                        mean_MI_evNo_per_mouse(mean_MI_No_per_mouse)=evNo;
+                                        mean_MI_pacii_per_mouse(mean_MI_No_per_mouse)=pacii;
+                                        mean_MI_mouseNo_per_mouse(mean_MI_No_per_mouse)=mouseNo;
+                                        mean_MI_electNo_per_mouse(mean_MI_No_per_mouse)=elec;
+                                        mean_MI_group_no_per_mouse(mean_MI_No_per_mouse)=group_no;
+                                        
+                                        %Calculate per mouse meanVectorLength
+                                        this_mouse_meanVectorLength=[];
+                                        this_mouse_meanVectorLength=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_meanVectorLength_Ev;
+                                        if ~isempty(this_mouse_meanVectorLength)
+                                            mean_meanVectorLength_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_meanVectorLength);
+                                        else
+                                            mean_meanVectorLength_per_mouse(mean_MI_No_per_mouse)=NaN;
+                                        end
+                                        
+                                        %Calculate per mouse meanVectorAngle
+                                        this_mouse_meanVectorAngle=[];
+                                        this_mouse_meanVectorAngle=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_meanVectorAngle_Ev;
+                                        if ~isempty(this_mouse_meanVectorAngle)
+                                            mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_meanVectorAngle'*pi/180)';
+                                        else
+                                            mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=NaN;
+                                        end
+                                        
+                                        %Calculate per mouse peakAngle
+                                        this_mouse_peakAngle=[];
+                                        this_mouse_peakAngle=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_peakAngle_Ev;
+                                        if ~isempty(this_mouse_peakAngle)
+                                            mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_peakAngle'*pi/180)';
+                                        else
+                                            mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=NaN;
+                                        end
+                                    end
                                 end
-                                
-                                mean_MI_perii_per_mouse(mean_MI_No_per_mouse)=per_ii;
-                                mean_MI_evNo_per_mouse(mean_MI_No_per_mouse)=evNo;
-                                mean_MI_pacii_per_mouse(mean_MI_No_per_mouse)=pacii;
-                                mean_MI_mouseNo_per_mouse(mean_MI_No_per_mouse)=mouseNo;
-                                mean_MI_electNo_per_mouse(mean_MI_No_per_mouse)=elec;
-                                mean_MI_group_no_per_mouse(mean_MI_No_per_mouse)=group_no;
-                                
-                                %Calculate per mouse meanVectorLength
-                                this_mouse_meanVectorLength=[];
-                                this_mouse_meanVectorLength=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_meanVectorLength_Ev;
-                                if ~isempty(this_mouse_meanVectorLength)
-                                    mean_meanVectorLength_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_meanVectorLength);
-                                else
-                                    mean_meanVectorLength_per_mouse(mean_MI_No_per_mouse)=NaN;
-                                end
-                                
-                                %Calculate per mouse meanVectorAngle
-                                this_mouse_meanVectorAngle=[];
-                                this_mouse_meanVectorAngle=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_meanVectorAngle_Ev;
-                                if ~isempty(this_mouse_meanVectorAngle)
-                                    mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_meanVectorAngle'*pi/180)';
-                                else
-                                    mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=NaN;
-                                end
-                                
-                                %Calculate per mouse peakAngle
-                                this_mouse_peakAngle=[];
-                                this_mouse_peakAngle=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_peakAngle_Ev;
-                                if ~isempty(this_mouse_peakAngle)
-                                    mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_peakAngle'*pi/180)';
-                                else
-                                    mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=NaN;
-                                end
-                            end  
                             end
-                        end
+                    end
                         
                     end
                     
@@ -8092,7 +8132,9 @@ switch which_display
                         plot(bar_offset,mean(mean_MI((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo))),'ok','LineWidth', 3)
                         plot((bar_offset)*ones(1,sum((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo))),mean_MI((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo)),'o',...
                             'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7],'MarkerSize',3)
+                     
                         CI = bootci(1000, {@mean, mean_MI((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo))},'type','cper');
+                      
                         plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
                         
                         if per_ii==1
