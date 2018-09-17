@@ -1,7 +1,16 @@
 function [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorrERP,no_ref_evs_per_trial]=drgEventRelatedAnalysis(handles)
-%Performs an event-related analysis. The event is signaled by a sharp chane
+%Performs an event-related analysis. The event is signaled by a sharp change
+%The spectrogram is calculated fo rthe entire timecourse with a window
+%(usually 1 sec). The timecourse of the power is then extracted for each
+%lick that exceeds a threshold. 
 %in the reference voltage. This is used to analyze lick-related changes in
 %LFP
+
+%NOTE: This currently works only for licks. We could easily change to align
+%it at a phase of theta
+
+%Default to licks (analog channel 19)
+handles.peakLFPNo=19;
 
 [perCorr, encoding_trials, retrieval_trials,encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
 
@@ -105,7 +114,7 @@ ii_ili=0;
 
 for trNo=firstTr:lastTr
     
-    
+     
     evNo = drgFindEvNo(handles,trNo,sessionNo);
     if evNo~=-1
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
