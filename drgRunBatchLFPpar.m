@@ -10,7 +10,7 @@ function drgRunBatchLFPpar
 
 tic
 
-first_file==1;
+first_file=1;
 
 [choiceFileName,choiceBatchPathName] = uigetfile({'drgbChoices*.m'},'Select the .m file with all the choices for analysis');
 fprintf(1, ['\ndrgRunBatchLFP run for ' choiceFileName '\n\n']);
