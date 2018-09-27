@@ -5208,7 +5208,7 @@ switch which_display
                             for bwii=1:4
                                 
                                 %Enter Ev1
-                                trials_in_event_Ev1=length(theseEvNosPerEl(evNo1,bwii,1).this_delta_dB_powerEv);
+                                trials_in_event_Ev1=length(theseEvNosPerEl(evNo1,bwii,which_electrodes(1)).this_delta_dB_powerEv);
                                 this_delta_dB_powerEv1=zeros(trials_in_event_Ev1,1);
                                 for elec=which_electrodes
                                     this_delta_dB_powerEv1=this_delta_dB_powerEv1+(theseEvNosPerEl(evNo1,bwii,elec).this_delta_dB_powerEv')/length(which_electrodes);
@@ -5219,7 +5219,7 @@ switch which_display
                                 roc_data(1:trials_in_event_Ev1,2)=zeros(trials_in_event_Ev1,1);
                                 
                                 %Enter Ev2
-                                trials_in_event_Ev2=length(theseEvNosPerEl(evNo2,bwii,1).this_delta_dB_powerEv);
+                                trials_in_event_Ev2=length(theseEvNosPerEl(evNo2,bwii,which_electrodes(1)).this_delta_dB_powerEv);
                                 total_trials=trials_in_event_Ev1+trials_in_event_Ev2;
                                 this_delta_dB_powerEv2=zeros(trials_in_event_Ev2,1);
                                 for elec=which_electrodes
@@ -5490,13 +5490,13 @@ switch which_display
                     %In the future add lines linking the points
                     plot((bar_offset)*ones(1,sum(mouse_included)),each_mouse_average_delta_dB(logical(mouse_included)),'o',...
                         'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-                    
+                     
                     %Average and CI
                     plot(bar_offset,mean(each_mouse_average_delta_dB(logical(mouse_included))),'ok','LineWidth', 3)
-                   
-                    CI = bootci(1000, {@mean, each_mouse_average_delta_dB(logical(mouse_included))},'type','cper');
-                 
-                    plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                    if sum(mouse_included)>2
+                        CI = bootci(1000, {@mean, each_mouse_average_delta_dB(logical(mouse_included))},'type','cper');
+                        plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                    end
                     
                     annotation('textbox',conc_anno_loc{per_ii},'String',per_lab(per_ii),'Color',these_colors{3-per_ii},'EdgeColor','none');
                     
