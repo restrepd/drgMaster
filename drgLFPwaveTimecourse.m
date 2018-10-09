@@ -11,6 +11,17 @@ function drgLFPwaveTimecourse(handles)
 if handles.subtractRef==0
     log_P_timecourse=zeros(length(freq),length(t));
     log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse),1);
+    
+    %Per trial power plot
+    log_P_per_trial_timecourse=zeros(length(freq)*length(this_trialNo),length(t));
+    y_shift=0;
+    for trialNo=1:length(this_trialNo)
+        this_log_P_timecourse=zeros(length(freq),length(t));
+        this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trialNo,:,:));
+        log_P_per_trial_timecourse(y_shift+1:y_shift+length(freq),:)=this_log_P_timecourse;
+        y_shift=y_shift+length(freq);
+    end
+    
     if handles.autoscale==1
         maxLogP=prctile(log_P_timecourse(:),99);
         minLogP=prctile(log_P_timecourse(:),1);
@@ -28,39 +39,60 @@ else
     log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse),1);
     log_P_timecourse_ref=zeros(length(freq),length(t));
     log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref),1)',1,length(t));
+    
+    %Per trial power plot
+    log_P_per_trial_timecourse_sub=zeros(length(freq)*length(this_trialNo),length(t));
+    y_shift=0;
+    sy_shift=0;
+    shifted_freq=[];
+    for trialNo=1:length(this_trialNo)
+        this_log_P_timecourse=zeros(length(freq),length(t));
+        this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trialNo,:,:));
+        this_log_P_timecourse_ref=zeros(length(freq),length(t));
+        this_log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref(trialNo,:)),1)',1,length(t));
+        log_P_per_trial_timecourse_sub(y_shift+1:y_shift+length(freq),:)=this_log_P_timecourse-this_log_P_timecourse_ref;
+        shifted_freq(1,y_shift+1:y_shift+length(freq))=freq+(trialNo-1)*freq(end);
+        y_shift=y_shift+length(freq);
+    end
+    
+    max_delta=16;
     if handles.autoscale==1
         maxLogP=prctile(log_P_timecourse(:)-log_P_timecourse_ref(:),99);
         minLogP=prctile(log_P_timecourse(:)-log_P_timecourse_ref(:),1);
         %Note: Diego added this on purpose to limit the range to 10 dB
         %This results in emphasizing changes in the top 10 dB
-        if maxLogP-minLogP>12
-            minLogP=maxLogP-12;
+        if maxLogP-minLogP>max_delta
+            minLogP=maxLogP-max_delta;
         end
+        
+        maxLogPper=prctile(log_P_per_trial_timecourse_sub(:),99);
+        minLogPper=prctile(log_P_per_trial_timecourse_sub(:),1);
+        %Note: Diego added this on purpose to limit the range to 10 dB
+        %This results in emphasizing changes in the top 10 dB
+        if maxLogPper-minLogPper>max_delta
+            minLogPper=maxLogPper-max_delta;
+        end
+        
     else
         maxLogP=handles.maxLogP;
         minLogP=handles.minLogP;
     end
 end
+ 
+%Calculate the licks
+[lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times,no_trials,trials_included]=drgGetLicks(handles);
 
-
-
-try
-    close 1
-catch
-end
-
-%Plot the timecourse
-hFig1 = figure(1);
-set(hFig1, 'units','normalized','position',[.07 .1 .75 .3])
-
-%     if handles.subtractRef==0
-%         pcolor(repmat(t,length(freq),1)',repmat(freq,length(t),1),P_timecourse')
-%     else
-%         pcolor(repmat(t,length(freq),1)',repmat(freq,length(t),1),P_timecourse'-P_timecourse_ref')
-%     end
 
 if ~isempty(this_trialNo)
     
+    try
+        close 1
+    catch
+    end
+    
+    %Plot the timecourse
+    hFig1 = figure(1);
+    set(hFig1, 'units','normalized','position',[.07 .1 .75 .3])
     if handles.subtractRef==0
         drg_pcolor(repmat(t,length(freq),1)',repmat(freq,length(t),1),log_P_timecourse')
     else
@@ -79,121 +111,7 @@ if ~isempty(this_trialNo)
     %If this is a single trial show the licks
     if length(this_trialNo)==1
         
-        if handles.subtractRef==1
-            if handles.time_start<handles.startRef
-                min_t=handles.time_start;
-            else
-                min_t=handles.startRef;
-            end
-            
-            if handles.time_end>handles.endRef
-                max_t=handles.time_end;
-            else
-                max_t=handles.endRef;
-            end
-        else
-            min_t=handles.time_start;
-            max_t=handles.time_end;
-        end
-        
-        
-        %Calculate the threshold value to detect a lick
-        sessionNo=1;
-        all_refs=[];
-        evtNo=handles.evTypeNo;
-        handles.evTypeNo=2;
-        hpNo=handles.peakLFPNo;
-        handles.peakLFPNo=19;
-        for trNo=1:handles.drg.session(1).draq_d.noTrials
-            
-            evNo = drgFindEvNo(handles,trNo,sessionNo);
-            if evNo~=-1
-                excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
-                
-                if excludeTrial==0
-                    %Note: handles.peakLFPNo is the reference LFP
-                    [referenceLFP, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, handles.startRef, handles.time_end);
-                    
-                    if (can_read1==1)
-                        all_refs=[all_refs referenceLFP];
-                    end
-                end
-            end
-        end
-        handles.evTypeNo=evtNo;
-        
-        thershold_ref=prctile(all_refs,1)+((prctile(all_refs,99)-prctile(all_refs,1))/2);
-        
-        %Get the licks
-        
-        evNo = drgFindEvNo(handles,handles.trialNo,sessionNo);
-        
-        [referenceLFP, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
-        handles.peakLFPNo=hpNo;
-        
-        ii_start_ref=handles.time_pad*handles.drg.session(sessionNo).draq_p.ActualRate;
-        ii_end_ref=length(referenceLFP)-ii_start_ref;
-        refLFP_ref=referenceLFP(ii_start_ref:ii_end_ref);
-        
-        inter_lick_intervals_ref=[];
-        ii_ili_ref=0;
-        
-        if refLFP_ref(1)>thershold_ref
-            ii=find(refLFP_ref<thershold_ref,1,'first');
-        else
-            ii=1;
-        end
-        
-        the_end=0;
-        ref_power_these_events=[];
-        no_ref_evs_this_trial=0;
-        
-        this_lick_ii=0;
-        stamped_lick_ii=0;
-        these_lick_times=[];
-        these_stamped_lick_times=[];
-        
-        %Find the events (licks)
-        while the_end==0
-            next_event=find(refLFP_ref(ii:end)>thershold_ref,1,'first');
-            if isempty(next_event)
-                the_end=1;
-            else
-                
-                ii=ii+next_event-1;
-                
-                %Exclude if the inter event interval is too
-                %small due to noise in the lick signal
-                
-                this_lick_ii=this_lick_ii+1;
-                these_lick_times(this_lick_ii)=(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
-                if this_lick_ii>1
-                    %record the inter lick interval
-                    ii_ili_ref=ii_ili_ref+1;
-                    inter_lick_intervals_ref(ii_ili_ref)=these_lick_times(this_lick_ii)-these_lick_times(this_lick_ii-1);
-                else
-                    ii_ili_ref=ii_ili_ref+1;
-                    inter_lick_intervals_ref(ii_ili_ref)=these_lick_times(this_lick_ii);
-                end
-                
-                %Enter the event (lick) in the timecourse only if it is
-                %not within a burst of high frequency noise
-                if inter_lick_intervals_ref(ii_ili_ref)>handles.smallest_inter_lick_interval
-                    %stamp the lick
-                    stamped_lick_ii=stamped_lick_ii+1;
-                    these_stamped_lick_times(stamped_lick_ii)=(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
-                end
-                
-                
-                end_event=find(refLFP_ref(ii:end)<thershold_ref,1,'first');
-                if isempty(end_event)
-                    the_end=1;
-                else
-                    ii=ii+end_event-1;
-                end
-            end
-        end
-        
+       
         %PLot the licks
         hold on
         
@@ -225,5 +143,95 @@ if ~isempty(this_trialNo)
     shading interp
     ax=gca;
     set(ax,'XTickLabel','')
+    
+    
+    try
+        close 5
+    catch
+    end
+    
+    %Plot the per-trial timecourse
+    hFig5 = figure(5);
+    set(hFig5, 'units','normalized','position',[.07 .1 .75 .3])
+    
+    if handles.subtractRef==0
+        drg_pcolor(repmat(t,length(freq)*length(this_trialNo),1)',repmat(shifted_freq,length(t),1),log_P_per_trial_timecourse')
+    else
+        %pcolor(repmat(t,length(f),1)',repmat(f,length(t),1),10*log10(P_timecourse')-10*log10(P_timecourse_ref'))
+        drg_pcolor(repmat(t,length(freq)*length(this_trialNo),1)',repmat(shifted_freq,length(t),1),log_P_per_trial_timecourse_sub')
+        %imagesc(t,f,10*log10(P_timecourse')-10*log10(P_timecourse_ref'))
+    end
+    
+    colormap jet
+    shading interp
+    caxis([minLogPper maxLogPper]);
+    xlabel('Time (sec)')
+    ylabel('Frequency*trialNo');
+    title(['Power (dB, wavelet) timecourse per trial ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
+    
+        try
+        close 6
+    catch
+    end
+    
+    hFig6 = figure(6);
+    set(hFig6, 'units','normalized','position',[.83 .1 .05 .3])
+    
+    prain=[minLogPper:(maxLogPper-minLogPper)/99:maxLogPper];
+    drg_pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
+    colormap jet
+    shading interp
+    ax=gca;
+    set(ax,'XTickLabel','')
+    
+    %Plot the lick traces
+    try
+        close 7
+    catch
+    end
+    
+    hFig7 = figure(7);
+    set(hFig7, 'units','normalized','position',[.07 .1 .75 .3])
+    
+    hold on
+    
+    per99=prctile(lick_traces(:),99.9);
+    per1=prctile(lick_traces(:),1);
+    
+    mean_licks=zeros(1,length(lick_trace_times));
+    
+    
+    y_shift=0;
+
+    %Plot lick traces
+    for ii=1:no_trials
+        plot(lick_trace_times,lick_traces(ii,:)+y_shift,'-r')
+        y_shift=y_shift+1.5*(per99-per1);
+    end
+    
+    y_shift=y_shift+1.5*(per99-per1);
+    ylim([0 y_shift])
+    xlabel('time(sec)')
+    title('Lick traces')
+    
+    
+     %Plot the lick frequency
+    try
+        close 8
+    catch
+    end
+     
+    hFig8 = figure(8);
+    set(hFig8, 'units','normalized','position',[.07 .1 .75 .3])
+    
+    %plot(times_lick_freq, lick_freq)
+    [hl1, hp1] = boundedline(times_lick_freq',lick_freq', CIlickf', 'r');
+    ylim([0 1.2*max(lick_freq)])
+    xlabel('Time (sec)')
+    ylabel('frequency (Hz)')
+    title('Lick frequency')
+    
 end
+
+
 

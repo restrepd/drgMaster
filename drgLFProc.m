@@ -24,6 +24,7 @@ this_ref_dBpower1=10*log10(this_ref_power1);
  
 %Get power for evTypeNo2
 evTypeNo1=handles.evTypeNo;
+evTypeNo2=handles.evTypeNo2;
 handles.evTypeNo=handles.evTypeNo2;
 
 [t2,f2,all_Power2,all_Power_ref2, all_Power_timecourse2, this_trialNo2, perCorr2,which_event2]=drgGetLFPPowerForThisEvTypeNo(handles);
@@ -55,11 +56,37 @@ else
 end
 roc_data(size_allp1(1)+1:size_allp1(1)+size_allp2(1),2)=ones(size_allp2(1),1);
 
+%Plot the histograms of delta dB
+%Plot the lick frequency
+try
+    close 1
+catch
+end
+
+hFig1 = figure(1);
+set(hFig1, 'units','normalized','position',[.07 .1 .75 .3])
+hold on
+
+min_edge=min(roc_data(:,1))-0.1*(max(roc_data(:,1))-min(roc_data(:,1)));
+max_edge=max(roc_data(:,1))+0.1*(max(roc_data(:,1))-min(roc_data(:,1)));
+edges=[min_edge:(max_edge-min_edge)/20:max_edge];
+
+h2=histogram(roc_data(size_allp1(1)+1:size_allp1(1)+size_allp2(1),1),edges);
+h1=histogram(roc_data(1:size_allp1(1),1),edges);
+legend(handles.drg.draq_d.eventlabels{evTypeNo2},handles.drg.draq_d.eventlabels{evTypeNo1})
+ylim([0 1.2*max([max(h2.Values) max(h1.Values)])])
+xlabel('Delta power (dB)')
+ylabel('No of trials')
+title('Histograms for delta power pre trial')
+
+
 %Calculate roc
 roc_out=roc_calc(roc_data);
 
 handles.time_start=time_start;
 handles.time_end=time_end;
+
+
 
 fprintf(1, ['drgLFProc run from %d Hz to %d Hz\n\n'],handles.burstLowF,handles.burstHighF );
 

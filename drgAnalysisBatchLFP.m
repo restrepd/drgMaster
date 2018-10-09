@@ -8925,14 +8925,14 @@ switch which_display
             
             
             %Calculate anovan for inteaction
-            fprintf(1, ['ANOVAN for MI per mouse per electrode with mouse as random factor ' freq_names{pacii+1} '\n'])
+            fprintf(1, ['ANOVAN for MI per mouse per electrode with mouse as random factor PAC theta/' freq_names{pacii+1} '\n'])
             [p,tbl,stats]=anovan(data_MI,{prof_naive, events, groups, mice},'varnames',{'proficient_vs_naive','events','groups','mice'},'display','off','random',4);
             fprintf(1, ['p value for anovan MI per mouse per electrode for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
             fprintf(1, ['p value for anovan MI per mouse per electrode for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
             fprintf(1, ['p value for anovan MI per mouse per electrode for groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
             
             %Calculate anovan for inteaction
-            fprintf(1, ['ANOVAN for MI per mouse per electrode without mouse as a factor for ' freq_names{pacii+1} '\n'])
+            fprintf(1, ['ANOVAN for MI per mouse per electrode without mouse as a factor for PAC theta/' freq_names{pacii+1} '\n'])
             [p,tbl,stats]=anovan(data_MI,{prof_naive, events, groups},'varnames',{'proficient_vs_naive','events','groups'},'display','off');
             fprintf(1, ['p value for anovan MI per mouse per electrode for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
             fprintf(1, ['p value for anovan MI per mouse per electrode for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
@@ -9859,8 +9859,10 @@ switch which_display
                             
                             %Average and CI
                             plot(bar_offset,mean(delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)&(delta_dB_group_no_per_mouse==grNo))),'ok','LineWidth', 3)
-                            CI = bootci(1000, {@mean, delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)&(delta_dB_group_no_per_mouse==grNo))},'type','cper');
-                            plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                            if sum((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)&(delta_dB_group_no_per_mouse==grNo))>2
+                                CI = bootci(1000, {@mean, delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)&(delta_dB_group_no_per_mouse==grNo))},'type','cper');
+                                plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                            end
                             
                             %Save data for anovan
                             data_delta_dB=[data_delta_dB delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)&(delta_dB_group_no_per_mouse==grNo))];

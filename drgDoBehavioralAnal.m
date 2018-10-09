@@ -10,7 +10,7 @@ switch handles.analysisNoBeh
     case 4 
         drgPercentLick(handles)
     case 5
-        drgLickPerTrialTimecourse(handles)
+        drgLickPerTrialTimecourse(handles);
     case 6
         drgITI(handles)
     case 7

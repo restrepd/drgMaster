@@ -28,7 +28,7 @@ plot(trials(retrieval_trials),perCorr(retrieval_trials),'or')
 
 
 ylim([0 110]);
-xlabel('Trial No')
+xlabel('Trial No for Odor On events')
 ylabel('Percent correct')
 title('% correct vs trial number, blue=encoding, red=retrieval')
 
