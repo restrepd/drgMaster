@@ -66,6 +66,10 @@ function drgAnalysisBatchLFP(handles)
 %
 % 20  Multiclass ROC analysis of LFP power differences for naive and proficient
 % mice for different epochs (concentrations or S+ vs. S-) and different groups. Analyzed per mouse
+%
+% 21  Cloned from case 14. Timecourse of delta dB power as function of
+% trial number
+
 %% Read the BatchParameters
 [parsFileName,parsPathName] = uigetfile({'drgLFPBatchAnalPars*.m'},'Select the .m file with all the parameters for LFP batch analysis');
 fprintf(1, ['\ndrgAnalysisBatchLFP run for ' parsFileName '\n\n']);
@@ -10223,6 +10227,118 @@ switch which_display
         
         
         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
+        
+        
+    case 21
+        %Justin's per mouse auROC analysis for LFP power
+        %For the proficient mice in the first and last sessions
+        %plot the LFP spectrum for S+ vs S-, plot LFP power for S+ vs S- for each electrode and plot auROCs
+        %NOTE: This does the analysis in all the files and DOES not distinguish between groups!!!
+        
+        timecourse=[];
+        time_points=0;
+        
+        
+        fprintf(1, ['Timecourse for delta power dB\n\n'])
+        
+        no_files=max(files);
+        
+        if exist('which_electrodes')==0
+            which_electrodes=[1:16];
+        end
+        
+        
+        for mouseNo=1:max(handles_drgb.drgbchoices.mouse_no)
+
+            for elec=1:16
+                if sum(which_electrodes==elec)>0
+                    
+                    mouse_has_files=0;
+                    
+                    for fileNo=1:no_files
+                        if sum(files==fileNo)>0
+                            
+                            if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
+
+                                lfpodNo_ref=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                                
+                                if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref)))
+                                    
+                                    
+                                    if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower))
+                                        
+                                        
+                                        lfpodNo=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                        
+                                        %Save percent correct
+                                        szallPower=size(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower);
+                                        no_of_trials=szallPower(1);
+                                        no_freqs=szallPower(2);
+                                        
+                                        timecourse.perCorr(time_points+1:time_points+no_of_trials)=handles_drgb.drgb.lfpevpair(lfpodNo_ref).perCorrLFPPower;
+                                        timecourse.fileNo(time_points+1:time_points+no_of_trials)=fileNo*ones(1,no_of_trials);
+                                        timecourse.mouseNo(time_points+1:time_points+no_of_trials)=mouseNo*ones(1,no_of_trials);
+                                        timecourse.elec(time_points+1:time_points+no_of_trials)=elec*ones(1,no_of_trials);
+                                        
+                                        %Save events
+                                        sz_which_eventLFPPower=size(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower);
+                                        no_events=sz_which_eventLFPPower(1);
+                                        timecourse.which_eventLFPPower(1:no_events,time_points+1:time_points+no_of_trials)=handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower;
+                                        
+                                        
+                                        
+                                        %Calculate dB delta power
+                                        this_dB_powerref=zeros(no_of_trials,length(frequency));
+                                        this_dB_powerref(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo_ref).allPower);
+                                        
+                                        
+                                        this_dB_power=zeros(no_of_trials,length(frequency));
+                                        this_dB_power(:,:)=10*log10(handles_drgb.drgb.lfpevpair(lfpodNo).allPower);
+                                        
+                                        %Do per bandwidth analysis
+                                        for bwii=1:no_bandwidths
+                                            
+                                            this_band=(frequency>=low_freq(bwii))&(frequency<=high_freq(bwii));
+                                            
+                                            %Enter the  Ev1
+                                            this_delta_dB_power=zeros(no_of_trials,1);
+                                            this_delta_dB_power=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
+                                            timecourse.delta_dB_power(bwii,1:no_events,time_points+1:time_points+no_of_trials)=this_delta_dB_power;
+                                            
+                                            mouse_has_files=1;
+                                        end
+                                        
+                                        time_points=time_points+no_of_trials;
+                                        
+                                        fprintf(1, ['%d trials succesfully processed for file No %d electrode %d\n'],sum(trials_in_event),fileNo,elec);
+                                        
+                                    else
+                                        
+                                        fprintf(1, ['Empty allPower for file No %d electrode %d\n'],fileNo,elec);
+                                        
+                                    end
+                                    
+                                    
+                                else
+                                    fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],fileNo,elec);
+                                    
+                                    
+                                end
+                            end %if mouseNo
+                        end
+                    end %fileNo
+                    
+                    %Other stuff
+                    if mouse_has_files==1
+                        
+                    end
+                    
+                    
+                end
+                
+            end
+            
+        end
         
 end
 
