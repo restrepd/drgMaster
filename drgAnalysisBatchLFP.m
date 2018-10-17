@@ -7335,7 +7335,7 @@ switch which_display
         end
         fprintf(1, '\n\n')
         
- 
+        
         %Now plot the average MI per electrode per session (file)
         conc_anno_loc = {[0.15 0.6 0.2 0.2], [0.15 0.6 0.2 0.17], [0.15 0.6 0.2 0.14], [0.15 0.6 0.2 0.11], [0.15 0.6 0.2 0.08], [0.15 0.6 0.2 0.05]};
         fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
@@ -7434,11 +7434,11 @@ switch which_display
                     plot((bar_offset)*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))),...
                         mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)),'o',...
                         'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-                   
-                   CI = bootci(1000, {@mean, mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))},'type','cper');
-                   
+                    
+                    CI = bootci(1000, {@mean, mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))},'type','cper');
+                    
                     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                     
+                    
                     annotation('textbox',conc_anno_loc{per_ii},'String',per_lab(per_ii),'Color',these_colors{3-per_ii},'EdgeColor','none');
                     
                     
@@ -7533,7 +7533,7 @@ switch which_display
             
             
         end
-
+        
         %Plot the meanVectorAngle
         min_MI=0.000;
         
@@ -7595,13 +7595,13 @@ switch which_display
                     
                 end
                 
-%                 for per_ii=2:-1:1
-%                     if per_ii==1
-%                         plot(log10(concs2)+shift_x,circ_meanVA,'-o','LineWidth',3,'MarkerEdgeColor','r','MarkerFaceColor','r','Color','r');
-%                     else
-%                         plot(log10(concs2)-shift_x,circ_meanVA,'-o','LineWidth',3,'MarkerEdgeColor','b','MarkerFaceColor','b','Color','b');
-%                     end
-%                 end
+                %                 for per_ii=2:-1:1
+                %                     if per_ii==1
+                %                         plot(log10(concs2)+shift_x,circ_meanVA,'-o','LineWidth',3,'MarkerEdgeColor','r','MarkerFaceColor','r','Color','r');
+                %                     else
+                %                         plot(log10(concs2)-shift_x,circ_meanVA,'-o','LineWidth',3,'MarkerEdgeColor','b','MarkerFaceColor','b','Color','b');
+                %                     end
+                %                 end
                 
                 legend('Proficient','Naive')
                 title(['Vector Angle for PAC theta/' freq_names{pacii+1}])
@@ -7660,7 +7660,7 @@ switch which_display
                 circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180)/pi;
                 CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180},'type','cper')/pi;
                 plot([1],circ_meanVA,'o','MarkerEdgeColor','b','MarkerFaceColor','b');
-                plot([1 1],CI,'-b','LineWidth',3); 
+                plot([1 1],CI,'-b','LineWidth',3);
                 
                 evNo=1;
                 per_ii=1;
@@ -7668,10 +7668,10 @@ switch which_display
                 CI=zeros(1,2);
                 circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180)/pi;
                 CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180},'type','cper')/pi;
-                plot([2],circ_meanVA,'o','MarkerEdgeColor','r','MarkerFaceColor','r');      
-                plot([2 2],CI,'-r','LineWidth',3);      
-                   
-                        
+                plot([2],circ_meanVA,'o','MarkerEdgeColor','r','MarkerFaceColor','r');
+                plot([2 2],CI,'-r','LineWidth',3);
+                
+                
                 evNo=2;
                 per_ii=2;
                 circ_meanVA=[];
@@ -7679,7 +7679,7 @@ switch which_display
                 circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180)/pi;
                 CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180},'type','cper')/pi;
                 plot([4],circ_meanVA,'o','MarkerEdgeColor','b','MarkerFaceColor','b');
-                plot([4 4],CI,'-b','LineWidth',3);    
+                plot([4 4],CI,'-b','LineWidth',3);
                 
                 evNo=2;
                 per_ii=1;
@@ -7713,11 +7713,11 @@ switch which_display
             
             
             
-%             %Calculate anovan for inteaction
-%             [p,tbl,stats]=anovan(data_MI,{prof_naive events},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
-%             fprintf(1, ['p value for anovan vector angle per mouse for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-%             fprintf(1, ['p value for anovan vector angle per mouse for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-%             fprintf(1, ['p value for anovan vector angle per mouse for events x naive-proficient for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
+            %             %Calculate anovan for inteaction
+            %             [p,tbl,stats]=anovan(data_MI,{prof_naive events},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
+            %             fprintf(1, ['p value for anovan vector angle per mouse for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+            %             fprintf(1, ['p value for anovan vector angle per mouse for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
+            %             fprintf(1, ['p value for anovan vector angle per mouse for events x naive-proficient for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
             
         end
         
@@ -7725,11 +7725,11 @@ switch which_display
         
         pfft=1
         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
-       
-       case 18
+        
+    case 18
         %Justin's per mouse analysis for PAC
         %NOTE: This does the analysis in all the files and DOES not distinguish between groups!!!
-       
+        
         mean_MI_No=0;
         mean_MI=[];
         mean_MI_perii=[];
@@ -9075,208 +9075,208 @@ switch which_display
             
         end
         
-%         
-%         %Plot the meanVectorAngle
-%         min_MI=0.000;
-%         
-%         for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
-%             
-%             data_meanVectorAngle=[];
-%             prof_naive=[];
-%             events=[];
-%             groups=[];
-%             
-%             for grNo=1:max(handles_drgb.drgbchoices.group_no)
-%                 try
-%                     close(12+2*(pacii-1)+grNo)
-%                 catch
-%                 end
-%                 hFig=figure(12+2*(pacii-1)+grNo);
-%                 set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
-%                 hold on
-%                 
-%                 
-%                 
-%                 shift_x=0.03;
-%                 
-%                 if length(eventType)>2
-%                     %These are concentrations
-%                     for per_ii=2:-1:1
-%                         
-%                         
-%                         
-%                         %Plot lines between individual points
-%                         
-%                         for mouseNo=1:max(mean_MI_mouseNo_per_mouse)
-%                             for elect=1:16
-%                                 if sum(sum((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_group_no_per_mouse==grNo)))>0
-%                                     if per_ii==1
-%                                         plot(log10(concs2)+shift_x,...
-%                                             mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_group_no_per_mouse==grNo)),...
-%                                             '-','lineWidth',0.5,'Color',[1 0.7 0.7])
-%                                     else
-%                                         plot(log10(concs2)-shift_x,...
-%                                             mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_group_no_per_mouse==grNo)),...
-%                                             '-','LineWidth',0.5,'Color',[0.7 0.7 1])
-%                                     end
-%                                 end
-%                             end
-%                         end
-%                         
-%                         
-%                         
-%                         
-%                         %Plot individual points
-%                         
-%                         %These are concentrations
-%                         for evNo=1:length(eventType)
-%                             if per_ii==1
-%                                 plot((log10(concs2(evNo))+shift_x)*ones(1,sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),...
-%                                     mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)),...
-%                                     'o','MarkerFaceColor',[1 0.7 0.7],'MarkerEdgeColor',[1 0.7 0.7])
-%                             else
-%                                 plot((log10(concs2(evNo))-shift_x)*ones(1,sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),...
-%                                     mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)),...
-%                                     'o','MarkerFaceColor',[1 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 1])
-%                             end
-%                         end
-%                         
-%                         
-%                     end
-%                     
-%                     legend('Proficient','Naive')
-%                     title(['Vector Angle for PAC theta/' freq_names{pacii+1} ' ' handles_drgb.drgbchoices.group_no_names{grNo}])
-%                     xlabel('log10(percent dilution)')
-%                     ylabel('Angle')
-%                 else
-%                     
-%                     %This is S+ S-
-%                     
-%                     
-%                     for evNo=1:length(eventType)
-%                         
-%                         
-%                         %These are S+/S-
-%                         for mouseNo=1:max(mean_MI_mouseNo_per_mouse)
-%                             for elect=1:16
-%                                 if (~isempty(mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==1)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_group_no_per_mouse==grNo))))&...
-%                                         (~isempty(mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==2)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_group_no_per_mouse==grNo))))
-%                                     if evNo==2
-%                                         %S-
-%                                         plot([4 5],...
-%                                             [mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==2)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))...
-%                                             mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==1)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))],...
-%                                             '-','lineWidth',0.5,'Color',[0.7 0.7 0.7])
-%                                     else
-%                                         %S+
-%                                         plot([1 2],...
-%                                             [mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==2)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))...
-%                                             mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==1)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))],...
-%                                             '-','lineWidth',0.5,'Color',[0.7 0.7 0.7])
-%                                     end
-%                                 end
-%                             end
-%                         end
-%                         
-%                     end
-%                     
-%                     %Plot individual points
-%                     for per_ii=1:2
-%                         for evNo=1:length(eventType)
-%                             if per_ii==1
-%                                 plot((3*evNo-2+1)*ones(1,sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),...
-%                                     mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)),...
-%                                     'o','MarkerFaceColor',[1 0.7 0.7],'MarkerEdgeColor',[1 0.7 0.7])
-%                             else
-%                                 plot((3*evNo-2)*ones(1,sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),...
-%                                     mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)),...
-%                                     'o','MarkerFaceColor',[0.7 0.7 1],'MarkerEdgeColor',[0.7 0.7 1])
-%                             end
-%                         end
-%                         
-%                     end
-%                     
-%                     evNo=1;
-%                     per_ii=2;
-%                     if sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
-%                         circ_meanVA=[];
-%                         CI=zeros(1,2);
-%                         circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180)/pi;
-%                         CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180},'type','cper')/pi;
-%                         plot([1],circ_meanVA,'o','MarkerEdgeColor','b','MarkerFaceColor','b');
-%                         plot([1 1],CI,'-b','LineWidth',3);
-%                     end
-%                     
-%                     evNo=1;
-%                     per_ii=1;
-%                     if sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
-%                         circ_meanVA=[];
-%                         CI=zeros(1,2);
-%                         circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180)/pi;
-%                         CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180},'type','cper')/pi;
-%                         plot([2],circ_meanVA,'o','MarkerEdgeColor','r','MarkerFaceColor','r');
-%                         plot([2 2],CI,'-r','LineWidth',3);
-%                     end
-%                     
-%                     evNo=2;
-%                     per_ii=2;
-%                     if sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
-%                         circ_meanVA=[];
-%                         CI=zeros(1,2);
-%                         circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180)/pi;
-%                         CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180},'type','cper')/pi;
-%                         plot([4],circ_meanVA,'o','MarkerEdgeColor','b','MarkerFaceColor','b');
-%                         plot([4 4],CI,'-b','LineWidth',3);
-%                     end
-%                     
-%                     evNo=2;
-%                     per_ii=1;
-%                     if sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
-%                         circ_meanVA=[];
-%                         CI=zeros(1,2);
-%                         circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180)/pi;
-%                         CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180},'type','cper')/pi;
-%                         plot([5],circ_meanVA,'o','MarkerEdgeColor','r','MarkerFaceColor','r');
-%                         plot([5 5],CI,'-r','LineWidth',3);
-%                     end
-%                     
-%                     
-%                     pffft=1;
-%                     xlim([0 6])
-%                     xticks([1 2 4 5])
-%                     xticklabels({evTypeLabels{2},evTypeLabels{2},evTypeLabels{1},evTypeLabels{1}})
-%                     legend('Proficient','Naive')
-%                     title(['Vector Angle for PAC theta/' freq_names{pacii+1} ' for ' handles_drgb.drgbchoices.group_no_names{grNo}])
-%                     ylabel('Angle')
-%                     
-%                 end
-%                 
-%                 for per_ii=2:-1:1
-%                     for evNo=1:length(eventType)
-%                         if sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
-%                             circ_meanVA(evNo)=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180)/pi;
-%                             CI(1:2,evNo) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180},'type','cper')/pi;
-%                             
-%                             %Save data for anovan
-%                             %                             data_meanVectorAngle=[data_meanVectorAngle mean_meanVectorAngle_per_mouse((mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))];
-%                             %                             prof_naive=[prof_naive per_ii*ones(1,sum((mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
-%                             %                             events=[events evNo*ones(1,sum((mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
-%                             %                             groups=[groups evNo*ones(1,sum((mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
-%                         end
-%                     end
-%                 end
-%                 
-%                 
-%                 
-%                 %Calculate anovan for inteaction
-%                 [p,tbl,stats]=anovan(data_MI,{prof_naive events},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
-%                 fprintf(1, ['p value for anovan vector angle per mouse per electrode for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-%                 fprintf(1, ['p value for anovan vector angle per mouse per electrode for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-%                 fprintf(1, ['p value for anovan vector angle per mouse per electrode for events x naive-proficient for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
-%             end
-%         end
-%         
-%         
+        %
+        %         %Plot the meanVectorAngle
+        %         min_MI=0.000;
+        %
+        %         for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
+        %
+        %             data_meanVectorAngle=[];
+        %             prof_naive=[];
+        %             events=[];
+        %             groups=[];
+        %
+        %             for grNo=1:max(handles_drgb.drgbchoices.group_no)
+        %                 try
+        %                     close(12+2*(pacii-1)+grNo)
+        %                 catch
+        %                 end
+        %                 hFig=figure(12+2*(pacii-1)+grNo);
+        %                 set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
+        %                 hold on
+        %
+        %
+        %
+        %                 shift_x=0.03;
+        %
+        %                 if length(eventType)>2
+        %                     %These are concentrations
+        %                     for per_ii=2:-1:1
+        %
+        %
+        %
+        %                         %Plot lines between individual points
+        %
+        %                         for mouseNo=1:max(mean_MI_mouseNo_per_mouse)
+        %                             for elect=1:16
+        %                                 if sum(sum((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_group_no_per_mouse==grNo)))>0
+        %                                     if per_ii==1
+        %                                         plot(log10(concs2)+shift_x,...
+        %                                             mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_group_no_per_mouse==grNo)),...
+        %                                             '-','lineWidth',0.5,'Color',[1 0.7 0.7])
+        %                                     else
+        %                                         plot(log10(concs2)-shift_x,...
+        %                                             mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_group_no_per_mouse==grNo)),...
+        %                                             '-','LineWidth',0.5,'Color',[0.7 0.7 1])
+        %                                     end
+        %                                 end
+        %                             end
+        %                         end
+        %
+        %
+        %
+        %
+        %                         %Plot individual points
+        %
+        %                         %These are concentrations
+        %                         for evNo=1:length(eventType)
+        %                             if per_ii==1
+        %                                 plot((log10(concs2(evNo))+shift_x)*ones(1,sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),...
+        %                                     mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)),...
+        %                                     'o','MarkerFaceColor',[1 0.7 0.7],'MarkerEdgeColor',[1 0.7 0.7])
+        %                             else
+        %                                 plot((log10(concs2(evNo))-shift_x)*ones(1,sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),...
+        %                                     mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)),...
+        %                                     'o','MarkerFaceColor',[1 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 1])
+        %                             end
+        %                         end
+        %
+        %
+        %                     end
+        %
+        %                     legend('Proficient','Naive')
+        %                     title(['Vector Angle for PAC theta/' freq_names{pacii+1} ' ' handles_drgb.drgbchoices.group_no_names{grNo}])
+        %                     xlabel('log10(percent dilution)')
+        %                     ylabel('Angle')
+        %                 else
+        %
+        %                     %This is S+ S-
+        %
+        %
+        %                     for evNo=1:length(eventType)
+        %
+        %
+        %                         %These are S+/S-
+        %                         for mouseNo=1:max(mean_MI_mouseNo_per_mouse)
+        %                             for elect=1:16
+        %                                 if (~isempty(mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==1)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_group_no_per_mouse==grNo))))&...
+        %                                         (~isempty(mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==2)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_group_no_per_mouse==grNo))))
+        %                                     if evNo==2
+        %                                         %S-
+        %                                         plot([4 5],...
+        %                                             [mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==2)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))...
+        %                                             mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==1)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))],...
+        %                                             '-','lineWidth',0.5,'Color',[0.7 0.7 0.7])
+        %                                     else
+        %                                         %S+
+        %                                         plot([1 2],...
+        %                                             [mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==2)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))...
+        %                                             mean_meanVectorAngle_per_mouse((mean_MI_electNo_per_mouse==elect)&(mean_MI_mouseNo_per_mouse==mouseNo)&(mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==1)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))],...
+        %                                             '-','lineWidth',0.5,'Color',[0.7 0.7 0.7])
+        %                                     end
+        %                                 end
+        %                             end
+        %                         end
+        %
+        %                     end
+        %
+        %                     %Plot individual points
+        %                     for per_ii=1:2
+        %                         for evNo=1:length(eventType)
+        %                             if per_ii==1
+        %                                 plot((3*evNo-2+1)*ones(1,sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),...
+        %                                     mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)),...
+        %                                     'o','MarkerFaceColor',[1 0.7 0.7],'MarkerEdgeColor',[1 0.7 0.7])
+        %                             else
+        %                                 plot((3*evNo-2)*ones(1,sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),...
+        %                                     mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)),...
+        %                                     'o','MarkerFaceColor',[0.7 0.7 1],'MarkerEdgeColor',[0.7 0.7 1])
+        %                             end
+        %                         end
+        %
+        %                     end
+        %
+        %                     evNo=1;
+        %                     per_ii=2;
+        %                     if sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
+        %                         circ_meanVA=[];
+        %                         CI=zeros(1,2);
+        %                         circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180)/pi;
+        %                         CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180},'type','cper')/pi;
+        %                         plot([1],circ_meanVA,'o','MarkerEdgeColor','b','MarkerFaceColor','b');
+        %                         plot([1 1],CI,'-b','LineWidth',3);
+        %                     end
+        %
+        %                     evNo=1;
+        %                     per_ii=1;
+        %                     if sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
+        %                         circ_meanVA=[];
+        %                         CI=zeros(1,2);
+        %                         circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180)/pi;
+        %                         CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180},'type','cper')/pi;
+        %                         plot([2],circ_meanVA,'o','MarkerEdgeColor','r','MarkerFaceColor','r');
+        %                         plot([2 2],CI,'-r','LineWidth',3);
+        %                     end
+        %
+        %                     evNo=2;
+        %                     per_ii=2;
+        %                     if sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
+        %                         circ_meanVA=[];
+        %                         CI=zeros(1,2);
+        %                         circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180)/pi;
+        %                         CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180},'type','cper')/pi;
+        %                         plot([4],circ_meanVA,'o','MarkerEdgeColor','b','MarkerFaceColor','b');
+        %                         plot([4 4],CI,'-b','LineWidth',3);
+        %                     end
+        %
+        %                     evNo=2;
+        %                     per_ii=1;
+        %                     if sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
+        %                         circ_meanVA=[];
+        %                         CI=zeros(1,2);
+        %                         circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180)/pi;
+        %                         CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180},'type','cper')/pi;
+        %                         plot([5],circ_meanVA,'o','MarkerEdgeColor','r','MarkerFaceColor','r');
+        %                         plot([5 5],CI,'-r','LineWidth',3);
+        %                     end
+        %
+        %
+        %                     pffft=1;
+        %                     xlim([0 6])
+        %                     xticks([1 2 4 5])
+        %                     xticklabels({evTypeLabels{2},evTypeLabels{2},evTypeLabels{1},evTypeLabels{1}})
+        %                     legend('Proficient','Naive')
+        %                     title(['Vector Angle for PAC theta/' freq_names{pacii+1} ' for ' handles_drgb.drgbchoices.group_no_names{grNo}])
+        %                     ylabel('Angle')
+        %
+        %                 end
+        %
+        %                 for per_ii=2:-1:1
+        %                     for evNo=1:length(eventType)
+        %                         if sum((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
+        %                             circ_meanVA(evNo)=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180)/pi;
+        %                             CI(1:2,evNo) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'/180},'type','cper')/pi;
+        %
+        %                             %Save data for anovan
+        %                             %                             data_meanVectorAngle=[data_meanVectorAngle mean_meanVectorAngle_per_mouse((mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))];
+        %                             %                             prof_naive=[prof_naive per_ii*ones(1,sum((mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+        %                             %                             events=[events evNo*ones(1,sum((mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+        %                             %                             groups=[groups evNo*ones(1,sum((mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+        %                         end
+        %                     end
+        %                 end
+        %
+        %
+        %
+        %                 %Calculate anovan for inteaction
+        %                 [p,tbl,stats]=anovan(data_MI,{prof_naive events},'model','interaction','varnames',{'proficient_vs_naive','within_vs_between'},'display','off');
+        %                 fprintf(1, ['p value for anovan vector angle per mouse per electrode for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+        %                 fprintf(1, ['p value for anovan vector angle per mouse per electrode for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
+        %                 fprintf(1, ['p value for anovan vector angle per mouse per electrode for events x naive-proficient for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
+        %             end
+        %         end
+        %
+        %
         
         pfft=1
         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
@@ -9827,6 +9827,10 @@ switch which_display
             no_ev_labels=0;
             ii_gr_included=0;
             
+            fprintf(1, ['\n\n'])
+            fprintf(1, ['ANOVAN for delta dB power per mouse per electrode, mouse as random factor\n\n'])
+            
+            
             for grNo=1:max(handles_drgb.drgbchoices.group_no)
                 
                 include_group=0;
@@ -9923,15 +9927,15 @@ switch which_display
             
             
             
-            
-            
             %Calculate anovan for inteaction
             [p,tbl,stats]=anovan(data_delta_dB,{prof_naive events mice electrodes},'varnames',{'proficient_vs_naive','events','groups','mice'},'display','off','random',4);
-            fprintf(1, ['p value for anovan delta dB histogram per mouse per electrode for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan delta dB histogram  per mouse per electrode for events ' freq_names{bwii} '= %d \n'],  p(2));
-            fprintf(1, ['p value for anovan delta dB histogram  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
+            fprintf(1, ['p value for anovan delta dB power per mouse per electrode for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
+            fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for events ' freq_names{bwii} '= %d \n'],  p(2));
+            fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
+            
             
         end
+        fprintf(1, ['\n\n'])
         
         %Now plot the histograms and the average per mouse LFP power
         %computed per mouse
@@ -9959,6 +9963,9 @@ switch which_display
             bar_lab_loc=[];
             no_ev_labels=0;
             ii_gr_included=0;
+            
+            fprintf(1, ['\n\n'])
+            fprintf(1, ['ANOVAN for delta dB power per mouse, electrode average\n\n'])
             
             for grNo=1:max(handles_drgb.drgbchoices.group_no)
                 
@@ -10024,7 +10031,12 @@ switch which_display
                     groups_included(ii_gr_included)=grNo;
                 end
             end
-            title([freq_names{bwii} ' auROC per mouse, electrode avearage concentrations two steps appart'])
+            if sum(eventType==3)>0
+                title([freq_names{bwii} ' auROC per mouse, electrode average'])
+            else
+                title([freq_names{bwii} ' auROC per mouse, electrode avearage concentrations two steps appart'])
+            end
+            
             
             
             %Annotations identifying groups
@@ -10057,12 +10069,17 @@ switch which_display
             
             
             %Calculate anovan for inteaction
+            
+            
             [p,tbl,stats]=anovan(per_mouse_data_delta_dB,{per_mouse_prof_naive per_mouse_events per_mouse_groups},'varnames',{'proficient_vs_naive','events','groups'},'display','off');
             fprintf(1, ['p value for anovan delta dB histogram per mouse, electrode avearage for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
             fprintf(1, ['p value for anovan delta dB histogram  per mouse, electrode avearage for events ' freq_names{bwii} '= %d \n'],  p(2));
             fprintf(1, ['p value for anovan delta dB histogram  per mouse, electrode avearage for groups ' freq_names{bwii} '= %d \n\n'],  p(2));
+            
+            
+            
         end
-        
+        fprintf(1, ['\n\n'])
         
         %Display the auROC for all trials per mouse (per electrode) for for concentrations separated by two log steps
         for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
@@ -10088,6 +10105,9 @@ switch which_display
             bar_lab_loc=[];
             no_ev_labels=0;
             ii_gr_included=0;
+            
+            fprintf(1, ['\n\n'])
+            fprintf(1, ['ANOVAN for auROC per mouse per electrode\n\n'])
             
             for grNo=1:max(handles_drgb.drgbchoices.group_no)
                 
@@ -10224,7 +10244,9 @@ switch which_display
             end
         end
         
+        fprintf(1, ['\n\n'])
         
+            
         
         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
         
@@ -10237,7 +10259,7 @@ switch which_display
         
         timecourse=[];
         time_points=0;
-        
+         
         
         fprintf(1, ['Timecourse for delta power dB\n\n'])
         
@@ -10249,10 +10271,12 @@ switch which_display
         
         
         for mouseNo=1:max(handles_drgb.drgbchoices.mouse_no)
-
+            
+            
             for elec=1:16
                 if sum(which_electrodes==elec)>0
                     
+                    trials_per_mouse=0;
                     mouse_has_files=0;
                     
                     for fileNo=1:no_files
@@ -10279,6 +10303,7 @@ switch which_display
                                         timecourse.fileNo(time_points+1:time_points+no_of_trials)=fileNo*ones(1,no_of_trials);
                                         timecourse.mouseNo(time_points+1:time_points+no_of_trials)=mouseNo*ones(1,no_of_trials);
                                         timecourse.elec(time_points+1:time_points+no_of_trials)=elec*ones(1,no_of_trials);
+                                        timecourse.trial_no_per_mouse(time_points+1:time_points+no_of_trials)=[trials_per_mouse+1:trials_per_mouse+no_of_trials];
                                         
                                         %Save events
                                         sz_which_eventLFPPower=size(handles_drgb.drgb.lfpevpair(lfpodNo_ref).which_eventLFPPower);
@@ -10303,14 +10328,14 @@ switch which_display
                                             %Enter the  Ev1
                                             this_delta_dB_power=zeros(no_of_trials,1);
                                             this_delta_dB_power=mean(this_dB_power(:,this_band)-this_dB_powerref(:,this_band),2);
-                                            timecourse.delta_dB_power(bwii,1:no_events,time_points+1:time_points+no_of_trials)=this_delta_dB_power;
-                                            
+                                            timecourse.delta_dB_power(bwii,time_points+1:time_points+no_of_trials)=this_delta_dB_power;
                                             mouse_has_files=1;
                                         end
                                         
                                         time_points=time_points+no_of_trials;
+                                        trials_per_mouse=trials_per_mouse+no_of_trials;
                                         
-                                        fprintf(1, ['%d trials succesfully processed for file No %d electrode %d\n'],sum(trials_in_event),fileNo,elec);
+                                        fprintf(1, ['%d trials succesfully processed for file No %d electrode %d\n'],no_of_trials,fileNo,elec);
                                         
                                     else
                                         
@@ -10328,17 +10353,51 @@ switch which_display
                         end
                     end %fileNo
                     
-                    %Other stuff
-                    if mouse_has_files==1
-                        
+   
+                end
+                
+            end %elec
+            
+            pffft=1;
+            figNo=0;
+            for bwii=1:4
+                figNo=figNo+1;
+                try
+                    close(figNo)
+                catch
+                end
+                hFig1=figure(figNo);
+                set(hFig1, 'units','normalized','position',[.5 .1 .75 .3])
+                
+                hold on
+                
+                
+                for evNo=1:length(eventType)
+                    no_elec=0;
+                    
+                    for elec=1:16
+                        if sum(which_electrodes==elec)>0
+                            no_elec=no_elec+1;
+                            
+                            these_trials=[];
+                            these_trials=(timecourse.mouseNo==mouseNo)&(timecourse.elec==elec)&(timecourse.which_eventLFPPower(eventType(evNo),:)==1);
+                            this_deltadB=[];
+                            this_deltadB=timecourse.delta_dB_power(these_trials);
+                            trial_numbers=[];
+                            trial_numbers=timecourse.trial_no_per_mouse(these_trials);
+                            plot(trial_numbers,this_deltadB,'.','MarkerFaceColor',these_colors{evNo},'MarkerEdgeColor',these_colors{evNo},'LineStyle','none')
+                            
+                        end
                     end
                     
                     
                 end
-                
+                title('Timecourse for delta dB power')
+                xlabel('Trial No')
+                ylabel('dB')
             end
-            
-        end
+            pffft=1;  
+        end %mouseNo
         
 end
 
