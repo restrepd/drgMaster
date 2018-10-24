@@ -23,16 +23,16 @@ if handles.subtractRef==0
     end
     
     if handles.autoscale==1
-        maxLogP=prctile(log_P_timecourse(:),99);
-        minLogP=prctile(log_P_timecourse(:),1);
+        maxLogPper=prctile(log_P_timecourse(:),99);
+        minLogPper=prctile(log_P_timecourse(:),1);
         %Note: Diego added this on purpose to limit the range to 10 dB
         %This results in emphasizing changes in the top 10 dB
         if maxLogP-minLogP>12
-            minLogP=maxLogP-12;
+            minLogPper=maxLogP-12;
         end
     else
-        maxLogP=handles.maxLogP;
-        minLogP=handles.minLogP;
+        maxLogPper=handles.maxLogP;
+        minLogPper=handles.minLogP;
     end
 else
     log_P_timecourse=zeros(length(freq),length(t));
@@ -74,8 +74,8 @@ else
         end
         
     else
-        maxLogP=handles.maxLogP;
-        minLogP=handles.minLogP;
+        maxLogPper=handles.maxLogP;
+        minLogPper=handles.minLogP;
     end
 end
  
@@ -103,7 +103,7 @@ if ~isempty(this_trialNo)
     
     colormap jet
     shading interp
-    caxis([minLogP maxLogP]);
+    caxis([minLogPper maxLogPper]);
     xlabel('Time (sec)')
     ylabel('Frequency (Hz)');
     title(['Power (dB, wavelet) timecourse ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
@@ -137,7 +137,7 @@ if ~isempty(this_trialNo)
     hFig2 = figure(2);
     set(hFig2, 'units','normalized','position',[.83 .1 .05 .3])
     
-    prain=[minLogP:(maxLogP-minLogP)/99:maxLogP];
+    prain=[minLogPper:(maxLogPper-minLogPper)/99:maxLogPper];
     drg_pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
     colormap jet
     shading interp

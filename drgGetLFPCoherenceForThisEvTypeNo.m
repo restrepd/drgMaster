@@ -1,6 +1,14 @@
-function [out_times,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPPowerForThisEvTypeNo(handles)
+function [out_times,freq,all_Cxy_timecourse, trial_numbers, perCorr_pertr, which_event]=drgGetLFPCoherenceForThisEvTypeNo(handles)
 
-%Generates a trial per trial phase histogram
+%Generates a coherence timecourse
+%Borjigin et al. www.pnas.org/cgi/content/short/1308285110
+%Coherence between EEG channels is measured by amplitude squared coherence 
+%Cxy(f) (mscohere.m in MATLAB signal toolbox; MathWorks, Inc.), which is a 
+%coherence estimate of the input signals x and y using Welch?s averaged, 
+%modified periodogram method. The magnitude squared coherence estimate 
+%Cxy(f) is a function of frequency with values between 0 and 1 that 
+%indicates how well x corresponds to y at each frequency.
+
 odorOn=2;
 sessionNo=handles.sessionNo;
 Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
@@ -16,19 +24,12 @@ firstTr=handles.trialNo;
 lastTr=handles.lastTrialNo;
 
 no_trials=0;
-all_Power=[];
-all_Power_ref=[];
 out_times=[];
-f=[];
-all_Power_timecourse=[];
-this_trialNo=[];
+all_Cxy_timecourse=[];
+trial_numbers=[];
 perCorr_pertr=[];
 which_event=[];
 no_excluded=0;
-
-% notch60HzFilt = designfilt('bandstopiir','FilterOrder',2, ...
-%     'HalfPowerFrequency1',59,'HalfPowerFrequency2',61, ...
-%     'DesignMethod','butter','SampleRate',floor(handles.drg.session(sessionNo).draq_p.ActualRate));
 
 [perCorr, encoding_trials, retrieval_trials, encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
 
@@ -49,54 +50,61 @@ for trNo=firstTr:lastTr
         if excludeTrial==0
             
             %First find the time range for the spectrogram
-            if handles.subtractRef==1
-                if handles.time_start+handles.time_pad<handles.startRef+handles.time_pad
-                    min_t=handles.time_start+handles.time_pad;
-                else
-                    min_t=handles.startRef+handles.time_pad;
-                end
-                
-                if handles.time_end-handles.time_pad>handles.endRef-handles.time_pad
-                    max_t=handles.time_end-handles.time_pad;
-                else
-                    max_t=handles.endRef-handles.time_pad;
-                end
-            else
-                min_t=handles.time_start+handles.time_pad;
-                max_t=handles.time_end-handles.time_pad;
-            end
             
-                
-            [LFP, trialNo, can_read] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
+            min_t=handles.time_start+handles.time_pad;
+            max_t=handles.time_end-handles.time_pad;
 
-            if (can_read==1)
                 
-
-                %Note: I tried hamming, hann and flattopwin widows, the
-                %results are qualitatively different, but they look the
-                %same
+            [LFP1, trialNo1, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
+            [LFP2, trialNo2, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, min_t, max_t);
+            
+            if (can_read1==1)&(can_read2==1)
                 
                 
-                [S,f,t,P]=spectrogram(detrend(double(LFP)),window,noverlap,freq,handles.drg.session(handles.sessionNo).draq_p.ActualRate);
-                
-                no_trials=no_trials+1;
-                this_trialNo(no_trials)=trNo;
-                
-                times=t+min_t;
-                out_times=times((times>=handles.time_start+handles.time_pad)&(times<=handles.time_end-handles.time_pad));
-                all_Power_timecourse(no_trials,1:length(f),1:length(out_times))=P(:,(times>=handles.time_start+handles.time_pad)&(times<=handles.time_end-handles.time_pad));
-                all_Power(no_trials,1:length(f))=mean(P((times>=handles.time_start+handles.time_pad)&(times<=handles.time_end-handles.time_pad)),2);
-                if handles.subtractRef==1
-                    P_ref=[];
-                    P_ref=P(:,(times>=handles.startRef+handles.time_pad)&(times<=handles.endRef-handles.time_pad));
-                    all_Power_ref(no_trials,1:length(f))=mean(P_ref,2);
+                %Get coherence spectrogram
+                %Estimate Cxy
+                current_ii=0;
+                %                 no_Cxys=0;
+                no_time_points=floor(length(LFP1)/(window-noverlap))-(window/(window-noverlap));
+                if no_time_points<=0
+                    no_time_points=1;
                 end
+                Cxy=zeros(length(freq),no_time_points);
+                tCxy=zeros(no_time_points,1);
+                %while current_ii+window<length(LFP1)
+                for no_Cxys=1:no_time_points
+                    current_ii=(no_Cxys-1)*(window-noverlap);
+                    tCxy(no_Cxys,1)=(current_ii+window/2)/handles.drg.session(handles.sessionNo).draq_p.ActualRate;
+                    [thisCxy,fCxy] = mscohere(LFP1(current_ii+1:current_ii+window),LFP2(current_ii+1:current_ii+window),hann(window/2),noverlap/2,freq,handles.drg.session(handles.sessionNo).draq_p.ActualRate,'mimo');
+                    Cxy(1:length(freq),no_Cxys)=thisCxy';
+                    %                     current_ii=current_ii+window-noverlap;
+                end
+                
+                %                 mesh(tCxy,fCxy,Cxy)
+                %                 view(2)
+                %                 axis tight
+                %
+                %                 %Compute the crosspectrogram
+                %                 [s,f,t] = xspectrogram(LFP1,LFP2,hamming(window),noverlap,freq,handles.drg.session(handles.sessionNo).draq_p.ActualRate,'mimo');
+                %                 %note: mesh(t,f,20*log10(s))
+                %
+                no_trials=no_trials+1;
+                trial_numbers(no_trials)=trNo;
+                
+                out_times=tCxy+min_t;
+                
+                these_Cxys=zeros(1,length(freq),length(out_times));
+                these_Cxys(1,:,:)=Cxy;
+                all_Cxy_timecourse(no_trials,1:length(freq),1:length(out_times))=Cxy;
+                
+                
                 switch handles.drg.drta_p.which_c_program
                     case {2,10}
                         perCorr_pertr(no_trials)=perCorr(drgFindEvNo(handles,trialNo,sessionNo,odorOn));
                     otherwise
                         perCorr_pertr(no_trials)=100;
                 end
+                
                 if handles.displayData==0
                     for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
                         switch handles.evTypeNo

@@ -474,6 +474,8 @@ if all_files_present==1
                         
                     end
                     
+                     
+                    
                     fprintf(1, 'File number: %d, window number: %d, lfp number: %d\n',filNum,winNo,lfpNo);
                     
                     

@@ -31,4 +31,8 @@ switch handles.analysisNoOsc
         drgEventRelatedWaveletAnalysis(handles);
     case 15
          drgERWAtimecourse(handles);
+    case 16
+        drgLFPcohspectTimecourse(handles);
+    case 17
+         drgLFPxspectTimecourse(handles);
 end

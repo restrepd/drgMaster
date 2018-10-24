@@ -1,6 +1,7 @@
-function [out_times,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPPowerForThisEvTypeNo(handles)
+function [out_times,freq, all_xspec_ref,all_xspec_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPxspectrogramForThisEvTypeNo(handles)
 
-%Generates a trial per trial phase histogram
+%Generates a cross-spectrogram
+
 odorOn=2;
 sessionNo=handles.sessionNo;
 Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
@@ -16,19 +17,12 @@ firstTr=handles.trialNo;
 lastTr=handles.lastTrialNo;
 
 no_trials=0;
-all_Power=[];
-all_Power_ref=[];
 out_times=[];
-f=[];
-all_Power_timecourse=[];
+all_xspec_timecourse=[];
 this_trialNo=[];
 perCorr_pertr=[];
 which_event=[];
 no_excluded=0;
-
-% notch60HzFilt = designfilt('bandstopiir','FilterOrder',2, ...
-%     'HalfPowerFrequency1',59,'HalfPowerFrequency2',61, ...
-%     'DesignMethod','butter','SampleRate',floor(handles.drg.session(sessionNo).draq_p.ActualRate));
 
 [perCorr, encoding_trials, retrieval_trials, encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
 
@@ -49,6 +43,8 @@ for trNo=firstTr:lastTr
         if excludeTrial==0
             
             %First find the time range for the spectrogram
+            
+              %First find the time range for the spectrogram
             if handles.subtractRef==1
                 if handles.time_start+handles.time_pad<handles.startRef+handles.time_pad
                     min_t=handles.time_start+handles.time_pad;
@@ -67,36 +63,41 @@ for trNo=firstTr:lastTr
             end
             
                 
-            [LFP, trialNo, can_read] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
-
-            if (can_read==1)
-                
-
-                %Note: I tried hamming, hann and flattopwin widows, the
-                %results are qualitatively different, but they look the
-                %same
+            [LFP1, trialNo1, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
+            [LFP2, trialNo2, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, min_t, max_t);
+            
+            if (can_read1==1)&(can_read2==1)
                 
                 
-                [S,f,t,P]=spectrogram(detrend(double(LFP)),window,noverlap,freq,handles.drg.session(handles.sessionNo).draq_p.ActualRate);
+                
+                no_time_points=floor(length(LFP1)/(window-noverlap))-(window/(window-noverlap))+1;
+                
+                %Compute the crosspectrogram
+                [xspec,f,txspec] = xspectrogram(LFP1,LFP2,hamming(window),noverlap,freq,handles.drg.session(handles.sessionNo).draq_p.ActualRate,'mimo');
+                %note: mesh(t,f,20*log10(s))
                 
                 no_trials=no_trials+1;
                 this_trialNo(no_trials)=trNo;
                 
-                times=t+min_t;
-                out_times=times((times>=handles.time_start+handles.time_pad)&(times<=handles.time_end-handles.time_pad));
-                all_Power_timecourse(no_trials,1:length(f),1:length(out_times))=P(:,(times>=handles.time_start+handles.time_pad)&(times<=handles.time_end-handles.time_pad));
-                all_Power(no_trials,1:length(f))=mean(P((times>=handles.time_start+handles.time_pad)&(times<=handles.time_end-handles.time_pad)),2);
-                if handles.subtractRef==1
-                    P_ref=[];
-                    P_ref=P(:,(times>=handles.startRef+handles.time_pad)&(times<=handles.endRef-handles.time_pad));
-                    all_Power_ref(no_trials,1:length(f))=mean(P_ref,2);
-                end
+                out_times=txspec+min_t;
+                
+                these_xspecs=zeros(1,length(freq),length(out_times));
+                these_xspecs(1,:,:)=xspec;
+                all_xspec_timecourse(no_trials,1:length(freq),1:length(out_times))=xspec;
+                
+                 if handles.subtractRef==1
+                    xspec_ref=[];
+                    xspec_ref=xspec(:,(out_times>=handles.startRef+handles.time_pad)&(out_times<=handles.endRef-handles.time_pad));
+                    all_xspec_ref(no_trials,1:length(f))=mean(xspec_ref,2);
+                 end
+                
                 switch handles.drg.drta_p.which_c_program
                     case {2,10}
                         perCorr_pertr(no_trials)=perCorr(drgFindEvNo(handles,trialNo,sessionNo,odorOn));
                     otherwise
                         perCorr_pertr(no_trials)=100;
                 end
+                
                 if handles.displayData==0
                     for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
                         switch handles.evTypeNo

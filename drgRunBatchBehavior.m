@@ -142,7 +142,7 @@ set(hFig1, 'units','normalized','position',[.02 .02 .95 .95])
 max_session=max(handles.drgbchoices.session_no);
 max_mouse=max(handles.drgbchoices.mouse_no);
 
-for filNum=1:length(handles.drgbchoices.PathName)
+for filNum=1:length(handles.drgbchoices.FileName)
     subplot(max_mouse,max_session,max_session*(handles.drgbchoices.mouse_no(filNum)-1)+handles.drgbchoices.session_no(filNum))
     set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
     % subplot(3,1,1)
@@ -180,7 +180,7 @@ switch which_display
         first_pc_end=[];
         last_pc=[];
         
-        for filNum=1:length(handles.drgbchoices.PathName)
+        for filNum=1:length(handles.drgbchoices.FileName)
             if length(handles.drgb.file(filNum).perCorr)>=trial_window
                 if handles.drgbchoices.session_no(filNum)==1
                     first_pc(handles.drgbchoices.mouse_no(filNum))=mean(handles.drgb.file(filNum).perCorr(1:trial_window));
@@ -246,7 +246,7 @@ switch which_display
             group(grNo).last_pc_start=[];
             
             group(grNo).mouse_numbers=[];
-            for filNum=1:length(handles.drgbchoices.PathName)
+            for filNum=1:length(handles.drgbchoices.FileName)
                 if length(handles.drgb.file(filNum).perCorr)>=trial_window
                     if handles.drgbchoices.group_no(filNum)==grNo
                         if handles.drgbchoices.session_no(filNum)==1
@@ -269,7 +269,7 @@ switch which_display
             end
             figure(grNo+1)
             hold on
-            for filNum=1:length(handles.drgbchoices.PathName)
+            for filNum=1:length(handles.drgbchoices.FileName)
                 if length(handles.drgb.file(filNum).perCorr)>=trial_window
                     if handles.drgbchoices.group_no(filNum)==grNo
                         
