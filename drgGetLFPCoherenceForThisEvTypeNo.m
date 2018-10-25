@@ -55,8 +55,8 @@ for trNo=firstTr:lastTr
             max_t=handles.time_end-handles.time_pad;
 
                 
-            [LFP1, trialNo1, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
-            [LFP2, trialNo2, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, min_t, max_t);
+            [LFP1, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
+            [LFP2, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, min_t, max_t);
             
             if (can_read1==1)&(can_read2==1)
                 
