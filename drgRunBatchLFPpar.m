@@ -15,7 +15,7 @@ first_file=1;
 [choiceFileName,choiceBatchPathName] = uigetfile({'drgbChoices*.m'},'Select the .m file with all the choices for analysis');
 fprintf(1, ['\ndrgRunBatchLFP run for ' choiceFileName '\n\n']);
 
-tempDirName=['temp' choiceFileName(12:end)];
+tempDirName=['temp' choiceFileName(12:end-2)];
 
 addpath(choiceBatchPathName)
 eval(['handles=' choiceFileName(1:end-2) ';'])
@@ -132,6 +132,7 @@ if all_files_present==1
             my_drg={'drg'};
             S=load(fullName,my_drg{:});
             handlespf.drg=S.drg;
+            lfp_per_file(filNum).eventlabels=handlespf.drg.draq_d.eventlabels;
             
             %         if handles.read_entire_file==1
             %             handlespf=drgReadAllDraOrDg(handlespf);
@@ -512,7 +513,7 @@ if all_files_present==1
             jtPathName=handles.drgbchoices.PathName;
         end
         
-        
+         
         %Save information for this file
         handles.drgb.filNum=filNum;
         handles.drgb.file(filNum).FileName=[jtFileName(10:end-4) '_drg.mat'];
@@ -520,8 +521,10 @@ if all_files_present==1
         
         %Save LFP power structures
         if (sum(handles.drgbchoices.analyses==2)>0)||(sum(handles.drgbchoices.analyses==1)>0)||(sum(handles.drgbchoices.analyses==4)>0)
-            handles.drgb.freq_for_LFPpower=lfp_per_file(filNum).f;
+            handles.drgb.file(filNum).freq_for_LFPpower=lfp_per_file(filNum).f;
         end
+        
+        handles.drgb.file(filNum).drg=lfp_per_file(filNum).drg;
         
         for ii=1:lfp_per_file(filNum).lfpevpair_no
             handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).fileNo=...

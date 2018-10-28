@@ -15,8 +15,9 @@ first_file=1;
 [choiceFileName,choiceBatchPathName] = uigetfile({'drgbChoices*.m'},'Select the .m file with all the choices for analysis');
 fprintf(1, ['\ndrgRunBatchLFP run for ' choiceFileName '\n\n']);
 
-tempDirName=['temp' choiceFileName(12:end)];
+tempDirName=['temp' choiceFileName(1:end-2)];
 
+ 
 addpath(choiceBatchPathName)
 eval(['handles=' choiceFileName(1:end-2) ';'])
 handles.choiceFileName=choiceFileName;
@@ -30,6 +31,29 @@ handles.evTypeNo=handles.drgbchoices.referenceEvent;
 
 test_batch=handles.drgbchoices.test_batch;
 
+%Do the electrode pair combinations exist?
+%I am doing 2x electrode combinations
+if exist([handles.drgb.outPathName tempDirName '/electrode_combinations.mat'])~=0
+    load([handles.drgb.outPathName tempDirName '/electrode_combinations.mat'])
+else
+    comb_per_mouse=zeros(1,max(handles.drgbchoices.mouse_no));
+    for filNum=first_file:handles.drgbchoices.no_files
+        if comb_per_mouse(handles.drgbchoices.mouse_no(filNum))==1
+            file_combs(filNum).shuffled_elec==mouse_combs(handles.drgbchoices.mouse_no(filNum)).shuffled_elec;
+        else
+            shuffled_elec1=randperm(handles.drgbchoices.no_LFP_elect_pairs);
+            shuffled_elec2=randperm(handles.drgbchoices.no_LFP_elect_pairs);
+            while sum(shuffled_elec1==shuffled_elec2)>0
+                shuffled_elec2=randperm(handles.drgbchoices.no_LFP_elect_pairs);
+            end
+            file_combs(filNum).shuffled_elec=[shuffled_elec1 shuffled_elec2];
+            mouse_combs(handles.drgbchoices.mouse_no(filNum)).shuffled_elec=[shuffled_elec1 shuffled_elec2];
+        end
+    end
+    mkdir([handles.drgb.outPathName tempDirName ])
+    save([handles.drgb.outPathName tempDirName '/electrode_combinations.mat'],'file_combs')
+end
+
 %Parallel batch processing for each file
 lfp_per_file=[];
 all_files_present=1;
@@ -42,6 +66,8 @@ for filNum=first_file:handles.drgbchoices.no_files
     lfp_per_file(filNum).out_times=[];
     lfp_per_file(filNum).wave_f=[];
     lfp_per_file(filNum).wave_out_times=[];
+    lfp_per_file(filNum).drg=[];
+    
     
     
     %Make sure that all the files exist
@@ -65,21 +91,24 @@ for filNum=first_file:handles.drgbchoices.no_files
     
     if handles.temp_exist(filNum)==2
         %If it was processed load the temp result
+        
         load([handles.drgb.outPathName tempDirName '/temp_' this_jt(10:end)])
         lfp_per_file(filNum)=this_lfp_per_file;
-        
     end
+    pfft=1;
+    
 end
 
+handles.file_combs=file_combs;
 
 if all_files_present==1
     
-%     gcp;
+    %     gcp;
     
     no_files=handles.drgbchoices.no_files;
-%     parfor filNum=first_file:no_files
-        
-            for filNum=first_file:handles.drgbchoices.no_files
+    %     parfor filNum=first_file:no_files
+    
+    for filNum=first_file:handles.drgbchoices.no_files
         
         file_no=filNum
         handlespf=struct();
@@ -111,7 +140,7 @@ if all_files_present==1
             my_drg={'drg'};
             S=load(fullName,my_drg{:});
             handlespf.drg=S.drg;
-            lfp_per_file(filNum).drg=handlespf.drg;
+            lfp_per_file(filNum).eventlabels=handlespf.drg.draq_d.eventlabels;
             
             %         if handles.read_entire_file==1
             %             handlespf=drgReadAllDraOrDg(handlespf);
@@ -142,15 +171,18 @@ if all_files_present==1
                 
                 
                 %Now run the analysis for each lfp
-                shuffled_elec=randperm(handles.drgbchoices.no_LFP_elect_pairs);
                 
-                for lfppairNo=1:handles.drgbchoices.no_LFP_elect_pairs
+                this_electrode=0;
+                for lfppairNo=1:handles.drgbchoices.no_LFP_elect_pairs*2
                     
-                    
-                    handlespf.peakLFPNo=handles.drgbchoices.which_electrodes1(lfppairNo);
-                    handlespf.burstLFPNo=handles.drgbchoices.which_electrodes2(shuffled_elec(lfppairNo));
+                    this_electrode=this_electrode+1;
+                    if this_electrode>length(handles.drgbchoices.which_electrodes1)
+                       this_electrode=1;
+                    end
+                    handlespf.peakLFPNo=handles.drgbchoices.which_electrodes1(this_electrode);
+                    handlespf.burstLFPNo=handles.drgbchoices.which_electrodes2(handlespf.file_combs(filNum).shuffled_elec(lfppairNo));
                     handlespf.referenceEvent=handles.drgbchoices.referenceEvent;
-                 
+                    
                     
                     lfp_per_file(filNum).lfpevpair_no=lfp_per_file(filNum).lfpevpair_no+1;
                     lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).fileNo=filNum;
@@ -159,7 +191,7 @@ if all_files_present==1
                     lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).elec2= handlespf.burstLFPNo;
                     lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).referenceEvent=handles.drgbchoices.referenceEvent;
                     lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).timeWindow=winNo;
-                     
+                    
                     %Do the LFP coherence analysis
                     if sum(handles.drgbchoices.analyses==8)>0
                         %This is coherence analysis
@@ -167,7 +199,7 @@ if all_files_present==1
                         handlespf.peakHighF=12;
                         handlespf.burstLowF=handlespf.LFPPowerSpectrumLowF;
                         handlespf.burstHighF=handlespf.LFPPowerSpectrumHighF;
-                         
+                        
                         [out_times,f, all_Cxy_timecourse, trial_numbers, perCorr_pertr, which_event]=drgGetLFPCoherenceForThisEvTypeNo(handlespf);
                         
                         lfp_per_file(filNum).out_times=out_times;
@@ -181,7 +213,7 @@ if all_files_present==1
                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).perCorrCoh=perCorr_pertr;
                     end
                     
-                    fprintf(1, 'File number: %d, window number: %d, lfp number: %d\n',filNum,winNo,lfppairNo);
+                    fprintf(1, 'File number: %d, window number: %d, lfp pair number: %d\n',filNum,winNo,lfppairNo);
                     
                     
                 end
@@ -235,9 +267,9 @@ if all_files_present==1
                 lfp_per_file(filNum).lfpevpair(ii).fileNo;
             handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).elec_pair_No=...
                 lfp_per_file(filNum).lfpevpair(ii).elec_pair_No;
-              handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).elec1=...
+            handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).elec1=...
                 lfp_per_file(filNum).lfpevpair(ii).elec1;
-              handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).elec2=...
+            handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).elec2=...
                 lfp_per_file(filNum).lfpevpair(ii).elec2;
             handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).referenceEvent=...
                 lfp_per_file(filNum).lfpevpair(ii).referenceEvent;
@@ -262,7 +294,7 @@ if all_files_present==1
                     lfp_per_file(filNum).lfpevpair(ii).trial_numbers;
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).perCorrCoh=...
                     lfp_per_file(filNum).lfpevpair(ii).perCorrCoh;
-           
+                
                 
             end
             
