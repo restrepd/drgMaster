@@ -524,7 +524,7 @@ if all_files_present==1
             handles.drgb.file(filNum).freq_for_LFPpower=lfp_per_file(filNum).f;
         end
         
-        handles.drgb.file(filNum).drg=lfp_per_file(filNum).drg;
+        handles.drgb.file(filNum).eventlabels=lfp_per_file(filNum).eventlabels;
         
         for ii=1:lfp_per_file(filNum).lfpevpair_no
             handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).fileNo=...

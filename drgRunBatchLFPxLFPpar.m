@@ -29,7 +29,6 @@ choiceFileName=handles.drgbchoices.FileName;
 %Very, very important!
 handles.evTypeNo=handles.drgbchoices.referenceEvent;
 
-test_batch=handles.drgbchoices.test_batch;
 
 %Do the electrode pair combinations exist?
 %I am doing 2x electrode combinations
@@ -52,6 +51,7 @@ else
     end
     mkdir([handles.drgb.outPathName tempDirName ])
     save([handles.drgb.outPathName tempDirName '/electrode_combinations.mat'],'file_combs')
+    handles.file_combs=file_combs;
 end
 
 %Parallel batch processing for each file
@@ -62,8 +62,11 @@ for filNum=first_file:handles.drgbchoices.no_files
     lfp_per_file(filNum).lfpevpair_no=0;
     lfp_per_file(filNum).lfp_per_exp=[];
     lfp_per_file(filNum).lfpevpair=[];
-    lfp_per_file(filNum).f=[];
     lfp_per_file(filNum).out_times=[];
+    lfp_per_file(filNum).eventlabels=[];
+    
+    %These are not needed
+    lfp_per_file(filNum).f=[];
     lfp_per_file(filNum).wave_f=[];
     lfp_per_file(filNum).wave_out_times=[];
     lfp_per_file(filNum).drg=[];
@@ -95,20 +98,20 @@ for filNum=first_file:handles.drgbchoices.no_files
         load([handles.drgb.outPathName tempDirName '/temp_' this_jt(10:end)])
         lfp_per_file(filNum)=this_lfp_per_file;
     end
-    pfft=1;
+
     
 end
 
-handles.file_combs=file_combs;
+
 
 if all_files_present==1
     
-    %     gcp;
+    gcp;
     
     no_files=handles.drgbchoices.no_files;
-    %     parfor filNum=first_file:no_files
-    
-    for filNum=first_file:handles.drgbchoices.no_files
+    parfor filNum=first_file:no_files
+        
+        %     for filNum=first_file:handles.drgbchoices.no_files
         
         file_no=filNum
         handlespf=struct();
@@ -259,8 +262,8 @@ if all_files_present==1
         if (sum(handles.drgbchoices.analyses==2)>0)||(sum(handles.drgbchoices.analyses==1)>0)||(sum(handles.drgbchoices.analyses==4)>0)
             handles.drgb.freq_for_LFPpower=lfp_per_file(filNum).f;
         end
-        
-        handles.drgb.file(filNum).drg=lfp_per_file(filNum).drg;
+        l
+        handles.drgb.file(filNum).eventlabels=lfp_per_file(filNum).eventlabels;
         
         for ii=1:lfp_per_file(filNum).lfpevpair_no
             handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).fileNo=...

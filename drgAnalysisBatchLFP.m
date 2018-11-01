@@ -201,13 +201,17 @@ switch which_display
     case 22
         frequency=handles_drgb.drgb.lfpevpair(1).f_coh;
     otherwise
-        frequency=handles_drgb.drgb.freq_for_LFPpower;
+        if isfield(handles_drgb.drgb,'freq_for_LFPpower')
+            frequency=handles_drgb.drgb.freq_for_LFPpower;
+        else
+            frequency=handles_drgb.drgb.file(1).freq_for_LFPpower;
+        end
 end
   
-if isfield(handles_drgb.drgb.file,'drg')
+if isfield(handles_drgb.drgb.file,'eventlabels')
     %Overwrite the event labels
     for ii=1:length(eventType)
-       evTypeLabels{ii}=handles_drgb.drgb.file(1).drg.draq_d.eventlabels{handles_drgb.drgbchoices.evTypeNos(eventType(ii))}; 
+       evTypeLabels{ii}=handles_drgb.drgb.file(1).eventlabels{handles_drgb.drgbchoices.evTypeNos(eventType(ii))}; 
     end
 end
 
@@ -10420,10 +10424,11 @@ switch which_display
                             end
                         end
                         
+                        this_file_is_nan=0;
                         for fileNo=1:no_files
                             if sum(files==fileNo)>0
                                 if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
-
+                                        group_no_per_mouse(mouseNo)=handles_drgb.drgbchoices.group_no(fileNo);
                                         lfppairNo=find((files_per_lfp==fileNo)&(elec_pair_No==elec_pair)&(window_per_lfp==winNo));
                                         lfppairNo_ref=find((files_per_lfp==fileNo)&(elec_pair_No==elec_pair)&(window_per_lfp==refWin));
                                         
@@ -10451,11 +10456,15 @@ switch which_display
                                                      
                                                     % Ev1
                                                     this_deltaCxy=zeros(sum(trials_in_event_Ev),length(frequency));
-                                                    this_deltaCxy(:,:)=handles_drgb.drgb.lfpevpair(lfppairNo).all_Cxy_timecourse(trials_in_event_Ev,:)...
-                                                        -handles_drgb.drgb.lfpevpair(lfppairNo_ref).all_Cxy_timecourse(trials_in_event_Ev,:);
+                                                    this_deltaCxy(:,:)=mean(handles_drgb.drgb.lfpevpair(lfppairNo).all_Cxy_timecourse(trials_in_event_Ev,:,:)...
+                                                        -handles_drgb.drgb.lfpevpair(lfppairNo_ref).all_Cxy_timecourse(trials_in_event_Ev,:,:),3);
+                                                    
+                                                    if sum(isnan(this_deltaCxy))>0
+                                                        this_file_is_nan=1;
+                                                    end
                                                     
                                                     this_Cxy=zeros(sum(trials_in_event_Ev),length(frequency));
-                                                    this_Cxy(:,:)=handles_drgb.drgb.lfpevpair(lfppairNo_ref).all_Cxy_timecourse(trials_in_event_Ev,:);
+                                                    this_Cxy(:,:)=mean(handles_drgb.drgb.lfpevpair(lfppairNo_ref).all_Cxy_timecourse(trials_in_event_Ev,:,:),3);
                                                     
                                                     
                                                     %Wide band spectrum
@@ -10466,7 +10475,6 @@ switch which_display
                                                     
                                                     noWB_for_evNo(evNo)=evNo_out(evNo).noWB;
                                                     
-                                                    theseEvNos(evNo).groupNo(1,theseEvNos(evNo,1).noEv+1:theseEvNos(evNo,1).noEv+sum(trials_in_event_Ev))=handles_drgb.drgbchoices.group_no(fileNo)*ones(1,sum(trials_in_event_Ev));
                                                     
                                                     %Do per bandwidth analysis
                                                     for bwii=1:no_bandwidths
@@ -10485,19 +10493,8 @@ switch which_display
                                                         this_Cxy_Ev=mean(this_Cxy(:,this_band),2);
                                                         
                                                         theseEvNos(evNo,bwii).this_Cxy_Ev(1,theseEvNos(evNo,bwii).noEv+1:theseEvNos(evNo,bwii).noEv+sum(trials_in_event_Ev))=this_Cxy_Ev';
-                                                        
-                                                        
+                                                        theseEvNos(evNo,bwii).groupNo(1,theseEvNos(evNo,bwii).noEv+1:theseEvNos(evNo,bwii).noEv+sum(trials_in_event_Ev))=handles_drgb.drgbchoices.group_no(fileNo)*ones(1,sum(trials_in_event_Ev));
                                                         theseEvNos(evNo,bwii).noEv=theseEvNos(evNo,bwii).noEv+sum(trials_in_event_Ev);
-                                                        
-                                                        
-                                                        if theseEvNos(evNo,bwii).noEv~=length(theseEvNos(evNo,bwii).this_deltaCxy_Ev)
-                                                            pffft=1;
-                                                        end
-                                                        
-%                                                         theseEvNosPerEl(evNo,bwii,elec_pair).this_deltaCxy_Ev(1,theseEvNosPerEl(evNo,bwii,elec_pair).noEv+1:theseEvNosPerEl(evNo,bwii,elec_pair).noEv+sum(trials_in_event_Ev))=this_deltaCxy_Ev';
-%                                                         theseEvNosPerEl(evNo,bwii,elec_pair).noEv=theseEvNosPerEl(evNo,bwii,elec_pair).noEv+sum(trials_in_event_Ev);
-%                                                         
-%                                                         evNo_out(evNo).mean_deltaCxy_EvperBW(evNo_out(evNo).noWB,bwii)=mean(this_deltaCxy_Ev);
                                                         
                                                         mouse_has_files=1;
                                                     end
@@ -10528,37 +10525,35 @@ switch which_display
                             end
                         end %fileNo
                         
-                        if mouse_has_files==1
-                            mouse_included(mouseNo)=1;
-                            %Calculate per mouse per electrode delta_dB
-                            for grNo=1:max(handles_drgb.drgbchoices.group_no)
-                                if sum(theseEvNos(evNo).groupNo==grNo)>0
-                                    for evNo=1:length(eventType)
-                                        for bwii=1:4
+                        if this_file_is_nan==1
+                            fprintf(1, ['WARNING file No %d has NaN delta Cxy\n\n'])
+                        end
+                        
+                        if theseEvNos(evNo,1).noEv>0
+                            if mouse_has_files==1
+                                mouse_included(mouseNo)=1;
+                                %Calculate per mouse per electrode delta_dB
+                                for evNo=1:length(eventType)
+                                    for bwii=1:4
+                                        if theseEvNos(evNo,bwii).noEv>0
                                             deltaCxy_No_per_mouse=deltaCxy_No_per_mouse+1;
-                                            deltaCxy_per_mouse(deltaCxy_No_per_mouse)=mean(theseEvNos(evNo,bwii).this_deltaCxy_Ev(theseEvNos(evNo).groupNo==grNo));
-                                            Cxy_per_mouse(deltaCxy_No_per_mouse)=mean(theseEvNos(evNo,bwii).this_Cxy_Ev(theseEvNos(evNo).groupNo==grNo));
+                                            deltaCxy_per_mouse(deltaCxy_No_per_mouse)=mean(theseEvNos(evNo,bwii).this_deltaCxy_Ev);
+                                            Cxy_per_mouse(deltaCxy_No_per_mouse)=mean(theseEvNos(evNo,bwii).this_Cxy_Ev);
                                             deltaCxy_perii_per_mouse(deltaCxy_No_per_mouse)=per_ii;
                                             deltaCxy_evNo_per_mouse(deltaCxy_No_per_mouse)=evNo;
                                             deltaCxy_bwii_per_mouse(deltaCxy_No_per_mouse)=bwii;
                                             deltaCxy_mouseNo_per_mouse(deltaCxy_No_per_mouse)=mouseNo;
                                             deltaCxy_elec_pair_per_mouse(deltaCxy_No_per_mouse)=elec_pair;
-                                            deltaCxy_group_no_per_mouse(deltaCxy_No_per_mouse)=grNo;
+                                            deltaCxy_group_no_per_mouse(deltaCxy_No_per_mouse)=group_no_per_mouse(mouseNo);
                                         end
                                     end
-                                end
+                                end 
+                            else
+                                mouse_included(mouseNo)=0;
                             end
-                            
-                            
-                            
-                        else
-                            mouse_included(mouseNo)=0;
                         end
-                        
-                        
-                    
-                    
                 end
+                
                 
 
                 if mouse_has_files==1
@@ -10618,6 +10613,7 @@ switch which_display
                     
                     per_included=0;
                     these_dB_per_e=[];
+                    there_are_NaNs=0;
                     for per_ii=1:2      %performance bins. blue = naive, red = proficient
                         
                         %bar_offset=21-evNo*3+(2-per_ii);
@@ -10670,15 +10666,20 @@ switch which_display
                            
                         end
                     end
-                    if per_included==2
-                        for mouseNo=1:length(mouse_included)
-                            if mouse_included(mouseNo)==1
-                                if (sum(data_for_lines(1).these_mice==mouseNo)>0)&(sum(data_for_lines(2).these_mice==mouseNo)>0)
+                    
+                    try
+                        if per_included==2
+                            for mouseNo=1:length(mouse_included)
+                                if mouse_included(mouseNo)==1
+                                    if (sum(data_for_lines(1).these_mice==mouseNo)>0)&(sum(data_for_lines(2).these_mice==mouseNo)>0)
                                         plot([data_for_lines(1).these_bar_offsets*ones(1,sum(data_for_lines(1).these_mice==mouseNo)); data_for_lines(2).these_bar_offsets*ones(1,sum(data_for_lines(1).these_mice==mouseNo))],...
                                             [data_for_lines(1).these_dB_per_e(data_for_lines(1).these_mice==mouseNo); data_for_lines(2).these_dB_per_e(data_for_lines(2).these_mice==mouseNo)],'-','Color',[0.7 0.7 0.7])
+                                    end
                                 end
                             end
                         end
+                    catch
+                        pffft=1
                     end
                     if include_group==1
                         bar_lab_loc=[bar_lab_loc mean(these_offsets)];
@@ -10744,7 +10745,7 @@ switch which_display
         %event
         %for each electrode one column with dB power
         
-       
+     
         
         for bwii=1:4
             
@@ -10793,18 +10794,20 @@ switch which_display
                 'VariableNames',{'Genotype','Proficiency','Event','Mouse','deltaCxy1','deltaCxy2',...
                 'deltaCxy3','deltaCxy4','deltaCxy5','deltaCxy6','deltaCxy7','deltaCxy8','deltaCxy9','deltaCxy10',...
                 'deltaCxy11','deltaCxy12','deltaCxy13','deltaCxy14','deltaCxy15','deltaCxy16'});
-            within_subject=[1:16]; %these are the electrode pairs
-            rm = fitrm(t,'deltaCxy1-deltaCxy16 ~ Genotype + Proficiency + Event + Mouse','WithinDesign',within_subject)
+            electrode_pairs=[1:16]'; %these are the electrode pairs
+            rm = fitrm(t,'deltaCxy1-deltaCxy16 ~ Genotype + Proficiency + Event + Mouse','WithinDesign',electrode_pairs)
+            
             % Perform repeated measures analysis of variance.
-            ranovatbl = ranova(rm)
+%             ranovatbl = ranova(rm)
+            anovatbl=anova(rm,'WithinModel',electrode_pairs)
             fprintf(1, '\n\n\n\n')
         end
         
-        
+       
         
         for bwii=1:4
             
-            fprintf(1, ['Repeated measures anova for coherence before the odor' freq_names{bwii} '\n\n'])
+            fprintf(1, ['Repeated measures anova for coherence before the odor ' freq_names{bwii} '\n\n'])
             
             %For all the condiitons setup the table
             kk=0;
@@ -10849,15 +10852,17 @@ switch which_display
                 'VariableNames',{'Genotype','Proficiency','Event','Mouse','Cxy1','Cxy2',...
                 'Cxy3','Cxy4','Cxy5','Cxy6','Cxy7','Cxy8','Cxy9','Cxy10',...
                 'Cxy11','Cxy12','Cxy13','Cxy14','Cxy15','Cxy16'});
-            within_subject=[1:16]; %these are the electrode pairs
-            rm = fitrm(t,'Cxy1-Cxy16 ~ Genotype + Proficiency + Event + Mouse','WithinDesign',within_subject)
+            electrode_pairs=[1:16]'; %these are the electrode pairs
+            rm = fitrm(t,'Cxy1-Cxy16 ~ Genotype + Proficiency + Event + Mouse','WithinDesign',electrode_pairs)
             % Perform repeated measures analysis of variance.
-            ranovatbl = ranova(rm)
+%             ranovatbl = ranova(rm)
+            anovatbl=anova(rm,'WithinModel',electrode_pairs)
             fprintf(1, '\n\n\n\n')
         end
+       
+       
         
-        
-        
+      
         %Now plot the average per mouse LFP power
         for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
@@ -10999,7 +11004,7 @@ switch which_display
             
         end
         
-       
+    
         
         %Display cumulative histograms for delta coherence for average per electrode per mouse and do ranksum
         pvals=[];

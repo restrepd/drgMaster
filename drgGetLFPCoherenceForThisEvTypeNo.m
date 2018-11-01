@@ -52,7 +52,7 @@ for trNo=firstTr:lastTr
             %First find the time range for the spectrogram
             
             min_t=handles.time_start+handles.time_pad;
-            max_t=handles.time_end-handles.time_pad;
+            max_t=handles.time_end; %Note: I leave the pad at the end to prevent errors
 
                 
             [LFP1, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
