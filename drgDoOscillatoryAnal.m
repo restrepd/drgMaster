@@ -35,4 +35,8 @@ switch handles.analysisNoOsc
         drgLFPcohspectTimecourse(handles);
     case 17
          drgLFPxspectTimecourse(handles);
+    case 18 
+        drgLFPwavePerTrialPower(handles);
+    case 19
+        drgLFPspectrogramPerTrialPower(handles);
 end

@@ -80,7 +80,7 @@ for trNo=firstTr:lastTr
                 ii_start_licks=handles.time_pad*handles.drg.session(sessionNo).draq_p.ActualRate;
                 ii_end_licks=length(lickLFP)-ii_start_licks;
                 lick_trace=[];
-                lick_trace=lickLFP(ii_start_licks:ii_end_licks);
+                lick_trace=lickLFP(int32(ii_start_licks):int32(ii_end_licks));
                 lick_traces(no_trials,1:length(lick_trace))=lick_trace;
             
                 
