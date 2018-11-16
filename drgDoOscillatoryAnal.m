@@ -39,4 +39,6 @@ switch handles.analysisNoOsc
         drgLFPwavePerTrialPower(handles);
     case 19
         drgLFPspectrogramPerTrialPower(handles);
+    case 20
+        drgLFPspectPerceptron(handles);
 end
