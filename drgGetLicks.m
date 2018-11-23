@@ -40,6 +40,7 @@ thershold_licks=prctile(all_licks,1)+((prctile(all_licks,99)-prctile(all_licks,1
 no_trials=0;
 trials_included=[];
 stamped_lick_ii=zeros(1,lastTr-firstTr+1);
+these_stamped_lick_times=[];
 lick_traces=zeros(lastTr-firstTr+1,handles.drg.session(sessionNo).draq_p.ActualRate*(min_t-max_t));  %On purpose this is larger than the total number of points
 dt_licks=handles.dt_lick;
 lick_freq=zeros(1,ceil((handles.time_end-handles.time_start-2*handles.time_pad)/dt_licks)-1);
@@ -99,7 +100,7 @@ for trNo=firstTr:lastTr
                 
                 this_lick_ii=0;
                 these_lick_times=[];
-                these_stamped_lick_times=[];
+                
                 
                 %Find the events (licks)
                 while the_end==0
@@ -177,4 +178,8 @@ CIlickf(2,:)=CIlickf(2,:)-lick_freq;
 lick_traces=lick_traces(1:no_trials,1:ceil((handles.time_end-handles.time_start-2*handles.time_pad)*handles.drg.session(sessionNo).draq_p.ActualRate));
 lick_trace_times=([1:ceil((handles.time_end-handles.time_start-2*handles.time_pad)*handles.drg.session(sessionNo).draq_p.ActualRate)]/handles.drg.session(sessionNo).draq_p.ActualRate)+min_t+handles.time_pad;
 handles.peakLFPNo=hpNo;
+
+if length(stamped_lick_ii)>no_trials
+    stampled_lick_ii(no_trials+1:end)=[];
+end
     

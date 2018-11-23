@@ -6,8 +6,8 @@ sessionNo=handles.sessionNo;
 Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
 freq=handles.burstLowF:(handles.burstHighF-handles.burstLowF)/100:handles.burstHighF;
 
-window=round(handles.window*handles.drg.draq_p.ActualRate); 
-noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate); 
+window=round(handles.window*handles.drg.draq_p.ActualRate);
+noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate);
 
 
 
@@ -42,10 +42,10 @@ for trNo=firstTr:lastTr
     
     if evNo~=-1
         
-
+        
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
-
-
+        
+        
         if excludeTrial==0
             
             %First find the time range for the spectrogram
@@ -66,12 +66,12 @@ for trNo=firstTr:lastTr
                 max_t=handles.time_end-handles.time_pad;
             end
             
-                
+            
             [LFP, trialNo, can_read] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
-
+            
             if (can_read==1)
                 
-
+                
                 %Note: I tried hamming, hann and flattopwin widows, the
                 %results are qualitatively different, but they look the
                 %same
@@ -112,7 +112,7 @@ for trNo=firstTr:lastTr
                                 else
                                     %These are not tstart, and the time
                                     %should be compared at OdorOn
-                                      %This is tstart
+                                    %This is tstart
                                     if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(2).times(evNo))>0
                                         which_event(evTypeNo,no_trials)=1;
                                     else
@@ -126,17 +126,16 @@ for trNo=firstTr:lastTr
                                 else
                                     which_event(evTypeNo,no_trials)=0;
                                 end
-                        end  
-                    end 
+                        end
+                    end
                 end
                 
             end
         end
-        else
-            no_excluded=no_excluded+1;
-        end %for evNo
-        
-    end
-    pffft=1;
+    else
+        no_excluded=no_excluded+1;
+    end %for evNo
+    
 end
+
 
