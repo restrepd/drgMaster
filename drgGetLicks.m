@@ -69,7 +69,7 @@ for trNo=firstTr:lastTr
             if (can_read==1)
                 
                 no_trials=no_trials+1;
-                trials_included(no_trials)=trialNo;
+                trials_included(no_trials)=trNo;
                 
                 
                 %Get the licks
@@ -179,7 +179,5 @@ lick_traces=lick_traces(1:no_trials,1:ceil((handles.time_end-handles.time_start-
 lick_trace_times=([1:ceil((handles.time_end-handles.time_start-2*handles.time_pad)*handles.drg.session(sessionNo).draq_p.ActualRate)]/handles.drg.session(sessionNo).draq_p.ActualRate)+min_t+handles.time_pad;
 handles.peakLFPNo=hpNo;
 
-if length(stamped_lick_ii)>no_trials
-    stampled_lick_ii(no_trials+1:end)=[];
-end
+
     

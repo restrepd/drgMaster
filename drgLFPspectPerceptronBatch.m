@@ -162,9 +162,13 @@ if all_files_present==1
                     
                     all_stamped_lick_times=zeros(length(this_trialNo),250);
                     sztslt=size(these_stamped_lick_times);
-                    all_stamped_lick_times(:,1:sztslt(2))=these_stamped_lick_times(this_trialNo,:);
                     all_stamped_lick_ii=zeros(1,length(this_trialNo));
-                    all_stamped_lick_ii(:,:)=stamped_lick_ii(this_trialNo);
+                    for ii=1:length(this_trialNo)
+                        kk=find(trials_included_l==this_trialNo(ii));
+                        all_stamped_lick_times(ii,1:sztslt(2))=these_stamped_lick_times(kk,:);
+                        all_stamped_lick_ii(1,ii)=stamped_lick_ii(kk);
+                    end
+                    
                 else
                     this_all_which_events=[];
                     this_all_which_events=all_which_events;
@@ -181,14 +185,20 @@ if all_files_present==1
                     this_all_stamped_lick_times=[];
                     this_all_stamped_lick_times=all_stamped_lick_times;
                     all_stamped_lick_times=zeros(length(this_trialNo)+no_trials,250);
-                    all_stamped_lick_times(:,1:no_trials)=this_all_stamped_lick_times;
-                    all_stamped_lick_times(:,no_trials+1:no_trials+length(this_trialNo))=these_stamped_lick_times(this_trialNo,:);
+                    all_stamped_lick_times(1:no_trials,:)=this_all_stamped_lick_times;
+                    sztslt=size(these_stamped_lick_times);
                     
                     this_all_stamped_lick_ii=[];
                     this_all_stamped_lick_ii=all_stamped_lick_ii;
                     all_stamped_lick_ii=zeros(1,length(this_trialNo)+no_trials);
-                    all_stamped_lick_ii(:,1:no_trials)=this_all_stamped_lick_ii;
-                    all_stamped_lick_times(:,no_trials+1:no_trials+length(this_trialNo))=stamped_lick_ii(this_trialNo);
+                    all_stamped_lick_ii(1,1:no_trials)=this_all_stamped_lick_ii;
+                    
+                    for ii=1:length(this_trialNo)
+                        kk=find(trials_included_l==this_trialNo(ii));
+                        all_stamped_lick_times(ii+no_trials,1:sztslt(2))=these_stamped_lick_times(kk,:);
+                        all_stamped_lick_ii(1,no_trials+ii)=stamped_lick_ii(1,kk);
+                    end
+                    
                 end
                 no_trials=no_trials+length(this_trialNo);
                 

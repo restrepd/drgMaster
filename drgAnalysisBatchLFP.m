@@ -10454,7 +10454,7 @@ for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
             end
         end
         pffft=1
-        
+         
     case 22
         % Multiclass ROC analysis of coherence for naive and proficient
         % mice for different epochs (concentrations or S+ vs. S-) and different groups. Analyzed per mouse
