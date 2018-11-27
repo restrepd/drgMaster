@@ -7,7 +7,7 @@ function drgRunBatchBehavior
 % An example of this file: drgbChoicesDanielPrelim
 %
 %
-
+pffft = 1;
 
 close all
 clear all
