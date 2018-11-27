@@ -232,6 +232,11 @@ if all_files_present==1
                     end
                     
                     %Calculate licks
+                    stamped_lick_ii=[];
+                    these_stamped_lick_times=[];
+                    no_trials_l=[];
+                    trials_included_l=[];
+                    
                     [lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times,no_trials_l,trials_included_l]=drgGetLicks(handles);
                     
                
