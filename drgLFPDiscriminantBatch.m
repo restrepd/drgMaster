@@ -335,7 +335,7 @@ if all_files_present==1
                                 
                                 gcp
                                 
-                                fprintf(1, ['Perceptron processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d tirals\n'],mouseNo,per_ii);
+                                fprintf(1, ['Perceptron processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,per_ii);
                                 
                                 parfor time_point=1:length(t)
                                     %         for time_point=1:length(t)
@@ -428,7 +428,7 @@ if all_files_present==1
                                 test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),per_ii,length(t));
                                 shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),per_ii,length(t));
                                 
-                                fprintf(1, ['LDA processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d tirals\n'],mouseNo,per_ii);
+                                fprintf(1, ['LDA processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,per_ii);
                                 fprintf(1,'For these events: ')
                                 for ii=1:length(handles.drgbchoices.events_to_discriminate)
                                     fprintf(1,[handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(ii)} ' '])
@@ -531,7 +531,7 @@ if all_files_present==1
                                     shuffled_out_per_timepoint(:,:,time_point)=shuffled_out;
                                     discriminant_correct(1,time_point)=100*sum(sum(test_out.*per_targets))/N;
                                     discriminant_correct_shuffled(1,time_point)=100*sum(sum(shuffled_out.*per_targets))/N;
-                                    fprintf(1, '\nPerceptron percent correct classification %d (for timepoint %d out of %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/per_ii,time_point,length(t));
+                                    fprintf(1, 'LDA percent correct classification %d (for timepoint %d out of %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/per_ii,time_point,length(t));
                                 end
                                 
                                 
