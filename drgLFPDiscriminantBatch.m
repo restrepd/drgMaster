@@ -91,6 +91,7 @@ if all_files_present==1
                     my_drg={'drg'};
                     S=load(fullName,my_drg{:});
                     handles.drg=S.drg;
+                    handles_out.drg=handles.drg;
                     
                     switch handles.drg.session(handles.sessionNo).draq_p.dgordra
                         case 1
