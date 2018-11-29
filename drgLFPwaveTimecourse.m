@@ -27,8 +27,8 @@ if handles.subtractRef==0
         minLogPper=prctile(log_P_timecourse(:),1);
         %Note: Diego added this on purpose to limit the range to 10 dB
         %This results in emphasizing changes in the top 10 dB
-        if maxLogP-minLogP>12
-            minLogPper=maxLogP-12;
+        if maxLogPper-minLogPper>12
+            minLogPper=maxLogPper-12;
         end
     else
         maxLogPper=handles.maxLogP;
@@ -57,13 +57,7 @@ else
     
     max_delta=16;
     if handles.autoscale==1
-        maxLogP=prctile(log_P_timecourse(:)-log_P_timecourse_ref(:),99);
-        minLogP=prctile(log_P_timecourse(:)-log_P_timecourse_ref(:),1);
-        %Note: Diego added this on purpose to limit the range to 10 dB
-        %This results in emphasizing changes in the top 10 dB
-        if maxLogP-minLogP>max_delta
-            minLogP=maxLogP-max_delta;
-        end
+
         
         maxLogPper=prctile(log_P_per_trial_timecourse_sub(:),99);
         minLogPper=prctile(log_P_per_trial_timecourse_sub(:),1);

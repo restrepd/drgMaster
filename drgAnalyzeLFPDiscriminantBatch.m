@@ -16,53 +16,69 @@ figNo=0;
 
 t=handles_out.t;
 
-for mouseNo=1:max(handles_out.drgbchoices.mouse_no)
-    for groupNo=1:max(handles_out.drgbchoices.group_no)
-        for percent_correct_ii=1:2
-            for bwii=1:length(handles_out.drgbchoices.lowF)
+%Gather the data to be plotted
+
+
+for groupNo=1:max(handles_out.drgbchoices.group_no)
+    figNo=figNo+1
+    try
+        close(figNo)
+    catch
+    end
+     hFig=figure(figNo);
+            
+            
+            set(hFig, 'units','normalized','position',[.2 .2 .7 .7])
+            
+    
+    ii_plot=0;
+    for percent_correct_ii=1:2
+        for bwii=1:4
+            ii_plot=ii_plot+1;
+            subplot(2,4,ii_plot);
+            hold on
+            no_mice=0;
+            all_discriminant_correct=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
+            all_discriminant_correct_shuffled=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
+            for mouseNo=1:max(handles_out.drgbchoices.mouse_no)
+                 
                 if handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calulated==1
-                    
-                        per_ii=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials;
-                        
-                        if per_ii>=20
-                            figNo=figNo+1
-                            try
-                                close(figNo)
-                            catch
-                            end
-                            
-                            figure(figNo)
-                            
-                            hold on
-                            
-                            discriminant_correct_shuffled=zeros(1,length(t));
-                            discriminant_correct_shuffled(1,:)=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct_shuffled;
-                            discriminant_correct=zeros(1,length(t));
-                            discriminant_correct(1,:)=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct;
-                            
-                            
-                            per95=prctile(discriminant_correct_shuffled,95);
-                            per5=prctile(discriminant_correct_shuffled,5);
-                            CIsh=[mean(discriminant_correct_shuffled)-per5 per95-mean(discriminant_correct_shuffled)]';
-                            [hlCR, hpCR] = boundedline([t(1) t(end)],[mean(discriminant_correct_shuffled) mean(discriminant_correct_shuffled)], CIsh', 'r');
-                            
-                            plot(t',discriminant_correct,'-k')
-                            
-                            %Odor on markers
-                            plot([0 0],[0 100],'-k')
-                            odorhl=plot([0 2.5],[20 20],'-k','LineWidth',5);
-                            plot([2.5 2.5],[0 100],'-k')
-                            
-                            title(['% correct for ' handles_out.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles_out.drgbchoices.per_lab{percent_correct_ii} ' ' handles_out.drgbchoices.group_no_names{groupNo}])
-                       
-                            xlabel('Time (sec)')
-                            ylabel('Percent correct')
-                        else
-                            fprintf(1, ['Discriminant not processed for mouse No %d ' handles_out.drgbchoices.per_lab{percent_correct_ii} ' because there were only %d trials (fewer than 20 trials)\n'],mouseNo,per_ii);
-                        end
-                   
+                    per_ii=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials;
+                    if per_ii>=20
+                        no_mice=no_mice+1;
+                        all_discriminant_correct(no_mice,:)=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct;
+                        all_discriminant_correct_shuffled(no_mice,:)=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct_shuffled;
+                    end
                 end
             end
+            
+            no_mice_per(percent_correct_ii)=no_mice;
+            
+            all_discriminant_correct_shuffled=all_discriminant_correct_shuffled(1:no_mice,:);
+            mean_dcsh=mean(all_discriminant_correct_shuffled,1)';
+            CIdcsh = bootci(1000, {@mean, all_discriminant_correct_shuffled})';
+            CIdcsh(:,1)=mean_dcsh-CIdcsh(:,1);
+            CIdcsh(:,2)=CIdcsh(:,2)-mean_dcsh;
+            [hlCR, hpCR] = boundedline(t,mean_dcsh, CIdcsh, 'b');
+            
+            all_discriminant_correct=all_discriminant_correct(1:no_mice,:);
+            mean_dc=mean(all_discriminant_correct,1)';
+            CIdc = bootci(1000, {@mean, all_discriminant_correct})';
+            CIdc(:,1)=mean_dc-CIdc(:,1);
+            CIdc(:,2)=CIdc(:,2)-mean_dc;
+            [hlCR, hpCR] = boundedline(t,mean_dc, CIdc, 'r');
+            
+            
+            %Odor on markers
+            plot([0 0],[0 100],'-k')
+            odorhl=plot([0 2.5],[20 20],'-k','LineWidth',5);
+            plot([2.5 2.5],[0 100],'-k')
+            
+            title([handles_out.drgbchoices.bwlabels{bwii} ])
+            
+            xlabel('Time (sec)')
+            ylabel(['% correct '  handles_out.drgbchoices.per_lab{percent_correct_ii}])
         end
     end
+    suptitle(['Group: ' handles_out.drgbchoices.group_no_names{groupNo} ' # of mice: ' num2str(no_mice_per(1)) ' ' handles_out.drgbchoices.per_lab{1} ' ' num2str(no_mice_per(2)) ' ' handles_out.drgbchoices.per_lab{2}])
 end
