@@ -536,64 +536,207 @@ if all_files_present==1
                                         discriminant_correct(1,time_point)=100*sum(sum(test_out.*per_targets))/N;
                                         discriminant_correct_shuffled(1,time_point)=100*sum(sum(shuffled_out.*per_targets))/N;
                                         fprintf(1, 'LDA percent correct classification %d (for timepoint %d out of %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/per_ii,time_point,length(t));
+                                        
+                                    end
+                                    
+                                case 3
+                                    %PCA
+                                    
+                                    %Number of trials
+                                    N=sum(these_per_corr);
+                                    
+                                    these_all_log_P_timecourse=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t));
+                                    these_all_log_P_timecourse(:,:,:)=all_log_P_timecourse(bwii,:,these_per_corr,:);
+                                    
+                                    these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
+                                    for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                        kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                        these_all_which_events(ii,:)= all_which_events(kk,these_per_corr);
+                                    end
+                                    
+                                    test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),per_ii,length(t));
+                                    shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),per_ii,length(t));
+                                    
+                                    fprintf(1, ['LDA processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,per_ii);
+                                    fprintf(1,'For these events: ')
+                                    for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                        fprintf(1,[handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(ii)} ' '])
+                                    end
+                                    fprintf(1,'\n')
+                                    
+                                    for time_point=1:length(t)
+                                        par_t_out(time_point).principal_components=zeros(N,length(handles.drgbchoices.which_electrodes))
+                                    end
+                                    
+                                    gcp
+                                    
+                                    for time_point=1:length(t)
+                                        
+                                        %LFP power per trial per electrode
+                                        measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                        measurements(:,:)=these_all_log_P_timecourse(:,:,time_point)';
+                                        
+                                        %Do the PCA
+                                        [coeff,par_t_out(time_point).principal_components,latent]=pca(measurements);
+                                        
                                     end
                                     
                                     
                             end
                             
-                            
-                            figNo=figNo+1
-                            try
-                                close(figNo)
-                            catch
+                            switch handles.drgbchoices.which_discriminant
+                                
+                                case {1,2}
+                                    figNo=figNo+1
+                                    try
+                                        close(figNo)
+                                    catch
+                                    end
+                                    
+                                    figure(figNo)
+                                    
+                                    hold on
+                                    
+                                    per95=prctile(discriminant_correct_shuffled(1,:),95);
+                                    per5=prctile(discriminant_correct_shuffled(1,:),5);
+                                    CIsh=[mean(discriminant_correct_shuffled(1,:))-per5 per95-mean(discriminant_correct_shuffled(1,:))]';
+                                    [hlCR, hpCR] = boundedline([t(1) t(end)],[mean(discriminant_correct_shuffled(1,:)) mean(discriminant_correct_shuffled(1,:))], CIsh', 'r');
+                                    
+                                    plot(t',discriminant_correct(1,:),'-k')
+                                    
+                                    %Odor on markers
+                                    plot([0 0],[0 100],'-k')
+                                    odorhl=plot([0 2.5],[20 20],'-k','LineWidth',5);
+                                    plot([2.5 2.5],[0 100],'-k')
+                                    
+                                    title(['LDA % correct for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                    xlabel('Time (sec)')
+                                    ylabel('Percent correct')
+                                    
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct=zeros(1,length(t));
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct(1,:)=discriminant_correct(1,:);
+                                    
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct_shuffled=zeros(1,length(t));
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct_shuffled(1,:)=discriminant_correct_shuffled(1,:);
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).test_out_per_timepoint=test_out_per_timepoint;
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).shuffled_out_per_timepoint=shuffled_out_per_timepoint;
+                                    
+                                    handles_out.t=t';
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials=per_ii;
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).per_targets=per_targets;
+                                    
+                                    these_all_which_events=[];
+                                    these_all_which_events=all_which_events(:,these_per_corr);
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
+                                    
+                                    these_all_stamped_lick_times=[];
+                                    these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                                    
+                                    these_all_stamped_lick_ii=[];
+                                    these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                                    
+                                case 3
+                                    
+                                    %Show a figure of the PCA and record the output 
+                                    
+                                    principal_components=zeros(length(t),N,length(handles.drgbchoices.which_electrodes));
+                                    for time_point=1:length(t)
+                                        principal_components(time_point,:,:)=par_t_out(time_point).principal_components;
+                                    end
+                                    
+                                    %Show the result of the PCA
+                                    figNo=figNo+1
+                                    try
+                                        close(figNo)
+                                    catch
+                                    end
+                                    
+                                    figure(figNo)
+                                    
+                                    %Show PCA before odor on
+                                    subplot(2,2,1)
+                                    hold on
+                                    
+                                    these_pcs=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                    these_pcs(:,:)=principal_components(6,:,:);
+                                    plot(these_pcs(logical(these_all_which_events(1,:)),1),these_pcs(logical(these_all_which_events(1,:)),2),'or')
+                                    plot(these_pcs(logical(these_all_which_events(2,:)),1),these_pcs(logical(these_all_which_events(2,:)),2),'ob')
+                                    legend(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(1)},handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)})
+                                    xlabel('PC1')
+                                    ylabel('PC2')
+                                    title('-1 sec')
+                                    
+                                    %Show PCA after odor
+                                    subplot(2,2,2)
+                                    hold on
+                                    
+                                    these_pcs=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                    these_pcs(:,:)=principal_components(41,:,:);
+                                    plot(these_pcs(logical(these_all_which_events(1,:)),1),these_pcs(logical(these_all_which_events(1,:)),2),'or')
+                                    plot(these_pcs(logical(these_all_which_events(2,:)),1),these_pcs(logical(these_all_which_events(2,:)),2),'ob')
+                                    legend(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(1)},handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)})
+                                    xlabel('PC1')
+                                    ylabel('PC2')
+                                    title('2.5 sec')
+                                    
+                                    %Show the timecourse for PC1
+                                    subplot(2,2,[3,4])
+                                    hold on
+                                    
+                                    PC1=zeros(length(t),N);
+                                    PC1(:,:)=principal_components(:,:,1);
+                                    
+                                    mean_PC1=mean(PC1,2)';
+                                    CIPC1 = bootci(1000, {@mean, PC1'});
+                                    CIPC1(1,:)=mean_PC1-CIPC1(1,:);
+                                    CIPC1(2,:)=CIPC1(2,:)-mean_PC1;
+                                    [hlCR, hpCR] = boundedline(t',mean_PC1', CIPC1', 'b');
+                                    
+                                    per95=prctile(discriminant_correct_shuffled(1,:),95);
+                                    per5=prctile(discriminant_correct_shuffled(1,:),5);
+                                    CIsh=[mean(discriminant_correct_shuffled(1,:))-per5 per95-mean(discriminant_correct_shuffled(1,:))]';
+                                    [hlCR, hpCR] = boundedline([t(1) t(end)],[mean(discriminant_correct_shuffled(1,:)) mean(discriminant_correct_shuffled(1,:))], CIsh', 'r');
+                                    
+                                    plot(t',discriminant_correct(1,:),'-k')
+                                    
+                                    %Odor on markers
+                                    plot([0 0],[0 100],'-k')
+                                    odorhl=plot([0 2.5],[20 20],'-k','LineWidth',5);
+                                    plot([2.5 2.5],[0 100],'-k')
+                                    
+                                    title(['LDA % correct for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                    xlabel('Time (sec)')
+                                    ylabel('Percent correct')
+                                    
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct=zeros(1,length(t));
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct(1,:)=discriminant_correct(1,:);
+                                    
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct_shuffled=zeros(1,length(t));
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct_shuffled(1,:)=discriminant_correct_shuffled(1,:);
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).test_out_per_timepoint=test_out_per_timepoint;
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).shuffled_out_per_timepoint=shuffled_out_per_timepoint;
+                                    
+                                    handles_out.t=t';
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials=per_ii;
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).per_targets=per_targets;
+                                    
+                                    these_all_which_events=[];
+                                    these_all_which_events=all_which_events(:,these_per_corr);
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
+                                    
+                                    these_all_stamped_lick_times=[];
+                                    these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                                    
+                                    these_all_stamped_lick_ii=[];
+                                    these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                                    
                             end
-                            
-                            figure(figNo)
-                            
-                            hold on
-                            
-                            per95=prctile(discriminant_correct_shuffled(1,:),95);
-                            per5=prctile(discriminant_correct_shuffled(1,:),5);
-                            CIsh=[mean(discriminant_correct_shuffled(1,:))-per5 per95-mean(discriminant_correct_shuffled(1,:))]';
-                            [hlCR, hpCR] = boundedline([t(1) t(end)],[mean(discriminant_correct_shuffled(1,:)) mean(discriminant_correct_shuffled(1,:))], CIsh', 'r');
-                            
-                            plot(t',discriminant_correct(1,:),'-k')
-                            
-                            %Odor on markers
-                            plot([0 0],[0 100],'-k')
-                            odorhl=plot([0 2.5],[20 20],'-k','LineWidth',5);
-                            plot([2.5 2.5],[0 100],'-k')
-                            
-                            title(['LDA % correct for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
-                            xlabel('Time (sec)')
-                            ylabel('Percent correct')
-                            
-                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
-                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct=zeros(1,length(t));
-                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct(1,:)=discriminant_correct(1,:);
-                            
-                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct_shuffled=zeros(1,length(t));
-                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct_shuffled(1,:)=discriminant_correct_shuffled(1,:);
-                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).test_out_per_timepoint=test_out_per_timepoint;
-                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).shuffled_out_per_timepoint=shuffled_out_per_timepoint;
-                            
-                            handles_out.t=t';
-                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials=per_ii;
-                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).per_targets=per_targets;
-                            
-                            these_all_which_events=[];
-                            these_all_which_events=all_which_events(:,these_per_corr);
-                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
-                            
-                            these_all_stamped_lick_times=[];
-                            these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
-                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
-                            
-                            these_all_stamped_lick_ii=[];
-                            these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
-                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
-                            
-                            
                         else
                             handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=0;
                             fprintf(1, ['Discriminant not processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' because there were only %d trials (fewer than 20 trials)\n'],mouseNo,per_ii);
@@ -608,7 +751,7 @@ if all_files_present==1
     end
 end
 
- 
- 
+
+
 pffft1=1;
 

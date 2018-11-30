@@ -135,7 +135,7 @@ for evNo=1:length(handles_out.drgbchoices.evTypeNos)
                             if per_ii>=20
                                 these_events=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events(evNo,:);
                                 if bwii==1
-                                  fprintf(1, ['For ' handles_out.drg.draq_d.eventlabels{handles_out.drgbchoices.evTypeNos(evNo)} ', mouse no %d ' handles_out.drgbchoices.group_no_names{groupNo} ' ' handles_out.drgbchoices.per_lab{percent_correct_ii} ' there are %d trials\n'],evNo, mouseNo, sum(these_events));  
+                                  fprintf(1, ['For ' handles_out.drg.draq_d.eventlabels{handles_out.drgbchoices.evTypeNos(evNo)} ', mouse no %d ' handles_out.drgbchoices.group_no_names{groupNo} ' ' handles_out.drgbchoices.per_lab{percent_correct_ii} ' there are %d trials\n'], mouseNo, sum(these_events));  
                                 end
                                 decoding_targets(no_trials+1:no_trials+sum(these_events),1)=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).per_targets(compare_event_ii,logical(these_events));
                                 for tt=1:length(t)
@@ -173,4 +173,90 @@ for evNo=1:length(handles_out.drgbchoices.evTypeNos)
     
     
 end
+
+%Calculate lick rate and compare to percent correct
+pfft=1
+
+
+for evNo=1:length(handles_out.drgbchoices.evTypeNos)
+    compare_event_ii=find(handles_out.drgbchoices.events_to_discriminate==compare_to_event(evNo));
+    
+        for groupNo=1:max(handles_out.drgbchoices.group_no)
+            figNo=figNo+1
+            try
+                close(figNo)
+            catch
+            end
+            hFig=figure(figNo);
+            
+            
+            set(hFig, 'units','normalized','position',[.2 .2 .7 .7])
+            
+             
+            ii_plot=0;
+            for percent_correct_ii=1:2
+                for bwii=1:4
+                    ii_plot=ii_plot+1;
+                    subplot(2,4,ii_plot);
+                    hold on
+                    
+                    lick_rate_per_trial=zeros(10000,length(t));
+                    no_trials=0;
+                    
+                    for mouseNo=1:max(handles_out.drgbchoices.mouse_no)
+                        
+                        if handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated==1
+                            per_ii=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials;
+                            if per_ii>=20
+                                these_events=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events(evNo,:);
+                                for events=1:length(these_events)
+                                   if these_events(events)==1
+                                       no_trials=no_trials+1;
+                                       for lick_ii=1:handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii(events)
+                                           this_lick_t= handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times(events,lick_ii);
+                                           dt=t(2)-t(1);
+                                           if (this_lick_t>=t(1)-dt/2)&(this_lick_t<=t(end)+dt/2)
+                                               tt=ceil((this_lick_t-t(1))/dt);
+                                              if (tt>=1)&(tt<=length(t))
+                                               lick_rate_per_trial(no_trials,tt)=lick_rate_per_trial(no_trials,tt)+(1/dt);
+                                              end
+                                           end
+                                       end
+                                   end
+                                end
+                              
+                            end
+                        end
+                    end
+                    
+                    try
+                        mean_lick_rate=mean(lick_rate_per_trial(1:no_trials,:),1)';
+                        CImlr = bootci(1000, {@mean, lick_rate_per_trial(1:no_trials,:)})';
+                        CImlr(:,1)=mean_lick_rate-CImlr(:,1);
+                        CImlr(:,2)=CImlr(:,2)-mean_lick_rate;
+                        [hlCR, hpCR] = boundedline(t,mean_lick_rate, CImlr, 'r');
+                        
+                    catch
+                    end
+                    %Odor on markers
+                    plot([0 0],[0 10],'-k')
+                    odorhl=plot([0 2.5],[1 1],'-k','LineWidth',5);
+                    plot([2.5 2.5],[0 10],'-k')
+                    
+                    title([handles_out.drgbchoices.bwlabels{bwii} ])
+                    
+                    xlabel('Time (sec)')
+                    ylabel(['Lick rate (Hz) '  handles_out.drgbchoices.per_lab{percent_correct_ii}])
+                    
+                end
+            end
+          
+            suptitle([handles_out.drg.draq_d.eventlabels{handles_out.drgbchoices.evTypeNos(evNo)} ' Group: ' handles_out.drgbchoices.group_no_names{groupNo} ' # of mice: ' num2str(no_mice_per(1)) ' ' handles_out.drgbchoices.per_lab{1} ' ' num2str(no_mice_per(2)) ' ' handles_out.drgbchoices.per_lab{2}])
+          
+        end
+    
+    
+end
+
+pffft=1;
 
