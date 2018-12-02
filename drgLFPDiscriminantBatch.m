@@ -342,10 +342,10 @@ if all_files_present==1
                             
                             these_per_corr=(all_perCorr_pertr>=handles.drgbchoices.percent_windows(percent_correct_ii,1))...
                                 &(all_perCorr_pertr<=handles.drgbchoices.percent_windows(percent_correct_ii,2));
-                            per_ii=sum(these_per_corr);
+                            N=sum(these_per_corr);
                             
                             %Do the analysis only if there are more than 20 trials
-                            if per_ii>=20
+                            if N>=20
                                 
                                 switch handles.drgbchoices.which_discriminant
                                     
@@ -363,28 +363,28 @@ if all_files_present==1
                                         these_all_log_P_timecourse=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t));
                                         these_all_log_P_timecourse(:,:,:)=all_log_P_timecourse(bwii,:,these_per_corr,:);
                                         
-                                        test_out_per_timepoint=zeros(2,per_ii,length(t));
-                                        shuffled_out_per_timepoint=zeros(2,per_ii,length(t));
+                                        test_out_per_timepoint=zeros(2,N,length(t));
+                                        shuffled_out_per_timepoint=zeros(2,N,length(t));
                                         
                                         
                                         gcp
                                         
-                                        fprintf(1, ['Perceptron processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,per_ii);
+                                        fprintf(1, ['Perceptron processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
                                         
                                         parfor time_point=1:length(t)
                                             %         for time_point=1:length(t)
                                             
-                                            per_input=zeros(length(handles.drgbchoices.which_electrodes),per_ii);
+                                            per_input=zeros(length(handles.drgbchoices.which_electrodes),N);
                                             per_input(:,:)=these_all_log_P_timecourse(:,:,time_point);
                                             fprintf(1, '\nTime point %d: ',time_point);
                                             
                                             %Perceptron
                                             %leave one out
-                                            test_out=zeros(2,per_ii);
-                                            shuffled_out=zeros(2,per_ii);
+                                            test_out=zeros(2,N);
+                                            shuffled_out=zeros(2,N);
                                             
                                             %Do perceptron analysis for each trial
-                                            for ii=1:per_ii
+                                            for ii=1:N
                                                 fprintf(1, '%d ',ii);
                                                 %Create input and target vectors leaving one trial out
                                                 %For per_input each column has the dF/F for one trial
@@ -397,7 +397,7 @@ if all_files_present==1
                                                     this_per_input=per_input(:,2:end);
                                                     this_per_targets=per_targets(:,2:end);
                                                 else
-                                                    if ii==per_ii
+                                                    if ii==N
                                                         this_per_input=per_input(:,1:end-1);
                                                         this_per_targets=per_targets(:,1:end-1);
                                                     else
@@ -427,7 +427,7 @@ if all_files_present==1
                                                 %Calculate a shuffled trial
                                                 
                                                 
-                                                shuffled_trials=ceil(per_ii*rand(1,num_traces));
+                                                shuffled_trials=ceil(N*rand(1,num_traces));
                                                 
                                                 one_shuffled=zeros(num_traces,1);
                                                 for jj=1:num_traces
@@ -439,16 +439,16 @@ if all_files_present==1
                                             end
                                             test_out_per_timepoint(:,:,time_point)=test_out;
                                             shuffled_out_per_timepoint(:,:,time_point)=shuffled_out;
-                                            discriminant_correct(1,time_point)=100*sum(per_targets(1,:)==test_out(1,:))/per_ii;
-                                            discriminant_correct_shuffled(1,time_point)=100*sum(per_targets(1,:)==shuffled_out(1,:))/per_ii;
-                                            fprintf(1, '\nPerceptron percent correct classification %d (for timepoint %d out of %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/per_ii,time_point,length(t));
+                                            discriminant_correct(1,time_point)=100*sum(per_targets(1,:)==test_out(1,:))/N;
+                                            discriminant_correct_shuffled(1,time_point)=100*sum(per_targets(1,:)==shuffled_out(1,:))/N;
+                                            fprintf(1, '\nPerceptron percent correct classification %d (for timepoint %d out of %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/N,time_point,length(t));
                                         end
                                         
                                     case 2
                                         %Linear discriminant analysis
                                         
                                         %Number of trials
-                                        N=sum(these_per_corr);
+%                                         N=sum(these_per_corr);
                                         
                                         these_all_log_P_timecourse=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t));
                                         these_all_log_P_timecourse(:,:,:)=all_log_P_timecourse(bwii,:,these_per_corr,:);
@@ -459,10 +459,10 @@ if all_files_present==1
                                             these_all_which_events(ii,:)= all_which_events(kk,these_per_corr);
                                         end
                                         
-                                        test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),per_ii,length(t));
-                                        shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),per_ii,length(t));
+                                        test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                                        shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
                                         
-                                        fprintf(1, ['LDA processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,per_ii);
+                                        fprintf(1, ['LDA processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
                                         fprintf(1,'For these events: ')
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
                                             fprintf(1,[handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(ii)} ' '])
@@ -543,7 +543,7 @@ if all_files_present==1
                                             %Calculate auROC
                                             [X,Y,T,AUC] = perfcurve(events,scores',handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)});
                                             auROC(1,time_point)=AUC-0.5;
-                                            %test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),per_ii,length(t));
+                                            %test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
                                             
                                             per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
                                             per_targets=these_all_which_events;
@@ -569,7 +569,7 @@ if all_files_present==1
                                             shuffled_out_per_timepoint(:,:,time_point)=shuffled_out;
                                             discriminant_correct(1,time_point)=100*sum(sum(test_out.*per_targets))/N;
                                             discriminant_correct_shuffled(1,time_point)=100*sum(sum(shuffled_out.*per_targets))/N;
-                                            fprintf(1, 'LDA percent correct classification %d (for timepoint %d out of %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/per_ii,time_point,length(t));
+                                            fprintf(1, 'LDA percent correct classification %d (for timepoint %d out of %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/N,time_point,length(t));
                                             
                                         end
                                         
@@ -577,7 +577,7 @@ if all_files_present==1
                                         %PCA
                                         
                                         %Number of trials
-                                        N=sum(these_per_corr);
+%                                         N=sum(these_per_corr);
                                         
                                         these_all_log_P_timecourse=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t));
                                         these_all_log_P_timecourse(:,:,:)=all_log_P_timecourse(bwii,:,these_per_corr,:);
@@ -588,10 +588,10 @@ if all_files_present==1
                                             these_all_which_events(ii,:)= all_which_events(kk,these_per_corr);
                                         end
                                         
-                                        test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),per_ii,length(t));
-                                        shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),per_ii,length(t));
+                                        test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                                        shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
                                         
-                                        fprintf(1, ['LDA processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,per_ii);
+                                        fprintf(1, ['LDA processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
                                         fprintf(1,'For these events: ')
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
                                             fprintf(1,[handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(ii)} ' '])
@@ -676,7 +676,7 @@ if all_files_present==1
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).shuffled_out_per_timepoint=shuffled_out_per_timepoint;
                                         
                                         handles_out.t=t';
-                                        handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials=per_ii;
+                                        handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials=N;
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).per_targets=per_targets;
                                         
                                         these_all_which_events=[];
@@ -782,7 +782,7 @@ if all_files_present==1
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).principal_components=principal_components;
                                         
                                         handles_out.t=t';
-                                        handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials=per_ii;
+                                        handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials=N;
                                         
                                         these_all_which_events=[];
                                         these_all_which_events=all_which_events(:,these_per_corr);
@@ -799,7 +799,7 @@ if all_files_present==1
                                 end
                             else
                                 handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=0;
-                                fprintf(1, ['PCA not processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' because there were only %d trials (fewer than 20 trials)\n'],mouseNo,per_ii);
+                                fprintf(1, ['PCA not processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' because there were only %d trials (fewer than 20 trials)\n'],mouseNo,N);
                             end
                         end
                     end
