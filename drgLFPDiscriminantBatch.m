@@ -644,7 +644,7 @@ if all_files_present==1
                                         odorhl=plot([0 2.5],[20 20],'-k','LineWidth',5);
                                         plot([2.5 2.5],[0 100],'-k')
                                         
-                                        title(['LDA % correct for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                        %title(['LDA % correct for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         xlabel('Time (sec)')
                                         ylabel('Percent correct')
                                         
@@ -658,9 +658,11 @@ if all_files_present==1
                                         odorhl=plot([0 2.5],[0 0],'-k','LineWidth',5);
                                         plot([2.5 2.5],[0 0.5],'-k')
                                         
-                                        title(['auROC for LDA for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                        %title(['auROC for LDA for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         xlabel('Time (sec)')
                                         ylabel('auROC')
+                                        
+                                        suptitle('LDA analysis for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         
                                         
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;

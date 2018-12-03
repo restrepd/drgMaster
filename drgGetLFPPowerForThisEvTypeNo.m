@@ -138,4 +138,48 @@ for trNo=firstTr:lastTr
     
 end
 
+%This is here to remove a trial with zeros that appeared in one of Daniel's
+%files
+
+ntr=0;
+for trNo=1:no_trials
+    this_apt=zeros(length(f),length(out_times));
+    this_apt(:,:)=all_Power_timecourse(trNo,1:length(f),1:length(out_times));
+    if sum(isinf(log10( this_apt(:))))==0
+       ntr=ntr+1; 
+    end
+end
+
+if ntr~=no_trials
+    fprintf(1, ['WARNING: There was a flat LFP in %d trials\n'],no_trials-ntr);
+    old_which_event=which_event;
+    which_event=zeros(length(handles.drgbchoices.evTypeNos),ntr);
+    old_all_Power_timecourse=all_Power_timecourse;
+    all_Power_timecourse=zeros(ntr,length(f),length(out_times));
+    old_all_Power=all_Power;
+    all_Power=zeros(ntr,length(f));
+    old_all_Power_ref=all_Power_ref;
+    all_Power_ref=zeros(ntr,length(f));
+    old_this_trialNo=this_trialNo;
+    this_trialNo=zeros(1,ntr);
+    old_perCorr_pertr=perCorr_pertr;
+    perCorr_pertr=zeros(1,ntr);
+    
+    ntr=0;
+    for trNo=1:no_trials
+        this_apt=zeros(length(f),length(out_times));
+        this_apt(:,:)=old_all_Power_timecourse(trNo,1:length(f),1:length(out_times));
+        if sum(isinf(log10( this_apt(:))))==0
+            ntr=ntr+1;
+            which_event(:,ntr)=old_which_event(:,trNo);
+            all_Power_timecourse(ntr,:,:)=old_all_Power_timecourse(trNo,:,:);
+            all_Power(ntr,:)=old_all_Power(trNo,:);
+            all_Power_ref(ntr,:)=old_all_Power_ref(trNo,:);
+            this_trialNo(1,ntr)=old_this_trialNo(1,trNo);
+            perCorr_pertr(1,ntr)=old_perCorr_pertr(1,trNo); 
+        end
+    end
+    
+    
+end
 
