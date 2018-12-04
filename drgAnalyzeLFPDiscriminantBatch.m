@@ -30,7 +30,7 @@ for groupNo=1:max(handles_out.drgbchoices.group_no)
     
     set(hFig, 'units','normalized','position',[.2 .2 .7 .7])
     
-    
+     
     ii_plot=0;
     for percent_correct_ii=1:2
         for bwii=1:4
@@ -41,7 +41,10 @@ for groupNo=1:max(handles_out.drgbchoices.group_no)
             all_discriminant_correct=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
             all_discriminant_correct_shuffled=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
             for mouseNo=1:max(handles_out.drgbchoices.mouse_no)
-                 
+                if isfield(handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii),'discriminant_calulated')
+                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=...
+                        handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calulated;
+                end
                 if handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated==1
                     per_ii=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials;
                     if per_ii>=20
