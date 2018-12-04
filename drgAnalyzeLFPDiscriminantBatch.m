@@ -54,7 +54,7 @@ for groupNo=1:max(handles_out.drgbchoices.group_no)
                     end
                 end
             end
-            
+             
             no_mice_per(percent_correct_ii)=no_mice;
             
             all_discriminant_correct_shuffled=all_discriminant_correct_shuffled(1:no_mice,:);
