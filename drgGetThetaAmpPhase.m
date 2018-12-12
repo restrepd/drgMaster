@@ -1,4 +1,4 @@
-function [meanVectorLength, meanVectorAngle, peakAngle, MI_Tort, phase, phase_histo, theta_wave]=drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins,method)
+function [meanVectorLength, meanVectorAngle, peakAngle, MI_Tort, phase, phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto]=drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins,method)
 %Generates the phase histogram for the emvelope and pac
 %function [pac_value, mod_indx, phase, phase_histo, theta_wave]=drgGetThetaAmpPhase(LFP,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins)
 
@@ -77,11 +77,11 @@ theta_wave=zeros(1,no_bins);
 envelope_wave=zeros(1,no_bins);
 amplitude_wave=zeros(1,no_bins);
 phase=[0:360/no_bins:360];
+
 sum_env=sum(LFPgenv(ii_pad:end-ii_pad));
 for ii=ii_pad:length(LFPgenv)-ii_pad
     phase_histo(ceil((anglethetaLFP(ii)+pi)/(2*pi/no_bins)))=phase_histo(ceil((anglethetaLFP(ii)+pi)/(2*pi/no_bins)))+LFPgenv(ii); 
     theta_wave(ceil((anglethetaLFP(ii)+pi)/(2*pi/no_bins)))=theta_wave(ceil((anglethetaLFP(ii)+pi)/(2*pi/no_bins)))+thfiltLFP(ii);
-    %envelope_wave(ceil((anglethetaLFP(ii)+pi)/(2*pi/no_bins)))=envelope_wave(ceil((anglethetaLFP(ii)+pi)/(2*pi/no_bins)))+thfiltLFPgenv(ii);
 end
 phase_histo(no_bins+1)=phase_histo(1);
 theta_wave(no_bins+1)=theta_wave(1);
@@ -111,23 +111,128 @@ else
     meanVectorAngle=360-(180/pi)*acos(meanX/sqrt(meanY^2+meanX^2));
 end
 
+%Find the timecourse of the phase
+min_dt=(1/lowF2); %Skip peaks if they are closer than this dt
 
-% 
+%Find the peaks of the phase that define each cycle
+[peaks,loc]=findpeaks(anglethetaLFP,Fs,'MinPeakHeight',2,'MinPeakDistance',min_dt);
+time_histos=zeros(length(loc)-1,no_bins);
+tstart=zeros(length(loc)-1,1);
+tend=zeros(length(loc)-1,1);
+for ii=1:length(loc)-1
+    [maxamp,max_ii]=max(LFPgenv(ceil(loc(ii)*Fs):ceil(loc(ii+1)*Fs)));
+    peak_amp_phase_timecourse_t(ii)=((max_ii+ceil(loc(ii)*Fs))/Fs);
+    peak_amp_phase_timecourse_phase(ii)=anglethetaLFP(max_ii+ceil(loc(ii)*Fs));
+    for jj=1:no_bins
+        this_angle=-pi+jj*(2*pi/no_bins)-0.5*(2*pi/no_bins);
+        [minkk,kk]=min(abs(anglethetaLFP(ceil(loc(ii)*Fs):ceil(loc(ii+1)*Fs))-this_angle));
+        time_histos(ii,jj)=LFPgenv(ceil(loc(ii)*Fs)+kk);
+        tstart(jj)=loc(ii)-time_pad;
+        tend(jj)=loc(ii+1)-time_pad-1/Fs;
+    end
+end
+
+%Normalize the time histo
+for ii=1:no_bins
+    time_histos(:,ii)=time_histos(:,ii)/sum(time_histos(:,ii));
+end
+
+meanPeakAngle=(360/(2*pi))*(circ_mean(peak_amp_phase_timecourse_phase')+pi);
+
+%Create an output evenly spaced time vector for peak of phase
+out_times=[0.05:0.1:(length(anglethetaLFP)/Fs)-2*time_pad];
+out_phase=-1000*ones(1,length(out_times));
+
+for jj=1:round(((length(anglethetaLFP)/Fs)-2*time_pad)/0.1)
+    ii_this_dt=find(((peak_amp_phase_timecourse_t-time_pad)>out_times(jj)-0.05)&((peak_amp_phase_timecourse_t-time_pad)<=out_times(jj)+0.05));
+    if ~isempty(ii_this_dt)
+        out_phase(jj)=circ_mean(peak_amp_phase_timecourse_phase(((peak_amp_phase_timecourse_t-time_pad)>out_times(jj)-0.05)&((peak_amp_phase_timecourse_t-time_pad)<=out_times(jj)+0.05))');
+    end
+end
+   
+jj=0;
+at_end=0;
+to_average=[];
+while at_end==0
+    ii_no_phase=[];
+    jj=jj+1;
+
+    if (out_phase(jj)==-1000)
+        this_out_phase=-1000;
+        while (this_out_phase==-1000)
+            ii_no_phase=[ii_no_phase jj];
+            jj=jj+1;
+            if jj>length(out_phase)
+                at_end=1;
+                this_out_phase=0;
+                for kk=1:length(ii_no_phase)
+                    out_phase(ii_no_phase(kk))=circ_mean(to_average');
+                end
+            else
+               this_out_phase=out_phase(jj);
+            end
+        end
+        if at_end==0
+            to_average=[to_average out_phase(jj)];
+        end
+        for kk=1:length(ii_no_phase)
+            out_phase(ii_no_phase(kk))=circ_mean(to_average');
+        end
+        if at_end==0
+            to_average=out_phase(jj);
+        end
+        if (jj==length(out_phase))
+            at_end=1;
+        end
+    else
+        to_average=out_phase(jj);
+        if jj==length(out_phase)
+            at_end=1;
+        end
+    end
+end
+
+out_phase=(360/(2*pi))*(out_phase+pi);
+
+out_time_PAChisto=zeros(length(out_times),no_bins);
+
+for iit=1:length(out_times)
+    iiloc_bef=find(loc<out_times(iit)+time_pad,1,'last');
+    if iiloc_bef==length(loc)
+        iiloc_bef=length(loc)-1;
+    end
+    out_time_PAChisto(iit,:)=time_histos(iiloc_bef,:);
+end
+
+
+
+%Note peak_amp_phase_timecourse_t goes from zero to
+%(time_end-time_start)+2*time_pad
+
+
 % % %Plot for troubleshooting
 % figure(10)
-% subplot(3,1,1)
+% subplot(2,1,1)
 % plot(LFPgenv)
+% hold on
+% for ii=1:length(loc)-1
+%     plot([peak_amp_phase_timecourse_t(ii)*Fs peak_amp_phase_timecourse_t(ii)*Fs],[min(LFPgenv) max(LFPgenv)],'-r')
+% end
 % title('Envelope for high frequency LFP')
 % 
-% subplot(3,1,2)
+% subplot(2,1,2)
 % plot(anglethetaLFP)
+% hold on
+% for ii=1:length(loc)-1
+%     plot(peak_amp_phase_timecourse_t(ii)*Fs,peak_amp_phase_timecourse_phase(ii),'or')
+% end
+% plot(loc*Fs,(max(anglethetaLFP)+0.05*(max(anglethetaLFP)-min(anglethetaLFP))*ones(1,length(loc))),'ob')
+% plot((out_times+time_pad)*Fs,out_phase,'ok')
 % title('Angle for low frequency LFP/sniff')
-% 
-% subplot(3,1,3)
-% plot(LFPlow)
-% title('Low frequency LFP/sniff')
-% 
-% pffft=1;
+
+
+
+pffft=1;
 
 
 

@@ -1,5 +1,5 @@
 function handles=drgThetaAmpPhaseTrialRange(handles)
-
+ 
 %Generates a trial per trial phase histogram
 odorOn=2;
 sessionNo=handles.sessionNo;
@@ -17,6 +17,7 @@ handles.drgb.PAC.meanVectorLength=[];
 handles.drgb.PAC.meanVectorAngle=[];
 handles.drgb.PAC.peakAngle=[];
 handles.drgb.PAC.mod_indx=[];
+handles.drgb.PAC.this_trialNo=[];
 handles.drgb.PAC.all_phase_histo=[];
 handles.drgb.PAC.all_theta_wave=[];
 handles.drgb.PAC.perCorr=[];
@@ -30,15 +31,15 @@ lastTr=handles.lastTrialNo;
 [perCorr, encoding_trials, retrieval_trials, encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
 %handles=drgPercentLickPerTrial(handles);
 
-if handles.displayData==1
-    try
-        close 1
-    catch
-    end
-    
-    hFig1 = figure(1);
-    set(hFig1, 'units','normalized','position',[.55 .27 .35 .15])
-end
+% if handles.displayData==1
+%     try
+%         close 1
+%     catch
+%     end
+%     
+%     hFig1 = figure(1);
+%     set(hFig1, 'units','normalized','position',[.55 .27 .35 .15])
+% end
 
 
 %Now get the phase of gamma bursts witin theta
@@ -48,10 +49,12 @@ no_trials=0;
 enc_phase_histo=[];
 retr_phase_histo=[];
 all_phase_histo=[];
+all_out_times=[];
 all_theta_wave=[];
 MI_enc=[];
 MI_retr=[];
 which_event=[];
+
 
 for trNo=firstTr:lastTr
     
@@ -71,14 +74,18 @@ for trNo=firstTr:lastTr
             if (can_read1==1)&(can_read2==1)
                 no_trials=no_trials+1;
                 time(no_trials)=handles.drg.session(sessionNo).trial_start(trialNo);
-                which_trial(no_trials)=1;
+                handles.drgb.PAC.this_trialNo(no_trials)=trNo;
                 perCorr_per_histo(no_trials)=50;
                 if handles.peakLFPNo==18
                     %This is the sniff
                     [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase, phase_histo, theta_wave]=drgGetThetaAmpPhaseSniff(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
                 else
-                    [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase, phase_histo, theta_wave]=drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
+                    [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase, phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto]=drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
                 end
+                
+                out_times=out_times+handles.time_start+handles.time_pad;
+                
+                %Save the output
                 handles.drgb.PAC.no_trials=no_trials;
                 handles.drgb.PAC.meanVectorLength(no_trials)=meanVectorLength(no_trials);
                 handles.drgb.PAC.meanVectorAngle(no_trials)=meanVectorAngle(no_trials);
@@ -87,11 +94,18 @@ for trNo=firstTr:lastTr
                 handles.drgb.PAC.all_phase_histo(no_trials,1:n_phase_bins+1)=phase_histo;
                 handles.drgb.PAC.all_theta_wave(no_trials,1:n_phase_bins+1)=theta_wave;
                 handles.drgb.PAC.perCorr(no_trials)=perCorr(drgFindEvNo(handles,trialNo,sessionNo,odorOn));
-  
-                
-                %handles.drgb.PAC.percent_lick(no_trials)=handles.drg.session(sessionNo).percent_lick(trialNo);
-                
-                
+                handles.drgb.PAC.meanPeakAngle(no_trials)=meanPeakAngle;
+                handles.drgb.PAC.PACtimecourse(no_trials).out_times=out_times;
+                handles.drgb.PAC.PACtimecourse(no_trials).out_phase=out_phase;
+                handles.drgb.PAC.PACtimecourse(no_trials).out_time_PAChisto=out_time_PAChisto;
+   
+                all_out_phase(no_trials,1:length(out_times))=out_phase;
+                if no_trials==1
+                    all_out_time_PAChisto=[];
+                    all_out_time_PAChisto=out_time_PAChisto;
+                else
+                all_out_time_PAChisto=all_out_time_PAChisto+out_time_PAChisto;
+                end
                 all_phase_histo(no_trials,1:n_phase_bins+1)=phase_histo;
                 all_theta_wave(no_trials,1:n_phase_bins+1)=theta_wave;
                 no_encoding_trials=no_encoding_trials+1;
@@ -114,9 +128,47 @@ for trNo=firstTr:lastTr
     %end %if eventstamps...
 end %for evNo
 
+all_out_time_PAChisto=all_out_time_PAChisto/no_trials;
+
 mean_MI_enc=mean(MI_enc);
 
 if handles.displayData==1
+    
+     try
+        close 1
+    catch
+    end
+    
+    hFig1 = figure(1);
+    set(hFig1, 'units','normalized','position',[.15 .6 .8 .23])
+    
+    plot(out_times,circ_rad2ang(circ_mean(circ_ang2rad(all_out_phase)-180))+180,'ob')
+    ylim([0 360])
+    
+    try
+        close 6
+    catch
+    end
+    
+    hFig6 = figure(6);
+    set(hFig6, 'units','normalized','position',[.15 .2 .8 .23])
+    
+    min_prob=prctile(all_out_time_PAChisto(:),5);
+    max_prob=prctile(all_out_time_PAChisto(:),95);
+    
+  
+    %pcolor(repmat(phase,length(trials),1),repmat(trials',1,length(phase)),all_phase_histo)
+    drg_pcolor(repmat(out_times,length(phase(1:end-1)),1),repmat(phase(1:end-1)',1,length(out_times)),all_out_time_PAChisto')
+    colormap jet
+    shading flat
+    % min_prob=0.0113;
+    % max_prob=0.0314;
+    caxis([min_prob    max_prob])
+    xlabel('Time (sec)')
+    ylabel('Phase for low freq oscillation (deg)');
+    title(['Phase-amplitude coupling timecourse ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
+   
+%     (180/pi)*circ_mean(all_out_phase'*pi/180)'
     try
         close 2
     catch
@@ -207,7 +259,7 @@ if handles.displayData==1
     end
     
     hFig5 = figure(5);
-    set(hFig5, 'units','normalized','position',[.49 .05 .35 .35])
+    set(hFig5, 'units','normalized','position',[.59 .05 .35 .35])
     
     if no_encoding_trials>0
         rose(pi*meanVectorAngle/180,12)
@@ -215,19 +267,7 @@ if handles.displayData==1
     end
 end
 
-% %Save the data if requested by drgb
-% if handles.save_drgb==1
-%     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).no_trials=no_trials;
-%     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).which_trial=which_trial;
-%     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).meanVectorLength=meanVectorLength;
-%     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).meanVectorAngle=meanVectorAngle;
-%     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).peakAngle=peakAngle';
-%     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).mod_indx=mod_indx;
-%     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).all_phase_histo=all_phase_histo;
-%     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).perCorr_per_histo=perCorr_per_histo;
-%     handles.drgb.lfpevpair(handles.drgb.lfpevpair_no).which_event=which_event;
-%     handles.drgb.phase=phase;
-% end
+pfffft=1;
 
 
 
