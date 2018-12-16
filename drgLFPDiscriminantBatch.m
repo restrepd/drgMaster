@@ -197,6 +197,7 @@ if all_files_present==1
                         gcp
                         
                         parfor LFPNo=1:no_elect
+                            %                         for LFPNo=1:no_elect
                             handlespf=struct();
                             handlespf=handles;
                             
@@ -205,6 +206,7 @@ if all_files_present==1
                                     ||(sum(handlespf.drgbchoices.which_discriminant==3)>0)
                                 this_peakLFPNo=handlespf.drgbchoices.which_electrodes(LFPNo);
                                 handlespf.peakLFPNo=this_peakLFPNo;
+                                handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
                                 all_Power=[];
                                 all_Power_ref=[];
                                 all_Power_timecourse=[];
@@ -212,9 +214,9 @@ if all_files_present==1
                                 which_event=[];
                                 [t,f,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPPowerForThisEvTypeNo(handlespf);
                                 
-                                %Note: This is here because for a very small number
-                                %of trials a tiral is included that is neigher S+
-                                %nor S-
+                                %Note: This prunning of trials is here because for a small number
+                                %of sessions trials included are nether S+ nor S-
+                                %e.g in M4_spmc_170518_095813 only 83 of 119 are OK
                                 these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),length(this_trialNo));
                                 for ii=1:length(handles.drgbchoices.events_to_discriminate)
                                     kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
@@ -253,7 +255,7 @@ if all_files_present==1
                                 
                                 
                                 
-                                fprintf(1, 'For file no %d, LFP no %d the number of trials included is %d (out of %d)\n',filNum,this_peakLFPNo,length(this_trialNo),handlespf.lastTrialNo);
+                                fprintf(1, 'For file no %d, LFP no %d the number of trials included for LFP Power is %d (out of %d)\n',filNum,this_peakLFPNo,length(this_trialNo),handlespf.lastTrialNo);
                                 
                                 freq=f';
                                 
@@ -278,39 +280,102 @@ if all_files_present==1
                                     end
                                 end
                             end
-                            
+                             
                             %Now calculate the PAC
                             if (sum(handlespf.drgbchoices.which_discriminant==4)>0)
-                                for ii=1:handlespf.drgbchoices.no_PACpeaks
+                                for PACii=1:handlespf.drgbchoices.no_PACpeaks
                                     this_peakLFPNo=handlespf.drgbchoices.which_electrodes(LFPNo);
                                     handlespf.peakLFPNo=this_peakLFPNo;
-                                    handlespf.n_peak=ii;
+                                    handlespf.n_peak=PACii;
                                     handlespf.peakLowF=handlespf.drgbchoices.PACpeakLowF;
                                     handlespf.peakHighF=handlespf.drgbchoices.PACpeakHighF;
-                                    handlespf.burstLowF=handlespf.drgbchoices.PACburstLowF(ii);
-                                    handlespf.burstHighF=handlespf.drgbchoices.PACburstHighF(ii);
+                                    handlespf.burstLowF=handlespf.drgbchoices.PACburstLowF(PACii);
+                                    handlespf.burstHighF=handlespf.drgbchoices.PACburstHighF(PACii);
                                     handlespf.n_phase_bins=handlespf.drgbchoices.n_phase_bins;
+                                    handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
                                     
                                     %Please note this is the same function called by
                                     %drgMaster when the user chooses Phase Amplitude
                                     %Coupling
                                     handlespf=drgThetaAmpPhaseTrialRange(handlespf);
                                     
+                                    %Note: This prunning of trials is here because for a small number
+                                    %of sessions trials included are nether S+ nor S-
+                                    %e.g in M4_spmc_170518_095813 only 83 of 119 are OK
+                                    this_trialNo=handlespf.drgb.PAC.this_trialNo;
+                                    which_event=handlespf.drgb.PAC.which_event;
+                                    these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),length(this_trialNo));
+                                    for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                        kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                        these_all_which_events(ii,:)= which_event(kk,:);
+                                    end
+                                    
+                                    valid_trials=logical(sum(these_all_which_events,1));
+                                    
+                                    old_meanVectorLength=handlespf.drgb.PAC.meanVectorLength;
+                                    meanVectorLength=zeros(1,sum(valid_trials));
+                                    meanVectorLength(:,:)=old_meanVectorLength(1,valid_trials);
+                                    
+                                    old_meanVectorAngle=handlespf.drgb.PAC.meanVectorAngle;
+                                    meanVectorAngle=zeros(1,sum(valid_trials));
+                                    meanVectorAngle(:,:)=old_meanVectorAngle(1,valid_trials);
+                                    
+                                    old_peakAngle=handlespf.drgb.PAC.peakAngle;
+                                    peakAngle=zeros(1,sum(valid_trials));
+                                    peakAngle(:,:)=old_peakAngle(1,valid_trials);
+                                    
+                                    old_mod_indx=handlespf.drgb.PAC.mod_indx;
+                                    mod_indx=zeros(1,sum(valid_trials));
+                                    mod_indx(:,:)=old_mod_indx(1,valid_trials);
+                                    
+                                    old_this_trialNo=handlespf.drgb.PAC.this_trialNo;
+                                    this_trialNo=zeros(1,sum(valid_trials));
+                                    this_trialNo(:,:)=old_this_trialNo(1,valid_trials);
+                                    
+                                    old_all_phase_histo=handlespf.drgb.PAC.all_phase_histo;
+                                    szaph=size(old_all_phase_histo);
+                                    all_phase_histo=zeros(sum(valid_trials),szaph(2));
+                                    all_phase_histo(:,:)=old_all_phase_histo(valid_trials,:);
+                                    
+                                    old_perCorr=handlespf.drgb.PAC.perCorr;
+                                    perCorr=zeros(1,sum(valid_trials));
+                                    perCorr(:,:)=old_perCorr(1,valid_trials); 
+                                    
+                                    old_which_event=handlespf.drgb.PAC.which_event;
+                                    szwe=size(old_which_event);
+                                    which_event=zeros(szwe(1),sum(valid_trials));
+                                    which_event(:,:)=old_which_event(:,valid_trials);
+                                    
+                                    old_meanPeakAngle=handlespf.drgb.PAC.meanPeakAngle;
+                                    meanPeakAngle=zeros(1,sum(valid_trials));
+                                    meanPeakAngle(:,:)=old_meanPeakAngle(1,valid_trials);
+
+                                    jj=0;
+                                    out_PACtimecourse=struct;
+                                    for kk=1:length(handlespf.drgb.PAC.PACtimecourse)
+                                        if valid_trials(kk)==1
+                                            jj=jj+1;
+                                            out_PACtimecourse(jj).out_times=handlespf.drgb.PAC.PACtimecourse(kk).out_times;
+                                            out_PACtimecourse(jj).out_phase=handlespf.drgb.PAC.PACtimecourse(kk).out_phase;
+                                            out_PACtimecourse(jj).out_time_PAChisto=handlespf.drgb.PAC.PACtimecourse(kk).out_time_PAChisto;
+                                        end
+                                    end
+                                    
                                     %Enter the per LFP values
-                                    par_out(LFPNo).PAC(ii).no_trials=handlespf.drgb.PAC.no_trials;
-                                    par_out(LFPNo).PAC(ii).meanVectorLength=handlespf.drgb.PAC.meanVectorLength;
-                                    par_out(LFPNo).PAC(ii).meanVectorAngle=handlespf.drgb.PAC.meanVectorAngle;
-                                    par_out(LFPNo).PAC(ii).peakAngle=handlespf.drgb.PAC.peakAngle;
-                                    par_out(LFPNo).PAC(ii).mod_indx=handlespf.drgb.PAC.mod_indx;
-                                    par_out(LFPNo).PAC(ii).this_trialNo=handlespf.drgb.PAC.this_trialNo;
-                                    par_out(LFPNo).PAC(ii).all_phase_histo=handlespf.drgb.PAC.all_phase_histo;
-                                    par_out(LFPNo).PAC(ii).perCorrPAC=handlespf.drgb.PAC.perCorr;
-                                    par_out(LFPNo).PAC(ii).which_eventPAC=handlespf.drgb.PAC.which_event;
-                                    par_out(LFPNo).PAC(ii).meanPeakAngle=handlespf.drgb.PAC.meanPeakAngle;
-                                    par_out(LFPNo).PAC(ii).PACtimecourse=handlespf.drgb.PAC.PACtimecourse;
+                                    par_out(LFPNo).PAC(PACii).no_trials=sum(valid_trials);
+                                    par_out(LFPNo).PAC(PACii).meanVectorLength=meanVectorLength;
+                                    par_out(LFPNo).PAC(PACii).meanVectorAngle=meanVectorAngle;
+                                    par_out(LFPNo).PAC(PACii).peakAngle=peakAngle;
+                                    par_out(LFPNo).PAC(PACii).mod_indx=mod_indx;
+                                    par_out(LFPNo).PAC(PACii).this_trialNo=this_trialNo;
+                                    par_out(LFPNo).PAC(PACii).all_phase_histo=all_phase_histo;
+                                    par_out(LFPNo).PAC(PACii).perCorrPAC=perCorr;
+                                    par_out(LFPNo).PAC(PACii).which_eventPAC=which_event;
+                                    par_out(LFPNo).PAC(PACii).meanPeakAngle=meanPeakAngle;
+                                    par_out(LFPNo).PAC(PACii).PACtimecourse=out_PACtimecourse;
                                     
                                 end
-                                fprintf(1, 'For file no %d, LFP no %d the number of trials included in PAC is %d (out of %d)\n',filNum,this_peakLFPNo,handlespf.drgb.PAC.no_trials,handlespf.lastTrialNo);
+                                fprintf(1, 'For file no %d, LFP no %d the number of trials included in PAC is %d (out of %d)\n',filNum,this_peakLFPNo,par_out(LFPNo).PAC(PACii).no_trials,handlespf.lastTrialNo);
                                 
                             end
                         end
@@ -350,6 +415,7 @@ if all_files_present==1
                         %Extract all_phase_timecourse for PAC
                         if (sum(handles.drgbchoices.which_discriminant==4)>0)
                             t_pac=par_out(1).PAC(1).PACtimecourse(1).out_times;
+                            no_bins=size(par_out(1).PAC(1).PACtimecourse(1).out_time_PAChisto,2);
                             for LFPNo=1:length(handles.drgbchoices.which_electrodes)
                                 
                                 %                             this_peakLFPNo=handles.drgbchoices.which_electrodes(LFPNo);
@@ -362,20 +428,31 @@ if all_files_present==1
                                 
                                 if LFPNo==1
                                     if no_trialsPAC==0
-                                        all_phase_timecourse=zeros(length(handles.drgbchoices.PACburstLowF),length(handles.drgbchoices.which_electrodes),par_out(LFPNo).PAC(1).no_trials,length(t_pac));
+                                        %all_phase_timecourse=zeros(length(handles.drgbchoices.PACburstLowF),length(handles.drgbchoices.which_electrodes),par_out(LFPNo).PAC(1).no_trials,length(t_pac));
+                                        all_phase_histo_timecourse=zeros(length(handles.drgbchoices.PACburstLowF),length(handles.drgbchoices.which_electrodes)*no_bins,par_out(LFPNo).PAC(1).no_trials,length(t_pac));
                                     else
-                                        this_all_phase_timecourse=[];
-                                        this_all_phase_timecourse=all_phase_timecourse;
-                                        all_phase_timecourse=zeros(length(handles.drgbchoices.PACburstLowF),length(handles.drgbchoices.which_electrodes),par_out(LFPNo).PAC(1).no_trials+no_trialsPAC,length(t_pac));
-                                        all_phase_timecourse(:,:,1:no_trialsPAC,:)=this_all_phase_timecourse;
+%                                         this_all_phase_timecourse=[];
+%                                         this_all_phase_timecourse=all_phase_timecourse;
+%                                         all_phase_timecourse=zeros(length(handles.drgbchoices.PACburstLowF),length(handles.drgbchoices.which_electrodes),par_out(LFPNo).PAC(1).no_trials+no_trialsPAC,length(t_pac));
+%                                         all_phase_timecourse(:,:,1:no_trialsPAC,:)=this_all_phase_timecourse;
+                                        
+                                        this_all_phase_histo_timecourse=[];
+                                        this_all_phase_histo_timecourse=all_phase_histo_timecourse;
+                                        all_phase_histo_timecourse=zeros(length(handles.drgbchoices.PACburstLowF),length(handles.drgbchoices.which_electrodes)*no_bins,par_out(LFPNo).PAC(1).no_trials+no_trialsPAC,length(t_pac));
+                                        all_phase_histo_timecourse(:,:,1:no_trialsPAC,:)=this_all_phase_histo_timecourse;
                                     end
                                 end
                                 for PACii=1:length(handles.drgbchoices.PACburstLowF)
-                                    these_phases=zeros(par_out(LFPNo).PAC(1).no_trials,length(t_pac));
+%                                     these_phases=zeros(par_out(LFPNo).PAC(1).no_trials,length(t_pac));
+%                                     for trNo=1:par_out(LFPNo).PAC(1).no_trials
+%                                         these_phases(trNo,:)=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).out_phase;
+%                                     end
+%                                     all_phase_timecourse(PACii,LFPNo,no_trialsPAC+1:no_trialsPAC+par_out(LFPNo).PAC(1).no_trials,:)=these_phases;
+
                                     for trNo=1:par_out(LFPNo).PAC(1).no_trials
-                                        these_phases(trNo,:)=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).out_phase;
+                                        all_phase_histo_timecourse(PACii,(LFPNo-1)*no_bins+1:LFPNo*no_bins,no_trialsPAC+trNo,:)=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).out_time_PAChisto';
                                     end
-                                    all_phase_timecourse(PACii,LFPNo,no_trialsPAC+1:no_trialsPAC+par_out(LFPNo).PAC(1).no_trials,:)=these_phases;
+                                    
                                 end
                             end
                         end
@@ -385,6 +462,7 @@ if all_files_present==1
                         these_stamped_lick_times=[];
                         no_trials_l=[];
                         trials_included_l=[];
+                        handles.lastTrialNo=handles.drg.session(1).noTrials;
                         
                         [lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times,no_trials_l,trials_included_l]=drgGetLicks(handles);
                         
@@ -797,7 +875,7 @@ if all_files_present==1
                                         xlabel('Time (sec)')
                                         ylabel('auROC')
                                         
-                                        suptitle(['LDA analysis for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                        suptitle(['LFP power LDA analysis for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         
                                         
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
@@ -951,7 +1029,7 @@ if all_files_present==1
                                         ylim([minPC1-0.1*(maxPC1-minPC1) maxPC1+0.1*(maxPC1-minPC1)])
                                         text(-1,minPC1+0.9*(maxPC1-minPC1),handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(1)},'Color','r')
                                         text(-1,minPC1+0.8*(maxPC1-minPC1),handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)},'Color','b')
-                                        title(['PC1 for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                        title(['LFP power PC1 for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         xlabel('Time (sec)')
                                         ylabel('PC1')
                                         
@@ -1010,8 +1088,8 @@ if all_files_present==1
                                         %Linear discriminant analysis for
                                         %phase
                                         
-                                        these_all_phase_timecourse=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t_pac));
-                                        these_all_phase_timecourse(:,:,:)=all_phase_timecourse(PACii,:,these_per_corr,:);
+                                        these_all_phase_histo_timecourse=zeros(length(handles.drgbchoices.which_electrodes)*no_bins,sum(these_per_corr),length(t_pac));
+                                        these_all_phase_histo_timecourse(:,:,:)=all_phase_histo_timecourse(PACii,:,these_per_corr,:);
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
@@ -1034,13 +1112,13 @@ if all_files_present==1
                                         for time_point=1:length(t_pac)
                                             
                                             %LFP power per trial per electrode
-                                            measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
-                                            measurements(:,:)=these_all_phase_timecourse(:,:,time_point)';
+                                            measurements=zeros(N,length(handles.drgbchoices.which_electrodes)*no_bins);
+                                            measurements(:,:)=these_all_phase_histo_timecourse(:,:,time_point)';
                                             
                                             %Enter strings labeling each event (one event for
                                             %each trial)
                                             events=[];
-                                            
+                                             
                                             for ii=1:N
                                                 this_event=zeros(length(handles.drgbchoices.events_to_discriminate),1);
                                                 this_event=these_all_which_events(:,ii);
@@ -1082,7 +1160,7 @@ if all_files_present==1
                                                 scores(ii)=score(2);
                                                 
                                                 %Do LDA with shuffled trials
-                                                shuffled_measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                                shuffled_measurements=zeros(N,length(handles.drgbchoices.which_electrodes)*no_bins);
                                                 shuffled_measurements(:,:)=measurements(randperm(N),:);
                                                 
                                                 %Store the training data in a table.
@@ -1181,7 +1259,7 @@ if all_files_present==1
                                         xlabel('Time (sec)')
                                         ylabel('auROC')
                                         
-                                        suptitle(['LDA phase analysis for ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                        suptitle(['LDA phase analysis for ' handles.drgbchoices.PACnames{PACii} ' PAC mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         
                                         
                                         handles_out.discriminant_per_mousePAC(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
@@ -1218,8 +1296,8 @@ if all_files_present==1
                                         
                                         %PCA
                                         
-                                        these_all_phase_timecourse=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t_pac));
-                                        these_all_phase_timecourse(:,:,:)=all_phase_timecourse(PACii,:,these_per_corr,:);
+                                        these_all_phase_histo_timecourse=zeros(length(handles.drgbchoices.which_electrodes)*no_bins,sum(these_per_corr),length(t_pac));
+                                        these_all_phase_histo_timecourse(:,:,:)=all_phase_histo_timecourse(PACii,:,these_per_corr,:);
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
@@ -1230,7 +1308,7 @@ if all_files_present==1
                                         test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t_pac));
                                         shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t_pac));
                                         
-                                        fprintf(1, ['PCA processed for phase for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
+                                        fprintf(1, ['PCA processed for PAC for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
                                         fprintf(1,'For these events: ')
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
                                             fprintf(1,[handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(ii)} ' '])
@@ -1238,7 +1316,7 @@ if all_files_present==1
                                         fprintf(1,'\n')
                                         
                                         for time_point=1:length(t_pac)
-                                            par_t_out(time_point).principal_components=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                            par_t_out(time_point).principal_componentsPAC=zeros(N,length(handles.drgbchoices.which_electrodes)*no_bins);
                                         end
                                         
                                         gcp
@@ -1246,8 +1324,8 @@ if all_files_present==1
                                         for time_point=1:length(t_pac)
                                             
                                             %LFP power per trial per electrode
-                                            measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
-                                            measurements(:,:)=these_all_phase_timecourse(:,:,time_point)';
+                                            measurements=zeros(N,length(handles.drgbchoices.which_electrodes)*no_bins);
+                                            measurements(:,:)=these_all_phase_histo_timecourse(:,:,time_point)';
                                             
                                             %Do the PCA
                                             [coeff,par_t_out(time_point).principal_componentsPAC,latent]=pca(measurements);
@@ -1256,8 +1334,8 @@ if all_files_present==1
                                         
                                         
                                         %Show a figure of the PCA and record the output
-                                        
-                                        principal_componentsPAC=zeros(length(t_pac),N,length(handles.drgbchoices.which_electrodes));
+                                        szpto=size(par_t_out(time_point).principal_componentsPAC);
+                                        principal_componentsPAC=zeros(length(t_pac),N,szpto(2));
                                         for time_point=1:length(t_pac)
                                             principal_componentsPAC(time_point,:,:)=par_t_out(time_point).principal_componentsPAC;
                                         end
@@ -1275,7 +1353,7 @@ if all_files_present==1
                                         subplot(2,2,3)
                                         hold on
                                         
-                                        these_pcs=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                        these_pcs=zeros(N,szpto(2));
                                         these_pcs(:,:)=principal_componentsPAC(6,:,:);
                                         plot(these_pcs(logical(these_all_which_events(1,:)),1),these_pcs(logical(these_all_which_events(1,:)),2),'or')
                                         plot(these_pcs(logical(these_all_which_events(2,:)),1),these_pcs(logical(these_all_which_events(2,:)),2),'ob')
@@ -1288,7 +1366,7 @@ if all_files_present==1
                                         subplot(2,2,4)
                                         hold on
                                         
-                                        these_pcs=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                        these_pcs=zeros(N,szpto(2));
                                         these_pcs(:,:)=principal_componentsPAC(41,:,:);
                                         plot(these_pcs(logical(these_all_which_events(1,:)),1),these_pcs(logical(these_all_which_events(1,:)),2),'or')
                                         plot(these_pcs(logical(these_all_which_events(2,:)),1),these_pcs(logical(these_all_which_events(2,:)),2),'ob')
@@ -1335,12 +1413,12 @@ if all_files_present==1
                                         ylim([minPC1-0.1*(maxPC1-minPC1) maxPC1+0.1*(maxPC1-minPC1)])
                                         text(-1,minPC1+0.9*(maxPC1-minPC1),handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(1)},'Color','r')
                                         text(-1,minPC1+0.8*(maxPC1-minPC1),handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)},'Color','b')
-                                        title(['PC1 for ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                        title(['PC1 for ' handles.drgbchoices.PACnames{PACii} ' PAC mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         xlabel('Time (sec)')
                                         ylabel('PC1')
                                         
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
-                                        handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).principal_componentsPAC=zeros(length(t_pac),N,length(handles.drgbchoices.which_electrodes));
+                                        handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).principal_componentsPAC=zeros(length(t_pac),N,szpto(2));
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).principal_componentsPAC=principal_componentsPAC;
                                         
                                         handles_out.t_pac=t_pac';

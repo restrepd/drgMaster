@@ -158,8 +158,9 @@ if all_files_present==1
             end
             
             %Set the last trial to the last trial in the session
-            handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(2).noTimes;
-            
+%             handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(2).noTimes;
+            handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
+
             %Run the analysis for each window
             for winNo=1:handles.drgbchoices.noWindows
                 

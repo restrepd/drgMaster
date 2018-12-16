@@ -63,6 +63,7 @@ for trNo=firstTr:lastTr
     end
     
     evNo = drgFindEvNo(handles,trNo,sessionNo);
+
     if evNo~=-1
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
         
@@ -265,6 +266,10 @@ if handles.displayData==1
         rose(pi*meanVectorAngle/180,12)
         title('Mean phase')
     end
+end
+
+if handles.displayData==1
+    fprintf(1, ['\nPCA processed for %d out of %d trials \n\n'], no_trials,lastTr);
 end
 
 pfffft=1;

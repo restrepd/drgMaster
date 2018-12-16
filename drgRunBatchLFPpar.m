@@ -147,7 +147,8 @@ if all_files_present==1
             end
             
             %Set the last trial to the last trial in the session
-            handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(2).noTimes;
+            %handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(2).noTimes;
+            handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
             
             %Run the analysis for each window
             for winNo=1:handles.drgbchoices.noWindows
@@ -214,7 +215,8 @@ if all_files_present==1
                         
                         handlespf.burstLowF=handlespf.LFPPowerSpectrumLowF;
                         handlespf.burstHighF=handlespf.LFPPowerSpectrumHighF;
-                        handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(handlespf.referenceEvent).noTimes;
+                        handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
+                        %handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(handlespf.referenceEvent).noTimes;
                         handlespf.trialNo=1;
                         all_Power=[];
                         all_Power_timecourse=[];
@@ -343,7 +345,8 @@ if all_files_present==1
                         
                         handlespf.burstLowF=handlespf.LFPPowerSpectrumLowF;
                         handlespf.burstHighF=handlespf.LFPPowerSpectrumHighF;
-                        handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(handlespf.referenceEvent).noTimes;
+                        handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
+                        %handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(handlespf.referenceEvent).noTimes;
                         handlespf.trialNo=1;
                         all_Power=[];
                         all_Power_timecourse=[];

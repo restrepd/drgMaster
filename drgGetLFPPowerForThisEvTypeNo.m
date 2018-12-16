@@ -183,3 +183,6 @@ if ntr~=no_trials
     
 end
 
+if handles.save_drgb==0
+    fprintf(1, ['\nPCA processed for %d out of %d trials \n\n'], length(this_trialNo),lastTr);
+end

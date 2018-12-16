@@ -133,8 +133,8 @@ for ii=1:length(loc)-1
 end
 
 %Normalize the time histo
-for ii=1:no_bins
-    time_histos(:,ii)=time_histos(:,ii)/sum(time_histos(:,ii));
+for ii=1:length(loc)-1
+    time_histos(ii,:)=time_histos(ii,:)/sum(time_histos(ii,:));
 end
 
 meanPeakAngle=(360/(2*pi))*(circ_mean(peak_amp_phase_timecourse_phase')+pi);
@@ -201,7 +201,13 @@ for iit=1:length(out_times)
     if iiloc_bef==length(loc)
         iiloc_bef=length(loc)-1;
     end
-    out_time_PAChisto(iit,:)=time_histos(iiloc_bef,:);
+    
+    if ~isempty(iiloc_bef)
+        out_time_PAChisto(iit,:)=time_histos(iiloc_bef,:);
+    else
+        out_time_PAChisto(iit,:)=time_histos(1,:);
+    end
+%     out_time_PAChisto(iit,:)=time_histos(iiloc_bef,:);
 end
 
 
