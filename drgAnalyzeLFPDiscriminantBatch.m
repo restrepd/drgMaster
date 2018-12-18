@@ -13,9 +13,9 @@ discriminant_name=[pname fname];
 load(discriminant_name)
 
 figNo=0;
-
+ 
 t=handles_out.t;
-
+ 
 %Plot average percent correct for the LDA
 for groupNo=1:max(handles_out.drgbchoices.group_no)
     figNo=figNo+1

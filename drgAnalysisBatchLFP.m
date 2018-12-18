@@ -177,7 +177,7 @@ end
 event1=eventType(1);
 event2=eventType(2);
 
- 
+  
 %Ask user for the drgb output .mat file and load those data
 [handles.drgb.outFileName,handles.PathName] = uigetfile('*.mat','Select the drgb output file');
 load([handles.PathName handles.drgb.outFileName])
@@ -8484,7 +8484,8 @@ switch which_display
             
         end
         
-        save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
+        pffft=1;
+%         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
         
     case 19
         % 19 PAC MI analysis for events (concentrations or S+/S-) for naive and proficient
@@ -8719,125 +8720,7 @@ switch which_display
         end
         fprintf(1, '\n\n')
         
-        
-        %Now plot the average MI per electrode per session (file)
-        for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
-            
-            data_MI=[];
-            prof_naive=[];
-            events=[];
-            groups=[];
-            
-            %Plot the average
-            try
-                close(pacii)
-            catch
-            end
-            hFig=figure(pacii);
-            
-            set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
-            hold on
-            
-            bar_lab_loc=[];
-            no_ev_labels=0;
-            ii_gr_included=0;
-            
-            for grNo=1:max(handles_drgb.drgbchoices.group_no)
-                
-                include_group=0;
-                
-                for evNo=1:length(eventType)
-                    for per_ii=1:2
-                        
-                        
-                        if sum(eventType==3)>0
-                            bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(2-evNo);
-                        else
-                            bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(length(eventType)-evNo);
-                        end
-                        
-                        these_offsets(per_ii)=bar_offset;
-                        
-                        if sum((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo))>0
-                            
-                            include_group=1;
-                            
-                            
-                            if per_ii==1
-                                bar(bar_offset,mean(mean_MI((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo))),'r','LineWidth', 3,'EdgeColor','none')
-                            else
-                                bar(bar_offset,mean(mean_MI((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo))),'b','LineWidth', 3,'EdgeColor','none')
-                            end
-                            
-                            plot(bar_offset,mean(mean_MI((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo))),'ok','LineWidth', 3)
-                            plot((bar_offset)*ones(1,sum((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo))),mean_MI((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo)),'o',...
-                                'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7],'MarkerSize',3)
-                            if sum((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo))>=2
-                                CI = bootci(1000, {@mean, mean_MI((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo))},'type','cper');
-                                plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                            end
-                            
-                            %Save data for anovan
-                            data_MI=[data_MI mean_MI((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo))];
-                            prof_naive=[prof_naive per_ii*ones(1,sum((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo)))];
-                            events=[events evNo*ones(1,sum((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo)))];
-                            groups=[groups grNo*ones(1,sum((mean_MI_perii==per_ii)&(mean_MI_pacii==pacii)&(mean_MI_evNo==evNo)&(per_session_group_no==grNo)))];
-                        end
-                    end
-                    
-                    if include_group==1
-                        bar_lab_loc=[bar_lab_loc mean(these_offsets)];
-                        no_ev_labels=no_ev_labels+1;
-                        if sum(eventType==3)>0
-                            bar_labels{no_ev_labels}=evTypeLabels{evNo};
-                        else
-                            bar_labels{no_ev_labels}=num2str(concs(evNo));
-                        end
-                    end
-                end
-                if include_group==1
-                    ii_gr_included=ii_gr_included+1;
-                    groups_included(ii_gr_included)=grNo;
-                end
-            end
-            
-            title(['Average MI per electrode per session for PAC theta/' freq_names{pacii+1}])
-            
-            %Annotations
-            x_interval=0.8/ii_gr_included;
-            for ii=1:ii_gr_included
-                annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
-            end
-            
-            %Proficient/Naive annotations
-            annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
-            annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
-            
-            %x labels
-            to_sort=[bar_lab_loc' [1:length(bar_lab_loc)]'];
-            sorted_A=sortrows(to_sort);
-            sorted_bar_lab_loc=sorted_A(:,1);
-            for ii=1:length(bar_lab_loc)
-                sorted_bar_labels{ii}=bar_labels{sorted_A(ii,2)};
-            end
-            xticks(sorted_bar_lab_loc)
-            xticklabels(sorted_bar_labels)
-            
-            if sum(eventType==3)==0
-                xlabel('Concentration (%)')
-            end
-            
-            ylabel('Modulation Index')
-            
-            %We are not using per session; this does not have mouse as a
-            %random factor
-            %             %Calculate anovan for inteaction
-            %             [p,tbl,stats]=anovan(data_MI,{prof_naive events groups},'varnames',{'proficient_vs_naive','within_vs_between','groups'},'display','off');
-            %             fprintf(1, ['p value for anovan MI per session per electrode for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-            %             fprintf(1, ['p value for anovan MI per session per electrode for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-            %             fprintf(1, ['p value for anovan MI per session per electrode for groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
-        end
-        
+
         %Now plot the average MI per electrode per mouse
         for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
             
@@ -8849,10 +8732,10 @@ switch which_display
             
             %Plot the average
             try
-                close(pacii+3)
+                close(pacii)
             catch
             end
-            hFig=figure(pacii+3);
+            hFig=figure(pacii);
             
             set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
             hold on
@@ -8969,6 +8852,94 @@ switch which_display
             
         end
         
+        %Now do the cumulative histograms and ranksums for MI per electrode per mouse
+        pvals=[];
+        for pacii=1:3
+            
+            ii_rank=0;
+            mi_rank=[];
+            maxmi=-200;
+            minmi=200;
+            
+            try
+                close(pacii+3)
+            catch
+            end
+            hFig=figure(pacii+3);
+            
+            set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+            
+            
+            for evNo=1:length(eventType)
+                subplot(1,2,evNo)
+                
+                for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                    
+                    hold on
+                    
+                    for per_ii=1:2      %performance bins. blue = naive, red = proficient
+                        
+                        
+                        if sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
+                            
+                            [f_mi,x_mi] = drg_ecdf(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)));
+                            
+                            if grNo==1
+                                if per_ii==1
+                                    plot(x_mi,f_mi,'Color',[1 0 0],'LineWidth',3)
+                                else
+                                    plot(x_mi,f_mi,'Color',[0 0 1],'LineWidth',3)
+                                end
+                            else
+                                 if per_ii==1
+                                    plot(x_mi,f_mi,'Color',[1 0.7 0.7],'LineWidth',3)
+                                else
+                                    plot(x_mi,f_mi,'Color',[0.7 0.7 1],'LineWidth',3)
+                                end
+                            end
+                            
+                            
+                            %Save data for ranksum
+                            ii_rank=ii_rank+1;
+                            mi_rank(ii_rank).mi=mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo));
+                            mi_rank(ii_rank).per_ii=per_ii;
+                            mi_rank(ii_rank).grNo=grNo;
+                            mi_rank(ii_rank).evNo=evNo;
+                            maxmi=max([maxmi max(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))]);
+                            minmi=min([minmi min(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))]);
+                        end
+                    end
+                    
+                end
+                legend([handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
+                    [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
+                title(['MI per mouse, per electrode for PAC theta/' freq_names{pacii+1} ' for ' evTypeLabels{evNo}])
+                xlabel('MI')
+                ylabel('Probability')
+            end
+            
+            for evNo=1:length(eventType)
+                subplot(1,2,evNo)
+                xlim([minmi-0.1*(maxmi-minmi) maxmi+0.1*(maxmi-minmi)])
+            end
+            
+            %Now do the ranksums
+            fprintf(1, ['Ranksum p values for mi per mouse, per electrode for PAC theta' freq_names{pacii+1} '\n'])
+            prof_naive_leg{1}='Proficient';
+            prof_naive_leg{2}='Naive';
+            for ii=1:ii_rank
+                for jj=ii+1:ii_rank
+                    p=ranksum(mi_rank(ii).mi,mi_rank(jj).mi);
+                    fprintf(1, ['p value for ' handles_drgb.drgbchoices.group_no_names{mi_rank(ii).grNo} ' ' evTypeLabels{mi_rank(ii).evNo} ' ' prof_naive_leg{mi_rank(ii).per_ii} ' vs ' ...
+                        handles_drgb.drgbchoices.group_no_names{mi_rank(jj).grNo} ' ' evTypeLabels{mi_rank(jj).evNo} ' ' prof_naive_leg{mi_rank(jj).per_ii} ' =  %d\n'],p)
+                    pvals=[pvals p];
+                end
+            end
+            fprintf(1, ['\n\n'])
+        end
+        
+        pFDR_mi_rank=drsFDRpval( pvals);
+        fprintf(1, ['pFDR for per mi per mouse, per electrode  = %d\n\n'],pFDR_mi_rank);
         
         %Now plot the average MI per mouse averaged over electrodes
         for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -9090,7 +9061,7 @@ switch which_display
             ylabel('Modulation Index')
             
             %Calculate anovan for inteaction
-            [p,tbl,stats]=anovan(data_MI,{prof_naive_per_mouse events_per_mouse, groups_per_mouse},'model','interaction','varnames',{'proficient_vs_naive','events','groups'},'display','off');
+            [p,tbl,stats]=anovan(data_MI_per_mouse,{prof_naive_per_mouse events_per_mouse, groups_per_mouse},'model','interaction','varnames',{'proficient_vs_naive','events','groups'},'display','off');
             fprintf(1, ['p value for anovan MI per mouse averaged over electrodes for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
             fprintf(1, ['p value for anovan MI per mouse averaged over electrodes for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
             fprintf(1, ['p value for anovan MI per mouse averaged over electrodes for groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(3));
@@ -9099,8 +9070,119 @@ switch which_display
             fprintf(1, ['p value for anovan MI per mouse averaged over electrodes for events * groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
             
         end
-        
-       
+         
+       %Now do the cumulative histograms and ranksums for mean vector angle per electrode per mouse
+        pvals=[];
+        for pacii=1:3
+            
+            ii_rank=0;
+            VA_rank=[];
+            maxVA=-200;
+            minVA=200;
+            
+            try
+                close(pacii+9)
+            catch
+            end
+            hFig=figure(pacii+9);
+            
+            set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+            
+            
+            for evNo=1:length(eventType)
+                subplot(1,2,evNo)
+                hold on
+                
+                for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                    
+                    
+                    
+                    for per_ii=1:2      %performance bins. blue = naive, red = proficient
+                        
+                        
+                        if sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
+                            
+                            %Note: we have to shift the mean to accomodate
+                            %all cumulative histograms in one angle axis
+                            
+                            
+                            these_meanVAs=[];
+                            these_meanVAs=mean_meanVectorAngle_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo));
+                            
+                            sztmVA=size(these_meanVAs);
+                            shifted_meanVAs=zeros(sztmVA(1),sztmVA(2));
+                            
+                            this_meanVA=[];
+                            this_meanVA=(180/pi)*circ_mean(these_meanVAs'*pi/180)';
+                            
+                            if these_meanVAs>180+this_meanVA
+                                shifted_meanVAs(these_meanVAs>180+this_meanVA)=-(360-these_meanVAs(these_meanVAs>180+this_meanVA));
+                            else
+                                if these_meanVAs<this_meanVA-180
+                                    shifted_meanVAs(these_meanVAs<this_meanVA-180)=360+these_meanVAs(these_meanVAs<this_meanVA-180);
+                                else
+                                    shifted_meanVAs((these_meanVAs<=180+this_meanVA)&(these_meanVAs>=this_meanVA-180))=these_meanVAs((these_meanVAs<=180+this_meanVA)&(these_meanVAs>=this_meanVA-180));
+                                end
+                            end
+                            
+                            [f_VA,x_VA] = drg_ecdf(shifted_meanVAs);
+                            
+                            if grNo==1
+                                if per_ii==1
+                                    plot(x_VA,f_VA,'Color',[1 0 0],'LineWidth',3)
+                                else
+                                    plot(x_VA,f_VA,'Color',[0 0 1],'LineWidth',3)
+                                end
+                            else
+                                 if per_ii==1
+                                    plot(x_VA,f_VA,'Color',[1 0.7 0.7],'LineWidth',3)
+                                else
+                                    plot(x_VA,f_VA,'Color',[0.7 0.7 1],'LineWidth',3)
+                                end
+                            end
+                            
+                            
+                            %Save data for ranksum
+                            ii_rank=ii_rank+1;
+                            VA_rank(ii_rank).meanVA=shifted_meanVAs;
+                            VA_rank(ii_rank).per_ii=per_ii;
+                            VA_rank(ii_rank).grNo=grNo;
+                            VA_rank(ii_rank).evNo=evNo;
+                            maxVA=max([maxmi max(shifted_meanVAs)]);
+                            minVA=min([minmi min(shifted_meanVAs)]);
+                        end
+                    end
+                    
+                end
+                legend([handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
+                    [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
+                title(['mean vector angle per mouse, per electrode for PAC theta/' freq_names{pacii+1} ' for ' evTypeLabels{evNo}])
+                xlabel('mean vector angle')
+                ylabel('Probability')
+            end
+             
+            for evNo=1:length(eventType)
+                subplot(1,2,evNo)
+                xlim([minVA-0.1*(maxVA-minVA) maxVA+0.1*(maxVA-minVA)])
+            end
+            
+            %Now do the ranksums
+            fprintf(1, ['Ranksum p values for mean vector angle per mouse, per electrode for PAC theta' freq_names{pacii+1} '\n'])
+            prof_naive_leg{1}='Proficient';
+            prof_naive_leg{2}='Naive';
+            for ii=1:ii_rank
+                for jj=ii+1:ii_rank
+                    p=ranksum(VA_rank(ii).meanVA,VA_rank(jj).meanVA);
+                    fprintf(1, ['p value for ' handles_drgb.drgbchoices.group_no_names{VA_rank(ii).grNo} ' ' evTypeLabels{VA_rank(ii).evNo} ' ' prof_naive_leg{VA_rank(ii).per_ii} ' vs ' ...
+                        handles_drgb.drgbchoices.group_no_names{VA_rank(jj).grNo} ' ' evTypeLabels{VA_rank(jj).evNo} ' ' prof_naive_leg{VA_rank(jj).per_ii} ' =  %d\n'],p)
+                    pvals=[pvals p];
+                end
+            end
+            fprintf(1, ['\n\n'])
+        end
+         
+        pFDR_VA_rank=drsFDRpval( pvals);
+        fprintf(1, ['pFDR for per mean vector angle per mouse, per electrode  = %d\n\n'],pFDR_VA_rank);
         pfft=1
 %         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
         
@@ -10269,7 +10351,10 @@ for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
         end
         fprintf(1, ['\n\n'])
         pFDR = drsFDRpval(pvals);
-          fprintf(1, ['pFDR = %d \n\n'],pFDR)
+        fprintf(1, ['pFDR = %d \n\n'],pFDR)
+        
+        
+        pffft=1;
         
 %         save([handles.PathName handles.drgb.outFileName(1:end-4) output_suffix]);
         
