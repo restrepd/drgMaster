@@ -174,7 +174,7 @@ if all_files_present==1
                         
                         %Initalize the output variable for parfor for LFP
                         %power
-                        if (sum(handles.drgbchoices.which_discriminant==4)>0)
+                        if (sum(handles.drgbchoices.which_discriminant==4)>0)||(sum(handles.drgbchoices.which_discriminant==5)>0)
                             for LFPNo=1:no_elect
                                 
                                 for ii=1:handles.drgbchoices.no_PACpeaks
@@ -282,7 +282,7 @@ if all_files_present==1
                             end
                              
                             %Now calculate the PAC
-                            if (sum(handlespf.drgbchoices.which_discriminant==4)>0)
+                            if (sum(handlespf.drgbchoices.which_discriminant==4)>0)||(sum(handlespf.drgbchoices.which_discriminant==5)>0)
                                 for PACii=1:handlespf.drgbchoices.no_PACpeaks
                                     this_peakLFPNo=handlespf.drgbchoices.which_electrodes(LFPNo);
                                     handlespf.peakLFPNo=this_peakLFPNo;
@@ -413,7 +413,7 @@ if all_files_present==1
                         end
                         
                         %Extract all_phase_timecourse for PAC
-                        if (sum(handles.drgbchoices.which_discriminant==4)>0)
+                        if (sum(handles.drgbchoices.which_discriminant==4)>0)||(sum(handles.drgbchoices.which_discriminant==5)>0)
                             t_pac=par_out(1).PAC(1).PACtimecourse(1).out_times;
                             no_bins=size(par_out(1).PAC(1).PACtimecourse(1).out_time_PAChisto,2);
                             for LFPNo=1:length(handles.drgbchoices.which_electrodes)
@@ -522,7 +522,7 @@ if all_files_present==1
                         end
                         
                         %Extract the data for PAC
-                        if (sum(handles.drgbchoices.which_discriminant==4)>0)
+                        if (sum(handles.drgbchoices.which_discriminant==4)>0)||(sum(handles.drgbchoices.which_discriminant==5)>0)
                             
                             %Save all_which_events and all_perCorr_pertr
                             if filNum==first_file_for_this_mouse
@@ -714,8 +714,7 @@ if all_files_present==1
                                             these_all_which_events(ii,:)= all_which_events(kk,these_per_corr);
                                         end
                                         
-                                        test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
-                                        shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                                        
                                         
                                         fprintf(1, ['LDA processed for LFP power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
                                         fprintf(1,'For these events: ')
@@ -725,8 +724,15 @@ if all_files_present==1
                                         fprintf(1,'\n')
                                         
                                         gcp
+                                        par_out=[];
+                                        test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                                        shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                                        discriminant_correct=zeros(1,length(t));
+                                        discriminant_correct_shuffled=zeros(1,length(t));
+                                        auROC=zeros(1,length(t));
+                                        per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
                                         
-                                        for time_point=1:length(t)
+                                        parfor time_point=1:length(t)
                                             
                                             %LFP power per trial per electrode
                                             measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
@@ -800,7 +806,7 @@ if all_files_present==1
                                             auROC(1,time_point)=AUC-0.5;
                                             %test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
                                             
-                                            per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                            
                                             per_targets=these_all_which_events;
                                             
                                             test_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
@@ -921,8 +927,7 @@ if all_files_present==1
                                             these_all_which_events(ii,:)= all_which_events(kk,these_per_corr);
                                         end
                                         
-                                        test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
-                                        shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                                        
                                         
                                         fprintf(1, ['PCA processed for LFP power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
                                         fprintf(1,'For these events: ')
@@ -936,6 +941,13 @@ if all_files_present==1
                                         end
                                         
                                         gcp
+                                        
+                                        %                                         test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                                        %                                         shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                                        %
+                                        for time_point=1:length(t)
+                                            par_t_out(time_point).principal_components=[];
+                                        end
                                         
                                         for time_point=1:length(t)
                                             
@@ -1109,6 +1121,13 @@ if all_files_present==1
                                         
                                         gcp
                                         
+                                        auROCPAC=zeros(1,length(t_pac));
+                                        discriminant_correctPAC=zeros(1,length(t_pac));
+                                        discriminant_correct_shuffledPAC=zeros(1,length(t_pac));
+                                        test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t_pac));
+                                        shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t_pac));
+                                        per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                        
                                         for time_point=1:length(t_pac)
                                             
                                             %LFP power per trial per electrode
@@ -1184,7 +1203,7 @@ if all_files_present==1
                                             auROCPAC(1,time_point)=AUC-0.5;
                                             %test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
                                             
-                                            per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                            
                                             per_targets=these_all_which_events;
                                             
                                             test_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
@@ -1320,8 +1339,11 @@ if all_files_present==1
                                         end
                                         
                                         gcp
-                                        
                                         for time_point=1:length(t_pac)
+                                            par_t_out(time_point).principal_componentsPAC=[];
+                                        end
+                                        
+                                        parfor time_point=1:length(t_pac)
                                             
                                             %LFP power per trial per electrode
                                             measurements=zeros(N,length(handles.drgbchoices.which_electrodes)*no_bins);
