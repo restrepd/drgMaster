@@ -7338,12 +7338,12 @@ switch which_display
                                     %Calculate per mouse meanVectorAngle
                                     this_mouse_meanVectorAngle=[];
                                     this_mouse_meanVectorAngle=theseEvNos_thisMouse_thisElec(evNo,pacii).this_meanVectorAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
-                                    mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_meanVectorAngle'*pi/180)';
+                                    mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_axial(circ_mean(this_mouse_meanVectorAngle'*pi/180)');
                                     
                                     %Calculate per mouse peakAngle
                                     this_mouse_peakAngle=[];
                                     this_mouse_peakAngle=theseEvNos_thisMouse_thisElec(evNo,pacii).this_peakAngle_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii).whichMouse==mouseNo);
-                                    mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_peakAngle'*pi/180)';
+                                    mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_axial(circ_mean(this_mouse_peakAngle'*pi/180)');
                                 end
                             end
                         end
@@ -7679,7 +7679,7 @@ switch which_display
                 per_ii=2;
                 circ_meanVA=[];
                 CI=zeros(1,2);
-                circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180)/pi;
+                circ_meanVA=180*circ_axial(circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180))/pi;
                 CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180},'type','cper')/pi;
                 plot([1],circ_meanVA,'o','MarkerEdgeColor','b','MarkerFaceColor','b');
                 plot([1 1],CI,'-b','LineWidth',3);
@@ -7688,7 +7688,7 @@ switch which_display
                 per_ii=1;
                 circ_meanVA=[];
                 CI=zeros(1,2);
-                circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180)/pi;
+                circ_meanVA=180*circ_axial(circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180))/pi;
                 CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180},'type','cper')/pi;
                 plot([2],circ_meanVA,'o','MarkerEdgeColor','r','MarkerFaceColor','r');
                 plot([2 2],CI,'-r','LineWidth',3);
@@ -7698,7 +7698,7 @@ switch which_display
                 per_ii=2;
                 circ_meanVA=[];
                 CI=zeros(1,2);
-                circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180)/pi;
+                circ_meanVA=180*circ_axial(circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180))/pi;
                 CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180},'type','cper')/pi;
                 plot([4],circ_meanVA,'o','MarkerEdgeColor','b','MarkerFaceColor','b');
                 plot([4 4],CI,'-b','LineWidth',3);
@@ -7707,7 +7707,7 @@ switch which_display
                 per_ii=1;
                 circ_meanVA=[];
                 CI=zeros(1,2);
-                circ_meanVA=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180)/pi;
+                circ_meanVA=180*circ_axial(circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180))/pi;
                 CI(1,1:2) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180},'type','cper')/pi;
                 plot([5],circ_meanVA,'o','MarkerEdgeColor','r','MarkerFaceColor','r');
                 plot([5 5],CI,'-r','LineWidth',3);
@@ -7723,8 +7723,8 @@ switch which_display
             
             for per_ii=2:-1:1
                 for evNo=1:length(eventType)
-                    circ_meanVA(evNo)=180*circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180)/pi;
-                    CI(1:2,evNo) = 180*bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180},'type','cper')/pi;
+                    circ_meanVA(evNo)=180*circ_axial(circ_mean(pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180))/pi;
+                    CI(1:2,evNo) = 180*circ_axial(bootci(1000, {@circ_mean, pi*mean_meanVectorAngle_per_mouse((mean_MI_per_mouse>min_MI)&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))'/180},'type','cper'))/pi;
                     
                     %Save data for anovan
                     data_meanVectorAngle=[data_meanVectorAngle mean_meanVectorAngle_per_mouse((mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo))];
@@ -7922,7 +7922,7 @@ switch which_display
                                         %In the future write a ROC that
                                         %goes around the circle using
                                         %parfor
-                                        this_mean_angle=(180/pi)*circ_mean([this_meanAngle_Ev1' this_meanAngle_Ev2']'*pi/180)';
+                                        this_mean_angle=(180/pi)*circ_axial(circ_mean([this_meanAngle_Ev1' this_meanAngle_Ev2']'*pi/180)');
                                         
                                         if this_mean_angle<180
                                             this_mean_angle=this_mean_angle+180;
@@ -7999,7 +7999,7 @@ switch which_display
                                     if isempty(this_mouse_meanVectorAngle)
                                         mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=NaN;
                                     else
-                                        mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_meanVectorAngle'*pi/180)';
+                                        mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_axial(circ_mean(this_mouse_meanVectorAngle'*pi/180)');
                                     end
                                     
                                     %Calculate per mouse peakAngle
@@ -8008,7 +8008,7 @@ switch which_display
                                     if isempty(this_mouse_peakAngle)
                                         mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=NaN;
                                     else
-                                        mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_peakAngle'*pi/180)';
+                                        mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_axial(circ_mean(this_mouse_peakAngle'*pi/180)');
                                     end
                                     
                                 end
@@ -8543,8 +8543,8 @@ switch which_display
                                         if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo).PAC))
                                             
                                             percent_mask=[];
-                                            percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower>=percent_windows(per_ii,1))...
-                                                &(handles_drgb.drgb.lfpevpair(lfpodNo).perCorrLFPPower<=percent_windows(per_ii,2));
+                                            percent_mask=(handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).perCorrPAC>=percent_windows(per_ii,1))...
+                                                &(handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).perCorrPAC<=percent_windows(per_ii,2));
                                             
                                             if ~isempty(percent_mask)
                                                 
@@ -8554,7 +8554,7 @@ switch which_display
                                                     noWB_for_evNo(evNo)=-1;
                                                     
                                                     trials_in_event_Ev=[];
-                                                    trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo).which_eventLFPPower(eventType(evNo),:)==1)&percent_mask;
+                                                    trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).which_eventPAC(eventType(evNo),:)==1)&percent_mask;
                                                     
                                                     if (sum(trials_in_event_Ev)>=1)
                                                         
@@ -8663,7 +8663,7 @@ switch which_display
                                         else
                                             mean_MI_per_mouse(mean_MI_No_per_mouse)=NaN;
                                         end
-                                        
+                                         
                                         mean_MI_perii_per_mouse(mean_MI_No_per_mouse)=per_ii;
                                         mean_MI_evNo_per_mouse(mean_MI_No_per_mouse)=evNo;
                                         mean_MI_pacii_per_mouse(mean_MI_No_per_mouse)=pacii;
@@ -8684,7 +8684,7 @@ switch which_display
                                         this_mouse_meanVectorAngle=[];
                                         this_mouse_meanVectorAngle=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_meanVectorAngle_Ev;
                                         if ~isempty(this_mouse_meanVectorAngle)
-                                            mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_meanVectorAngle'*pi/180)';
+                                            mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_axial(circ_mean(this_mouse_meanVectorAngle'*pi/180)');
                                         else
                                             mean_meanVectorAngle_per_mouse(mean_MI_No_per_mouse)=NaN;
                                         end
@@ -8693,7 +8693,7 @@ switch which_display
                                         this_mouse_peakAngle=[];
                                         this_mouse_peakAngle=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_peakAngle_Ev;
                                         if ~isempty(this_mouse_peakAngle)
-                                            mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_mean(this_mouse_peakAngle'*pi/180)';
+                                            mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=(180/pi)*circ_axial(circ_mean(this_mouse_peakAngle'*pi/180)');
                                         else
                                             mean_peakAngle_per_mouse(mean_MI_No_per_mouse)=NaN;
                                         end
@@ -8913,15 +8913,19 @@ switch which_display
                     
                 end
                 
-                title(['Average MI for each electrode calculated per  for PAC theta/' freq_names{pacii+1} ' for ' evTypeLabels{evNo}])
+                title(evTypeLabels{evNo})
                 xlabel('MI')
                 ylabel('Probability')
             end
+            
+            
             
             for evNo=1:length(eventType)
                 subplot(1,2,evNo)
                 xlim([minmi-0.1*(maxmi-minmi) maxmi+0.1*(maxmi-minmi)])
             end
+            
+            %suptitle(['Average MI for each electrode calculated per  for PAC theta/' freq_names{pacii+1}])
             
             %Now do the ranksums
             fprintf(1, ['Ranksum p values for average MI for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
@@ -9066,6 +9070,8 @@ switch which_display
                         end
                     end
                 end
+                
+                 
                 if include_group==1
                     ii_gr_included=ii_gr_included+1;
                     groups_included(ii_gr_included)=grNo;
@@ -9103,12 +9109,14 @@ switch which_display
             
             %Calculate anovan for inteaction
             [p,tbl,stats]=anovan(data_MI_per_mouse,{prof_naive_per_mouse events_per_mouse, groups_per_mouse},'model','interaction','varnames',{'proficient_vs_naive','events','groups'},'display','off');
-            fprintf(1, ['p value for anovan MI per mouse averaged over electrodes for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan MI per mouse averaged over electrodes for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-            fprintf(1, ['p value for anovan MI per mouse averaged over electrodes for groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(3));
-            fprintf(1, ['p value for anovan MI per mouse averaged over electrodes for naive vs proficient * events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan MI per mouse averaged over electrodes for naive vs proficient * groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-            fprintf(1, ['p value for anovan MI per mouse averaged over electrodes for events * groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
+            fprintf(1, ['anovan MI per mouse averaged over electrodes for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+            
+            fprintf(1, ['anovan p value for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+            fprintf(1, ['anovan p value for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
+            fprintf(1, ['anovan p value for groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(3));
+            fprintf(1, ['anovan p value for naive vs proficient * events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+            fprintf(1, ['anovan p value for naive vs proficient * groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
+            fprintf(1, ['anovan p value for events * groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
             
         end
         
@@ -9117,9 +9125,13 @@ switch which_display
                 figure(pacii+3)
                 subplot(1,2,evNo)
                 hold on
+                try
                 legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
                     [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
+                catch
+                end
             end
+            %suptitle(['Average per mouse MI for each electrode calculated per for PAC theta/' freq_names{pacii+1}])
         end
         
         %Now do the cumulative histograms and ranksums for mean vector angle per electrode per mouse
@@ -9130,8 +9142,8 @@ switch which_display
             
             ii_rank=0;
             VA_rank=[];
-            maxVA=-200;
-            minVA=200;
+            maxVA=-2000;
+            minVA=2000;
             
             try
                 close(pacii+9)
@@ -9154,9 +9166,12 @@ switch which_display
                         
                         
                         if sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
-                            
+                              
                             %Note: we have to shift the mean to accomodate
                             %all cumulative histograms in one angle axis
+                            if (pacii==3)&(evNo==1)
+                                pffft=1; 
+                            end
                             these_meanVAs=[];
                             these_meanVAs=mean_meanVectorAngle_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo));
                             
@@ -9164,7 +9179,7 @@ switch which_display
                             shifted_meanVAs=zeros(sztmVA(1),sztmVA(2));
                             
                             this_meanVA=[];
-                            this_meanVA=(180/pi)*circ_mean(these_meanVAs'*pi/180)';
+                            this_meanVA=(180/pi)*circ_axial(circ_mean(these_meanVAs'*pi/180))';
                             
                             shifted_meanVAs(these_meanVAs>180+this_meanVA)=-(360-these_meanVAs(these_meanVAs>180+this_meanVA));
                             shifted_meanVAs(these_meanVAs<this_meanVA-180)=360+these_meanVAs(these_meanVAs<this_meanVA-180);
@@ -9195,36 +9210,43 @@ switch which_display
                             VA_rank(ii_rank).per_ii=per_ii;
                             VA_rank(ii_rank).grNo=grNo;
                             VA_rank(ii_rank).evNo=evNo;
-                            maxVA=max([maxmi max(shifted_meanVAs)]);
-                            minVA=min([minmi min(shifted_meanVAs)]);
+                            maxVA=max([maxVA max(shifted_meanVAs)]);
+                            minVA=min([minVA min(shifted_meanVAs)]);
                         end
                     end
                     
                 end
                 
-                title(['Mean vector angle per mouse for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1} ' for ' evTypeLabels{evNo}])
+                title(evTypeLabels{evNo})
                 xlabel('mean vector angle')
                 ylabel('Probability')
             end
+           
             
             for evNo=1:length(eventType)
                 subplot(1,2,evNo)
                 xlim([minVA-0.1*(maxVA-minVA) maxVA+0.1*(maxVA-minVA)])
             end
             
-            %Now do the ranksums
-            fprintf(1, ['Ranksum p values for mean vector angle for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
+            %suptitle(['Mean vector angle per mouse for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1} ])
+             
+            %Now do the Watson-Williams test
+            fprintf(1, ['Watson-Williams test p values for mean vector angle for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
             prof_naive_leg{1}='Proficient';
             prof_naive_leg{2}='Naive';
             for ii=1:ii_rank
                 for jj=ii+1:ii_rank
-                    p=ranksum(VA_rank(ii).meanVA,VA_rank(jj).meanVA);
+                    %p=ranksum(VA_rank(ii).meanVA,VA_rank(jj).meanVA);
+                    p=circ_wwtest(pi*VA_rank(ii).meanVA/180,pi*VA_rank(jj).meanVA/180);
                     fprintf(1, ['p value for ' handles_drgb.drgbchoices.group_no_names{VA_rank(ii).grNo} ' ' evTypeLabels{VA_rank(ii).evNo} ' ' prof_naive_leg{VA_rank(ii).per_ii} ' vs ' ...
                         handles_drgb.drgbchoices.group_no_names{VA_rank(jj).grNo} ' ' evTypeLabels{VA_rank(jj).evNo} ' ' prof_naive_leg{VA_rank(jj).per_ii} ' =  %d\n'],p)
                     pvals=[pvals p];
                 end
             end
             fprintf(1, ['\n\n'])
+            
+            
+            
         end
         
         %Now plot the average VA per mouse averaged over electrodes
@@ -9256,7 +9278,7 @@ switch which_display
                                             no_mice_included=no_mice_included+1;
                                             these_VA=[];
                                             these_VA=mean_meanVectorAngle_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)&(mean_MI_mouseNo_per_mouse==mouseNo));
-                                            each_mouse_average_VA(no_mice_included)=(180/pi)*circ_mean(these_VA'*pi/180)';
+                                            each_mouse_average_VA(no_mice_included)=(180/pi)*circ_axial(circ_mean(these_VA'*pi/180)');
                                         end
                                     end
                                 end
@@ -9274,7 +9296,7 @@ switch which_display
                                 shifted_meanVAs=zeros(szemVA(1),szemVA(2));
                                 
                                 this_meanVA=[];
-                                this_meanVA=(180/pi)*circ_mean(these_meanVAs'*pi/180)';
+                                this_meanVA=(180/pi)*circ_axial(circ_mean(these_meanVAs'*pi/180)');
                                 
                                 shifted_meanVAs(each_mouse_average_VA>180+this_meanVA)=-(360-each_mouse_average_VA(each_mouse_average_VA>180+this_meanVA));
                                 shifted_meanVAs(each_mouse_average_VA<this_meanVA-180)=360+each_mouse_average_VA(each_mouse_average_VA<this_meanVA-180);
@@ -9329,22 +9351,40 @@ switch which_display
             end
         end
         
-        
+         
         for pacii=1:3
+            figure(pacii+3)
             for evNo=1:length(eventType)
-                figure(pacii+3)
                 subplot(1,2,evNo)
                 hold on
+                try
                 legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
                     [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
+                catch
+                end
+                
             end
+            suptitle(['Average per mouse MI for each electrode calculated per for PAC theta/' freq_names{pacii+1}])
+            
+            figure(pacii+9)
+            for evNo=1:length(eventType)
+                subplot(1,2,evNo)
+                hold on
+                try
+                legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
+                    [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
+                catch
+                end
+                
+            end
+            suptitle(['Mean vector angle per mouse for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1} ])
         end
         
         pFDR_VA_rank=drsFDRpval( pvals);
         fprintf(1, ['pFDR for per mean vector angle for each electrode calculated per mouse  = %d\n\n'],pFDR_VA_rank);
-        pfft=1;
+        pfft=1; 
         
-        
+         
     case 20
         % Multiclass ROC analysis of LFP power differences for naive and proficient
         % mice for different epochs (concentrations or S+ vs. S-) and different groups. Analyzed per mouse

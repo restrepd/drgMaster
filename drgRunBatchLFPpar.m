@@ -49,7 +49,7 @@ handles.evTypeNo=handles.drgbchoices.referenceEvent;
 %     first_out=0;
 % end
 
-test_batch=handles.drgbchoices.test_batch;
+% test_batch=handles.drgbchoices.test_batch;
 
 %Parallel batch processing for each file
 lfp_per_file=[];
@@ -63,7 +63,7 @@ for filNum=first_file:handles.drgbchoices.no_files
     lfp_per_file(filNum).out_times=[];
     lfp_per_file(filNum).wave_f=[];
     lfp_per_file(filNum).wave_out_times=[];
-   
+    lfp_per_file(filNum).eventlabels=[];
     
     %Make sure that all the files exist
     jtFileName=handles.drgbchoices.FileName{filNum};

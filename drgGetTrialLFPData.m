@@ -191,6 +191,65 @@ try
                     dataforch=0.005*(6*sin(2*pi*t_tort*Ftheta/Fs)+6*sin(2*pi*t_tort*Fgamma/Fs));
                     dataforch=dataforch.*(0.05*noLFPburst+LFPburst)+noiseFact*randn(1,length(dataforch));
                 end
+                
+                % The cases below are used by batch processing
+            case 9
+                %This one sets the PAC to trough if it is S+ and peak
+                %if it is S-handles.drgbchoices.evTypeNos=[3 5 7 9 11 13 16:21];
+                
+                
+                %First find out if this is S+ or S-
+                
+                if sum(handles.drg.session(1).events(5).times==handles.drg.session(1).events(evTypeNo).times(evNo))>0
+                    %This is S+
+                    %LFP gamma burst in trough, high MI
+                    gammaFact=0.5;
+                    shift_burst=-ceil(length(k)/2);
+                    shift_trough=0.5*(1/Ftheta)*Fs; %trough
+                    for ii=1:floor((time_end-time_start)*Ftheta)
+                        LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
+                    end
+                    dataforch=0.02*(LFPtheta+3*LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                else
+                    %This is S-
+                    %LFP gamma burst in peak, high MI
+                    gammaFact=0.5;
+                    shift_burst=-ceil(length(k)/2);
+                    shift_trough=0; %peak
+                    for ii=1:floor((time_end-time_start)*Ftheta)
+                        LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
+                    end
+                    dataforch=0.02*(LFPtheta+3*LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                end
+                
+            case 10
+                %This one sets the PAC to trough if it is S+ and peak
+                %if it is S-handles.drgbchoices.evTypeNos=[3 5 7 9 11 13 16:21];
+                
+                
+                %First find out if this is S+ or S-
+                
+                if sum(handles.drg.session(1).events(5).times==handles.drg.session(1).events(evTypeNo).times(evNo))>0
+                    %This is S+
+                    %LFP gamma burst zero degrees, high MI
+                    gammaFact=0.5;
+                    shift_burst=-ceil(length(k)/2);
+                    shift_trough=0.5*(1/Ftheta)*Fs; %trough
+                    for ii=1:floor((time_end-time_start)*Ftheta)
+                        LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
+                    end
+                    dataforch=0.02*(LFPtheta+3*LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                else
+                    %This is S-
+                    %LFP gamma burst 180 degrees, low MI
+                    gammaFact=0.3;
+                    shift_burst=-ceil(length(k)/2);
+                    shift_trough=0; %peak
+                    for ii=1:floor((time_end-time_start)*Ftheta)
+                        LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
+                    end
+                    dataforch=0.02*(LFPtheta+LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                end
         end
         
         %     try
