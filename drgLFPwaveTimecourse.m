@@ -4,8 +4,6 @@ function drgLFPwaveTimecourse(handles)
 
 [t,freq,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo]=drgGetLFPwavePowerForThisEvTypeNo(handles);
 
-
-
 %Timecourse doing average after log
 %Get max and min
 if handles.subtractRef==0

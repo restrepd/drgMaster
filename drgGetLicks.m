@@ -153,7 +153,7 @@ for trNo=firstTr:lastTr
     end
 end
  
-%Convolve lick_freq using the window
+%Convolve lick_freq using a window
 conv_win=ones(1,handles.window/dt_licks);
 lick_freq=conv(lick_freq,conv_win,'same');
 lick_freq=lick_freq/(no_trials*handles.window);
