@@ -8,7 +8,7 @@ if nCancel
 else
     error('Cancelled')
 end
-
+ 
 discriminant_name=[pname fname];
 load(discriminant_name)
 
@@ -80,7 +80,7 @@ for groupNo=1:max(handles_out.drgbchoices.group_no)
             
             %Odor on markers
             plot([0 0],[0 100],'-k')
-            odorhl=plot([0 2.5],[20 20],'-k','LineWidth',5);
+            odorhl=plot([0 2.5],[10 10],'-k','LineWidth',5);
             plot([2.5 2.5],[0 100],'-k')
             
             title([handles_out.drgbchoices.bwlabels{bwii} ])

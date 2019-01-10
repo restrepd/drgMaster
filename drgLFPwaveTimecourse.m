@@ -86,7 +86,7 @@ if ~isempty(this_trialNo)
     
     %Plot the timecourse
     hFig1 = figure(1);
-    set(hFig1, 'units','normalized','position',[.07 .1 .75 .3])
+    set(hFig1, 'units','normalized','position',[.07 .05 .75 .3])
     if handles.subtractRef==0
         drg_pcolor(repmat(t,length(freq),1)',repmat(freq,length(t),1),log_P_timecourse')
     else
@@ -119,7 +119,7 @@ if ~isempty(this_trialNo)
         
         
         for ilick=1:stamped_lick_ii
-            plot([these_stamped_lick_times(ilick)+t(1) these_stamped_lick_times(ilick)+t(1)],[ffrom freq(end)],'-k','LineWidth',3)
+            plot([these_stamped_lick_times(ilick) these_stamped_lick_times(ilick)],[ffrom freq(end)],'-k','LineWidth',3)
         end
     end
     
@@ -185,7 +185,7 @@ if ~isempty(this_trialNo)
     end
     
     hFig7 = figure(7);
-    set(hFig7, 'units','normalized','position',[.07 .1 .75 .3])
+    set(hFig7, 'units','normalized','position',[.07 .4 .75 .3])
     
     hold on
     
@@ -216,15 +216,24 @@ if ~isempty(this_trialNo)
     end
      
     hFig8 = figure(8);
-    set(hFig8, 'units','normalized','position',[.07 .1 .75 .3])
+    set(hFig8, 'units','normalized','position',[.07 .7 .75 .3])
     
-    %plot(times_lick_freq, lick_freq)
-    [hl1, hp1] = boundedline(times_lick_freq',lick_freq', CIlickf', 'r');
+    
+    if length(this_trialNo)==1
+        plot(times_lick_freq, lick_freq)
+    else
+        [hl1, hp1] = boundedline(times_lick_freq',lick_freq', CIlickf', 'r');
+    end
+    
     ylim([0 1.2*max(lick_freq)])
     xlabel('Time (sec)')
     ylabel('frequency (Hz)')
     title('Lick frequency')
     
+    figure(7)
+    figure(8)
+    figure(1)
+    figure(2)
 end
 
 pfft=1;
