@@ -195,7 +195,7 @@ switch which_display
         
         frequency=handles_drgb.drgb.lfpevpair(1).fERP;
         max_events_per_sec=(handles_drgb.drgbchoices.timeEnd(winNo)-handles_drgb.drgbchoices.timeStart(winNo))*handles_drgb.max_events_per_sec;
-    case 22
+    case 21
         frequency=handles_drgb.drgb.lfpevpair(1).f_coh;
     otherwise
         if isfield(handles_drgb.drgb,'freq_for_LFPpower')
@@ -241,7 +241,7 @@ for lfpodNo=1:handles_drgb.drgb.lfpevpair_no
     files_per_lfp(lfpodNo)=handles_drgb.drgb.lfpevpair(lfpodNo).fileNo;
     window_per_lfp(lfpodNo)=handles_drgb.drgb.lfpevpair(lfpodNo).timeWindow;
     switch which_display
-        case {22}
+        case {21}
             elec_pair_No(lfpodNo)=handles_drgb.drgb.lfpevpair(lfpodNo).elec_pair_No;
             elec1(lfpodNo)=handles_drgb.drgb.lfpevpair(lfpodNo).elec1;
             elec2(lfpodNo)=handles_drgb.drgb.lfpevpair(lfpodNo).elec2;
@@ -392,7 +392,7 @@ switch which_display
                                     %Are the delta dB LFP's different?
                                     
                                     %Hit
-                                    p_val(no_dBs,bwii)=ranksum(this_delta_dB_powerpreHit,this_delta_dB_powerpostHit);
+                                    [p_val(no_dBs,bwii), r_or_t]=drg_ranksum_or_ttest(this_delta_dB_powerpreHit,this_delta_dB_powerpostHit);
                                     p_vals=[p_vals p_val(no_dBs,bwii)];
                                     groupNopre(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
                                     groupNopost(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
@@ -400,7 +400,7 @@ switch which_display
                                     
                                     
                                     %CR
-                                    p_val(no_dBs+1,bwii)=ranksum(this_delta_dB_powerpreCR,this_delta_dB_powerpostCR);
+                                    [p_val(no_dBs+1,bwii),r_or_t]=drg_ranksum_or_ttest(this_delta_dB_powerpreCR,this_delta_dB_powerpostCR);
                                     p_vals=[p_vals p_val(no_dBs+1,bwii)];
                                     groupNopre(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
                                     groupNopost(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
@@ -691,7 +691,7 @@ switch which_display
                 %                 mode_statcond='perm';
                 %                 [F df pval_auROCperm] = statcond(a,'mode',mode_statcond,'naccu', 1000); % perform an unpaired ANOVA
                 %
-                pval_auROCperm=ranksum(auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)), auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)));
+                [pval_auROCperm, r_or_t]=drg_ranksum_or_ttest(auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)), auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)));
                 
                 if grs==1
                     fprintf(1, ['p value for premuted anovan for auROC DBH Cre x halo pre vs laser ' freq_names{bwii} '= %d\n'],  pval_auROCperm);
@@ -893,7 +893,7 @@ switch which_display
                                     
                                     %Ev1
                                     
-                                    p_val(no_dBs,bwii)=ranksum(this_delta_dB_powerfp1Ev1,this_delta_dB_powerfp2Ev1);
+                                    [p_val(no_dBs,bwii),r_or_t]=drg_ranksum_or_ttest(this_delta_dB_powerfp1Ev1,this_delta_dB_powerfp2Ev1);
                                     p_vals=[p_vals p_val(no_dBs,bwii)];
                                     groupNofp1(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
                                     groupNofp2(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
@@ -901,7 +901,7 @@ switch which_display
                                     
                                     
                                     %Ev2
-                                    p_val(no_dBs+1,bwii)=ranksum(this_delta_dB_powerfp1Ev2,this_delta_dB_powerfp2Ev2);
+                                    [p_val(no_dBs+1,bwii),r_or_t]=drg_ranksum_or_ttest(this_delta_dB_powerfp1Ev2,this_delta_dB_powerfp2Ev2);
                                     p_vals=[p_vals p_val(no_dBs+1,bwii)];
                                     groupNofp1(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
                                     groupNofp2(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
@@ -1687,7 +1687,7 @@ switch which_display
                                         
                                         %Ev1
                                         
-                                        p_val(no_dBs,bwii)=ranksum(this_delta_dB_powerfp1Ev1,this_delta_dB_powerfp2Ev1);
+                                        [p_val(no_dBs,bwii),r_or_t]=drg_ranksum_or_ttest(this_delta_dB_powerfp1Ev1,this_delta_dB_powerfp2Ev1);
                                         p_vals=[p_vals p_val(no_dBs,bwii)];
                                         groupNofp1(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
                                         groupNofp2(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
@@ -1695,7 +1695,7 @@ switch which_display
                                         
                                         
                                         %Ev2
-                                        p_val(no_dBs+1,bwii)=ranksum(this_delta_dB_powerfp1Ev2,this_delta_dB_powerfp2Ev2);
+                                        [p_val(no_dBs+1,bwii),r_or_t]=drg_ranksum_or_ttest(this_delta_dB_powerfp1Ev2,this_delta_dB_powerfp2Ev2);
                                         p_vals=[p_vals p_val(no_dBs+1,bwii)];
                                         groupNofp1(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
                                         groupNofp2(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
@@ -2046,7 +2046,7 @@ switch which_display
                                     
                                     %Hit
                                     
-                                    p_val(no_dBs,bwii)=ranksum(this_delta_dB_powerpreHit,this_delta_dB_powerpostHit);
+                                    [p_val(no_dBs,bwii),r_or_t]=drg_ranksum_or_ttest(this_delta_dB_powerpreHit,this_delta_dB_powerpostHit);
                                     p_vals=[p_vals p_val(no_dBs,bwii)];
                                     groupNopre(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
                                     groupNopost(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
@@ -2054,7 +2054,7 @@ switch which_display
                                     
                                     
                                     %CR
-                                    p_val(no_dBs+1,bwii)=ranksum(this_delta_dB_powerpreCR,this_delta_dB_powerpostCR);
+                                    [p_val(no_dBs+1,bwii),r_or_t]=drg_ranksum_or_ttest(this_delta_dB_powerpreCR,this_delta_dB_powerpostCR);
                                     p_vals=[p_vals p_val(no_dBs+1,bwii)];
                                     groupNopre(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
                                     groupNopost(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
@@ -2344,7 +2344,7 @@ switch which_display
                 %                 mode_statcond='perm';
                 %                 [F df pval_auROCperm] = statcond(a,'mode',mode_statcond,'naccu', 1000); % perform an unpaired ANOVA
                 %
-                pval_auROCperm=ranksum(auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)), auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)));
+                [pval_auROCperm,r_or_t]=drg_ranksum_or_ttest(auROCpre((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)), auROCpost((ROCgroupNopre==grpre(grs))&(ROCbandwidthpre==bwii)));
                 
                 if grs==1
                     fprintf(1, ['p value for premuted anovan for auROC DBH Cre x halo pre vs laser ' freq_names{bwii} '= %d\n'],  pval_auROCperm);
@@ -2889,7 +2889,7 @@ switch which_display
                                     
                                     %Ev1
                                     
-                                    p_val(no_dBs,bwii)=ranksum(this_delta_dB_powerfp1Ev1,this_delta_dB_powerfp2Ev1);
+                                    [p_val(no_dBs,bwii),r_or_t]=drg_ranksum_or_ttest(this_delta_dB_powerfp1Ev1,this_delta_dB_powerfp2Ev1);
                                     p_vals=[p_vals p_val(no_dBs,bwii)];
                                     groupNofp1(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
                                     groupNofp2(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
@@ -2897,7 +2897,7 @@ switch which_display
                                     
                                     
                                     %Ev2
-                                    p_val(no_dBs+1,bwii)=ranksum(this_delta_dB_powerfp1Ev2,this_delta_dB_powerfp2Ev2);
+                                    [p_val(no_dBs+1,bwii),r_or_t]=drg_ranksum_or_ttest(this_delta_dB_powerfp1Ev2,this_delta_dB_powerfp2Ev2);
                                     p_vals=[p_vals p_val(no_dBs+1,bwii)];
                                     groupNofp1(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
                                     groupNofp2(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
@@ -3260,7 +3260,7 @@ switch which_display
                                         %Are the delta dB LFP's different?
                                         
                                         %Hit
-                                        p_val(no_dBs,bwii)=ranksum(this_delta_dB_powerpreHit,this_delta_dB_powerpostHit);
+                                        [p_val(no_dBs,bwii),r_or_t]=drg_ranksum_or_ttest(this_delta_dB_powerpreHit,this_delta_dB_powerpostHit);
                                         p_vals=[p_vals p_val(no_dBs,bwii)];
                                         groupNopre(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
                                         groupNopost(no_dBs)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
@@ -3268,7 +3268,7 @@ switch which_display
                                         
                                         
                                         %CR
-                                        p_val(no_dBs+1,bwii)=ranksum(this_delta_dB_powerpreCR,this_delta_dB_powerpostCR);
+                                        [p_val(no_dBs+1,bwii), r_or_t]=drg_ranksum_or_ttest(this_delta_dB_powerpreCR,this_delta_dB_powerpostCR);
                                         p_vals=[p_vals p_val(no_dBs+1,bwii)];
                                         groupNopre(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,1));
                                         groupNopost(no_dBs+1)=handles_drgb.drgbchoices.group_no(file_pairs(fps,2));
@@ -8663,7 +8663,7 @@ switch which_display
                                         else
                                             mean_MI_per_mouse(mean_MI_No_per_mouse)=NaN;
                                         end
-                                         
+                                        
                                         mean_MI_perii_per_mouse(mean_MI_No_per_mouse)=per_ii;
                                         mean_MI_evNo_per_mouse(mean_MI_No_per_mouse)=evNo;
                                         mean_MI_pacii_per_mouse(mean_MI_No_per_mouse)=pacii;
@@ -8928,14 +8928,19 @@ switch which_display
             %suptitle(['Average MI for each electrode calculated per  for PAC theta/' freq_names{pacii+1}])
             
             %Now do the ranksums
-            fprintf(1, ['Ranksum p values for average MI for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
+            fprintf(1, ['Ranksum or t-test p values for average MI for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
             prof_naive_leg{1}='Proficient';
             prof_naive_leg{2}='Naive';
             for ii=1:ii_rank
                 for jj=ii+1:ii_rank
-                    p=ranksum(mi_rank(ii).mi,mi_rank(jj).mi);
-                    fprintf(1, ['p value for ' handles_drgb.drgbchoices.group_no_names{mi_rank(ii).grNo} ' ' evTypeLabels{mi_rank(ii).evNo} ' ' prof_naive_leg{mi_rank(ii).per_ii} ' vs ' ...
-                        handles_drgb.drgbchoices.group_no_names{mi_rank(jj).grNo} ' ' evTypeLabels{mi_rank(jj).evNo} ' ' prof_naive_leg{mi_rank(jj).per_ii} ' =  %d\n'],p)
+                    [p, r_or_t]=drg_ranksum_or_ttest(mi_rank(ii).mi,mi_rank(jj).mi);
+                    if r_or_t==0
+                        fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{mi_rank(ii).grNo} ' ' evTypeLabels{mi_rank(ii).evNo} ' ' prof_naive_leg{mi_rank(ii).per_ii} ' vs ' ...
+                            handles_drgb.drgbchoices.group_no_names{mi_rank(jj).grNo} ' ' evTypeLabels{mi_rank(jj).evNo} ' ' prof_naive_leg{mi_rank(jj).per_ii} ' =  %d\n'],p)
+                    else
+                        fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{mi_rank(ii).grNo} ' ' evTypeLabels{mi_rank(ii).evNo} ' ' prof_naive_leg{mi_rank(ii).per_ii} ' vs ' ...
+                            handles_drgb.drgbchoices.group_no_names{mi_rank(jj).grNo} ' ' evTypeLabels{mi_rank(jj).evNo} ' ' prof_naive_leg{mi_rank(jj).per_ii} ' =  %d\n'],p)
+                    end
                     pvals=[pvals p];
                 end
             end
@@ -8963,7 +8968,7 @@ switch which_display
             set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
             hold on
             
-            bar_lab_loc=[];
+            %             bar_lab_loc=[];
             no_ev_labels=0;
             ii_gr_included=0;
             
@@ -9071,7 +9076,7 @@ switch which_display
                     end
                 end
                 
-                 
+                
                 if include_group==1
                     ii_gr_included=ii_gr_included+1;
                     groups_included(ii_gr_included)=grNo;
@@ -9091,13 +9096,13 @@ switch which_display
             annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
             annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
             
-            %x labels
-            to_sort=[bar_lab_loc' [1:length(bar_lab_loc)]'];
-            sorted_A=sortrows(to_sort);
-            sorted_bar_lab_loc=sorted_A(:,1);
-            for ii=1:length(bar_lab_loc)
-                sorted_bar_labels{ii}=bar_labels{sorted_A(ii,2)};
-            end
+            %             %x labels
+            %             to_sort=[bar_lab_loc' [1:length(bar_lab_loc)]'];
+            %             sorted_A=sortrows(to_sort);
+            %             sorted_bar_lab_loc=sorted_A(:,1);
+            %             for ii=1:length(bar_lab_loc)
+            %                 sorted_bar_labels{ii}=bar_labels{sorted_A(ii,2)};
+            %             end
             xticks(sorted_bar_lab_loc)
             xticklabels(sorted_bar_labels)
             
@@ -9126,18 +9131,20 @@ switch which_display
                 subplot(1,2,evNo)
                 hold on
                 try
-                legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
-                    [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
+                    legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
+                        [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
                 catch
                 end
             end
-            %suptitle(['Average per mouse MI for each electrode calculated per for PAC theta/' freq_names{pacii+1}])
+            suptitle(['Average MI for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1}])
         end
         
         %Now do the cumulative histograms and ranksums for mean vector angle per electrode per mouse
         pvals=[];
         legends=[];
         cum_histoVA=[];
+        mean_all_meansVA=[];
+        max_all_shifted_meansVA=[];
         for pacii=1:3
             
             ii_rank=0;
@@ -9158,6 +9165,9 @@ switch which_display
                 subplot(1,2,evNo)
                 hold on
                 
+                %Calculate the mean of the mean of each distribution
+                all_meansVA=[];
+                no_means=0;
                 for grNo=1:max(handles_drgb.drgbchoices.group_no)
                     
                     
@@ -9166,11 +9176,43 @@ switch which_display
                         
                         
                         if sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
-                              
+                            
                             %Note: we have to shift the mean to accomodate
                             %all cumulative histograms in one angle axis
-                            if (pacii==3)&(evNo==1)
-                                pffft=1; 
+                            if (evNo==2)&(pacii==2)
+                                pffft=1;
+                            end
+                            these_meanVAs=[];
+                            these_meanVAs=mean_meanVectorAngle_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo));
+                            
+                            sztmVA=size(these_meanVAs);
+                            shifted_meanVAs=zeros(sztmVA(1),sztmVA(2));
+                            
+                            this_meanVA=[];
+                            this_meanVA=(180/pi)*circ_axial(circ_mean(these_meanVAs'*pi/180))';
+                            
+                            no_means=no_means+1;
+                            all_meansVA(no_means)=this_meanVA;
+                        end
+                    end
+                end
+                
+                
+                mean_all_meansVA(pacii,evNo)=(180/pi)*circ_axial(circ_mean(all_meansVA'*pi/180))';
+                
+                for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                    
+                    
+                    
+                    for per_ii=1:2      %performance bins. blue = naive, red = proficient
+                        
+                        
+                        if sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
+                            
+                            %Note: we have to shift the mean to accomodate
+                            %all cumulative histograms in one angle axis
+                            if (evNo==2)&(pacii==1)
+                                pffft=1;
                             end
                             these_meanVAs=[];
                             these_meanVAs=mean_meanVectorAngle_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo));
@@ -9184,6 +9226,20 @@ switch which_display
                             shifted_meanVAs(these_meanVAs>180+this_meanVA)=-(360-these_meanVAs(these_meanVAs>180+this_meanVA));
                             shifted_meanVAs(these_meanVAs<this_meanVA-180)=360+these_meanVAs(these_meanVAs<this_meanVA-180);
                             shifted_meanVAs((these_meanVAs<=180+this_meanVA)&(these_meanVAs>=this_meanVA-180))=these_meanVAs((these_meanVAs<=180+this_meanVA)&(these_meanVAs>=this_meanVA-180));
+                            
+                            %Make sure they are all grouped on the same
+                            %side of the cumulative histogram
+                            if mean_all_meansVA(pacii,evNo)<180
+                                if abs(this_meanVA-mean_all_meansVA(pacii,evNo))>abs(this_meanVA-360+mean_all_meansVA(pacii,evNo))
+                                    shifted_meanVAs=shifted_meanVAs-360;
+                                end
+                            else
+                                if abs(this_meanVA-mean_all_meansVA(pacii,evNo))<abs(this_meanVA-360+mean_all_meansVA(pacii,evNo))
+                                    shifted_meanVAs=shifted_meanVAs-360;
+                                end
+                            end
+                            
+                            max_all_shifted_meansVA(pacii,evNo,grNo,per_ii)=max(shifted_meanVAs');
                             
                             [f_VA,x_VA] = drg_ecdf(shifted_meanVAs);
                             
@@ -9221,7 +9277,7 @@ switch which_display
                 xlabel('mean vector angle')
                 ylabel('Probability')
             end
-           
+            
             
             for evNo=1:length(eventType)
                 subplot(1,2,evNo)
@@ -9229,7 +9285,7 @@ switch which_display
             end
             
             %suptitle(['Mean vector angle per mouse for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1} ])
-             
+            
             %Now do the Watson-Williams test
             fprintf(1, ['Watson-Williams test p values for mean vector angle for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
             prof_naive_leg{1}='Proficient';
@@ -9283,24 +9339,18 @@ switch which_display
                                     end
                                 end
                             end
+                            if (pacii==1)&(evNo==2)
+                                pffft=1;
+                            end
                             if no_mice_included>0
                                 
                                 include_group=1;
                                 
-                                %Note: we have to shift the mean to accomodate
-                                %all cumulative histograms in one angle axis
-                                these_meanVAs=[];
-                                these_meanVAs=mean_meanVectorAngle_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo));
-                                
-                                szemVA=size(each_mouse_average_VA);
-                                shifted_meanVAs=zeros(szemVA(1),szemVA(2));
-                                
-                                this_meanVA=[];
-                                this_meanVA=(180/pi)*circ_axial(circ_mean(these_meanVAs'*pi/180)');
-                                
-                                shifted_meanVAs(each_mouse_average_VA>180+this_meanVA)=-(360-each_mouse_average_VA(each_mouse_average_VA>180+this_meanVA));
-                                shifted_meanVAs(each_mouse_average_VA<this_meanVA-180)=360+each_mouse_average_VA(each_mouse_average_VA<this_meanVA-180);
-                                shifted_meanVAs((each_mouse_average_VA<=180+this_meanVA)&(each_mouse_average_VA>=this_meanVA-180))=each_mouse_average_VA((each_mouse_average_VA<=180+this_meanVA)&(each_mouse_average_VA>=this_meanVA-180));
+                                for no_mice=1:no_mice_included
+                                    if each_mouse_average_VA(no_mice)>max_all_shifted_meansVA(pacii,evNo,grNo,per_ii)
+                                        each_mouse_average_VA(no_mice)=each_mouse_average_VA(no_mice)-360;
+                                    end
+                                end
                                 
                                 %Show the mean in the cumulative histos
                                 figure(pacii+9)
@@ -9322,6 +9372,14 @@ switch which_display
                                     intercept=this_f_VA(xii_above)-slope*this_x_VA(xii_above);
                                     
                                     this_f=slope*each_mouse_average_VA(jj)+intercept;
+                                    
+                                    if each_mouse_average_VA(jj)>max(this_x_VA)
+                                        this_f=1;
+                                    end
+                                    
+                                    if each_mouse_average_VA(jj)<min(this_x_VA)
+                                        this_f=0;
+                                    end
                                     
                                     if grNo==1
                                         if per_ii==1
@@ -9351,28 +9409,28 @@ switch which_display
             end
         end
         
-         
+        
         for pacii=1:3
-            figure(pacii+3)
-            for evNo=1:length(eventType)
-                subplot(1,2,evNo)
-                hold on
-                try
-                legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
-                    [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
-                catch
-                end
-                
-            end
-            suptitle(['Average per mouse MI for each electrode calculated per for PAC theta/' freq_names{pacii+1}])
+            %             figure(pacii+3)
+            %             for evNo=1:length(eventType)
+            %                 subplot(1,2,evNo)
+            %                 hold on
+            %                 try
+            %                 legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
+            %                     [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
+            %                 catch
+            %                 end
+            %
+            %             end
+            %             suptitle(['Average per mouse MI for each electrode calculated per for PAC theta/' freq_names{pacii+1}])
             
             figure(pacii+9)
             for evNo=1:length(eventType)
                 subplot(1,2,evNo)
                 hold on
                 try
-                legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
-                    [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
+                    legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
+                        [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
                 catch
                 end
                 
@@ -9382,9 +9440,9 @@ switch which_display
         
         pFDR_VA_rank=drsFDRpval( pvals);
         fprintf(1, ['pFDR for per mean vector angle for each electrode calculated per mouse  = %d\n\n'],pFDR_VA_rank);
-        pfft=1; 
+        pfft=1;
         
-         
+        
     case 20
         % Multiclass ROC analysis of LFP power differences for naive and proficient
         % mice for different epochs (concentrations or S+ vs. S-) and different groups. Analyzed per mouse
@@ -10004,14 +10062,19 @@ switch which_display
             end
             
             %Now do the ranksums
-            fprintf(1, ['Ranksum p values for delta dB power per electrode for ' freq_names{bwii} '\n'])
+            fprintf(1, ['Ranksum or t-test p values for delta dB power per electrode for ' freq_names{bwii} '\n'])
             prof_naive_leg{1}='Proficient';
             prof_naive_leg{2}='Naive';
             for ii=1:ii_rank
                 for jj=ii+1:ii_rank
-                    p=ranksum(dBpower_rank(ii).delta_dBpower,dBpower_rank(jj).delta_dBpower);
-                    fprintf(1, ['p value for ' handles_drgb.drgbchoices.group_no_names{dBpower_rank(ii).grNo} ' ' evTypeLabels{dBpower_rank(ii).evNo} ' ' prof_naive_leg{dBpower_rank(ii).per_ii} ' vs ' ...
-                        handles_drgb.drgbchoices.group_no_names{dBpower_rank(jj).grNo} ' ' evTypeLabels{dBpower_rank(jj).evNo} ' ' prof_naive_leg{dBpower_rank(jj).per_ii} ' =  %d\n'],p)
+                    [p, r_or_t]=drg_ranksum_or_ttest(dBpower_rank(ii).delta_dBpower,dBpower_rank(jj).delta_dBpower);
+                    if r_or_t==0
+                        fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{dBpower_rank(ii).grNo} ' ' evTypeLabels{dBpower_rank(ii).evNo} ' ' prof_naive_leg{dBpower_rank(ii).per_ii} ' vs ' ...
+                            handles_drgb.drgbchoices.group_no_names{dBpower_rank(jj).grNo} ' ' evTypeLabels{dBpower_rank(jj).evNo} ' ' prof_naive_leg{dBpower_rank(jj).per_ii} ' =  %d\n'],p)
+                    else
+                        fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{dBpower_rank(ii).grNo} ' ' evTypeLabels{dBpower_rank(ii).evNo} ' ' prof_naive_leg{dBpower_rank(ii).per_ii} ' vs ' ...
+                            handles_drgb.drgbchoices.group_no_names{dBpower_rank(jj).grNo} ' ' evTypeLabels{dBpower_rank(jj).evNo} ' ' prof_naive_leg{dBpower_rank(jj).per_ii} ' =  %d\n'],p)
+                    end
                     pvals=[pvals p];
                 end
             end
@@ -10407,14 +10470,19 @@ switch which_display
                 ylabel('Cumulative probability')
                 
                 %Now do the ranksums
-                fprintf(1, ['Ranksum p values for ' freq_names{bwii} '\n'])
+                fprintf(1, ['Ranksum or t-test p values for ' freq_names{bwii} '\n'])
                 prof_naive_leg{1}='Proficient';
                 prof_naive_leg{2}='Naive';
                 for ii=1:ii_rank
                     for jj=ii+1:ii_rank
-                        p=ranksum(ranksum_auROC(ii).auROC,ranksum_auROC(jj).auROC);
-                        fprintf(1, ['p value for ' handles_drgb.drgbchoices.group_no_names{ranksum_auROC(ii).grNo} ' ' prof_naive_leg{ranksum_auROC(ii).per_ii} ' vs ' ...
-                            handles_drgb.drgbchoices.group_no_names{ranksum_auROC(jj).grNo} ' ' prof_naive_leg{ranksum_auROC(jj).per_ii} ' =  %d\n'],p)
+                        [p, r_or_t]=drg_ranksum_or_ttest(ranksum_auROC(ii).auROC,ranksum_auROC(jj).auROC);
+                        if r_or_t==0
+                            fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{ranksum_auROC(ii).grNo} ' ' prof_naive_leg{ranksum_auROC(ii).per_ii} ' vs ' ...
+                                handles_drgb.drgbchoices.group_no_names{ranksum_auROC(jj).grNo} ' ' prof_naive_leg{ranksum_auROC(jj).per_ii} ' =  %d\n'],p)
+                        else
+                            fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{ranksum_auROC(ii).grNo} ' ' prof_naive_leg{ranksum_auROC(ii).per_ii} ' vs ' ...
+                                handles_drgb.drgbchoices.group_no_names{ranksum_auROC(jj).grNo} ' ' prof_naive_leg{ranksum_auROC(jj).per_ii} ' =  %d\n'],p)
+                        end
                         pvals=[pvals p];
                     end
                 end
@@ -11079,7 +11147,7 @@ switch which_display
             for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
                 
                 %fprintf for ranksums
-                fprintf(1, ['Ranksum p values for delta coherence for ' freq_names{bwii} '\n'])
+                fprintf(1, ['Ranksum or t-test p values for delta coherence for ' freq_names{bwii} '\n'])
                 
                 ii_rank=0;
                 for evNo=1:length(eventType)
@@ -11157,9 +11225,15 @@ switch which_display
                 
                 for ii=1:ii_rank
                     for jj=ii+1:ii_rank
-                        p=ranksum(ranksum_deltaCxy(ii).deltaCxy,ranksum_deltaCxy(jj).deltaCxy);
-                        fprintf(1, ['p value for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(ii).evNo} ' vs ' ...
-                            handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(jj).evNo} ' =  %d\n'],p)
+                        [p, r_or_t]=drg_ranksum_or_ttest(ranksum_deltaCxy(ii).deltaCxy,ranksum_deltaCxy(jj).deltaCxy);
+                        if r_or_t==0
+                            fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(ii).evNo} ' vs ' ...
+                                handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(jj).evNo} ' =  %d\n'],p)
+                        else
+                            fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(ii).evNo} ' vs ' ...
+                                handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(jj).evNo} ' =  %d\n'],p)
+                        end
+                        
                         pvals=[pvals p];
                     end
                 end
@@ -11181,7 +11255,7 @@ switch which_display
             for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
                 
                 %fprintf for ranksums
-                fprintf(1, ['Ranksum p values for coherence before odor for ' freq_names{bwii} '\n'])
+                fprintf(1, ['Ranksum or t-test p values for coherence before odor for ' freq_names{bwii} '\n'])
                 
                 ii_rank=0;
                 
@@ -11258,9 +11332,14 @@ switch which_display
                 
                 for ii=1:ii_rank
                     for jj=ii+1:ii_rank
-                        p=ranksum(ranksum_Cxy(ii).Cxy,ranksum_Cxy(jj).Cxy);
-                        fprintf(1, ['p value for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii}  ' vs ' ...
-                            handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii}  ' =  %d\n'],p)
+                        [p, r_or_t]=drg_ranksum_or_ttest(ranksum_Cxy(ii).Cxy,ranksum_Cxy(jj).Cxy);
+                        if r_or_t==0
+                            fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii}  ' vs ' ...
+                                handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii}  ' =  %d\n'],p)
+                        else
+                            fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii}  ' vs ' ...
+                                handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii}  ' =  %d\n'],p)
+                        end
                         pvals=[pvals p];
                     end
                 end
