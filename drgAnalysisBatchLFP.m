@@ -8866,11 +8866,16 @@ switch which_display
             end
             hFig=figure(pacii+3);
             
-            set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+            if length(eventType)>2
+                set(hFig, 'units','normalized','position',[.1 .1 .7 .8])
+            else
+                set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+            end
             
             
             for evNo=1:length(eventType)
-                subplot(1,2,evNo)
+                
+                subplot(ceil(length(eventType)/2),2,evNo)
                 hold on
                 
                 for grNo=1:max(handles_drgb.drgbchoices.group_no)
@@ -8921,7 +8926,7 @@ switch which_display
             
             
             for evNo=1:length(eventType)
-                subplot(1,2,evNo)
+                subplot(ceil(length(eventType)/2),2,evNo)
                 xlim([minmi-0.1*(maxmi-minmi) maxmi+0.1*(maxmi-minmi)])
             end
             
@@ -9027,7 +9032,7 @@ switch which_display
                                 
                                 %Show the mean in the cumulative histos
                                 figure(pacii+3)
-                                subplot(1,2,evNo)
+                                subplot(ceil(length(eventType)/2),2,evNo)
                                 hold on
                                 
                                 
@@ -9128,7 +9133,7 @@ switch which_display
         for pacii=1:3
             for evNo=1:length(eventType)
                 figure(pacii+3)
-                subplot(1,2,evNo)
+                subplot(ceil(length(eventType)/2),2,evNo)
                 hold on
                 try
                     legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
@@ -9145,6 +9150,9 @@ switch which_display
         cum_histoVA=[];
         mean_all_meansVA=[];
         max_all_shifted_meansVA=[];
+        all_means_shifted_meanVAs=[];
+        all_CIs_shifted_meanVAs=[];
+                            
         for pacii=1:3
             
             ii_rank=0;
@@ -9158,11 +9166,15 @@ switch which_display
             end
             hFig=figure(pacii+9);
             
-            set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+            if length(eventType)>2
+                set(hFig, 'units','normalized','position',[.1 .1 .7 .8])
+            else
+                set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+            end
             
             
             for evNo=1:length(eventType)
-                subplot(1,2,evNo)
+                subplot(ceil(length(eventType)/2),2,evNo)
                 hold on
                 
                 %Calculate the mean of the mean of each distribution
@@ -9240,8 +9252,14 @@ switch which_display
                             end
                             
                             max_all_shifted_meansVA(pacii,evNo,grNo,per_ii)=max(shifted_meanVAs');
+                            if length(eventType)>2
+                                all_means_shifted_meanVAs(pacii,evNo,grNo,per_ii)=mean(shifted_meanVAs');
+                                all_CIs_shifted_meanVAs(pacii,evNo,grNo,per_ii,1:2) = bootci(1000, {@mean, shifted_meanVAs'},'type','cper');
+                            end
                             
                             [f_VA,x_VA] = drg_ecdf(shifted_meanVAs);
+                            
+                            
                             
                             cum_histoVA.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).f_VA=f_VA;
                             cum_histoVA.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).x_VA=x_VA;
@@ -9280,7 +9298,7 @@ switch which_display
             
             
             for evNo=1:length(eventType)
-                subplot(1,2,evNo)
+                subplot(ceil(length(eventType)/2),2,evNo)
                 xlim([minVA-0.1*(maxVA-minVA) maxVA+0.1*(maxVA-minVA)])
             end
             
@@ -9354,7 +9372,7 @@ switch which_display
                                 
                                 %Show the mean in the cumulative histos
                                 figure(pacii+9)
-                                subplot(1,2,evNo)
+                                subplot(ceil(length(eventType)/2),2,evNo)
                                 hold on
                                 
                                 
@@ -9426,7 +9444,7 @@ switch which_display
             
             figure(pacii+9)
             for evNo=1:length(eventType)
-                subplot(1,2,evNo)
+                subplot(ceil(length(eventType)/2),2,evNo)
                 hold on
                 try
                     legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
@@ -9440,6 +9458,62 @@ switch which_display
         
         pFDR_VA_rank=drsFDRpval( pvals);
         fprintf(1, ['pFDR for per mean vector angle for each electrode calculated per mouse  = %d\n\n'],pFDR_VA_rank);
+        
+        %If this is for concentration plot as a function of concentration
+        if length(eventType)>2
+            
+            
+            for pacii=1:3
+                try
+                    close(pacii+12)
+                catch
+                end
+                hFig=figure(pacii+12);
+                
+                set(hFig, 'units','normalized','position',[.1 .1 .4 .4])
+                hold on
+                
+                
+                for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                    
+                    for per_ii=1:2
+                        
+                        these_means=zeros(length(eventType),1);
+                        these_means(:,1)=all_means_shifted_meanVAs(pacii,:,grNo,per_ii);
+                        
+                        these_CIs=zeros(length(eventType),2);
+                        these_CIs(:,:)=all_CIs_shifted_meanVAs(pacii,:,grNo,per_ii,1:2);
+                        
+                        
+                        if grNo==1
+                            if per_ii==1
+                                p1=plot(concs,these_means,'-o','Color',[1 0 0], 'MarkerFace',[1 0 0],'MarkerEdge',[1 0 0],'MarkerSize',10)
+                            else
+                                p2=plot(concs,these_means,'-o','Color',[0 0 1],'MarkerFace',[0 0 1],'MarkerEdge',[0 0 1],'MarkerSize',10)
+                            end
+                        else
+                            if per_ii==1
+                                p3=plot(concs,these_means,'-o','Color',[1 0.7 0.7],'MarkerFace',[1 0.7 0.7],'MarkerEdge',[1 0.7 0.7],'MarkerSize',10)
+                            else
+                                p4=plot(concs,these_means,'-o','Color',[0.7 0.7 1],'MarkerFace',[0.7 0.7 1],'MarkerEdge',[0.7 0.7 1],'MarkerSize',10)
+                            end
+                        end
+                        
+                        for evTy=1:length(eventType)
+                            plot([concs(evTy) concs(evTy)],these_CIs(evTy,:),'-k')
+                        end
+                        
+                        
+                    end
+                end
+                legend([p1 p2 p3 p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
+                    [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
+                xlabel('Percent odor in mineral oil')
+                ylabel('Phase (deg)')
+                title(['Mean vector angle per mouse for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1} ])
+                
+            end
+        end
         pfft=1;
         
         
