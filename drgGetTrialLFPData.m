@@ -96,7 +96,7 @@ try
         LFPtheta = cos(2*pi*Ftheta*t);
         
         %This is a Gaussian high gamma burst
-        FWHMdt=(1/Ftheta)/3; %0.0440 msec FWHM burst, 25 Hz
+        FWHMdt=(1/Ftheta)/2; %0.0440 msec FWHM burst, 25 Hz
         FWHM=ceil(Fs*FWHMdt);
         X=[1:3*FWHM]; %Burst is calculated for 3*FWHM samples with peak in the middle
         k=normpdf(X,3*FWHM/2,FWHM/2.35482); %normpdf(x,mu,sigma), FWHM=2*sqrt(2*ln(2))=2.3548*sigma
@@ -117,54 +117,68 @@ try
         odorLFP=~((time<0)|(time>2.5));
         no_odorLFP=((time<0)|(time>2.5));
         
+        %Genetrate pink noise
+        % https://www.dsprelated.com/freebooks/sasp/Example_Synthesis_1_F_Noise.html
+        % Pink noise``1/f noise''
+        Nx = length(LFPtheta);  % number of samples to synthesize
+        B = [0.049922035 -0.095993537 0.050612699 -0.004408786];
+        A = [1 -2.494956002   2.017265875  -0.522189400];
+        nT60 = round(log(1000)/(1-max(abs(roots(A))))); % T60 est.
+        v = randn(1,Nx+nT60); % Gaussian white noise: N(0,1)
+        pink_noise = filter(B,A,v);    % Apply 1/F roll-off to PSD
+        pink_noise = pink_noise(nT60+1:end);    % Skip transient response
+        pink_n_fact=2000;
+        
         switch testLFP
             
             case 1
-                %LFP gamma burst in trough, high MI
-                gammaFact=0.5;
+                %LFP gamma burst at zero degrees, high MI
+                gammaFact=15;
                 shift_burst=-ceil(length(k)/2);
                 shift_trough=0.5*(1/Ftheta)*Fs; %trough
                 for ii=1:floor((time_end-time_start)*Ftheta)
                     LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
                 end
-                dataforch=0.02*(LFPtheta+3*LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                dataforch=500*(LFPtheta+0.015*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
+%                 figure(10)
+%                 plot(dataforch)
             case 2
-                %LFP gamma burst in peak, high MI
-                gammaFact=0.5;
+                %LFP gamma burst at 180 degrees, high MI
+                gammaFact=15;
                 shift_burst=-ceil(length(k)/2);
                 shift_trough=0; %peak
                 for ii=1:floor((time_end-time_start)*Ftheta)
                     LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
                 end
-                dataforch=0.02*(LFPtheta+3*LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                dataforch=500*(LFPtheta+0.0125*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
             case 3
-                %LFP gamma burst in trough, low MI
-                gammaFact=0.3;
+                %LFP gamma burst at zero degrees, low MI
+                gammaFact=10;
                 shift_burst=-ceil(length(k)/2);
                 shift_trough=0.5*(1/Ftheta)*Fs; %trough
                 for ii=1:floor((time_end-time_start)*Ftheta)
                     LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
                 end
-                dataforch=0.02*(LFPtheta+LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                dataforch=500*(LFPtheta+0.015*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
             case 4
-                %LFP gamma burst in peak, low MI
-                gammaFact=0.3;
+                %LFP gamma burst at 180 degrees, low MI
+                gammaFact=10;
                 shift_burst=-ceil(length(k)/2);
                 shift_trough=0; %peak
                 for ii=1:floor((time_end-time_start)*Ftheta)
                     LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
                 end
-                dataforch=0.02*(LFPtheta+LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                dataforch=500*(LFPtheta+0.0125*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
             case 5
                 %10 Hz and 80Hz 10 dB
                 dataforch=0.002*(6*sin(2*pi*t_tort*Ftheta/Fs)+6*sin(2*pi*t_tort*Fgamma/Fs));
                 dataforch= dataforch+noiseFact*randn(1,length(dataforch));
-                dataforch=dataforch.*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(dataforch));
+                dataforch=dataforch.*(0.02*no_odorLFP+odorLFP)+noiseFact*randn(1,length(dataforch));
             case 6
                 %10 Hz and 80Hz 20 dB
                 dataforch=0.005*(6*sin(2*pi*t_tort*Ftheta/Fs)+6*sin(2*pi*t_tort*Fgamma/Fs));
                 dataforch= dataforch+noiseFact*randn(1,length(dataforch));
-                dataforch=dataforch.*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(dataforch));
+                dataforch=dataforch.*(0.02*no_odorLFP+odorLFP)+noiseFact*randn(1,length(dataforch));
             case 7
                 %10 and 80Hz centered on the lick
                 if lfpElectrode==19
@@ -194,76 +208,63 @@ try
                 
                 % The cases below are used by batch processing
             case 9
-                %This one sets the PAC to trough if it is S+ and peak
+                
                 %if it is S-handles.drgbchoices.evTypeNos=[3 5 7 9 11 13 16:21];
-                
-                
+   
                 %First find out if this is S+ or S-
                 
                 if sum(handles.drg.session(1).events(5).times==handles.drg.session(1).events(evTypeNo).times(evNo))>0
                     %This is S+
-                    %LFP gamma burst in trough, high MI
-                    gammaFact=0.5;
-                    shift_burst=-ceil(length(k)/2);
-                    shift_trough=0.5*(1/Ftheta)*Fs; %trough
-                    for ii=1:floor((time_end-time_start)*Ftheta)
-                        LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
-                    end
-                    dataforch=0.02*(LFPtheta+3*LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
-                else
-                    %This is S-
-                    %LFP gamma burst in peak, high MI
-                    gammaFact=0.5;
+                    %LFP gamma burst at 180 degrees, high MI
+                    gammaFact=15;
                     shift_burst=-ceil(length(k)/2);
                     shift_trough=0; %peak
                     for ii=1:floor((time_end-time_start)*Ftheta)
                         LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
                     end
-                    dataforch=0.02*(LFPtheta+3*LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                    dataforch=500*(LFPtheta+0.0125*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
+                else
+                    %This is S-
+                    %LFP gamma burst at 180 degrees, low MI
+                    gammaFact=10;
+                    shift_burst=-ceil(length(k)/2);
+                    shift_trough=0; %peak
+                    for ii=1:floor((time_end-time_start)*Ftheta)
+                        LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
+                    end
+                    dataforch=500*(LFPtheta+0.0125*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
                 end
                 
             case 10
-                %This one sets the PAC to trough if it is S+ and peak
+                
                 %if it is S-handles.drgbchoices.evTypeNos=[3 5 7 9 11 13 16:21];
-                
-                
+  
                 %First find out if this is S+ or S-
                 
                 if sum(handles.drg.session(1).events(5).times==handles.drg.session(1).events(evTypeNo).times(evNo))>0
                     %This is S+
-                    %LFP gamma burst zero degrees, high MI
-                    gammaFact=0.5;
-                    shift_burst=-ceil(length(k)/2);
-                    shift_trough=0.5*(1/Ftheta)*Fs; %trough
-                    for ii=1:floor((time_end-time_start)*Ftheta)
-                        LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
-                    end
-                    dataforch=0.02*(LFPtheta+3*LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
-                else
-                    %This is S-
-                    %LFP gamma burst 180 degrees, low MI
-                    gammaFact=0.3;
+                   %LFP gamma burst at 180 degrees, high MI
+                    gammaFact=15;
                     shift_burst=-ceil(length(k)/2);
                     shift_trough=0; %peak
                     for ii=1:floor((time_end-time_start)*Ftheta)
                         LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
                     end
-                    dataforch=0.02*(LFPtheta+LFPbursts(1:length(LFPtheta))).*(0.05*no_odorLFP+odorLFP)+noiseFact*randn(1,length(LFPtheta));
+                    dataforch=500*(LFPtheta+0.0125*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
+                else
+                    %This is S-
+                    %LFP gamma burst at zero degrees, high MI
+                    gammaFact=15;
+                    shift_burst=-ceil(length(k)/2);
+                    shift_trough=0.5*(1/Ftheta)*Fs; %trough
+                    for ii=1:floor((time_end-time_start)*Ftheta)
+                        LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
+                    end
+                    dataforch=500*(LFPtheta+0.015*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
                 end
         end
         
-        %     try
-        %         close 4
-        %     catch
-        %     end
-        %
-        %     hFig4 = figure(4);
-        %     set(hFig4, 'units','normalized','position',[.55 .15 .35 .25])
-        %     plot(time,dataforch);
-        
-        
-        
-        %pffft=1
+
     end
     
 catch

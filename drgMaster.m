@@ -87,7 +87,7 @@ handles.bandwidth_lowF=3;
 handles.bandwidth_highF=25;
 handles.which_method=1;
 handles.amplitudeHz=80;
-handles.phaseHz=10;
+handles.phaseHz=8;
 handles.unitNo=1;
 handles.analysisNoBeh=1;
 handles.notch60=0;
@@ -252,7 +252,7 @@ set(handles.firstEventNo,'String',num2str(handles.firstEvNo));
 trialNo=find((handles.drg.session(sessionNo).events(handles.evTypeNo).times(handles.firstEvNo)>=handles.drg.session(sessionNo).trial_start)&...
     (handles.drg.session(sessionNo).events(handles.evTypeNo).times(handles.firstEvNo)<=handles.drg.session(sessionNo).trial_start+handles.drg.session(sessionNo).sec_per_trial));
 
-handles.trialNo=trialNo;
+handles.trialNo=trialNo(1);
 set(handles.whichTrial,'String',num2str(handles.trialNo));
 
 % Update the handles structure
