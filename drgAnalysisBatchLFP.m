@@ -9643,6 +9643,8 @@ switch which_display
                                                         end
                                                         
                                                         theseEvNosPerEl(evNo,bwii,elec).this_delta_dB_powerEv(1,theseEvNosPerEl(evNo,bwii,elec).noEv+1:theseEvNosPerEl(evNo,bwii,elec).noEv+sum(trials_in_event_Ev))=this_delta_dB_powerEv';
+                                                        theseEvNosPerEl(evNo,bwii,elec).groupNo(1,theseEvNosPerEl(evNo,bwii,elec).noEv+1:theseEvNosPerEl(evNo,bwii,elec).noEv+sum(trials_in_event_Ev))=handles_drgb.drgbchoices.group_no(fileNo)*ones(1,sum(trials_in_event_Ev));
+                                                        
                                                         theseEvNosPerEl(evNo,bwii,elec).noEv=theseEvNosPerEl(evNo,bwii,elec).noEv+sum(trials_in_event_Ev);
                                                         
                                                         evNo_out(evNo).mean_delta_dB_powerEvperBW(evNo_out(evNo).noWB,bwii)=mean(this_delta_dB_powerEv);
@@ -9685,17 +9687,19 @@ switch which_display
                             mouse_included(mouseNo)=1;
                             %Calculate per mouse per electrode delta_dB
                             for grNo=1:max(handles_drgb.drgbchoices.group_no)
-                                if sum(theseEvNos(evNo).groupNo==grNo)>0
-                                    for evNo=1:length(eventType)
-                                        for bwii=1:4
-                                            delta_dB_No_per_mouse=delta_dB_No_per_mouse+1;
-                                            delta_dB_per_mouse(delta_dB_No_per_mouse)=mean(theseEvNos(evNo,bwii).this_delta_dB_powerEv(theseEvNos(evNo).groupNo==grNo));
-                                            delta_dB_perii_per_mouse(delta_dB_No_per_mouse)=per_ii;
-                                            delta_dB_evNo_per_mouse(delta_dB_No_per_mouse)=evNo;
-                                            delta_dB_bwii_per_mouse(delta_dB_No_per_mouse)=bwii;
-                                            delta_dB_mouseNo_per_mouse(delta_dB_No_per_mouse)=mouseNo;
-                                            delta_dB_electrode_per_mouse(delta_dB_No_per_mouse)=elec;
-                                            delta_dB_group_no_per_mouse(delta_dB_No_per_mouse)=grNo;
+                                for evNo=1:length(eventType)
+                                    if theseEvNos(evNo).noEv>0
+                                        if sum(theseEvNos(evNo).groupNo==grNo)>0
+                                            for bwii=1:4
+                                                delta_dB_No_per_mouse=delta_dB_No_per_mouse+1;
+                                                delta_dB_per_mouse(delta_dB_No_per_mouse)=mean(theseEvNos(evNo,bwii).this_delta_dB_powerEv(theseEvNos(evNo).groupNo==grNo));
+                                                delta_dB_perii_per_mouse(delta_dB_No_per_mouse)=per_ii;
+                                                delta_dB_evNo_per_mouse(delta_dB_No_per_mouse)=evNo;
+                                                delta_dB_bwii_per_mouse(delta_dB_No_per_mouse)=bwii;
+                                                delta_dB_mouseNo_per_mouse(delta_dB_No_per_mouse)=mouseNo;
+                                                delta_dB_electrode_per_mouse(delta_dB_No_per_mouse)=elec;
+                                                delta_dB_group_no_per_mouse(delta_dB_No_per_mouse)=grNo;
+                                            end
                                         end
                                     end
                                 end
@@ -9706,90 +9710,93 @@ switch which_display
                             if can_calculate_auroc==1
                                 for grNo=1:max(handles_drgb.drgbchoices.group_no)
                                     for evNo1=1:length(eventType)
-                                        for evNo2=evNo1+1:length(eventType)
-                                            for bwii=1:4
-                                                
-                                                
-                                                %Enter Ev1
-                                                trials_in_event_Ev1=length(theseEvNos(evNo1,bwii).this_delta_dB_powerEv(theseEvNos(evNo1).groupNo==grNo));
-                                                this_delta_dB_powerEv1=zeros(trials_in_event_Ev1,1);
-                                                this_delta_dB_powerEv1=theseEvNos(evNo1,bwii).this_delta_dB_powerEv(theseEvNos(evNo1).groupNo==grNo);
-                                                roc_data=[];
-                                                roc_data(1:trials_in_event_Ev1,1)=this_delta_dB_powerEv1;
-                                                roc_data(1:trials_in_event_Ev1,2)=zeros(trials_in_event_Ev1,1);
-                                                
-                                                %Enter Ev2
-                                                trials_in_event_Ev2=length(theseEvNos(evNo2,bwii).this_delta_dB_powerEv(theseEvNos(evNo2).groupNo==grNo));
-                                                total_trials=trials_in_event_Ev1+trials_in_event_Ev2;
-                                                this_delta_dB_powerEv2=zeros(trials_in_event_Ev2,1);
-                                                this_delta_dB_powerEv2=theseEvNos(evNo2,bwii).this_delta_dB_powerEv(theseEvNos(evNo2).groupNo==grNo);
-                                                roc_data(trials_in_event_Ev1+1:total_trials,1)=this_delta_dB_powerEv2;
-                                                roc_data(trials_in_event_Ev1+1:total_trials,2)=ones(trials_in_event_Ev2,1);
-                                                
-                                                
-                                                %Find  per electrode ROC
-                                                if (trials_in_event_Ev1>=5)&(trials_in_event_Ev2>=5)
-                                                    no_ROCs=no_ROCs+1;
-                                                    roc=roc_calc(roc_data,0,0.05,0);
-                                                    ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo_ref).fileNo;
-                                                    ROCelec(no_ROCs)=elec;
-                                                    ROCgroups(no_ROCs)=grNo;
-                                                    ROCmouse(no_ROCs)=mouseNo;
-                                                    ROCbandwidth(no_ROCs)=bwii;
-                                                    ROCper_ii(no_ROCs)=per_ii;
-                                                    ROCEvNo1(no_ROCs)=evNo1;
-                                                    ROCEvNo2(no_ROCs)=evNo2;
-                                                    if sum(eventType==3)==0
-                                                        if ((abs(evNo1-2)<=1)&(abs(evNo2-5)<=1))||((abs(evNo1-5)<=1)&(abs(evNo2-2)<=1))
-                                                            ROC_between(no_ROCs)=1;
-                                                        else
-                                                            ROC_between(no_ROCs)=0;
-                                                        end
-                                                        ROC_neighbor(no_ROCs)=abs(evNo1-evNo2);
-                                                    else
-                                                        %This is S+/S-,
-                                                        %these values are
-                                                        %assigned
-                                                        %arbitrarily so
-                                                        %that plotting
-                                                        %auROC works
-                                                        ROC_between(no_ROCs)=1;
-                                                        ROC_neighbor(no_ROCs)=2;
-                                                    end
-                                                    
-                                                    auROC(no_ROCs)=roc.AUC-0.5;
-                                                    p_valROC(no_ROCs)=roc.p;
-                                                    p_vals_ROC=[p_vals_ROC roc.p];
-                                                    
-                                                    %I have this code here to plot the ROC
-                                                    if (per_ii==1)&(bwii==4)&(roc.AUC-0.5>0.3)
-                                                        show_roc=0;
-                                                        if show_roc==1
-                                                            %I have this code here to plot the ROC
-                                                            roc=roc_calc(roc_data,0,0.05,1);
-                                                            
-                                                            %Do the histograms
-                                                            try
-                                                                close(2)
-                                                            catch
+                                        if theseEvNos(evNo1).noEv>0
+                                            for evNo2=evNo1+1:length(eventType)
+                                                if theseEvNos(evNo2).noEv>0
+                                                    for bwii=1:4
+                                                        
+                                                        
+                                                        %Enter Ev1
+                                                        trials_in_event_Ev1=length(theseEvNos(evNo1,bwii).this_delta_dB_powerEv(theseEvNos(evNo1).groupNo==grNo));
+                                                        this_delta_dB_powerEv1=zeros(trials_in_event_Ev1,1);
+                                                        this_delta_dB_powerEv1=theseEvNos(evNo1,bwii).this_delta_dB_powerEv(theseEvNos(evNo1).groupNo==grNo);
+                                                        roc_data=[];
+                                                        roc_data(1:trials_in_event_Ev1,1)=this_delta_dB_powerEv1;
+                                                        roc_data(1:trials_in_event_Ev1,2)=zeros(trials_in_event_Ev1,1);
+                                                        
+                                                        %Enter Ev2
+                                                        trials_in_event_Ev2=length(theseEvNos(evNo2,bwii).this_delta_dB_powerEv(theseEvNos(evNo2).groupNo==grNo));
+                                                        total_trials=trials_in_event_Ev1+trials_in_event_Ev2;
+                                                        this_delta_dB_powerEv2=zeros(trials_in_event_Ev2,1);
+                                                        this_delta_dB_powerEv2=theseEvNos(evNo2,bwii).this_delta_dB_powerEv(theseEvNos(evNo2).groupNo==grNo);
+                                                        roc_data(trials_in_event_Ev1+1:total_trials,1)=this_delta_dB_powerEv2;
+                                                        roc_data(trials_in_event_Ev1+1:total_trials,2)=ones(trials_in_event_Ev2,1);
+                                                        
+                                                        
+                                                        %Find  per electrode ROC
+                                                        if (trials_in_event_Ev1>=5)&(trials_in_event_Ev2>=5)
+                                                            no_ROCs=no_ROCs+1;
+                                                            roc=roc_calc(roc_data,0,0.05,0);
+                                                            ROCout(no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo_ref).fileNo;
+                                                            ROCelec(no_ROCs)=elec;
+                                                            ROCgroups(no_ROCs)=grNo;
+                                                            ROCmouse(no_ROCs)=mouseNo;
+                                                            ROCbandwidth(no_ROCs)=bwii;
+                                                            ROCper_ii(no_ROCs)=per_ii;
+                                                            ROCEvNo1(no_ROCs)=evNo1;
+                                                            ROCEvNo2(no_ROCs)=evNo2;
+                                                            if sum(eventType==3)==0
+                                                                if ((abs(evNo1-2)<=1)&(abs(evNo2-5)<=1))||((abs(evNo1-5)<=1)&(abs(evNo2-2)<=1))
+                                                                    ROC_between(no_ROCs)=1;
+                                                                else
+                                                                    ROC_between(no_ROCs)=0;
+                                                                end
+                                                                ROC_neighbor(no_ROCs)=abs(evNo1-evNo2);
+                                                            else
+                                                                %This is S+/S-,
+                                                                %these values are
+                                                                %assigned
+                                                                %arbitrarily so
+                                                                %that plotting
+                                                                %auROC works
+                                                                ROC_between(no_ROCs)=1;
+                                                                ROC_neighbor(no_ROCs)=2;
                                                             end
-                                                            figure(2)
                                                             
-                                                            hold on
+                                                            auROC(no_ROCs)=roc.AUC-0.5;
+                                                            p_valROC(no_ROCs)=roc.p;
+                                                            p_vals_ROC=[p_vals_ROC roc.p];
                                                             
-                                                            max_dB=max([max(this_delta_dB_powerEv1) max(this_delta_dB_powerEv2)]);
-                                                            min_dB=min([min(this_delta_dB_powerEv1) min(this_delta_dB_powerEv2)]);
-                                                            
-                                                            edges=[min_dB-0.1*(max_dB-min_dB):(max_dB-min_dB)/20:max_dB+0.1*(max_dB-min_dB)];
-                                                            histogram(this_delta_dB_powerEv1,edges,'FaceColor','b','EdgeColor','b')
-                                                            histogram(this_delta_dB_powerEv2,edges,'FaceColor','r','EdgeColor','r')
-                                                            xlabel('delta power dB')
-                                                            title(['Histogram for conentrations ' num2str(concs2(evNo1)) ' and ' num2str(concs2(evNo2))])
-                                                            pffft=1;
+                                                            %I have this code here to plot the ROC
+                                                            if (per_ii==1)&(bwii==4)&(roc.AUC-0.5>0.3)
+                                                                show_roc=0;
+                                                                if show_roc==1
+                                                                    %I have this code here to plot the ROC
+                                                                    roc=roc_calc(roc_data,0,0.05,1);
+                                                                    
+                                                                    %Do the histograms
+                                                                    try
+                                                                        close(2)
+                                                                    catch
+                                                                    end
+                                                                    figure(2)
+                                                                    
+                                                                    hold on
+                                                                    
+                                                                    max_dB=max([max(this_delta_dB_powerEv1) max(this_delta_dB_powerEv2)]);
+                                                                    min_dB=min([min(this_delta_dB_powerEv1) min(this_delta_dB_powerEv2)]);
+                                                                    
+                                                                    edges=[min_dB-0.1*(max_dB-min_dB):(max_dB-min_dB)/20:max_dB+0.1*(max_dB-min_dB)];
+                                                                    histogram(this_delta_dB_powerEv1,edges,'FaceColor','b','EdgeColor','b')
+                                                                    histogram(this_delta_dB_powerEv2,edges,'FaceColor','r','EdgeColor','r')
+                                                                    xlabel('delta power dB')
+                                                                    title(['Histogram for conentrations ' num2str(concs2(evNo1)) ' and ' num2str(concs2(evNo2))])
+                                                                    pffft=1;
+                                                                end
+                                                            end
                                                         end
                                                     end
                                                 end
-                                                
                                             end
                                         end
                                     end
@@ -9815,23 +9822,40 @@ switch which_display
                                 for bwii=1:4
                                     
                                     %Enter Ev1
-                                    trials_in_event_Ev1=length(theseEvNosPerEl(evNo1,bwii,which_electrodes(1)).this_delta_dB_powerEv(theseEvNos(evNo1).groupNo==grNo));
+                                    trials_in_event_Ev1=length(theseEvNosPerEl(evNo1,bwii,which_electrodes(1)).this_delta_dB_powerEv(theseEvNosPerEl(evNo1,bwii,which_electrodes(1)).groupNo==grNo));
+                                    
                                     this_delta_dB_powerEv1=zeros(trials_in_event_Ev1,1);
+                                    
+%                                     for elec=which_electrodes
+%                                         this_delta_dB_powerEv1=this_delta_dB_powerEv1+(theseEvNosPerEl(evNo1,bwii,elec).this_delta_dB_powerEv((theseEvNosPerEl(evNo1,bwii,elec).groupNo==grNo))')/length(which_electrodes);
+%                                     end
+%                                     
+                                    no_elects=0;
                                     for elec=which_electrodes
-                                        this_delta_dB_powerEv1=this_delta_dB_powerEv1+(theseEvNosPerEl(evNo1,bwii,elec).this_delta_dB_powerEv((theseEvNos(evNo1).groupNo==grNo))')/length(which_electrodes);
+                                        if length(this_delta_dB_powerEv1)==length(theseEvNosPerEl(evNo1,bwii,elec).groupNo)
+                                            this_delta_dB_powerEv1=this_delta_dB_powerEv1+(theseEvNosPerEl(evNo1,bwii,elec).this_delta_dB_powerEv((theseEvNosPerEl(evNo1,bwii,elec).groupNo==grNo))');
+                                            no_elects=no_elects+1;
+                                        end
                                     end
+                                    this_delta_dB_powerEv1=this_delta_dB_powerEv1/no_elects;
                                     
                                     roc_data=[];
                                     roc_data(1:trials_in_event_Ev1,1)=this_delta_dB_powerEv1;
                                     roc_data(1:trials_in_event_Ev1,2)=zeros(trials_in_event_Ev1,1);
                                     
                                     %Enter Ev2
-                                    trials_in_event_Ev2=length(theseEvNosPerEl(evNo2,bwii,which_electrodes(1)).this_delta_dB_powerEv((theseEvNos(evNo2).groupNo==grNo)));
+                                    trials_in_event_Ev2=length(theseEvNosPerEl(evNo2,bwii,which_electrodes(1)).this_delta_dB_powerEv(theseEvNosPerEl(evNo2,bwii,which_electrodes(1)).groupNo==grNo));
                                     total_trials=trials_in_event_Ev1+trials_in_event_Ev2;
                                     this_delta_dB_powerEv2=zeros(trials_in_event_Ev2,1);
+                                    
+                                    no_elects=0;
                                     for elec=which_electrodes
-                                        this_delta_dB_powerEv2=this_delta_dB_powerEv2+(theseEvNosPerEl(evNo2,bwii,elec).this_delta_dB_powerEv((theseEvNos(evNo2).groupNo==grNo))')/length(which_electrodes);
+                                        if length(this_delta_dB_powerEv2)==length(theseEvNosPerEl(evNo2,bwii,elec).groupNo)
+                                            this_delta_dB_powerEv2=this_delta_dB_powerEv2+(theseEvNosPerEl(evNo2,bwii,elec).this_delta_dB_powerEv((theseEvNosPerEl(evNo2,bwii,elec).groupNo==grNo))');
+                                            no_elects=no_elects+1;
+                                        end
                                     end
+                                    this_delta_dB_powerEv2=this_delta_dB_powerEv2/no_elects;
                                     
                                     roc_data(trials_in_event_Ev1+1:total_trials,1)=this_delta_dB_powerEv2;
                                     roc_data(trials_in_event_Ev1+1:total_trials,2)=ones(trials_in_event_Ev2,1);
@@ -9840,7 +9864,11 @@ switch which_display
                                     %Find  per electrode ROC
                                     if (trials_in_event_Ev1>=5)&(trials_in_event_Ev2>=5)
                                         per_mouse_no_ROCs=per_mouse_no_ROCs+1;
+                                        try
                                         roc=roc_calc(roc_data,0,0.05,0);
+                                        catch
+                                            pffft=1
+                                        end
                                         per_mouse_ROCout(per_mouse_no_ROCs).fileNo=handles_drgb.drgb.lfpevpair(lfpodNo_ref).fileNo;
                                         per_mouse_ROCbandwidth(per_mouse_no_ROCs)=bwii;
                                         per_mouse_ROCper_ii(per_mouse_no_ROCs)=per_ii;
@@ -10004,8 +10032,11 @@ switch which_display
                         for mouseNo=1:length(mouse_included)
                             if mouse_included(mouseNo)==1
                                 if (sum(data_for_lines(1).these_mice==mouseNo)>0)&(sum(data_for_lines(2).these_mice==mouseNo)>0)
-                                    plot([data_for_lines(1).these_bar_offsets*ones(1,sum(data_for_lines(1).these_mice==mouseNo)); data_for_lines(2).these_bar_offsets*ones(1,sum(data_for_lines(1).these_mice==mouseNo))],...
-                                        [data_for_lines(1).these_dB_per_e(data_for_lines(1).these_mice==mouseNo); data_for_lines(2).these_dB_per_e(data_for_lines(2).these_mice==mouseNo)],'-','Color',[0.7 0.7 0.7])
+                                    try
+                                        plot([data_for_lines(1).these_bar_offsets*ones(1,sum(data_for_lines(1).these_mice==mouseNo)); data_for_lines(2).these_bar_offsets*ones(1,sum(data_for_lines(1).these_mice==mouseNo))],...
+                                            [data_for_lines(1).these_dB_per_e(data_for_lines(1).these_mice==mouseNo); data_for_lines(2).these_dB_per_e(data_for_lines(2).these_mice==mouseNo)],'-','Color',[0.7 0.7 0.7])
+                                    catch
+                                    end
                                 end
                             end
                         end

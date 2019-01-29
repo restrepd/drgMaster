@@ -1,5 +1,5 @@
 function handles=drgThetaAmpPhaseTrialRange(handles)
- 
+
 %Generates a trial per trial phase histogram
 odorOn=2;
 sessionNo=handles.sessionNo;
@@ -36,7 +36,7 @@ lastTr=handles.lastTrialNo;
 %         close 1
 %     catch
 %     end
-%     
+%
 %     hFig1 = figure(1);
 %     set(hFig1, 'units','normalized','position',[.55 .27 .35 .15])
 % end
@@ -54,6 +54,7 @@ all_theta_wave=[];
 MI_enc=[];
 MI_retr=[];
 which_event=[];
+all_out_time_PAChisto=[];
 
 
 for trNo=firstTr:lastTr
@@ -63,7 +64,7 @@ for trNo=firstTr:lastTr
     end
     
     evNo = drgFindEvNo(handles,trNo,sessionNo);
-
+    
     if evNo~=-1
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
         
@@ -99,13 +100,12 @@ for trNo=firstTr:lastTr
                 handles.drgb.PAC.PACtimecourse(no_trials).out_times=out_times;
                 handles.drgb.PAC.PACtimecourse(no_trials).out_phase=out_phase;
                 handles.drgb.PAC.PACtimecourse(no_trials).out_time_PAChisto=out_time_PAChisto;
-   
+                
                 all_out_phase(no_trials,1:length(out_times))=out_phase;
                 if no_trials==1
-                    all_out_time_PAChisto=[];
                     all_out_time_PAChisto=out_time_PAChisto;
                 else
-                all_out_time_PAChisto=all_out_time_PAChisto+out_time_PAChisto;
+                    all_out_time_PAChisto=all_out_time_PAChisto+out_time_PAChisto;
                 end
                 all_phase_histo(no_trials,1:n_phase_bins+1)=phase_histo;
                 all_theta_wave(no_trials,1:n_phase_bins+1)=theta_wave;
@@ -129,13 +129,15 @@ for trNo=firstTr:lastTr
     %end %if eventstamps...
 end %for evNo
 
-all_out_time_PAChisto=all_out_time_PAChisto/no_trials;
 
-mean_MI_enc=mean(MI_enc);
 
 if handles.displayData==1
     
-     try
+    all_out_time_PAChisto=all_out_time_PAChisto/no_trials;
+    
+    mean_MI_enc=mean(MI_enc);
+    
+    try
         close 1
     catch
     end
@@ -157,7 +159,7 @@ if handles.displayData==1
     min_prob=prctile(all_out_time_PAChisto(:),5);
     max_prob=prctile(all_out_time_PAChisto(:),95);
     
-  
+    
     %pcolor(repmat(phase,length(trials),1),repmat(trials',1,length(phase)),all_phase_histo)
     drg_pcolor(repmat(out_times,length(phase(1:end-1)),1),repmat(phase(1:end-1)',1,length(out_times)),all_out_time_PAChisto')
     colormap jet
@@ -168,8 +170,8 @@ if handles.displayData==1
     xlabel('Time (sec)')
     ylabel('Phase for low freq oscillation (deg)');
     title(['Phase-amplitude coupling timecourse ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
-   
-%     (180/pi)*circ_mean(all_out_phase'*pi/180)'
+    
+    %     (180/pi)*circ_mean(all_out_phase'*pi/180)'
     try
         close 2
     catch
