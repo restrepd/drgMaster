@@ -8581,9 +8581,9 @@ switch which_display
                                                             per_session_group_no(mean_MI_No)=handles_drgb.drgbchoices.group_no(fileNo);
                                                             
                                                             
-                                                            if mean_MI(mean_MI_No)>=0.035
-                                                                fprintf(1, ['MI larger than 0.035 for mouse no %d, file no %d, electrode, %d, pac no %d, perii %d, conc, %d\n'],mouseNo, fileNo, elec, pacii, per_ii, evNo);
-                                                            end
+%                                                             if mean_MI(mean_MI_No)>=0.035
+%                                                                 fprintf(1, ['MI larger than 0.035 for mouse no %d, file no %d, electrode, %d, pac no %d, perii %d, conc, %d\n'],mouseNo, fileNo, elec, pacii, per_ii, evNo);
+%                                                             end
                                                             
                                                             %Enter the meanVectorLength
                                                             this_meanVectorLength_Ev=zeros(sum(trials_in_event_Ev),1);
@@ -8660,6 +8660,9 @@ switch which_display
                                         this_mouse_MI=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_MI_Ev;
                                         if ~isempty(this_mouse_MI)
                                             mean_MI_per_mouse(mean_MI_No_per_mouse)=mean(this_mouse_MI);
+                                            if mean(this_mouse_MI)>0.01
+                                                fprintf(1, ['MI larger than 0.01 for mouse no %d, electrode, %d, pac no %d, perii %d, conc, %d\n'],mouseNo, elec, pacii, per_ii, evNo);
+                                            end
                                         else
                                             mean_MI_per_mouse(mean_MI_No_per_mouse)=NaN;
                                         end
@@ -9516,7 +9519,7 @@ switch which_display
         end
         pfft=1;
         
-        
+         
     case 20
         % Multiclass ROC analysis of LFP power differences for naive and proficient
         % mice for different epochs (concentrations or S+ vs. S-) and different groups. Analyzed per mouse

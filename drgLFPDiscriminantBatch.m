@@ -62,7 +62,7 @@ for filNum=first_file:handles.drgbchoices.no_files
         jtPathName=handles.drgbchoices.PathName{filNum};
     else
         jtPathName=handles.drgbchoices.PathName;
-    end
+    end 
     if exist([jtPathName jtFileName])==0
         fprintf(1, ['Program will be terminated because file No %d, ' jtPathName jtFileName ' does not exist\n'],filNum);
         all_files_present=0;
@@ -406,8 +406,9 @@ if all_files_present==1
                                     else
                                         this_all_log_P_timecourse=[];
                                         this_all_log_P_timecourse=all_log_P_timecourse;
+                                        szt=size(this_all_log_P_timecourse,4);
                                         all_log_P_timecourse=zeros(length(handles.drgbchoices.lowF),length(handles.drgbchoices.which_electrodes),par_out(LFPNo).length_trial_no+no_trials,length(t));
-                                        all_log_P_timecourse(:,:,1:no_trials,:)=this_all_log_P_timecourse;
+                                        all_log_P_timecourse(:,:,1:no_trials,1:szt)=this_all_log_P_timecourse(:,:,1:no_trials,:);
                                     end
                                 end
                                 for bwii=1:length(handles.drgbchoices.lowF)

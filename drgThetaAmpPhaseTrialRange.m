@@ -184,6 +184,15 @@ if handles.displayData==1
     subplot(4,1,1)
     trials=1:no_trials;
     plot(trials,mod_indx,'o-')
+    hold on
+    if length(mod_indx>20)
+        no_conv_points=6;
+        conv_win=ones(1,no_conv_points);
+        mod_indx_extend=[mean(mod_indx(1:no_conv_points/2))*ones(1,no_conv_points) mod_indx mean(mod_indx(end-(no_conv_points/2)+1:end))*ones(1,no_conv_points)];
+        conv_mod_indx_extend=conv(mod_indx_extend,conv_win)/no_conv_points;
+        conv_mod_indx=conv_mod_indx_extend(no_conv_points+1:no_conv_points+length(mod_indx));
+        plot(trials,conv_mod_indx,'-b','LineWidth',3)
+    end
     xlabel('Trial No')
     ylabel('Modulation index')
     title('Modulation index vs trial number')

@@ -3,6 +3,7 @@ function [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_tria
 %in the reference voltage. This is used to analyze lick-related changes in
 %LFP
 
+
 [perCorr, encoding_trials, retrieval_trials,encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
 
 odorOn=2;
@@ -17,6 +18,7 @@ no_events_per_trial=[];
 no_ref_events_per_trial=[];
 t_per_event_per_trial=[];
 time_per_event=[];
+time_per_event_vetted=[];
 perCorrERP=[];
 
 
@@ -279,6 +281,7 @@ for trNo=firstTr:lastTr
                 
                 phase_this_trial=[];
                 all_Power_these_events=[];
+                time_per_these_events=[];
                 ERLFP_this_trial=[];
                 no_evs_this_trial=0;
                 
@@ -326,6 +329,7 @@ for trNo=firstTr:lastTr
                                     phase(no_events)=thaLFP(ii);
                                     no_evs_this_trial=no_evs_this_trial+1;
                                     phase_this_trial(no_evs_this_trial)=thaLFP(ii);
+                                    time_per_these_events(no_evs_this_trial)=handles.time_start+pad_time+(ii/handles.drg.session(sessionNo).draq_p.ActualRate);
                                     
                                     t_per_event_per_trial(no_trials,no_evs_this_trial)=time_per_event(no_events);
                                     
@@ -377,8 +381,11 @@ for trNo=firstTr:lastTr
                         log_P_t_ref(1,:,:)=log_P_timecourse_ref;
                         log_P_t_per_event(no_events-no_evs_this_trial+1:no_events,1:length(f),1:length(out_times))=...
                             10*log10(all_Power_these_events)-repmat(log_P_t_ref,no_evs_this_trial,1,1);
+                        
                     end
+                    
                     phase_per_trial(no_trials)=circ_mean(phase_this_trial');
+                    time_per_event_vetted=[time_per_event_vetted time_per_these_events];
                     
                     %for debugging get theta
                     this_lpt=zeros(1,1);
@@ -464,7 +471,16 @@ for trNo=firstTr:lastTr
 end %for evNo
 
 if handles.displayData==1
+    
     fprintf(1, '\n');
+    
+    %Note: close all closes drgMaster!
+    for ii=1:12
+        try
+            close(ii)
+        catch
+        end
+    end
     
     %Initialize variables needed to generate the figures
     t_bin=0.05;
@@ -547,7 +563,7 @@ if handles.displayData==1
     ii=0;
     for t=t_start:t_bin:t_end-t_bin
         ii=ii+1;
-        t_mask=(time_per_event>=t)&(time_per_event<t+t_bin);
+        t_mask=(time_per_event_vetted>=t)&(time_per_event_vetted<t+t_bin);
         if sum(t_mask)>=1
             log_P_t__per_t_bin(ii,1:length(f),1:length(out_times))=mean(log_P_t_per_event(t_mask,1:length(f),1:length(out_times)),1);
         else
@@ -621,7 +637,7 @@ if handles.displayData==1
     ylabel('dB')
     
     
-    pffft=1
+    pffft=1;
     
     
 end

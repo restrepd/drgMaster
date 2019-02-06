@@ -117,7 +117,7 @@ for trNo=firstTr:lastTr
                 all_Power(no_trials,1:length(f))=mean(Pout,2);
                 if handles.subtractRef==1
                     P_ref=[];
-                    P_ref=Pout(:,(out_times>=handles.startRef+handles.time_pad)&(out_times<=handles.endRef-handles.time_pad));
+                    P_ref=P(:,(all_times>=handles.startRef+handles.time_pad)&(all_times<=handles.endRef-handles.time_pad));
                     all_Power_ref(no_trials,1:length(f))=mean(P_ref,2);
                 end
                   switch handles.drg.drta_p.which_c_program

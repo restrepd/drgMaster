@@ -36,7 +36,7 @@ highF65ii=[];
 for trNo=firstTr:lastTr
     
     if handles.save_drgb==0
-        trialNo=evNo
+        trialNo=trNo
     end
     
     evNo = drgFindEvNo(handles,trNo,sessionNo);

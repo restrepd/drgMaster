@@ -5,7 +5,7 @@ function [meanVectorLength, meanVectorAngle, peakAngle, MI_Tort, phase, phase_hi
 
 %Time pad is used to exclude filter artifacts at the end
 Fs=floor(Fs);
-
+ 
 switch method
     case 1
         %Butterworth
@@ -131,6 +131,7 @@ for ii=1:length(loc)-1
         tend(jj)=loc(ii+1)-time_pad-1/Fs;
     end
 end
+
 
 %Normalize the time histo
 for ii=1:length(loc)-1

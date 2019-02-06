@@ -56,9 +56,9 @@ else
     max_delta=16;
     if handles.autoscale==1
 
-        
-        maxLogPper=prctile(log_P_per_trial_timecourse_sub(:),99);
-        minLogPper=prctile(log_P_per_trial_timecourse_sub(:),1);
+        deltaLogP=log_P_timecourse'-log_P_timecourse_ref';
+        maxLogPper=prctile(deltaLogP(:),99);
+        minLogPper=prctile(deltaLogP(:),1);
         %Note: Diego added this on purpose to limit the range to 10 dB
         %This results in emphasizing changes in the top 10 dB
         if maxLogPper-minLogPper>max_delta
@@ -76,6 +76,13 @@ end
 
 
 if ~isempty(this_trialNo)
+    
+    for ii=1:12
+        try
+            close(ii)
+        catch
+        end
+    end
     
     try
         close 1
@@ -161,7 +168,7 @@ if ~isempty(this_trialNo)
     ylabel('Frequency*trialNo');
     title(['Power (dB, wavelet) timecourse per trial ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
     
-        try
+    try
         close 6
     catch
     end
@@ -203,6 +210,7 @@ if ~isempty(this_trialNo)
     
     y_shift=y_shift+1.5*(per99-per1);
     ylim([0 y_shift])
+    xlim([t(1) t(end)])
     xlabel('time(sec)')
     title('Lick traces')
     
