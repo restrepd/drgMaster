@@ -78,6 +78,7 @@ lastTr=handles.lastTrialNo;
 
 %Calculate the threshold value to detect a lick
 all_refs=[];
+
 for trNo=firstTr:lastTr
     
     evNo = drgFindEvNo(handles,trNo,sessionNo);
@@ -145,6 +146,8 @@ ii_ili_ref=0;
 inter_lick_intervals=[];
 ii_ili=0;
 
+
+
 for trNo=firstTr:lastTr
     
     
@@ -153,7 +156,7 @@ for trNo=firstTr:lastTr
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
         
         if excludeTrial==0
-            
+          
             %Note: handles.peakLFPNo is the reference LFP
             [lickLFP, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
             [LFP, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, min_t, max_t);
@@ -175,7 +178,9 @@ for trNo=firstTr:lastTr
                 decLFP=decimate(LFP,dec_n);
                 decFs=Fs/dec_n;
                 
+                
                 cwtLFP = cwtft({detrend(double(decLFP)),1/decFs},'wavelet','morl','scales',scales);
+                
                 Prev=abs(cwtLFP.cfs).^2;
                 P=Prev(end:-1:1,:);
                 DT=1/decFs;
@@ -533,6 +538,7 @@ for trNo=firstTr:lastTr
                 
                 
             end
+           
         end
     end
     

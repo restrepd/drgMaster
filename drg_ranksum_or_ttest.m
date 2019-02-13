@@ -1,5 +1,8 @@
 function [p_val,r_or_t] = drg_ranksum_or_ttest(x,y)
 %Do a t test or a ranksum depending on whether the distributions are normal
+%r_or_t=0 - ranksum
+%r_or_t=1 - pairwise t test
+%r_or_t=2 - t test
 %   Detailed explanation goes here
       if (length(x)<4)||(length(y)<4)
                 %adtest does not work with n<4. In that case go the

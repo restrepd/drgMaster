@@ -434,16 +434,16 @@ if all_files_present==1
                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_t_per_lick_per_trial=t_per_event_per_trial;
                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_ref_licks_per_trial=no_ref_evs_per_trial;
                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).delta_lick_times=delta_lick_times;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).lick_referenced_LFP_per_trial=ERLFP_per_trial;
+%                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).lick_referenced_LFP_per_trial=ERLFP_per_trial;
                         
                         %Theta-referenced data
                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_log_P_t_ltheta_related=log_P_t_th;
                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_thetas_per_trial=no_th_events_per_trial;
                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_t_per_theta_per_trial=t_th_per_event_per_trial;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_theta_referenced_LFP_per_trial=thERLFP_per_trial;
+%                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_theta_referenced_LFP_per_trial=thERLFP_per_trial;
                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_ref_evs_per_trial_th=no_ref_evs_per_trial_th;
                         
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).delta_lick_times_theta_ref=delta_lick_times_th;
+%                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).delta_lick_times_theta_ref=delta_lick_times_th;
                         
                     end
                       
@@ -587,6 +587,10 @@ if all_files_present==1
                     lfp_per_file(filNum).lfpevpair(ii).PAC;
             end
             
+             if (sum(handles.drgbchoices.analyses==4)>0)
+                handles.drgb.file(filNum).freq_for_LFPpower=lfp_per_file(filNum).wave_f;
+             end
+        
              %LFP wavelet power
              if (sum(handles.drgbchoices.analyses==4)>0)
                  %Enter the per LFP values
@@ -602,8 +606,10 @@ if all_files_present==1
              
              %LFP ERWA
              if (sum(handles.drgbchoices.analyses==5)>0)
-                 
-                 
+                 handles.drgb.file(filNum).waveERWA_out_times=lfp_per_file(filNum).wave_out_times;
+             end
+             
+             if (sum(handles.drgbchoices.analyses==5)>0)
                  handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).wave_no_trialsERWA=...
                      lfp_per_file(filNum).lfpevpair(ii).wave_no_trialsERWA;
                  handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).wave_which_eventERWA=...
@@ -612,6 +618,8 @@ if all_files_present==1
                      lfp_per_file(filNum).lfpevpair(ii).wave_fERWA;
                  handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).wave_trialNoERWA=...
                      lfp_per_file(filNum).lfpevpair(ii).wave_trialNoERWA;
+                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).wave_perCorrERWA=...
+                 lfp_per_file(filNum).lfpevpair(ii).wave_perCorrERWA;
                  
                  
                  %Lick-referenced data
@@ -627,8 +635,8 @@ if all_files_present==1
                      lfp_per_file(filNum).lfpevpair(ii).wave_no_ref_licks_per_trial;
                  handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).delta_lick_times=...
                      lfp_per_file(filNum).lfpevpair(ii).delta_lick_times;
-                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).lick_referenced_LFP_per_trial=...
-                     lfp_per_file(filNum).lfpevpair(ii).lick_referenced_LFP_per_trial;
+%                  handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).lick_referenced_LFP_per_trial=...
+%                      lfp_per_file(filNum).lfpevpair(ii).lick_referenced_LFP_per_trial;
                  
                  %Theta-referenced data
                  handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).wave_log_P_t_ltheta_related=...
@@ -637,12 +645,12 @@ if all_files_present==1
                      lfp_per_file(filNum).lfpevpair(ii).wave_no_thetas_per_trial;
                  handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).wave_t_per_theta_per_trial=...
                      lfp_per_file(filNum).lfpevpair(ii).wave_t_per_theta_per_trial;
-                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).wave_theta_referenced_LFP_per_trial=...
-                     lfp_per_file(filNum).lfpevpair(ii).wave_theta_referenced_LFP_per_trial;
+%                  handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).wave_theta_referenced_LFP_per_trial=...
+%                      lfp_per_file(filNum).lfpevpair(ii).wave_theta_referenced_LFP_per_trial;
                  handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).wave_no_ref_evs_per_trial_th=...
                      lfp_per_file(filNum).lfpevpair(ii).wave_no_ref_evs_per_trial_th;
-                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).delta_lick_times_theta_ref=...
-                     lfp_per_file(filNum).lfpevpair(ii).delta_lick_times_theta_ref;
+%                  handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).delta_lick_times_theta_ref=...
+%                      lfp_per_file(filNum).lfpevpair(ii).delta_lick_times_theta_ref;
                  
              end
             
