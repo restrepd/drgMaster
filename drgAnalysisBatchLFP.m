@@ -12017,27 +12017,15 @@ switch which_display
         ylabel('Lick frequency (Hz)')
         
         %Now do the ranksums/t tests
-        pvals=[];
-        fprintf(1, ['Ranksum or t-test p values for lick rate\n'])
         prof_naive_leg{1}='Proficient';
         prof_naive_leg{2}='Naive';
         for ii=1:ii_for_test
-            for jj=ii+1:ii_for_test
-                [p, r_or_t]=drg_ranksum_or_ttest(data_wave_lickf(ii).data,data_wave_lickf(jj).data);
-                if r_or_t==0
-                    fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{data_wave_lickf(ii).groupNo} ' ' evTypeLabels{data_wave_lickf(ii).evNo} ' ' prof_naive_leg{data_wave_lickf(ii).prof_naive} ' vs ' ...
-                        handles_drgb.drgbchoices.group_no_names{data_wave_lickf(jj).groupNo} ' ' evTypeLabels{data_wave_lickf(jj).evNo} ' ' prof_naive_leg{data_wave_lickf(jj).prof_naive} ' =  %d\n'],p)
-                else
-                    fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{data_wave_lickf(ii).groupNo} ' ' evTypeLabels{data_wave_lickf(ii).evNo} ' ' prof_naive_leg{data_wave_lickf(ii).prof_naive} ' vs ' ...
-                        handles_drgb.drgbchoices.group_no_names{data_wave_lickf(jj).groupNo} ' ' evTypeLabels{data_wave_lickf(jj).evNo} ' ' prof_naive_leg{data_wave_lickf(jj).prof_naive} ' =  %d\n'],p)
-                end
-                pvals=[pvals p];
-            end
+            data_wave_lickf(ii).description=[handles_drgb.drgbchoices.group_no_names{data_wave_lickf(ii).groupNo} ' ' evTypeLabels{data_wave_lickf(ii).evNo} ' ' prof_naive_leg{data_wave_lickf(ii).prof_naive} ];
         end
-        fprintf(1, ['\n\n'])
+        fprintf(1, ['Ranksum or t-test p values for lick rate\n'])
+        output_data = drgMutiRanksumorTtest(data_wave_lickf);
         
-        
-            
+           
         
         %Now plot the per mouse delta peak wavelet LFP power computed for each electrode
         pvals=[];
