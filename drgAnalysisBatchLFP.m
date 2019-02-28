@@ -154,6 +154,12 @@ else
     freq_names=handles_pars.freq_names;
 end
 
+if ~isfield(handles_pars,'no_pacii')
+    no_pacii=3;
+else
+    no_pacii=handles_pars.no_pacii;
+end
+
 refWin=handles_pars.refWin;
 
  
@@ -525,7 +531,7 @@ switch which_display
         p_vals_anovan=[];
         pvals_ancova=[];
         pvals_auROCancova=[];
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             
             
             %Do ancova for auROC auROCpre
@@ -593,7 +599,7 @@ switch which_display
         %         p_chi=[];
         %         for evTN1=1:length(eventType)
         %             fprintf(1, ['Significant changes in pairwise LFP power analysis for event: ' evTypeLabels{evTN1} '\n\n'])
-        %             for bwii=1:4
+        %             for bwii=1:no_bandwidths
         %                 for grs=grpre
         %                     num_sig(grs)=sum(p_val((events==evTN1)&(groupNopre==grs),bwii)<=0.05);
         %                     tot_num(grs)=sum((events==evTN1)&(grs==groupNopre));
@@ -616,7 +622,7 @@ switch which_display
         pvals_auROCperm=[];
         
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             n_cum=0;
             this_legend=[];
             data_auROC=[];
@@ -1018,7 +1024,7 @@ switch which_display
         
         %Now plot the histograms and the average for LFP power
         num_pv_perm=0;
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             
             
             %Plot the mean and CI for odorant 1 S+ on the left
@@ -1133,7 +1139,7 @@ switch which_display
         
         x=0;
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             figNo=figNo+1;
             try
                 close(figNo)
@@ -1415,7 +1421,7 @@ switch which_display
         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
         
         %Now plot the histograms and the average
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             %Plot the average
             figure(bwii+1)
             pos2=[0.8 0.1 0.1 0.8];
@@ -1478,7 +1484,7 @@ switch which_display
         p_val_ROC=[];
         edges=-0.5:0.05:0.5;
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             figNo=figNo+1;
             try
                 close(figNo)
@@ -1510,7 +1516,7 @@ switch which_display
         
         hold on
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             bar(bwii,100*sum(( p_valROC<=pFDRauROC)&(ROCbandwidth==bwii))/sum((ROCbandwidth==bwii)))
             auROC_sig.sig(bwii)=sum(( p_valROC<=pFDRauROC)&(ROCbandwidth==bwii));
             auROC_sig.not_sig(bwii)=sum((ROCbandwidth==bwii))-sum(( p_valROC<=pFDRauROC)&(ROCbandwidth==bwii));
@@ -1815,7 +1821,7 @@ switch which_display
         hold on
         x=0;
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             figNo=figNo+1;
             try
                 close(figNo)
@@ -2180,7 +2186,7 @@ switch which_display
         p_vals_anovan=[];
         pvals_ancova=[];
         pvals_auROCancova=[];
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             
             
             %Do ancova for auROC auROCpre
@@ -2247,7 +2253,7 @@ switch which_display
         %         p_chi=[];
         %         for evTN1=1:length(eventType)
         %             fprintf(1, ['Significant changes in pairwise LFP power analysis for event: ' evTypeLabels{evTN1} '\n\n'])
-        %             for bwii=1:4
+        %             for bwii=1:no_bandwidths
         %                 for grs=grpre
         %                     num_sig(grs)=sum(p_val((events==evTN1)&(groupNopre==grs),bwii)<=0.05);
         %                     tot_num(grs)=sum((events==evTN1)&(grs==groupNopre));
@@ -2270,7 +2276,7 @@ switch which_display
         pvals_auROCperm=[];
         
         x=0
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             n_cum=0;
             this_legend=[];
             data_auROC=[];
@@ -2614,7 +2620,7 @@ switch which_display
         set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
         
         %Now plot the histograms and the average
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             %Plot the average
             figure(bwii+1)
             pos2=[0.8 0.1 0.1 0.8];
@@ -2677,7 +2683,7 @@ switch which_display
         p_val_ROC=[];
         edges=-0.5:0.05:0.5;
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             figNo=figNo+1;
             try
                 close(figNo)
@@ -2709,7 +2715,7 @@ switch which_display
         
         hold on
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             bar(bwii,100*sum(( p_valROC<=pFDRauROC)&(ROCbandwidth==bwii))/sum((ROCbandwidth==bwii)))
             auROC_sig.sig(bwii)=sum(( p_valROC<=pFDRauROC)&(ROCbandwidth==bwii));
             auROC_sig.not_sig(bwii)=sum((ROCbandwidth==bwii))-sum(( p_valROC<=pFDRauROC)&(ROCbandwidth==bwii));
@@ -3016,7 +3022,7 @@ switch which_display
         hold on
         x=0;
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             figNo=figNo+1;
             try
                 close(figNo)
@@ -3358,7 +3364,7 @@ switch which_display
             pvals_auROCperm=[];
             
             
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 n_cum=0;
                 this_legend=[];
                 data_auROC=[];
@@ -3420,7 +3426,7 @@ switch which_display
         plot([-0.6 0.6],[0 0],'-','LineWidth',3,'Color',[0.7 0.7 0.7])
         plot([0 0],[-0.25 0.25],'-','LineWidth',3,'Color',[0.7 0.7 0.7])
         delta_time=([0:10]*0.1-0.5);
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             delta_auROC=zeros(1,length(shift_ii));
             delta_auROC=delta_meanauROC(:,1,bwii)-delta_meanauROC(:,2,bwii);
             delta_CIlow=sqrt(CIauROCdeltaLow(:,1,bwii).^2+CIauROCdeltaLow(:,2,bwii).^2);
@@ -3599,7 +3605,7 @@ switch which_display
         hold on
         
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             figNo=figNo+1;
             try
                 close(figNo)
@@ -3846,7 +3852,7 @@ switch which_display
         hold on
         
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             figNo=figNo+1;
             try
                 close(figNo)
@@ -4096,7 +4102,7 @@ switch which_display
         hold on
         x=0;
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             figNo=figNo+1;
             try
                 close(figNo)
@@ -4358,7 +4364,7 @@ switch which_display
                                         for evNo2=evNo1+1:length(eventType)
                                             if (noWB_for_evNo(evNo1)~=-1)&(noWB_for_evNo(evNo2)~=-1)
                                                 
-                                                for bwii=1:4
+                                                for bwii=1:no_bandwidths
                                                     
                                                     %Enter Ev1
                                                     trials_in_event_Ev1=length(theseEvNos(evNo1,bwii).this_delta_dB_powerEv);
@@ -4469,7 +4475,7 @@ switch which_display
         
         
         %Now plot the histograms and the average
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
             figure(bwii+2)
             
@@ -4528,7 +4534,7 @@ switch which_display
         %Plot percent significant ROC
         
         figNo=0;
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             for pcii=1:szpc(1)
                 no_pairs=0;
                 EvNo1=[];
@@ -4789,7 +4795,7 @@ switch which_display
         figNo=0;
         
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             
             %Plot auROC for proficient and naive
             figNo=figNo+1;
@@ -4937,7 +4943,7 @@ switch which_display
         end
         
         figNo=4;
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             figNo=figNo+1;
             figure(figNo)
             hold on
@@ -4998,7 +5004,7 @@ switch which_display
             for mouseNo=1:max(handles_drgb.drgbchoices.mouse_no)
                 theseEvNosPerEl=[];
                 for evNo=1:length(eventType)
-                    for bwii=1:4
+                    for bwii=1:no_bandwidths
                         for elec=1:16
                             theseEvNosPerEl(evNo,bwii,elec).noEv=0;
                         end
@@ -5010,14 +5016,14 @@ switch which_display
                         
                         %                         theseEvNos_thisMouse_thisElec=[];
                         %                         for evNo=1:length(eventType)
-                        %                             for bwii=1:4
+                        %                             for bwii=1:no_bandwidths
                         %                                 theseEvNos_thisMouse_thisElec(evNo,bwii).noEv=0;
                         %                             end
                         %                         end
                         
                         theseEvNos=[];
                         for evNo=1:length(eventType)
-                            for bwii=1:4
+                            for bwii=1:no_bandwidths
                                 theseEvNos(evNo,bwii).noEv=0;
                             end
                         end
@@ -5132,7 +5138,7 @@ switch which_display
                             mouse_included(mouseNo)=1;
                             %Calculate per mouse per electrode delta_dB
                             for evNo=1:length(eventType)
-                                for bwii=1:4
+                                for bwii=1:no_bandwidths
                                     delta_dB_No_per_mouse=delta_dB_No_per_mouse+1;
                                     %                                     this_mouse_delta_dB=[];
                                     %                                     this_mouse_delta_dB=theseEvNos_thisMouse_thisElec(evNo,bwii).this_delta_dB_Ev(theseEvNos_thisMouse_thisElec(evNo,bwii).whichMouse==mouseNo);
@@ -5151,7 +5157,7 @@ switch which_display
                             if can_calculate_auroc==1
                                 for evNo1=1:length(eventType)
                                     for evNo2=evNo1+1:length(eventType)
-                                        for bwii=1:4
+                                        for bwii=1:no_bandwidths
                                             
                                             
                                             %Enter Ev1
@@ -5247,7 +5253,7 @@ switch which_display
                         for evNo2=evNo1+1:length(eventType)
                             
                             
-                            for bwii=1:4
+                            for bwii=1:no_bandwidths
                                 
                                 %Enter Ev1
                                 trials_in_event_Ev1=length(theseEvNosPerEl(evNo1,bwii,which_electrodes(1)).this_delta_dB_powerEv);
@@ -5341,7 +5347,7 @@ switch which_display
         %Now plot the delta dB power per session per electrode
         conc_anno_loc = {[0.15 0.15 0.2 0.2], [0.15 0.15 0.2 0.17], [0.15 0.15 0.2 0.14], [0.15 0.15 0.2 0.11], [0.15 0.15 0.2 0.08], [0.15 0.15 0.2 0.05]};
         fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
             
             try
@@ -5408,7 +5414,7 @@ switch which_display
         %Now plot the histograms and the average per mouse LFP power computed per electrode
         conc_anno_loc = {[0.15 0.15 0.2 0.2], [0.15 0.15 0.2 0.17], [0.15 0.15 0.2 0.14], [0.15 0.15 0.2 0.11], [0.15 0.15 0.2 0.08], [0.15 0.15 0.2 0.05]};
         fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
             
             try
@@ -5491,7 +5497,7 @@ switch which_display
         %computed per mouse
         conc_anno_loc = {[0.15 0.15 0.2 0.2], [0.15 0.15 0.2 0.17], [0.15 0.15 0.2 0.14], [0.15 0.15 0.2 0.11], [0.15 0.15 0.2 0.08], [0.15 0.15 0.2 0.05]};
         fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
             
             try
@@ -5576,7 +5582,7 @@ switch which_display
         %Do auROC calculations per electrode per mouse
         
         %Plot cumulative histos for auROCs within vs between S+ and S-
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             
             
             figNo = get(gcf,'Number')+1;
@@ -5666,7 +5672,7 @@ switch which_display
             
             %Plot cumulative histos for auROCs within vs between S+ and S- using
             %only ROCs for adjacent concentrations
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 
                 
                 figNo = get(gcf,'Number')+1;
@@ -5742,7 +5748,7 @@ switch which_display
             
             %Plot cumulative histos for auROCs within vs between S+ and S- using
             %only ROCs for concentrations separated by two log steps
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 
                 
                 figNo = get(gcf,'Number')+1;
@@ -5823,7 +5829,7 @@ switch which_display
         no_between2=zeros(2,4);
         no_sig_between2=zeros(2,4);
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             for pcii=1:szpc(1)
                 no_pairs=0;
                 EvNo1=[];
@@ -5949,7 +5955,7 @@ switch which_display
             end
             hFig=figure(figNo);
             
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 subplot(2,2,bwii)
                 hold on
                 %Plot within naive
@@ -6001,7 +6007,7 @@ switch which_display
             end
             hFig=figure(figNo);
             
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 subplot(2,2,bwii)
                 hold on
                 %Plot within naive
@@ -6033,7 +6039,7 @@ switch which_display
         %Do auROC calulations per mouse (avearge of electrodes)
         
         %Plot cumulative histos for auROCs within vs between S+ and S-
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             
             
             figNo = get(gcf,'Number')+1;
@@ -6111,7 +6117,7 @@ switch which_display
             
             %Plot cumulative histos for auROCs within vs between S+ and S- using
             %only ROCs for adjacent concentrations
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 
                 
                 figNo = get(gcf,'Number')+1;
@@ -6187,7 +6193,7 @@ switch which_display
             
             %Plot cumulative histos for auROCs within vs between S+ and S- using
             %only ROCs for concentrations separated by two log steps
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 
                 
                 figNo = get(gcf,'Number')+1;
@@ -6267,7 +6273,7 @@ switch which_display
         no_between2=zeros(2,4);
         no_sig_between2=zeros(2,4);
         
-        for bwii=1:4
+        for bwii=1:no_bandwidths
             for pcii=1:szpc(1)
                 no_pairs=0;
                 EvNo1=[];
@@ -6393,7 +6399,7 @@ switch which_display
             end
             hFig=figure(figNo);
             
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 subplot(2,2,bwii)
                 hold on
                 %Plot within naive
@@ -6445,7 +6451,7 @@ switch which_display
             end
             hFig=figure(figNo);
             
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 subplot(2,2,bwii)
                 hold on
                 %Plot within naive
@@ -6754,7 +6760,7 @@ switch which_display
         
         xpos=0;
         for perii=1:2
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 %Concentration dependence
                 percent_sig_conc=100*sum(pvc((periis==perii)&(bwiis==bwii))<=0.05)/sum((periis==perii)&(bwiis==bwii));
                 fprintf(1, ['percent significant for dependence of delta dB on concentration for ' freq_names{bwii} ' ' per_lab{perii} '= %d, n= %d\n' ]...
@@ -6801,7 +6807,7 @@ switch which_display
             
             
             
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 subplot(1,4,bwii)
                 hold on
                 for ii=1:7
@@ -7107,7 +7113,7 @@ switch which_display
         
         xpos=0;
         for perii=1:2
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 %Concentration dependence
                 percent_sig_conc=100*sum(pvc((periis==perii)&(bwiis==bwii))<=0.05)/sum((periis==perii)&(bwiis==bwii));
                 fprintf(1, ['percent significant for dependence of delta dB on concentration for ' freq_names{bwii} ' ' per_lab{perii} '= %d, n= %d\n' ]...
@@ -7154,7 +7160,7 @@ switch which_display
             
             
             
-            for bwii=1:4
+            for bwii=1:no_bandwidths
                 subplot(1,4,bwii)
                 hold on
                 for ii=1:7
@@ -7214,7 +7220,7 @@ switch which_display
                         
                         theseEvNos_thisMouse_thisElec=[];
                         for evNo=1:length(eventType)
-                            for pacii=1:3
+                            for pacii=1:no_pacii
                                 theseEvNos_thisMouse_thisElec(evNo,pacii).noEv=0;
                             end
                         end
@@ -7246,7 +7252,7 @@ switch which_display
                                                     if (sum(trials_in_event_Ev)>=1)
                                                         
                                                         %Do per bandwidth analysis
-                                                        for pacii=1:3
+                                                        for pacii=1:no_pacii
                                                             
                                                             %Enter the modulation index
                                                             this_MI_Ev=zeros(sum(trials_in_event_Ev),1);
@@ -7321,7 +7327,7 @@ switch which_display
                         
                         %Calculate per mouse PAC measures
                         for evNo=1:length(eventType)
-                            for pacii=1:3
+                            for pacii=1:no_pacii
                                 
                                 if theseEvNos_thisMouse_thisElec(evNo,pacii).noEv>0
                                     %Calculate per mouse MI
@@ -7367,7 +7373,7 @@ switch which_display
         %Now plot the average MI per electrode per session (file)
         conc_anno_loc = {[0.15 0.6 0.2 0.2], [0.15 0.6 0.2 0.17], [0.15 0.6 0.2 0.14], [0.15 0.6 0.2 0.11], [0.15 0.6 0.2 0.08], [0.15 0.6 0.2 0.05]};
         fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
-        for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
+        for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             data_MI=[];
             prof_naive=[];
@@ -7434,7 +7440,7 @@ switch which_display
         %Now plot the average MI per electrode per mouse
         conc_anno_loc = {[0.15 0.6 0.2 0.2], [0.15 0.6 0.2 0.17], [0.15 0.6 0.2 0.14], [0.15 0.6 0.2 0.11], [0.15 0.6 0.2 0.08], [0.15 0.6 0.2 0.05]};
         fig_pos = {[664 550 576 513],[1233 550 576 513],[664 36 576 513],[1233 36 576 513]};
-        for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
+        for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             data_MI=[];
             prof_naive=[];
@@ -7502,7 +7508,7 @@ switch which_display
         
         %Now plot the cumulative histogram for MI per electrode per mouse
         
-        for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
+        for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             data_MI=[];
             prof_naive=[];
@@ -7565,7 +7571,7 @@ switch which_display
         %Plot the meanVectorAngle
         min_MI=0.000;
         
-        for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
+        for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             data_meanVectorAngle=[];
             prof_naive=[];
@@ -7796,7 +7802,7 @@ switch which_display
                         
                         theseEvNos_thisMouse_thisElec=[];
                         for evNo=1:length(eventType)
-                            for pacii=1:3
+                            for pacii=1:no_pacii
                                 theseEvNos_thisMouse_thisElec(evNo,pacii).noEv=0;
                             end
                         end
@@ -7827,7 +7833,7 @@ switch which_display
                                                     if (sum(trials_in_event_Ev)>=1)
                                                         
                                                         %Do per bandwidth analysis
-                                                        for pacii=1:3
+                                                        for pacii=1:no_pacii
                                                             
                                                             %Enter the modulation index
                                                             this_MI_Ev=zeros(sum(trials_in_event_Ev),1);
@@ -7907,7 +7913,7 @@ switch which_display
                             for evNo2=evNo1+1:length(eventType)
                                 
                                 
-                                for pacii=1:3
+                                for pacii=1:no_pacii
                                     if (theseEvNos_thisMouse_thisElec(evNo1,pacii).noEv>5)&(theseEvNos_thisMouse_thisElec(evNo2,pacii).noEv>5)
                                         %Enter Ev1
                                         trials_in_event_Ev1=theseEvNos_thisMouse_thisElec(evNo1,pacii).noEv;
@@ -7980,7 +7986,7 @@ switch which_display
                         if theseEvNos_thisMouse_thisElec(evNo,pacii).noEv>0
                             %Calculate per mouse PAC measures
                             for evNo=1:length(eventType)
-                                for pacii=1:3
+                                for pacii=1:no_pacii
                                     
                                     %Calculate per mouse MI
                                     mean_MI_No_per_mouse=mean_MI_No_per_mouse+1;
@@ -8037,7 +8043,7 @@ switch which_display
         %Plot cumulative histos for auROCs within vs between S+ and S-
         %Using all epochs
         figNo = get(gcf,'Number');
-        for pacii=1:3
+        for pacii=1:no_pacii
             
             
             
@@ -8118,7 +8124,7 @@ switch which_display
             
             %Plot cumulative histos for auROCs within vs between S+ and S- using
             %only ROCs for adjacent concentrations
-            for pacii=1:3
+            for pacii=1:no_pacii
                 
                 
                 
@@ -8194,7 +8200,7 @@ switch which_display
             
             %Plot cumulative histos for auROCs within vs between S+ and S- using
             %only ROCs for concentrations separated by two log steps
-            for pacii=1:3
+            for pacii=1:no_pacii
                 
                 
                 
@@ -8274,7 +8280,7 @@ switch which_display
         no_between2=zeros(2,4);
         no_sig_between2=zeros(2,4);
         
-        for pacii=1:3
+        for pacii=1:no_pacii
             for pcii=1:szpc(1)
                 no_pairs=0;
                 EvNo1=[];
@@ -8404,7 +8410,7 @@ switch which_display
             hFig=figure(figNo);
             figNo = figNo+1;
             
-            for pacii=1:3
+            for pacii=1:no_pacii
                 subplot(2,2,pacii)
                 hold on
                 %Plot within naive
@@ -8458,7 +8464,7 @@ switch which_display
             hFig=figure(figNo);
             figNo = figNo+1;
             
-            for pacii=1:3
+            for pacii=1:no_pacii
                 subplot(2,2,pacii)
                 hold on
                 %Plot within naive
@@ -8529,7 +8535,7 @@ switch which_display
                         
                         theseEvNos_thisMouse_thisElec=[];
                         for evNo=1:length(eventType)
-                            for pacii=1:3
+                            for pacii=1:no_pacii
                                 for group_no=1:max(handles_drgb.drgbchoices.group_no)
                                     theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv=0;
                                 end
@@ -8565,7 +8571,7 @@ switch which_display
                                                     if (sum(trials_in_event_Ev)>=1)
                                                         
                                                         %Do per bandwidth analysis
-                                                        for pacii=1:3
+                                                        for pacii=1:no_pacii
                                                             
                                                             group_no=handles_drgb.drgbchoices.group_no(fileNo);
                                                             
@@ -8658,7 +8664,7 @@ switch which_display
                             
                             %Calculate per mouse PAC measures
                             for evNo=1:length(eventType)
-                                for pacii=1:3
+                                for pacii=1:no_pacii
                                     for group_no=1:max(handles_drgb.drgbchoices.group_no)
                                         %Calculate per mouse MI
                                         mean_MI_No_per_mouse=mean_MI_No_per_mouse+1;
@@ -8729,7 +8735,7 @@ switch which_display
         
         %Now plot the average MI for each electrode calculated per mouse
         %(including all sessions for each mouse)
-        for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
+        for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             data_MI=[];
             prof_naive=[];
@@ -8862,7 +8868,7 @@ switch which_display
         %Now do the cumulative histograms and ranksums for MI for each electrode calculated with all sessons per mouse
         pvals=[];
         legends=[];
-        for pacii=1:3
+        for pacii=1:no_pacii
             
             ii_rank=0;
             mi_rank=[];
@@ -8965,7 +8971,7 @@ switch which_display
         fprintf(1, ['pFDR for per mi per mouse, per electrode  = %d\n\n'],pFDR_mi_rank);
         
         %Now plot the average MI per mouse averaged over electrodes
-        for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
+        for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             data_MI_per_mouse=[];
             prof_naive_per_mouse=[];
@@ -9139,7 +9145,7 @@ switch which_display
             
         end
         
-        for pacii=1:3
+        for pacii=1:no_pacii
             for evNo=1:length(eventType)
                 figure(pacii+3)
                 subplot(ceil(length(eventType)/2),2,evNo)
@@ -9162,7 +9168,7 @@ switch which_display
         all_means_shifted_meanVAs=[];
         all_CIs_shifted_meanVAs=[];
                             
-        for pacii=1:3
+        for pacii=1:no_pacii
             
             ii_rank=0;
             VA_rank=[];
@@ -9333,7 +9339,7 @@ switch which_display
         end
         
         %Now plot the average VA per mouse averaged over electrodes
-        for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
+        for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             
             ii_gr_included=0;
@@ -9437,7 +9443,7 @@ switch which_display
         end
         
         
-        for pacii=1:3
+        for pacii=1:no_pacii
             %             figure(pacii+3)
             %             for evNo=1:length(eventType)
             %                 subplot(1,2,evNo)
@@ -9472,7 +9478,7 @@ switch which_display
         if length(eventType)>2
             
             
-            for pacii=1:3
+            for pacii=1:no_pacii
                 try
                     close(pacii+12)
                 catch
@@ -9571,7 +9577,7 @@ switch which_display
                 mouse_has_files=0;
                 theseEvNosPerEl=[];
                 for evNo=1:length(eventType)
-                    for bwii=1:4
+                    for bwii=1:no_bandwidths
                         for elec=1:16
                             theseEvNosPerEl(evNo,bwii,elec).noEv=0;
                         end
@@ -9583,7 +9589,7 @@ switch which_display
                         
                         theseEvNos=[];
                         for evNo=1:length(eventType)
-                            for bwii=1:4
+                            for bwii=1:no_bandwidths
                                 theseEvNos(evNo,bwii).noEv=0;
                             end
                         end
@@ -9699,7 +9705,7 @@ switch which_display
                             for grNo=1:max(handles_drgb.drgbchoices.group_no)
                                 for evNo=1:length(eventType)
                                     if theseEvNos(evNo).noEv>0
-                                        for bwii=1:4
+                                        for bwii=1:no_bandwidths
                                             if sum(theseEvNos(evNo,1).groupNo==grNo)>0
                                                 delta_dB_No_per_mouse=delta_dB_No_per_mouse+1;
                                                 delta_dB_per_mouse(delta_dB_No_per_mouse)=mean(theseEvNos(evNo,bwii).this_delta_dB_powerEv(1,logical(theseEvNos(evNo,bwii).groupNo==grNo)));
@@ -9723,7 +9729,7 @@ switch which_display
                                         if theseEvNos(evNo1).noEv>0
                                             for evNo2=evNo1+1:length(eventType)
                                                 if theseEvNos(evNo2).noEv>0
-                                                    for bwii=1:4
+                                                    for bwii=1:no_bandwidths
                                                         
                                                         
                                                         %Enter Ev1
@@ -9829,7 +9835,7 @@ switch which_display
                             for evNo2=evNo1+1:length(eventType)
                                 
                                 
-                                for bwii=1:4
+                                for bwii=1:no_bandwidths
                                     
                                     %Enter Ev1
                                     trials_in_event_Ev1=length(theseEvNosPerEl(evNo1,bwii,which_electrodes(1)).this_delta_dB_powerEv(theseEvNosPerEl(evNo1,bwii,which_electrodes(1)).groupNo==grNo));
@@ -9950,7 +9956,7 @@ switch which_display
         
         %Now plot the per mouse delta LFP power computed for each electrode
         pvals=[];
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             
             %Plot the average
             try
@@ -10203,7 +10209,7 @@ switch which_display
         %Now plot the histograms and the average per mouse LFP power
         %computed per mouse
         
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
             
             try
@@ -10345,7 +10351,7 @@ switch which_display
         fprintf(1, ['\n\n'])
         
         %Display the auROC for all trials per mouse (per electrode) for for concentrations separated by two log steps
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
             
             try
@@ -10515,7 +10521,7 @@ switch which_display
         %This only works for Daniel's NRG, we have to modify in the future
         pvals=[];
         if sum(eventType==3)>0
-            for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+            for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
                 %Plot the average
                 
                 try
@@ -10654,7 +10660,7 @@ switch which_display
                 mouse_has_files=0;
                 theseEvNosPerEl=[];
                 for evNo=1:length(eventType)
-                    for bwii=1:4
+                    for bwii=1:no_bandwidths
                         for elec=1:16
                             theseEvNosPerEl(evNo,bwii,elec).noEv=0;
                         end
@@ -10665,7 +10671,7 @@ switch which_display
                     
                     theseEvNos=[];
                     for evNo=1:length(eventType)
-                        for bwii=1:4
+                        for bwii=1:no_bandwidths
                             theseEvNos(evNo,bwii).noEv=0;
                         end
                     end
@@ -10780,7 +10786,7 @@ switch which_display
                             mouse_included(mouseNo)=1;
                             %Calculate per mouse per electrode delta_dB
                             for evNo=1:length(eventType)
-                                for bwii=1:4
+                                for bwii=1:no_bandwidths
                                     if theseEvNos(evNo,bwii).noEv>0
                                         deltaCxy_No_per_mouse=deltaCxy_No_per_mouse+1;
                                         deltaCxy_per_mouse(deltaCxy_No_per_mouse)=mean(theseEvNos(evNo,bwii).this_deltaCxy_Ev);
@@ -10822,7 +10828,7 @@ switch which_display
         
         
         %Now plot the average per electrode, all sessions for each mouse
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
             
             try
@@ -10996,7 +11002,7 @@ switch which_display
         
         
         %
-        %         for bwii=1:4
+        %         for bwii=1:no_bandwidths
         %
         %             fprintf(1, ['Repeated measures anova for delta coherence during odor' freq_names{bwii} '\n\n'])
         %
@@ -11054,7 +11060,7 @@ switch which_display
         %
         %
         %
-        %         for bwii=1:4
+        %         for bwii=1:no_bandwidths
         %
         %             fprintf(1, ['Repeated measures anova for coherence before the odor ' freq_names{bwii} '\n\n'])
         %
@@ -11113,7 +11119,7 @@ switch which_display
         
         
         %Now plot the average per mouse LFP power
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
             
             try
@@ -11259,7 +11265,7 @@ switch which_display
         pvals=[];
         ranksum_deltaCxy=[];
         if sum(eventType==3)>0
-            for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+            for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
                 
                 %fprintf for ranksums
                 fprintf(1, ['Ranksum or t-test p values for delta coherence for ' freq_names{bwii} '\n'])
@@ -11367,7 +11373,7 @@ switch which_display
         pvals=[];
         ranksum_Cxy=[];
         if sum(eventType==3)>0
-            for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+            for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
                 
                 %fprintf for ranksums
                 fprintf(1, ['Ranksum or t-test p values for coherence before odor for ' freq_names{bwii} '\n'])
@@ -11517,7 +11523,7 @@ switch which_display
                 mouse_has_files=0;
                 theseEvNosPerEl=[];
                 for evNo=1:length(eventType)
-                    for bwii=1:4
+                    for bwii=1:no_bandwidths
                         for elec=1:16
                             theseEvNosPerEl(evNo,bwii,elec).noEv=0;
                         end
@@ -11529,7 +11535,7 @@ switch which_display
                         
                         theseEvNos=[];
                         for evNo=1:length(eventType)
-                            for bwii=1:4
+                            for bwii=1:no_bandwidths
                                 theseEvNos(evNo,bwii).noEv=0;
                             end
                         end
@@ -11624,7 +11630,7 @@ switch which_display
                             %Calculate per mouse per electrode wave_logP
                             for grNo=1:max(handles_drgb.drgbchoices.group_no)
                                 for evNo=1:length(eventType)
-                                    for bwii=1:4
+                                    for bwii=1:no_bandwidths
                                         if theseEvNos(evNo,bwii).noEv>0
                                             if sum(theseEvNos(evNo,bwii).groupNo==grNo)>0
                                                 wave_logP_No_per_mouse=wave_logP_No_per_mouse+1;
@@ -11651,7 +11657,7 @@ switch which_display
                                         if theseEvNos(evNo1).noEv>0
                                             for evNo2=evNo1+1:length(eventType)
                                                 if theseEvNos(evNo2).noEv>0
-                                                    for bwii=1:4
+                                                    for bwii=1:no_bandwidths
                                                         
                                                         
                                                         %Enter Ev1
@@ -11757,7 +11763,7 @@ switch which_display
                             for evNo2=evNo1+1:length(eventType)
                                 
                                 
-                                for bwii=1:4
+                                for bwii=1:no_bandwidths
                                     
                                     %Enter Ev1
                                     trials_in_event_Ev1=length(theseEvNosPerEl(evNo1,bwii,which_electrodes(1)).this_wave_logPEv(theseEvNosPerEl(evNo1,bwii,which_electrodes(1)).groupNo==grNo));
@@ -12030,7 +12036,7 @@ switch which_display
         %Now plot the per mouse delta peak wavelet LFP power computed for each electrode
         pvals=[];
         figOffset=1;
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             
             %Plot the average
             try
@@ -12288,7 +12294,7 @@ switch which_display
         maxlP=-200;
         minlP=200;
         
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             for grNo=1:max(handles_drgb.drgbchoices.group_no)
                 for evNo=1:length(eventType)
                     for per_ii=1:2      %performance bins. blue = naive, red = proficient
@@ -12303,7 +12309,7 @@ switch which_display
             end
         end
         
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             
             %Plot the average
             try
@@ -12397,7 +12403,7 @@ switch which_display
         %Now plot the histograms and the average per mouse LFP power
         %computed per mouse
         figOffset=figOffset+4;
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
             
             try
@@ -12543,7 +12549,7 @@ switch which_display
         
         %Display the auROC for all trials per mouse (per electrode) for for concentrations separated by two log steps
         figOffset=figOffset+4;
-        for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+        for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
             %Plot the average
             
             try
@@ -12714,7 +12720,7 @@ switch which_display
         pvals=[];
         if sum(eventType==3)>0
             figOffset=figOffset+4;
-            for bwii=1:4    %for bandwidths (theta, beta, low gamma, high gamma)
+            for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
                 %Plot the average
                 
                 try
