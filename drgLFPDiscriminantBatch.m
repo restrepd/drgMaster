@@ -1,6 +1,11 @@
 function drgLFPDiscriminantBatch
 
 %Discriminant and PCA analysis for LFP data
+
+% It takes as input a choices file such as 
+% drgbChoicesDiscriminantJustin_spm_perfom_LFP_20180215
+
+
 % handles.drgbchoices.which_discriminant chooses the analysis:
 %
 %1 Perceptron for power LFP (very slow and has not been troublehsot)

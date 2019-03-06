@@ -548,7 +548,6 @@ if handles.lastTrialNo<handles.trialNo
    handles.lastTrialNo=handles.trialNo; 
 end
 
-
 %Now set the event number
 sessionNo=handles.sessionNo;
 

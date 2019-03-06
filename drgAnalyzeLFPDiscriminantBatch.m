@@ -1,4 +1,8 @@
 function drgAnalyzeLFPDiscriminantBatch
+%Analyzes the linear discriminant analysis performed by drgLFPDiscriminantBatch
+%Takes as a in input the 'Discriminant_*.mat' output file from drgLFPDiscriminantBatch
+%Performs an analysis of the timecourse for percent correct for LDA and for
+%the PCA
 
 close all
 clear all

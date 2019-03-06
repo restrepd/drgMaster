@@ -1,4 +1,4 @@
-function evNo = drgFindEvNo(handles,trNo,sessionNo,evTypeNo)
+function evNo = drgFindTrNo(handles,trNo,sessionNo,evTypeNo)
 %
 %   Finds the event number corresponding to the trNo
 
