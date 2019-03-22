@@ -1,4 +1,4 @@
-function [meanVectorLength, meanVectorAngle, peakAngle, MI_Tort, phase, phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto]=drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins,method)
+function [meanVectorLength, meanVectorAngle, peakAngle, MI_Tort, phase, phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env]=drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins,method)
 %Generates the phase histogram for the emvelope and pac
 %function [pac_value, mod_indx, phase, phase_histo, theta_wave]=drgGetThetaAmpPhase(LFP,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins)
 
@@ -211,15 +211,17 @@ for iit=1:length(out_times)
 %     out_time_PAChisto(iit,:)=time_histos(iiloc_bef,:);
 end
 
-
+decLFPgenv=decimate(LFPgenv(time_pad*Fs:end-time_pad*Fs-1),20);
+decanglethetaLFP=decimate(anglethetaLFP(time_pad*Fs:end-time_pad*Fs-1),20);
+out_times_env=[1:length(decLFPgenv)]*(1/(Fs/20));
 
 %Note peak_amp_phase_timecourse_t goes from zero to
 %(time_end-time_start)+2*time_pad
 
-
+% 
 % % %Plot for troubleshooting
 % figure(10)
-% subplot(2,1,1)
+% subplot(3,1,1)
 % plot(LFPgenv)
 % hold on
 % for ii=1:length(loc)-1
@@ -227,7 +229,12 @@ end
 % end
 % title('Envelope for high frequency LFP')
 % 
-% subplot(2,1,2)
+% %Plot the theta phase
+% subplot(3,1,2)
+% plot(anglethetaLFP)
+% title('Theta phase')
+% 
+% subplot(3,1,3)
 % plot(anglethetaLFP)
 % hold on
 % for ii=1:length(loc)-1
@@ -236,7 +243,7 @@ end
 % plot(loc*Fs,(max(anglethetaLFP)+0.05*(max(anglethetaLFP)-min(anglethetaLFP))*ones(1,length(loc))),'ob')
 % plot((out_times+time_pad)*Fs,out_phase,'ok')
 % title('Angle for low frequency LFP/sniff')
-
+% 
 
 
 pffft=1;

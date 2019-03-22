@@ -155,11 +155,10 @@ if handles.displayData==0
 
         [max_hist max_ii]=max(mean(enc_phase_histo(logical(spm),:),1));
         meanPeakAngle=(phase(max_ii)*(pi/180))-pi;
-        handles.drgb.PAC.peakAngleForPower=phase(max_ii);
+        handles.drgb.PAC.maxAng
 
         [min_hist min_ii]=min(mean(enc_phase_histo(logical(spm),:),1));
         meanTroughAngle=(phase(min_ii)*(pi/180))-pi;
-        handles.drgb.PAC.troughAngleForPower=phase(min_ii);
 else
     if handles.use_peakAngle==0
         %Note that I use phase, mean(enc_phase_histo), as opposed to

@@ -1245,7 +1245,7 @@ if all_files_present==1
                                             measurements(:,:)=these_all_log_P_timecourse(:,:,time_point)';
                                             
                                             %Do the PCA
-                                            [coeff,par_t_out(time_point).principal_components,latent]=pca(measurements);
+                                            [coeff,par_t_out(time_point).principal_components,par_t_out(time_point).PC_variance]=pca(measurements);
                                             
                                         end
                                         
@@ -1253,8 +1253,10 @@ if all_files_present==1
                                         %Show a figure of the PCA and record the output
                                         
                                         principal_components=zeros(length(t),N,length(handles.drgbchoices.which_electrodes));
+                                        PC_variance=zeros(length(t),N,length(handles.drgbchoices.which_electrodes));
                                         for time_point=1:length(t)
                                             principal_components(time_point,:,:)=par_t_out(time_point).principal_components;
+                                            PC_variance(time_point,:,:)=par_t_out(time_point).PC_variance;
                                         end
                                         
                                         %Show the result of the PCA
@@ -1337,6 +1339,9 @@ if all_files_present==1
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).principal_components=zeros(length(t),N,length(handles.drgbchoices.which_electrodes));
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).principal_components=principal_components;
+                                        handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).PC_variance=zeros(length(t),N,length(handles.drgbchoices.which_electrodes));
+                                        handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).PC_variance=PC_variance;
+                                        
                                         
                                         handles_out.t=t';
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials=N;

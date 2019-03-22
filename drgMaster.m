@@ -22,7 +22,7 @@ function varargout = drgMaster(varargin)
 
 % Edit the above text to modify the response to help drgMaster
 
-% Last Modified by GUIDE v2.5 19-Jul-2018 08:54:30
+% Last Modified by GUIDE v2.5 20-Mar-2019 05:36:36
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -106,7 +106,9 @@ handles.analysisSync=1;
 handles.max_events_per_sec=20;
 handles.dt_lick=0.1;
 handles.smallest_inter_lick_interval=0.02;  %Note: this is used to reject "lick" events due to noise
-
+handles.peakAngle_for_power=100;
+handles.use_peakAngle=0;
+handles.troughAngle_for_power=200;
 
 % Update handles structure
 guidata(hObject, handles);
@@ -1159,3 +1161,65 @@ function is_50Hz_notch_filter_on_Callback(hObject, eventdata, handles)
 handles.notch50=get(hObject,'Value');
 % Update the handles structure
 guidata(hObject, handles);
+
+
+
+function set_peakAngle_Callback(hObject, eventdata, handles)
+% hObject    handle to set_peakAngle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of set_peakAngle as text
+%        str2double(get(hObject,'String')) returns contents of set_peakAngle as a double
+handles.peakAngle_for_power=str2double(get(hObject,'String'));
+% Update the handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function set_peakAngle_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to set_peakAngle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+% --- Executes on button press in peakAngle_set.
+function peakAngle_set_Callback(hObject, eventdata, handles)
+% hObject    handle to peakAngle_set (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of peakAngle_set
+handles.use_peakAngle=get(hObject,'Value');
+% Update the handles structure
+guidata(hObject, handles);
+
+
+
+function set_troughAngle_Callback(hObject, eventdata, handles)
+% hObject    handle to set_troughAngle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of set_troughAngle as text
+%        str2double(get(hObject,'String')) returns contents of set_troughAngle as a double
+handles.troughAngle_for_power=str2double(get(hObject,'String'));
+% Update the handles structure
+guidata(hObject, handles);
+
+% --- Executes during object creation, after setting all properties.
+function set_troughAngle_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to set_troughAngle (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

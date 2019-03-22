@@ -107,11 +107,29 @@ ylabel('Power (dB)')
 xlabel('Frequency (Hz)')
 
 if handles.subtractRef==0
-    maxlp=prctile(mean(log_all_Power,1),99);
-    minlp=prctile(mean(log_all_Power,1),1);
+    if handles.autoscale==1
+        maxlp=prctile(mean(log_all_Power,1),99);
+        minlp=prctile(mean(log_all_Power,1),1);
+    else
+        maxlp=handles.maxLogP;
+        minlp=handles.minLogP;
+    end
 else
-    maxlp=prctile(mean(log_all_Power,1)-mean(log_all_Power_ref,1),99);
-    minlp=prctile(mean(log_all_Power,1)-mean(log_all_Power_ref,1),1);  
+    
+    if handles.autoscale==1
+        maxlp=prctile(mean(log_all_Power,1)-mean(log_all_Power_ref,1),99);
+        minlp=prctile(mean(log_all_Power,1)-mean(log_all_Power_ref,1),1);
+    else
+        maxlp=handles.maxLogP;
+        minlp=handles.minLogP;
+    end
+    
+end
+
+%Note: Diego added this on purpose to limit the range to 10 dB
+%This results in emphasizing changes in the top 10 dB
+if maxlp-minlp>10
+    minlp=maxlp-10;
 end
 
 try
@@ -133,7 +151,7 @@ shading flat
 caxis([minlp maxlp]);
 xlabel('Frequency (Hz)')
 ylabel('Trial No');
-title(['log10(Power) per trial' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
+title(['log10(Power) per trial ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
 
 try
     close 3
