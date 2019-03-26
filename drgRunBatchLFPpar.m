@@ -275,21 +275,25 @@ if all_files_present==1
                             
                             
                             %Enter the per LFP values
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).no_trials=handlespf.drgb.PAC.no_trials;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).mod_indx=handlespf.drgb.PAC.mod_indx;
                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).meanVectorLength=handlespf.drgb.PAC.meanVectorLength;
                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).meanVectorAngle=handlespf.drgb.PAC.meanVectorAngle;
                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).peakAngle=handlespf.drgb.PAC.peakAngle;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).mod_indx=handlespf.drgb.PAC.mod_indx;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).all_phase_histo=handlespf.drgb.PAC.all_phase_histo;
                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).perCorrPAC=handlespf.drgb.PAC.perCorr;
                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).which_eventPAC=handlespf.drgb.PAC.which_event;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).phase=handlespf.drgb.PAC.phase;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).PACtimecourse=handlespf.drgb.PAC.PACtimecourse;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).t_power=handlespf.drgb.PAC.t_power;
                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).meanPeakPower=handlespf.drgb.PAC.meanPeakPower;
                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).meanTroughPower=handlespf.drgb.PAC.meanTroughPower;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).peakAngleForPower=handlespf.drgb.PAC.peakAngleForPower;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).troughAngleForPower=handlespf.drgb.PAC.troughAngleForPower;
+                            
+                            
+                            %NOTE: I commented these to decrease the size of the file. In the future if these are
+                            %used in drgAnanlysisBatchLFP these lines should be uncommented
+%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).no_trials=handlespf.drgb.PAC.no_trials;
+%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).all_phase_histo=handlespf.drgb.PAC.all_phase_histo;
+%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).phase=handlespf.drgb.PAC.phase;
+%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).PACtimecourse=handlespf.drgb.PAC.PACtimecourse;
+%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).t_power=handlespf.drgb.PAC.t_power;
+%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).peakAngleForPower=handlespf.drgb.PAC.peakAngleForPower;
+%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).troughAngleForPower=handlespf.drgb.PAC.troughAngleForPower;
                             
                             
 %                             %Enter the per experiment values

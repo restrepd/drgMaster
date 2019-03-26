@@ -201,7 +201,7 @@ for trNo=1:no_trials
     this_LFPenv=handles.drgb.PAC.PACtimecourse(trNo).decLFPgenv;
     while at_end==0
         ii_next=find(this_angleTetaLFP(ii:end)>=meanPeakAngle,1,'first');
-        if ~isempty(ii_next)
+        if (~isempty(ii_next))&(ii+ii_next-1<=length(out_times_env))
             jj=jj+1;
             peakAmp(jj)=this_LFPenv(ii+ii_next-1);
             peakAmp_times(jj)=out_times_env(ii+ii_next-1);
@@ -254,7 +254,7 @@ for trNo=1:no_trials
     this_LFPenv=handles.drgb.PAC.PACtimecourse(trNo).decLFPgenv;
     while at_end==0
         ii_next=find(this_angleTetaLFP(ii:end)>=meanTroughAngle,1,'first');
-        if ~isempty(ii_next)
+        if (~isempty(ii_next))&(ii+ii_next-1<=length(out_times_env))
             jj=jj+1;
             troughAmp(jj)=this_LFPenv(ii+ii_next-1);
             troughAmp_times(jj)=out_times_env(ii+ii_next-1);
