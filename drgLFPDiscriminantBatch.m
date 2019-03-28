@@ -812,6 +812,7 @@ if all_files_present==1
                                         shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
                                         discriminant_correct=zeros(1,length(t));
                                         discriminant_correct_shuffled=zeros(1,length(t));
+                                        dimensionality=zeros(1,length(t));
                                         auROC=zeros(1,length(t));
                                         per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
                                         
@@ -820,6 +821,11 @@ if all_files_present==1
                                             %LFP power per trial per electrode
                                             measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
                                             measurements(:,:)=these_all_log_P_timecourse(:,:,time_point)';
+                                            
+                                            %Dimensionality
+                                            %Rows: trials, Columns: electrodes
+                                            Signal=measurements;
+                                            dimensionality(time_point) = nansum(eig(cov(Signal)))^2/nansum(eig(cov(Signal)).^2);
                                             
                                             %Enter strings labeling each event (one event for
                                             %each trial)
@@ -1187,6 +1193,7 @@ if all_files_present==1
                                             
                                             xlabel('Number of electrodes used')
                                             ylabel('auROC')
+                                            ylim([-0.3 0.6])
                                             
                                             suptitle(['LFP power LDA ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         end
@@ -1207,7 +1214,7 @@ if all_files_present==1
                                             
                                             figure(figNo)
                                             
-                                            subplot(1,2,1)
+                                            subplot(1,3,1)
                                             hold on
                                             
                                             per95=prctile(discriminant_correct_shuffled(1,:),95);
@@ -1226,19 +1233,37 @@ if all_files_present==1
                                             xlabel('Time (sec)')
                                             ylabel('Percent correct')
                                             
-                                            subplot(1,2,2)
+                                            subplot(1,3,2)
                                             hold on
                                             
                                             plot(t,auROC)
                                             
                                             %Odor on markers
-                                            plot([0 0],[0 0.5],'-k')
+                                            plot([0 0],[-0.3 0.5],'-k')
                                             odorhl=plot([0 2.5],[0 0],'-k','LineWidth',5);
-                                            plot([2.5 2.5],[0 0.5],'-k')
+                                            plot([2.5 2.5],[-0.3 0.5],'-k')
                                             
                                             %title(['auROC for LDA for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                             xlabel('Time (sec)')
                                             ylabel('auROC')
+                                            ylim([-0.3 0.6])
+                                            
+                                            %Dimensionality
+                                            subplot(1,3,3)
+                                            hold on
+                                            
+                                            plot(t,dimensionality)
+                                            
+                                            %Odor on markers
+                                            maxdim=max(dimensionality);
+                                            mindim=min(dimensionality);
+                                            plot([0 0],[mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)],'-k')
+                                            odorhl=plot([0 2.5],[mindim mindim],'-k','LineWidth',5);
+                                            plot([2.5 2.5],[mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)],'-k')
+                                            
+                                            %title(['auROC for LDA for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                            xlabel('Time (sec)')
+                                            ylabel('Dimensionality')
                                             
                                             suptitle(['LFP power LDA analysis for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         end
@@ -1247,6 +1272,10 @@ if all_files_present==1
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct=zeros(1,length(t));
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct(1,:)=discriminant_correct(1,:);
                                         
+                                        handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).dimensionality=zeros(1,length(t));
+                                        handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).dimensionality(1,:)=dimensionality(1,:);
+                                        
+
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).auROC=zeros(1,length(t));
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).auROC=auROC;
                                         
@@ -1491,6 +1520,7 @@ if all_files_present==1
                                         discriminant_correct=zeros(1,length(t));
                                         discriminant_correct_shuffled=zeros(1,length(t));
                                         auROC=zeros(1,length(t));
+                                        dimensionality=zeros(1,length(t));
                                         per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
                                         
                                         parfor time_point=1:length(t)
@@ -1498,6 +1528,11 @@ if all_files_present==1
                                             %LFP power per trial per electrode
                                             measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
                                             measurements(:,:)=these_all_log_P_timecoursePAC(:,:,time_point)';
+                                            
+                                            %Dimensionality
+                                            %Rows: trials, Columns: electrodes
+                                            Signal=measurements;
+                                            dimensionality(time_point) = nansum(eig(cov(Signal)))^2/nansum(eig(cov(Signal)).^2);
                                             
                                             %Enter strings labeling each event (one event for
                                             %each trial)
@@ -1605,7 +1640,7 @@ if all_files_present==1
                                             
                                             figure(figNo)
                                             
-                                            subplot(2,2,1)
+                                            subplot(2,3,1)
                                             hold on
                                             
                                             per95=prctile(discriminant_correct_shuffled(1,:),95);
@@ -1624,25 +1659,49 @@ if all_files_present==1
                                             xlabel('Time (sec)')
                                             ylabel('% correct peak')
                                             
-                                            subplot(2,2,2)
+                                            subplot(2,3,2)
                                             hold on
                                             
                                             plot(t,auROC)
                                             
                                             %Odor on markers
-                                            plot([0 0],[0 0.5],'-k')
+                                            plot([0 0],[-0.3 0.5],'-k')
                                             odorhl=plot([0 2.5],[0 0],'-k','LineWidth',5);
                                             plot([2.5 2.5],[0 0.5],'-k')
                                             
                                             %title(['auROC for LDA for ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                             xlabel('Time (sec)')
                                             ylabel('auROC peak')
+                                            ylim([-0.3 0.6])
+                                            
+                                            
+                                            subplot(2,3,3)
+                                            hold on
+                                            
+                                            plot(t,dimensionality)
+                                            
+                                            maxdim=max(dimensionality);
+                                            mindim=min(dimensionality);
+                                            
+                                            %Odor on markers
+                                            plot([0 0],[mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)],'-k')
+                                            odorhl=plot([0 2.5],[mindim mindim],'-k','LineWidth',5);
+                                            plot([2.5 2.5],[mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)],'-k')
+                                            
+                                            %title(['auROC for LDA for ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                            xlabel('Time (sec)')
+                                            ylabel('dimensionality peak')
+                                            ylim([mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)])
                                         end
                                         %suptitle(['PAC power LDA analysis for Theta/' handles.drgbchoices.PACnames{PACii} ' PAC, mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
 
                                         handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
                                         handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_peak=zeros(1,length(t));
                                         handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_peak(1,:)=discriminant_correct(1,:);
+                                        
+                                        handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).dimensionality_peak=zeros(1,length(t));
+                                        handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).dimensionality_peak(1,:)=dimensionality(1,:);
+                                        
                                         
                                         handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auROC_peak=zeros(1,length(t));
                                         handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auROC_peak=auROC;
@@ -1697,6 +1756,7 @@ if all_files_present==1
                                         discriminant_correct=zeros(1,length(t));
                                         discriminant_correct_shuffled=zeros(1,length(t));
                                         auROC=zeros(1,length(t));
+                                        dimensionality=zeros(1,length(t));
                                         per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
                                         
                                         parfor time_point=1:length(t)
@@ -1704,6 +1764,11 @@ if all_files_present==1
                                             %LFP power per trial per electrode
                                             measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
                                             measurements(:,:)=these_all_log_P_timecoursePAC(:,:,time_point)';
+                                            
+                                            %Dimensionality
+                                            %Rows: trials, Columns: electrodes
+                                            Signal=measurements;
+                                            dimensionality(time_point) = nansum(eig(cov(Signal)))^2/nansum(eig(cov(Signal)).^2);
                                             
                                             %Enter strings labeling each event (one event for
                                             %each trial)
@@ -1802,7 +1867,7 @@ if all_files_present==1
                                         end
                                         
                                         if PACii==3
-                                            subplot(2,2,3)
+                                            subplot(2,3,4)
                                             hold on
                                             
                                             per95=prctile(discriminant_correct_shuffled(1,:),95);
@@ -1821,7 +1886,7 @@ if all_files_present==1
                                             xlabel('Time (sec)')
                                             ylabel('% correct trough')
                                             
-                                            subplot(2,2,4)
+                                            subplot(2,3,5)
                                             hold on
                                             
                                             plot(t,auROC)
@@ -1834,6 +1899,24 @@ if all_files_present==1
                                             %title(['auROC for LDA for ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                             xlabel('Time (sec)')
                                             ylabel('auROC trough')
+                                            ylim([-0.3 0.6])
+                                            
+                                            subplot(2,3,6)
+                                            hold on
+                                            
+                                            plot(t,dimensionality)
+                                            
+                                            mindim=min(dimensionality);
+                                            maxdim=max(dimensionality);
+                                            
+                                            %Odor on markers
+                                            plot([0 0],[mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)],'-k')
+                                            odorhl=plot([0 2.5],[0 0],'-k','LineWidth',5);
+                                            plot([2.5 2.5],[mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)],'-k')
+                                            
+                                            %title(['auROC for LDA for ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                            xlabel('Time (sec)')
+                                            ylabel('Dimensionality trough')
                                             
                                             suptitle(['PAC power LDA analysis for Theta/' handles.drgbchoices.PACnames{PACii} ' PAC, mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         end
@@ -1841,6 +1924,9 @@ if all_files_present==1
                                         handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
                                         handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_trough=zeros(1,length(t));
                                         handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_trough(1,:)=discriminant_correct(1,:);
+                                        
+                                        handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).dimensionality_trough=zeros(1,length(t));
+                                        handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).dimensionality_trough(1,:)=dimensionality(1,:);
                                         
                                         handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auROC_trough=zeros(1,length(t));
                                         handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auROC_trough=auROC;
@@ -1928,7 +2014,7 @@ if all_files_present==1
                                         end
                                         
                                         %Show the result of the PCA
-                                        if PCAii==3
+                                        if PACii==3
                                             figNo=figNo+1;
                                             try
                                                 close(figNo)
@@ -2088,7 +2174,7 @@ if all_files_present==1
                                         end
                                         
                                         
-                                        if PCAii==3
+                                        if PACii==3
                                             %Show PCA before odor on
                                             subplot(2,4,7)
                                             hold on
@@ -2450,6 +2536,7 @@ if all_files_present==1
                                             
                                             xlabel('Number of electrodes used')
                                             ylabel('auROC')
+                                            ylim([-0.3 0.6])
                                             
                                             suptitle(['PAC power LDA ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         end
@@ -2659,13 +2746,14 @@ if all_files_present==1
                                             plot(t_pac,auROCPAC)
                                             
                                             %Odor on markers
-                                            plot([0 0],[0 0.5],'-k')
+                                            plot([0 0],[-0.3 0.5],'-k')
                                             odorhl=plot([0 2.5],[0 0],'-k','LineWidth',5);
-                                            plot([2.5 2.5],[0 0.5],'-k')
+                                            plot([2.5 2.5],[-0.3 0.5],'-k')
                                             
                                             %title(['auROC for phase LDA for ' handles.drgbchoices.bwlabels{bwii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                             xlabel('Time (sec)')
                                             ylabel('auROC')
+                                            ylim([-0.3 0.6])
                                             
                                             suptitle(['LDA phase analysis for ' handles.drgbchoices.PACnames{PACii} ' PAC mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         end

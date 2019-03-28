@@ -147,7 +147,7 @@ end
 if ~isfield(handles_pars,'no_bandwidths')
     no_bandwidths=4;
     low_freq=[6 15 35 65];
-    high_freq=[12 30 55 95];
+    high_freq=[14 30 55 95];
     freq_names={'Theta','Beta','Low gamma','High gamma'};
 else
     no_bandwidths=handles_pars.no_bandwidths;
