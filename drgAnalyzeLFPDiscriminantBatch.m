@@ -57,7 +57,7 @@ for bwii=1:4
             all_discriminant_correct=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
             all_discriminant_correct_shuffled=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
             for mouseNo=1:max(handles_out.drgbchoices.mouse_no)
-                
+                 
                 if isfield(handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii),'discriminant_calulated')
                     %This is here because there was a spelling mistake
                     %"calulated"

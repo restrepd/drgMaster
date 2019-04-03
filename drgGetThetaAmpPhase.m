@@ -211,8 +211,10 @@ for iit=1:length(out_times)
 %     out_time_PAChisto(iit,:)=time_histos(iiloc_bef,:);
 end
 
-decLFPgenv=decimate(LFPgenv(time_pad*Fs:end-time_pad*Fs-1),20);
-decanglethetaLFP=decimate(anglethetaLFP(time_pad*Fs:end-time_pad*Fs-1),20);
+decLFPgenv=decimate(LFPgenv(int64(time_pad*Fs):end-int64(time_pad*Fs)-1),20);
+decanglethetaLFP=decimate(anglethetaLFP(int64(time_pad*Fs):end-int64(time_pad*Fs)-1),20);
+% decLFPgenv=decimate(LFPgenv(time_pad*Fs:end-time_pad*Fs-1),20);
+% decanglethetaLFP=decimate(anglethetaLFP(time_pad*Fs:end-time_pad*Fs-1),20);
 out_times_env=[1:length(decLFPgenv)]*(1/(Fs/20));
 
 %Note peak_amp_phase_timecourse_t goes from zero to

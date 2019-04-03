@@ -55,9 +55,9 @@ handles.evTypeNo=handles.drgbchoices.referenceEvent;
 lfp_per_file=[];
 all_files_present=1;
 for filNum=first_file:handles.drgbchoices.no_files
-%     lfp_per_file(filNum).lfp_per_exp_no=0;
+    lfp_per_file(filNum).lfp_per_exp_no=0;
     lfp_per_file(filNum).lfpevpair_no=0;
-%     lfp_per_file(filNum).lfp_per_exp=[];
+    lfp_per_file(filNum).lfp_per_exp=[];
     lfp_per_file(filNum).lfpevpair=[];
     lfp_per_file(filNum).f=[];
     lfp_per_file(filNum).out_times=[];
@@ -100,386 +100,397 @@ if all_files_present==1
     no_files=handles.drgbchoices.no_files;
     
     parfor filNum=first_file:no_files
-%     for filNum=first_file:no_files
-        
-%     for filNum=first_file:handles.drgbchoices.no_files
-        
-        file_no=filNum
-        handlespf=struct();
-        handlespf=handles;
-        
-        this_jt=handlespf.drgbchoices.FileName{filNum};
-        
-        %Was the file already processed?
-        if handlespf.temp_exist(filNum)==2
-            %If it was processed load the temp result
-            %If it was processed load the temp result
-%             load([handlespf.drgb.outPathName 'temp/temp_' this_jt(10:end)])
-%             lfp_per_file(filNum)=this_lfp_per_file;
+        try
+            %     for filNum=first_file:no_files
             
-            fprintf(1, 'Loaded data from temp file for file number: %d\n',filNum);
-        else
-            %Othrwise read the jt_times and do processing
-            %read the jt_times file
-            jtFileName=handles.drgbchoices.FileName{filNum};
-            if iscell(handles.drgbchoices.PathName)
-                jtPathName=handles.drgbchoices.PathName{filNum};
+            %     for filNum=first_file:handles.drgbchoices.no_files
+            
+            file_no=filNum
+            handlespf=struct();
+            handlespf=handles;
+            
+            this_jt=handlespf.drgbchoices.FileName{filNum};
+            
+            %Was the file already processed?
+            if handlespf.temp_exist(filNum)==2
+                %If it was processed load the temp result
+                %If it was processed load the temp result
+                %             load([handlespf.drgb.outPathName 'temp/temp_' this_jt(10:end)])
+                %             lfp_per_file(filNum)=this_lfp_per_file;
+                
+                fprintf(1, 'Loaded data from temp file for file number: %d\n',filNum);
             else
-                jtPathName=handles.drgbchoices.PathName;
-            end
-            
-            drgRead_jt_times(jtPathName,jtFileName);
-            FileName=[jtFileName(10:end-4) '_drg.mat'];
-            fullName=[jtPathName,FileName];
-            my_drg={'drg'};
-            S=load(fullName,my_drg{:});
-            handlespf.drg=S.drg;
-            lfp_per_file(filNum).eventlabels=handlespf.drg.draq_d.eventlabels;
-            
-            %         if handles.read_entire_file==1
-            %             handlespf=drgReadAllDraOrDg(handlespf);
-            %         end
-            
-            switch handlespf.drg.session(handlespf.sessionNo).draq_p.dgordra
-                case 1
-                case 2
-                    handlespf.drg.drta_p.fullName=[jtPathName jtFileName(10:end-4) '.dg'];
-                case 3
-                    handlespf.drg.drta_p.fullName=[jtPathName jtFileName(10:end-4) '.rhd'];
-            end
-            
-            %Set the last trial to the last trial in the session
-            %handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(2).noTimes;
-            handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
-            
-            %Run the analysis for each window
-            for winNo=1:handles.drgbchoices.noWindows
+                %Othrwise read the jt_times and do processing
+                %read the jt_times file
+                jtFileName=handles.drgbchoices.FileName{filNum};
+                if iscell(handles.drgbchoices.PathName)
+                    jtPathName=handles.drgbchoices.PathName{filNum};
+                else
+                    jtPathName=handles.drgbchoices.PathName;
+                end
                 
+                drgRead_jt_times(jtPathName,jtFileName);
+                FileName=[jtFileName(10:end-4) '_drg.mat'];
+                fullName=[jtPathName,FileName];
+                my_drg={'drg'};
+                S=load(fullName,my_drg{:});
+                handlespf.drg=S.drg;
+                lfp_per_file(filNum).eventlabels=handlespf.drg.draq_d.eventlabels;
                 
-%                 lfp_per_file(filNum).lfp_per_exp_no=lfp_per_file(filNum).lfp_per_exp_no+1;
-%                 
-%                 lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).fileNo=filNum;
-%                 lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).referenceEvent=handles.drgbchoices.referenceEvent;
-%                 lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).timeWindow=winNo;
-%                 lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).timeStart=handles.drgbchoices.timeStart(winNo);
-%                 lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).timeEnd=handles.drgbchoices.timeEnd(winNo);
+                %         if handles.read_entire_file==1
+                %             handlespf=drgReadAllDraOrDg(handlespf);
+                %         end
                 
+                switch handlespf.drg.session(handlespf.sessionNo).draq_p.dgordra
+                    case 1
+                    case 2
+                        handlespf.drg.drta_p.fullName=[jtPathName jtFileName(10:end-4) '.dg'];
+                    case 3
+                        handlespf.drg.drta_p.fullName=[jtPathName jtFileName(10:end-4) '.rhd'];
+                end
                 
-%                 if (sum(handles.drgbchoices.analyses==2)>0)
-%                     lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).allPower=[];
-%                     lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).all_Power_ref=[];
-%                     lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).which_eventLFPPower=[];
-%                     lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).perCorrLFPPower=[];
-%                 end
+                %Set the last trial to the last trial in the session
+                %handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(2).noTimes;
+                handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
                 
-%                 if (sum(handles.drgbchoices.analyses==4)>0)
-%                     lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_allPower=[];
-%                     lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_all_Power_ref=[];
-%                     lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_which_eventLFPPower=[];
-%                     lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_perCorrLFPPower=[];
-%                 end
-                
-                
-             
-                        
-%                 if sum(handles.drgbchoices.analyses==1)>0
-%                     for ii=1:handles.no_PACpeaks
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).no_trials=0;
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).meanVectorLength=[];
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).meanVectorAngle=[];
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).peakAngle=[];
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).mod_indx=[];
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).all_phase_histo=[];
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).perCorrPAC=[];
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).which_eventPAC=[];
-%                         
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).phase=[];
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).PACtimecourse=[];
-%                         
-%                     end
-%                 end
-                
-                %Now run the analysis for each lfp
-                for lfpNo=1:handles.drgbchoices.no_LFP_elect
+                %Run the analysis for each window
+                for winNo=1:handles.drgbchoices.noWindows
                     
                     
-                    handlespf.peakLFPNo=lfpNo;
-                    handlespf.burstLFPNo=lfpNo;
-                    handlespf.referenceEvent=handles.drgbchoices.referenceEvent;
-                    handlespf.subtractRef=handles.drgbchoices.subtractRef;
+                    lfp_per_file(filNum).lfp_per_exp_no=lfp_per_file(filNum).lfp_per_exp_no+1;
                     
-                    %Run the analysis for each time window
+                    lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).fileNo=filNum;
+                    lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).referenceEvent=handles.drgbchoices.referenceEvent;
+                    lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).timeWindow=winNo;
+                    lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).timeStart=handles.drgbchoices.timeStart(winNo);
+                    lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).timeEnd=handles.drgbchoices.timeEnd(winNo);
                     
-                    %First prepare the spectrogram
-                    %Get LFP power per trial
-                    if sum(handles.drgbchoices.analyses==2)>0
-                        
-                        %Subtracting and adding handles.window/2 gives the correct
-                        %times
-                        handlespf.time_start=min(handles.drgbchoices.timeStart-handles.time_pad-handles.window/2);
-                        handlespf.time_end=max(handles.drgbchoices.timeEnd+handles.time_pad+handles.window/2); %2.2 for Shane
-                        
-                        handlespf.burstLowF=handlespf.LFPPowerSpectrumLowF;
-                        handlespf.burstHighF=handlespf.LFPPowerSpectrumHighF;
-                        handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
-                        %handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(handlespf.referenceEvent).noTimes;
-                        handlespf.trialNo=1;
-                        all_Power=[];
-                        all_Power_timecourse=[];
-                        all_Power_ref=[];
-                        perCorr=[];
-                        which_event=[];
-                        
-                        %Please note this is the same function called in drgMaster
-                        %when you choose LFP Power Timecourse Trial Range, which calls drgLFPspectTimecourse
-                        [t,f,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo, perCorr,which_event]=drgGetLFPPowerForThisEvTypeNo(handlespf);
-                        
-                        
-                        lfp_per_file(filNum).f=f;
-                        
+                    
+                    if (sum(handles.drgbchoices.analyses==2)>0)
+                        lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).allPower=[];
+                        lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).all_Power_ref=[];
+                        lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).which_eventLFPPower=[];
+                        lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).perCorrLFPPower=[];
+                    end
+                    
+                    if (sum(handles.drgbchoices.analyses==4)>0)
+                        lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_allPower=[];
+                        lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_all_Power_ref=[];
+                        lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_which_eventLFPPower=[];
+                        lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_perCorrLFPPower=[];
                     end
                     
                     
                     
-                    handlespf.time_start=handles.drgbchoices.timeStart(winNo)-handles.time_pad;
-                    handlespf.time_end=handles.drgbchoices.timeEnd(winNo)+handles.time_pad; %2.2 for Shane
                     
-                    
-                    lfp_per_file(filNum).lfpevpair_no=lfp_per_file(filNum).lfpevpair_no+1;
-                    lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).fileNo=filNum;
-                    lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).elecNo=lfpNo;
-                    lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).referenceEvent=handles.drgbchoices.referenceEvent;
-                    lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).timeWindow=winNo;
-                    lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).timeStart=handles.drgbchoices.timeStart(winNo);
-                    lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).timeEnd=handles.drgbchoices.timeEnd(winNo);
-                    
-                    
-                    
-                    %Get PAC, percent correct and percent lick per trial
                     if sum(handles.drgbchoices.analyses==1)>0
                         for ii=1:handles.no_PACpeaks
-                            handlespf.n_peak=ii;
-                            handlespf.peakLowF=handles.PACpeakLowF;
-                            handlespf.peakHighF=handles.PACpeakHighF;
-                            handlespf.burstLowF=handles.PACburstLowF(ii);
-                            handlespf.burstHighF=handles.PACburstHighF(ii);
-                            
-                            
-                            %Please note this is the same function called by
-                            %drgMaster when the user chooses Phase Amplitude
-                            %Coupling
-                            this_ref=handlespf.subtractRef;
-                            handlespf.subtractRef=0;
-                            handlespf=drgThetaAmpPhaseTrialRange(handlespf);
-                            handlespf.subtractRef=this_ref;
-                            
-                            
-                            %Enter the per LFP values
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).mod_indx=handlespf.drgb.PAC.mod_indx;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).meanVectorLength=handlespf.drgb.PAC.meanVectorLength;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).meanVectorAngle=handlespf.drgb.PAC.meanVectorAngle;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).peakAngle=handlespf.drgb.PAC.peakAngle;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).perCorrPAC=handlespf.drgb.PAC.perCorr;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).which_eventPAC=handlespf.drgb.PAC.which_event;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).meanPeakPower=handlespf.drgb.PAC.meanPeakPower;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).meanTroughPower=handlespf.drgb.PAC.meanTroughPower;
-                            
-                            
-                            %NOTE: I commented these to decrease the size of the file. In the future if these are
-                            %used in drgAnanlysisBatchLFP these lines should be uncommented
-%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).no_trials=handlespf.drgb.PAC.no_trials;
-%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).all_phase_histo=handlespf.drgb.PAC.all_phase_histo;
-%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).phase=handlespf.drgb.PAC.phase;
-%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).PACtimecourse=handlespf.drgb.PAC.PACtimecourse;
-%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).t_power=handlespf.drgb.PAC.t_power;
-%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).peakAngleForPower=handlespf.drgb.PAC.peakAngleForPower;
-%                             lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).troughAngleForPower=handlespf.drgb.PAC.troughAngleForPower;
-                            
-                            
-%                             %Enter the per experiment values
-%                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).no_trials=lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).no_trials+handlespf.drgb.PAC.no_trials;
-%                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).meanVectorLength=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).meanVectorLength handlespf.drgb.PAC.meanVectorLength];
-%                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).meanVectorAngle=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).meanVectorAngle handlespf.drgb.PAC.meanVectorAngle];
-%                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).peakAngle=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).peakAngle handlespf.drgb.PAC.peakAngle];
-%                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).mod_indx=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).mod_indx handlespf.drgb.PAC.mod_indx];
-%                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).all_phase_histo=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).all_phase_histo handlespf.drgb.PAC.all_phase_histo'];
-%                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).perCorrPAC=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).perCorrPAC handlespf.drgb.PAC.perCorr];
-%                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).which_eventPAC=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).which_eventPAC handlespf.drgb.PAC.which_event];
-%                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).phase=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).phase handlespf.drgb.PAC.phase];
-%                               
-                      
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).no_trials=0;
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).meanVectorLength=[];
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).meanVectorAngle=[];
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).peakAngle=[];
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).mod_indx=[];
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).all_phase_histo=[];
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).perCorrPAC=[];
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).which_eventPAC=[];
                         end
                     end
                     
-                    %Get LFP power per trial
-                    if sum(handles.drgbchoices.analyses==2)>0
-                        sz_all_power=size(all_Power);
-                        this_all_power=zeros(sz_all_power(1),sz_all_power(2));
-                        this_all_power(:,:)=mean(all_Power_timecourse(:,:,(t>=handles.drgbchoices.timeStart(winNo))&(t<=handles.drgbchoices.timeEnd(winNo))),3);
-                        
-                        %Enter the per LFP values
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).allPower=this_all_power;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).which_eventLFPPower=which_event;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).perCorrLFPPower=perCorr;
-                        
-%                         %Enter the per experiment values
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).allPower=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).allPower this_all_power'];
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).which_eventLFPPower=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).which_eventLFPPower which_event];
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).perCorrLFPPower=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).perCorrLFPPower perCorr];
-%                         
-%                         
-                    end
-                    
-                    %Do the event-related LFP analysis
-                    if sum(handles.drgbchoices.analyses==3)>0
-                        %This was written to answer a reviewer's question on
-                        %lick-related theta LFP.
-                        handlespf.peakLowF=6;
-                        handlespf.peakHighF=12;
-                        handlespf.burstLowF=handlespf.LFPPowerSpectrumLowF;
-                        handlespf.burstHighF=handlespf.LFPPowerSpectrumHighF;
-                        
-                        handlespf.peakLFPNo=19; %These are licks
-                        [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr,no_ref_evs_per_trial]=drgEventRelatedAnalysis(handlespf);
-                        
-                        lfp_per_file(filNum).out_times=out_times;
-                        
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).no_trials_w_eventERP=no_trials_w_event;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).which_eventERP=which_event;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).fERP=f;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).log_P_tERP=log_P_t;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).phase_per_trialERP=phase_per_trial;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).no_trials=no_trials;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).no_events_per_trial=no_events_per_trial;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).t_per_event_per_trial=t_per_event_per_trial;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).trial_map=trial_map;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).perCorrERP=perCorr;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).no_ref_evs_per_trial=no_ref_evs_per_trial;
-                        
-                    end
-                    
-                    %Do the wavelet LFP power
-                    if sum(handles.drgbchoices.analyses==4)>0
-                        %Subtracting and adding handles.window/2 gives the correct
-                        %times
-                        handlespf.time_start=min(handles.drgbchoices.timeStart-handles.time_pad-handles.window/2);
-                        handlespf.time_end=max(handles.drgbchoices.timeEnd+handles.time_pad+handles.window/2); %2.2 for Shane
-                        
-                        handlespf.burstLowF=handlespf.LFPPowerSpectrumLowF;
-                        handlespf.burstHighF=handlespf.LFPPowerSpectrumHighF;
-                        handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
-                        %handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(handlespf.referenceEvent).noTimes;
-                        handlespf.trialNo=1;
-                        all_Power=[];
-                        all_Power_timecourse=[];
-                        all_Power_ref=[];
-                        perCorr=[];
-                        which_event=[];
-                        out_times=[];
-                        f=[];
-                        all_Power_timecourse=[];
-                        
-                        %Please note this is the same function called in drgMaster
-                        [t,f,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo, perCorr,which_event]=drgGetLFPwavePowerForThisEvTypeNo(handlespf);
-                        
-                        lfp_per_file(filNum).wave_f=f;
-                        
-                        sz_all_power=size(all_Power);
-                        this_all_power=zeros(sz_all_power(1),sz_all_power(2));
-                        this_all_power(:,:)=mean(all_Power_timecourse(:,:,(t>=handles.drgbchoices.timeStart(winNo))&(t<=handles.drgbchoices.timeEnd(winNo))),3);
-                        
-                        %Enter the per LFP values
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_allPower=this_all_power;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_refPower=all_Power_ref;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_trialNo=this_trialNo;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_which_eventLFPPower=which_event;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_perCorrLFPPower=perCorr;
-                        
-%                         %Enter the per experiment values
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_allPower=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_allPower this_all_power];
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_which_eventLFPPower=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).which_eventLFPPower which_event];
-%                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_perCorrLFPPower=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).perCorrLFPPower perCorr];
-                        
-                    end
-                    
-                    %Do the event-related LFP wavelet analysis
-                    if sum(handles.drgbchoices.analyses==5)>0
-                        handlespf.peakLowF=6;
-                        handlespf.peakHighF=12;
-                        handlespf.burstLowF=handlespf.LFPPowerSpectrumLowF;
-                        handlespf.burstHighF=handlespf.LFPPowerSpectrumHighF;
-                        
-                        handlespf.peakLFPNo=19; %These are licks
-                        
-                        log_P_t=[];
-                        no_trials=[];
-                        which_event=[];
-                        f=[];
-                        out_times=[];
-                        times=[];
-                        phase_per_trial=[];
-                        no_trials=[];
-                        no_events_per_trial=[];
-                        t_per_event_per_trial=[];
-                        trial_map=[];
-                        perCorr=[];
-                        no_ref_evs_per_trial=[];
-                        log_P_t_th=[];
-                        no_th_events_per_trial=[];
-                        t_th_per_event_per_trial=[];
-                        delta_lick_times_th=[];
-                        delta_lick_times=[];
-                        ERLFP_per_trial=[];
-                        thERLFP_per_trial=[];
-                        o_ref_evs_per_trial_th=[];
+                    %Now run the analysis for each lfp
+                    for lfpNo=1:handles.drgbchoices.no_LFP_elect
                         
                         
-                        [log_P_t,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr,no_ref_evs_per_trial,...
-                            log_P_t_th,no_th_events_per_trial,t_th_per_event_per_trial,delta_lick_times_th,delta_lick_times,ERLFP_per_trial,thERLFP_per_trial,no_ref_evs_per_trial_th...
-                            ]=drgEventRelatedWaveletAnalysis(handlespf);
+                        handlespf.peakLFPNo=lfpNo;
+                        handlespf.burstLFPNo=lfpNo;
+                        handlespf.referenceEvent=handles.drgbchoices.referenceEvent;
+                        handlespf.subtractRef=handles.drgbchoices.subtractRef;
                         
+                        %Run the analysis for each time window
                         
-                        lfp_per_file(filNum).wave_out_times=out_times;
-                        
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_trialsERWA=no_trials;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_which_eventERWA=which_event;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_fERWA=f;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_trialNoERWA=trial_map;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_perCorrERWA=perCorr;
-                        
-                        %Lick-referenced data
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_log_P_t_lick_referenced=log_P_t;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_lick_phase_per_trialERP=phase_per_trial;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_licks_per_trial=no_events_per_trial;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_t_per_lick_per_trial=t_per_event_per_trial;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_ref_licks_per_trial=no_ref_evs_per_trial;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).delta_lick_times=delta_lick_times;
-%                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).lick_referenced_LFP_per_trial=ERLFP_per_trial;
-                        
-                        %Theta-referenced data
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_log_P_t_ltheta_related=log_P_t_th;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_thetas_per_trial=no_th_events_per_trial;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_t_per_theta_per_trial=t_th_per_event_per_trial;
-%                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_theta_referenced_LFP_per_trial=thERLFP_per_trial;
-                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_ref_evs_per_trial_th=no_ref_evs_per_trial_th;
-                        
-%                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).delta_lick_times_theta_ref=delta_lick_times_th;
-                        
-                    end
-                      
-                    %Do the phase comparison analysis
-                    if sum(handles.drgbchoices.analyses==6)>0
-                        low_freq=handles.drgbchoices.phaseBandLow;
-                        high_freq=handles.drgbchoices.phaseBandHigh;
-                        
-                        for freq_ii=1:length(low_freq)
-                            handlespf.peakLowF=low_freq(freq_ii);
-                            handlespf.peakHighF=high_freq(freq_ii);
-                            handlespf.burstLowF=low_freq(freq_ii);
-                            handlespf.burstHighF=high_freq(freq_ii);
+                        %First prepare the spectrogram
+                        %Get LFP power per trial
+                        if sum(handles.drgbchoices.analyses==2)>0
                             
-                            elec2=lfpNo;
-                            for elec1=1:handles.drgbchoices.no_LFP_elect
+                            %Subtracting and adding handles.window/2 gives the correct
+                            %times
+                            handlespf.time_start=min(handles.drgbchoices.timeStart-handles.time_pad-handles.window/2);
+                            handlespf.time_end=max(handles.drgbchoices.timeEnd+handles.time_pad+handles.window/2); %2.2 for Shane
+                            
+                            handlespf.burstLowF=handlespf.LFPPowerSpectrumLowF;
+                            handlespf.burstHighF=handlespf.LFPPowerSpectrumHighF;
+                            handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
+                            %handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(handlespf.referenceEvent).noTimes;
+                            handlespf.trialNo=1;
+                            all_Power=[];
+                            all_Power_timecourse=[];
+                            all_Power_ref=[];
+                            perCorr=[];
+                            which_event=[];
+                            
+                            %Please note this is the same function called in drgMaster
+                            %when you choose LFP Power Timecourse Trial Range, which calls drgLFPspectTimecourse
+                            [t,f,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo, perCorr,which_event]=drgGetLFPPowerForThisEvTypeNo(handlespf);
+                            
+                            
+                            lfp_per_file(filNum).f=f;
+                            
+                        end
+                        
+                        
+                        
+                        handlespf.time_start=handles.drgbchoices.timeStart(winNo)-handles.time_pad;
+                        handlespf.time_end=handles.drgbchoices.timeEnd(winNo)+handles.time_pad; %2.2 for Shane
+                        
+                        
+                        lfp_per_file(filNum).lfpevpair_no=lfp_per_file(filNum).lfpevpair_no+1;
+                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).fileNo=filNum;
+                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).elecNo=lfpNo;
+                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).referenceEvent=handles.drgbchoices.referenceEvent;
+                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).timeWindow=winNo;
+                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).timeStart=handles.drgbchoices.timeStart(winNo);
+                        lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).timeEnd=handles.drgbchoices.timeEnd(winNo);
+                        
+                        
+                        
+                        %Get PAC, percent correct and percent lick per trial
+                        if sum(handles.drgbchoices.analyses==1)>0
+                            for ii=1:handles.no_PACpeaks
+                                handlespf.n_peak=ii;
+                                handlespf.peakLowF=handles.PACpeakLowF;
+                                handlespf.peakHighF=handles.PACpeakHighF;
+                                handlespf.burstLowF=handles.PACburstLowF(ii);
+                                handlespf.burstHighF=handles.PACburstHighF(ii);
+                                
+                                
+                                %Please note this is the same function called by
+                                %drgMaster when the user chooses Phase Amplitude
+                                %Coupling
+                                handlespf=drgThetaAmpPhaseTrialRange(handlespf);
+                                
+                                
+                                %Enter the per LFP values
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).no_trials=handlespf.drgb.PAC.no_trials;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).meanVectorLength=handlespf.drgb.PAC.meanVectorLength;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).meanVectorAngle=handlespf.drgb.PAC.meanVectorAngle;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).peakAngle=handlespf.drgb.PAC.peakAngle;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).mod_indx=handlespf.drgb.PAC.mod_indx;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).all_phase_histo=handlespf.drgb.PAC.all_phase_histo;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).perCorrPAC=handlespf.drgb.PAC.perCorr;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).which_eventPAC=handlespf.drgb.PAC.which_event;
+                                
+                                
+                                %Enter the per experiment values
+                                lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).no_trials=lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).no_trials+handlespf.drgb.PAC.no_trials;
+                                lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).meanVectorLength=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).meanVectorLength handlespf.drgb.PAC.meanVectorLength];
+                                lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).meanVectorAngle=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).meanVectorAngle handlespf.drgb.PAC.meanVectorAngle];
+                                lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).peakAngle=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).peakAngle handlespf.drgb.PAC.peakAngle];
+                                lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).mod_indx=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).mod_indx handlespf.drgb.PAC.mod_indx];
+                                lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).all_phase_histo=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).all_phase_histo handlespf.drgb.PAC.all_phase_histo'];
+                                lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).perCorrPAC=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).perCorrPAC handlespf.drgb.PAC.perCorr];
+                                lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).which_eventPAC=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).which_eventPAC handlespf.drgb.PAC.which_event];
+                                
+                            end
+                        end
+                        
+                        %Get LFP power per trial
+                        if sum(handles.drgbchoices.analyses==2)>0
+                            sz_all_power=size(all_Power);
+                            this_all_power=zeros(sz_all_power(1),sz_all_power(2));
+                            this_all_power(:,:)=mean(all_Power_timecourse(:,:,(t>=handles.drgbchoices.timeStart(winNo))&(t<=handles.drgbchoices.timeEnd(winNo))),3);
+                            
+                            %Enter the per LFP values
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).allPower=this_all_power;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).which_eventLFPPower=which_event;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).perCorrLFPPower=perCorr;
+                            
+                            %Enter the per experiment values
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).allPower=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).allPower this_all_power'];
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).which_eventLFPPower=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).which_eventLFPPower which_event];
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).perCorrLFPPower=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).perCorrLFPPower perCorr];
+                            
+                            
+                        end
+                        
+                        %Do the event-related LFP analysis
+                        if sum(handles.drgbchoices.analyses==3)>0
+                            %This was written to answer a reviewer's question on
+                            %lick-related theta LFP.
+                            handlespf.peakLowF=6;
+                            handlespf.peakHighF=12;
+                            handlespf.burstLowF=handlespf.LFPPowerSpectrumLowF;
+                            handlespf.burstHighF=handlespf.LFPPowerSpectrumHighF;
+                            
+                            handlespf.peakLFPNo=19; %These are licks
+                            [log_P_t,no_trials_w_event,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr,no_ref_evs_per_trial]=drgEventRelatedAnalysis(handlespf);
+                            
+                            lfp_per_file(filNum).out_times=out_times;
+                            
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).no_trials_w_eventERP=no_trials_w_event;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).which_eventERP=which_event;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).fERP=f;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).log_P_tERP=log_P_t;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).phase_per_trialERP=phase_per_trial;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).no_trials=no_trials;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).no_events_per_trial=no_events_per_trial;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).t_per_event_per_trial=t_per_event_per_trial;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).trial_map=trial_map;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).perCorrERP=perCorr;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).no_ref_evs_per_trial=no_ref_evs_per_trial;
+                            
+                        end
+                        
+                        %Do the wavelet LFP power
+                        if sum(handles.drgbchoices.analyses==4)>0
+                            %Subtracting and adding handles.window/2 gives the correct
+                            %times
+                            handlespf.time_start=min(handles.drgbchoices.timeStart-handles.time_pad-handles.window/2);
+                            handlespf.time_end=max(handles.drgbchoices.timeEnd+handles.time_pad+handles.window/2); %2.2 for Shane
+                            
+                            handlespf.burstLowF=handlespf.LFPPowerSpectrumLowF;
+                            handlespf.burstHighF=handlespf.LFPPowerSpectrumHighF;
+                            handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
+                            %handlespf.lastTrialNo=handlespf.drg.session(handlespf.sessionNo).events(handlespf.referenceEvent).noTimes;
+                            handlespf.trialNo=1;
+                            all_Power=[];
+                            all_Power_timecourse=[];
+                            all_Power_ref=[];
+                            perCorr=[];
+                            which_event=[];
+                            out_times=[];
+                            f=[];
+                            all_Power_timecourse=[];
+                            
+                            %Please note this is the same function called in drgMaster
+                            [t,f,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo, perCorr,which_event]=drgGetLFPwavePowerForThisEvTypeNo(handlespf);
+                            
+                            lfp_per_file(filNum).wave_f=f;
+                            
+                            sz_all_power=size(all_Power);
+                            this_all_power=zeros(sz_all_power(1),sz_all_power(2));
+                            this_all_power(:,:)=mean(all_Power_timecourse(:,:,(t>=handles.drgbchoices.timeStart(winNo))&(t<=handles.drgbchoices.timeEnd(winNo))),3);
+                            
+                            %Enter the per LFP values
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_allPower=this_all_power;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_refPower=all_Power_ref;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_trialNo=this_trialNo;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_which_eventLFPPower=which_event;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_perCorrLFPPower=perCorr;
+                            
+                            %                         %Enter the per experiment values
+                            %                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_allPower=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_allPower this_all_power];
+                            %                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_which_eventLFPPower=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).which_eventLFPPower which_event];
+                            %                         lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).wave_perCorrLFPPower=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).perCorrLFPPower perCorr];
+                            
+                        end
+                        
+                        %Do the event-related LFP wavelet analysis
+                        if sum(handles.drgbchoices.analyses==5)>0
+                            handlespf.peakLowF=6;
+                            handlespf.peakHighF=12;
+                            handlespf.burstLowF=handlespf.LFPPowerSpectrumLowF;
+                            handlespf.burstHighF=handlespf.LFPPowerSpectrumHighF;
+                            
+                            handlespf.peakLFPNo=19; %These are licks
+                            
+                            log_P_t=[];
+                            no_trials=[];
+                            which_event=[];
+                            f=[];
+                            out_times=[];
+                            times=[];
+                            phase_per_trial=[];
+                            no_trials=[];
+                            no_events_per_trial=[];
+                            t_per_event_per_trial=[];
+                            trial_map=[];
+                            perCorr=[];
+                            no_ref_evs_per_trial=[];
+                            log_P_t_th=[];
+                            no_th_events_per_trial=[];
+                            t_th_per_event_per_trial=[];
+                            delta_lick_times_th=[];
+                            delta_lick_times=[];
+                            ERLFP_per_trial=[];
+                            thERLFP_per_trial=[];
+                            o_ref_evs_per_trial_th=[];
+                            
+                            
+                            [log_P_t,which_event,f,out_times,times,phase_per_trial,no_trials,no_events_per_trial,t_per_event_per_trial,trial_map,perCorr,no_ref_evs_per_trial,...
+                                log_P_t_th,no_th_events_per_trial,t_th_per_event_per_trial,delta_lick_times_th,delta_lick_times,ERLFP_per_trial,thERLFP_per_trial,no_ref_evs_per_trial_th...
+                                ]=drgEventRelatedWaveletAnalysis(handlespf);
+                            
+                            
+                            lfp_per_file(filNum).wave_out_times=out_times;
+                            
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_trialsERWA=no_trials;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_which_eventERWA=which_event;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_fERWA=f;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_trialNoERWA=trial_map;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_perCorrERWA=perCorr;
+                            
+                            %Lick-referenced data
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_log_P_t_lick_referenced=log_P_t;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_lick_phase_per_trialERP=phase_per_trial;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_licks_per_trial=no_events_per_trial;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_t_per_lick_per_trial=t_per_event_per_trial;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_ref_licks_per_trial=no_ref_evs_per_trial;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).delta_lick_times=delta_lick_times;
+                            %                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).lick_referenced_LFP_per_trial=ERLFP_per_trial;
+                            
+                            %Theta-referenced data
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_log_P_t_ltheta_related=log_P_t_th;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_thetas_per_trial=no_th_events_per_trial;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_t_per_theta_per_trial=t_th_per_event_per_trial;
+                            %                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_theta_referenced_LFP_per_trial=thERLFP_per_trial;
+                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).wave_no_ref_evs_per_trial_th=no_ref_evs_per_trial_th;
+                            
+                            %                         lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).delta_lick_times_theta_ref=delta_lick_times_th;
+                            
+                        end
+                        
+                        %Do the phase comparison analysis
+                        if sum(handles.drgbchoices.analyses==6)>0
+                            low_freq=handles.drgbchoices.phaseBandLow;
+                            high_freq=handles.drgbchoices.phaseBandHigh;
+                            
+                            for freq_ii=1:length(low_freq)
+                                handlespf.peakLowF=low_freq(freq_ii);
+                                handlespf.peakHighF=high_freq(freq_ii);
+                                handlespf.burstLowF=low_freq(freq_ii);
+                                handlespf.burstHighF=high_freq(freq_ii);
+                                
+                                elec2=lfpNo;
+                                for elec1=1:handles.drgbchoices.no_LFP_elect
+                                    
+                                    handlespf.peakLFPNo=elec1;
+                                    handlespf.burstLFPNo=elec2;
+                                    
+                                    [rho,which_event,no_trials,angleLFPexp,filtLFPexp,filtLFPref]=drgComparePhases(handlespf);
+                                    lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).no_trials=no_trials;
+                                    lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).which_event=which_event;
+                                    lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).rho=rho;
+                                    lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).angleLFPexp=angleLFPexp;
+                                    lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).filtLFPexp=filtLFPexp;
+                                    lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).filtLFPref=filtLFPref;
+                                    
+                                end
+                            end
+                            
+                        end
+                        
+                        %Do the phase comparison analysis
+                        if sum(handles.drgbchoices.analyses==7)>0
+                            low_freq=handles.drgbchoices.phaseBandLow;
+                            high_freq=handles.drgbchoices.phaseBandHigh;
+                            
+                            for freq_ii=1:length(low_freq)
+                                handlespf.peakLowF=low_freq(freq_ii);
+                                handlespf.peakHighF=high_freq(freq_ii);
+                                handlespf.burstLowF=low_freq(freq_ii);
+                                handlespf.burstHighF=high_freq(freq_ii);
+                                
+                                elec1=handles.drgbchoices.refPhase;
+                                elec2=lfpNo;
                                 
                                 handlespf.peakLFPNo=elec1;
                                 handlespf.burstLFPNo=elec2;
@@ -493,52 +504,25 @@ if all_files_present==1
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).filtLFPref=filtLFPref;
                                 
                             end
-                        end
-                        
-                    end
-                    
-                    %Do the phase comparison analysis
-                    if sum(handles.drgbchoices.analyses==7)>0
-                        low_freq=handles.drgbchoices.phaseBandLow;
-                        high_freq=handles.drgbchoices.phaseBandHigh;
-                        
-                        for freq_ii=1:length(low_freq)
-                            handlespf.peakLowF=low_freq(freq_ii);
-                            handlespf.peakHighF=high_freq(freq_ii);
-                            handlespf.burstLowF=low_freq(freq_ii);
-                            handlespf.burstHighF=high_freq(freq_ii);
-                            
-                            elec1=handles.drgbchoices.refPhase;
-                            elec2=lfpNo;
-                            
-                            handlespf.peakLFPNo=elec1;
-                            handlespf.burstLFPNo=elec2;
-                            
-                            [rho,which_event,no_trials,angleLFPexp,filtLFPexp,filtLFPref]=drgComparePhases(handlespf);
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).no_trials=no_trials;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).which_event=which_event;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).rho=rho;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).angleLFPexp=angleLFPexp;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).filtLFPexp=filtLFPexp;
-                            lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).filtLFPref=filtLFPref;
                             
                         end
                         
+                        
+                        
+                        
+                        fprintf(1, 'File number: %d, window number: %d, lfp number: %d\n',filNum,winNo,lfpNo);
+                        
                     end
-                    
-                     
-                    
-                    fprintf(1, 'File number: %d, window number: %d, lfp number: %d\n',filNum,winNo,lfpNo);
-                    
                     
                 end
                 
+                %Save this temp file
+                drgSavePar([handlespf.drgb.outPathName tempDirName '/'],this_jt(10:end),lfp_per_file(filNum),filNum)
+                
+                
             end
-            
-            %Save this temp file
-            drgSavePar([handlespf.drgb.outPathName tempDirName '/'],this_jt(10:end),lfp_per_file(filNum),filNum)
-            
-                    
+        catch
+            fprintf(1, '\n\nProcessing failed for file number: %d\n\n',filNum);
         end
     end
     
