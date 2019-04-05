@@ -66,10 +66,10 @@ for trNo=firstTr:lastTr
     end
     
     evNo = drgFindEvNo(handles,trNo,sessionNo);
-    
+     
     if evNo~=-1
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
-        
+         
         if excludeTrial==0
             
             [LFPlow, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
@@ -86,9 +86,10 @@ for trNo=firstTr:lastTr
                     spm(no_trials)=0;
                 end
                 
-                time(no_trials)=handles.drg.session(sessionNo).trial_start(trialNo);
+                time(no_trials)=handles.drg.session(sessionNo).trial_start(trNo);
                 handles.drgb.PAC.this_trialNo(no_trials)=trNo;
                 perCorr_per_histo(no_trials)=50;
+               
                 if handles.peakLFPNo==18
                     %This is the sniff
                     [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase, phase_histo, theta_wave]=drgGetThetaAmpPhaseSniff(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
@@ -97,7 +98,7 @@ for trNo=firstTr:lastTr
                         phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env]...
                         =drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
                 end
-                
+
                 out_times=out_times+handles.time_start+handles.time_pad;
                 
                 %Save the output
@@ -108,7 +109,7 @@ for trNo=firstTr:lastTr
                 handles.drgb.PAC.mod_indx(no_trials)=mod_indx(no_trials);
                 handles.drgb.PAC.all_phase_histo(no_trials,1:n_phase_bins+1)=phase_histo;
                 handles.drgb.PAC.all_theta_wave(no_trials,1:n_phase_bins+1)=theta_wave;
-                handles.drgb.PAC.perCorr(no_trials)=perCorr(drgFindEvNo(handles,trialNo,sessionNo,odorOn));
+                handles.drgb.PAC.perCorr(no_trials)=perCorr(drgFindEvNo(handles,trNo,sessionNo,odorOn));
                 handles.drgb.PAC.meanPeakAngle(no_trials)=meanPeakAngle;
                 handles.drgb.PAC.PACtimecourse(no_trials).out_times=out_times;
                 handles.drgb.PAC.PACtimecourse(no_trials).out_phase=out_phase;
@@ -191,14 +192,14 @@ peakPower=zeros(no_trials,length(t));
 out_times_env=out_times_env+handles.time_start+handles.time_pad;
 
 %Find peak power
-for trNo=1:no_trials
+for trNum=1:no_trials
     peakAmp=[];
     peakAmp_times=[];
     ii=1;
     jj=0;
     at_end=0;
-    this_angleTetaLFP=handles.drgb.PAC.PACtimecourse(trNo).decanglethetaLFP;
-    this_LFPenv=handles.drgb.PAC.PACtimecourse(trNo).decLFPgenv;
+    this_angleTetaLFP=handles.drgb.PAC.PACtimecourse(trNum).decanglethetaLFP;
+    this_LFPenv=handles.drgb.PAC.PACtimecourse(trNum).decLFPgenv;
     while at_end==0
         ii_next=find(this_angleTetaLFP(ii:end)>=meanPeakAngle,1,'first');
         if (~isempty(ii_next))&(ii+ii_next-1<=length(out_times_env))
@@ -219,39 +220,39 @@ for trNo=1:no_trials
     
     for ii_t=1:length(t)
         if t(ii_t)<=peakAmp_times(1)
-            peakPower(trNo,ii_t)=10*log10((peakAmp(1)^2)/2);
+            peakPower(trNum,ii_t)=10*log10((peakAmp(1)^2)/2);
             %peakAmp_t(ii_t)=peakAmp(1);
         else
             if t(ii_t)>=peakAmp_times(end)
-                peakPower(trNo,ii_t)=10*log10((peakAmp(end)^2)/2);
+                peakPower(trNum,ii_t)=10*log10((peakAmp(end)^2)/2);
                 %peakAmp_t(ii_t)=peakAmp(end);
             else
                 ii_pt=find(peakAmp_times>=t(ii_t),1,'first');
                 this_amp=peakAmp(ii_pt-1)+(t(ii_t)-peakAmp_times(ii_pt-1))*((peakAmp(ii_pt)-peakAmp(ii_pt-1))/(peakAmp_times(ii_pt)-peakAmp_times(ii_pt-1)));
                 %peakAmp_t(ii_t)=this_amp;
-                peakPower(trNo,ii_t)=10*log10((this_amp^2)/2);
+                peakPower(trNum,ii_t)=10*log10((this_amp^2)/2);
             end
         end
     end
     
     if handles.subtractRef==1
-        peakPower(trNo,:)=peakPower(trNo,:)-mean(peakPower(trNo,(t>=handles.startRef+handles.time_pad)&(t<=handles.endRef-handles.time_pad)));
+        peakPower(trNum,:)=peakPower(trNum,:)-mean(peakPower(trNum,(t>=handles.startRef+handles.time_pad)&(t<=handles.endRef-handles.time_pad)));
     end
     
-    handles.drgb.PAC.PACtimecourse(trNo).peakPower=peakPower(trNo,:);
-    handles.drgb.PAC.meanPeakPower(trNo)=mean(peakPower(trNo,:));
+    handles.drgb.PAC.PACtimecourse(trNum).peakPower=peakPower(trNum,:);
+    handles.drgb.PAC.meanPeakPower(trNum)=mean(peakPower(trNum,:));
 end
 
 %Find trough power
 troughPower=zeros(no_trials,length(t));
-for trNo=1:no_trials
+for trNum=1:no_trials
     troughAmp=[];
     troughAmp_times=[];
     ii=1;
     jj=0;
     at_end=0;
-    this_angleTetaLFP=handles.drgb.PAC.PACtimecourse(trNo).decanglethetaLFP;
-    this_LFPenv=handles.drgb.PAC.PACtimecourse(trNo).decLFPgenv;
+    this_angleTetaLFP=handles.drgb.PAC.PACtimecourse(trNum).decanglethetaLFP;
+    this_LFPenv=handles.drgb.PAC.PACtimecourse(trNum).decLFPgenv;
     while at_end==0
         ii_next=find(this_angleTetaLFP(ii:end)>=meanTroughAngle,1,'first');
         if (~isempty(ii_next))&(ii+ii_next-1<=length(out_times_env))
@@ -272,27 +273,27 @@ for trNo=1:no_trials
     
     for ii_t=1:length(t)
         if t(ii_t)<=troughAmp_times(1)
-            troughPower(trNo,ii_t)=10*log10((troughAmp(1)^2)/2);
+            troughPower(trNum,ii_t)=10*log10((troughAmp(1)^2)/2);
             %troughAmp_t(ii_t)=troughAmp(1);
         else
             if t(ii_t)>=troughAmp_times(end)
-                troughPower(trNo,ii_t)=10*log10((troughAmp(end)^2)/2);
+                troughPower(trNum,ii_t)=10*log10((troughAmp(end)^2)/2);
                 %troughAmp_t(ii_t)=troughAmp(end);
             else
                 ii_pt=find(troughAmp_times>=t(ii_t),1,'first');
                 this_amp=troughAmp(ii_pt-1)+(t(ii_t)-troughAmp_times(ii_pt-1))*((troughAmp(ii_pt)-troughAmp(ii_pt-1))/(troughAmp_times(ii_pt)-troughAmp_times(ii_pt-1)));
                 %troughAmp_t(ii_t)=this_amp;
-                troughPower(trNo,ii_t)=10*log10((this_amp^2)/2);
+                troughPower(trNum,ii_t)=10*log10((this_amp^2)/2);
             end
         end
     end
     
     if handles.subtractRef==1
-        troughPower(trNo,:)=troughPower(trNo,:)-mean(troughPower(trNo,(t>=handles.startRef+handles.time_pad)&(t<=handles.endRef-handles.time_pad)));
+        troughPower(trNum,:)=troughPower(trNum,:)-mean(troughPower(trNum,(t>=handles.startRef+handles.time_pad)&(t<=handles.endRef-handles.time_pad)));
     end
     
-    handles.drgb.PAC.PACtimecourse(trNo).troughPower=troughPower(trNo,:);
-    handles.drgb.PAC.meanTroughPower(trNo)=mean(troughPower(trNo,:));
+    handles.drgb.PAC.PACtimecourse(trNum).troughPower=troughPower(trNum,:);
+    handles.drgb.PAC.meanTroughPower(trNum)=mean(troughPower(trNum,:));
 end
 
 
@@ -319,6 +320,7 @@ if handles.displayData==1
     CI_peakPower = bootci(1000, {@mean, peakPower})';
     CI_peakPower(:,1)=mean_peakPower-CI_peakPower(:,1);
     CI_peakPower(:,2)=CI_peakPower(:,2)-mean_peakPower;
+
     
 
     mean_troughPower=mean(troughPower,1)';
@@ -393,6 +395,26 @@ if handles.displayData==1
     xlabel('Trial No')
     ylabel('Modulation index')
     title('Modulation index vs trial number')
+    xlim([0 no_trials])
+    
+    
+    %Plot the mean vector length as a function of trial number
+    subplot(4,1,2)
+    trials=1:no_trials;
+    plot(trials,meanVectorLength,'o-')
+    hold on
+    if length(meanVectorLength>20)
+        no_conv_points=6;
+        conv_win=ones(1,no_conv_points);
+        meanVectorLength_extend=[mean(meanVectorLength(1:no_conv_points/2))*ones(1,no_conv_points) meanVectorLength mean(meanVectorLength(end-(no_conv_points/2)+1:end))*ones(1,no_conv_points)];
+        conv_meanVectorLength_extend=conv(meanVectorLength_extend,conv_win)/no_conv_points;
+        conv_meanVectorLength=conv_meanVectorLength_extend(no_conv_points+1:no_conv_points+length(meanVectorLength));
+        plot(trials,conv_meanVectorLength,'-b','LineWidth',3)
+    end
+    xlabel('Trial No')
+    ylabel('Mean vector length')
+    title('Mean vector length vs trial number')
+    xlim([1 no_trials]);
     
     % figure(11)
     % plot(trials,mod_indx,'o-k','MarkerEdgeColor','k','MarkerFaceColor','k','MarkerSize',7,'LineWidth',2)
@@ -405,14 +427,14 @@ if handles.displayData==1
     
     
     %Now plot the mean theta waveform
-    subplot(4,1,2)
+    subplot(4,1,3)
     shadedErrorBar(phase,mean(all_theta_wave,1),std(all_theta_wave,0,1),'-b')
     xlim([0 360])
     title('Mean low frequency waveform')
     xlabel('Degrees')
     
     %Now plot the encoding theta phase histogram for gamma
-    subplot(4,1,3)
+    subplot(4,1,4)
     shadedErrorBar(phase,mean(enc_phase_histo,1),std(enc_phase_histo,0,1),'-b')
     xlim([0 360])
     title('Phase-amplitude coupling')

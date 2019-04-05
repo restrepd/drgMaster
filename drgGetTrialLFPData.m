@@ -18,15 +18,15 @@ testLFP=handles.data_vs_simulate;
 %         end
 %     end
 % end
-
+ 
 sessionNo=handles.sessionNo;
 LFPtheta=[];
 LFPtheta2=[];
 LFPbursts=[];
 
 try
-    trialNo=find(handles.drg.session(sessionNo).trial_start<handles.drg.session(sessionNo).events(evTypeNo).times(evNo),1,'last');
-    
+%     trialNo=find(handles.drg.session(sessionNo).trial_start<handles.drg.session(sessionNo).events(evTypeNo).times(evNo),1,'last');
+    trialNo=drgFindTrNo(handles,evNo,sessionNo,evTypeNo);
 
     data_allch = drgGetThisTrial(handles,evNo,evTypeNo);
     
@@ -101,6 +101,7 @@ try
         X=[1:3*FWHM]; %Burst is calculated for 3*FWHM samples with peak in the middle
         k=normpdf(X,3*FWHM/2,FWHM/2.35482); %normpdf(x,mu,sigma), FWHM=2*sqrt(2*ln(2))=2.3548*sigma
         k=k/max(k); %Normalized to 1 at peak
+        handles.amplitudeHz=40;
         Fgamma=handles.amplitudeHz; %75
         g_burst=k.*cos(2*pi*Fgamma*t(1:length(k)));
         
@@ -245,7 +246,7 @@ try
                 if sum(handles.drg.session(1).events(5).times==handles.drg.session(1).events(evTypeNo).times(evNo))>0
                     %This is S+
                     %LFP gamma burst at 180 degrees, high MI
-                    gammaFact=15;
+                    gammaFact=30;  %15 is good for high gamma, 30 great for low gamma
                     shift_burst=-ceil(length(k)/2);
                     shift_trough=0; %peak
                     for ii=1:floor((time_end-time_start)*Ftheta)

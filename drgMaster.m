@@ -57,7 +57,7 @@ handles.output = hObject;
 handles.analysisNoOsc=1;
 handles.analysisNoSpikes=1;
 handles.peakLowF=6;
-handles.peakHighF=10;
+handles.peakHighF=14;
 handles.burstLowF=65;
 handles.burstHighF=95;
 handles.peakLFPNo=1; %3 for Anan, 2 for Justin
@@ -86,7 +86,7 @@ handles.deltaHighF_PAC=5; %30
 handles.bandwidth_lowF=3;
 handles.bandwidth_highF=25;
 handles.which_method=1;
-handles.amplitudeHz=80;
+handles.amplitudeHz=40; %40 for lo gamma 80 for high gamma
 handles.phaseHz=8;
 handles.unitNo=1;
 handles.analysisNoBeh=1;
@@ -549,17 +549,17 @@ end
 if handles.lastTrialNo<handles.trialNo
    handles.lastTrialNo=handles.trialNo; 
 end
-
+ 
 %Now set the event number
 sessionNo=handles.sessionNo;
 
 trNo=handles.lastTrialNo+1;
-evNo=-1
+evNo=-1;
 while (evNo==-1)&(trNo>handles.trialNo)
     trNo=trNo-1;
     evNo = drgFindEvNo(handles,trNo,sessionNo);
 end
-handles.lastTrialNo=trNo;
+
 set(hObject,'String',num2str(handles.lastTrialNo))
 handles.lastEvNo=evNo;
 set(handles.lastEventNo,'String',num2str(evNo));

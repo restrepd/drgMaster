@@ -4,8 +4,31 @@ function drgAnalyzeLFPDiscriminantBatch
 %Performs an analysis of the timecourse for percent correct for LDA and for
 %the PCA
 
+% which_discriminant chooses the analysis:
+%
+%1 Perceptron for power LFP (very slow and has not been troublehsot)
+%
+%2 Linear discriminant analysis (LDA) for power LFP
+%
+%3 Principal component analysis (PCA) for power LFP
+%
+%4 Linear discriminant analysis (LDA) for phase in phase amplitude
+%       coupling (PAC)
+%
+%5 Principal component analysis for PAC
+%
+%6 LDA for subsets of electrodes for power LFP
+%
+%7 LDA for PAC power
+%
+%8 PCA for PAC power
+%
+%9 LDA for PAC peak power for a subset of electrodes
+
 close all
 clear all
+
+which_discriminant=2;
 
 [fname,pname,nCancel] = uigetfile({'Discriminant_*.mat'},'Select the perceptron LFP batch output file ...');
 if nCancel
@@ -56,22 +79,43 @@ for bwii=1:4
             no_mice=0;
             all_discriminant_correct=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
             all_discriminant_correct_shuffled=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
-            for mouseNo=1:max(handles_out.drgbchoices.mouse_no)
-                 
-                if isfield(handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii),'discriminant_calulated')
-                    %This is here because there was a spelling mistake
-                    %"calulated"
-                    handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=...
-                        handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calulated;
-                end
-                if handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated==1
-                    per_ii=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials;
-                    if per_ii>=20
-                        no_mice=no_mice+1;
-                        all_discriminant_correct(no_mice,:)=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct;
-                        all_discriminant_correct_shuffled(no_mice,:)=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct_shuffled;
+            switch which_discriminant
+                case 2
+                    for mouseNo=1:max(handles_out.drgbchoices.mouse_no)
+                        
+                        if isfield(handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii),'discriminant_calulated')
+                            %This is here because there was a spelling mistake
+                            %"calulated"
+                            handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=...
+                                handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calulated;
+                        end
+                        if handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated==1
+                            per_ii=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials;
+                            if per_ii>=20
+                                no_mice=no_mice+1;
+                                all_discriminant_correct(no_mice,:)=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct;
+                                all_discriminant_correct_shuffled(no_mice,:)=handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct_shuffled;
+                            end
+                        end
                     end
-                end
+                case 7
+                     for mouseNo=1:max(handles_out.drgbchoices.mouse_no)
+                        
+                        if isfield(handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii),'discriminant_calulated')
+                            %This is here because there was a spelling mistake
+                            %"calulated"
+                            handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=...
+                                handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calulated;
+                        end
+                        if handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated==1
+                            per_ii=handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).no_trials;
+                            if per_ii>=20
+                                no_mice=no_mice+1;
+                                all_discriminant_correct(no_mice,:)=handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct_peak;
+                                all_discriminant_correct_shuffled(no_mice,:)=handles_out.discriminant_PCApower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).discriminant_correct_shuffled_peak;
+                            end
+                        end
+                    end
             end
             
             no_mice_per(percent_correct_ii)=no_mice;
