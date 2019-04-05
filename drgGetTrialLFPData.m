@@ -68,14 +68,15 @@ try
     dataforch=[];
     if ii_to<=length(data)
         if (ii_from<1)
-            %         can_read=0;
+            %The data was not long enough
+            can_read=0;
             dataforch=[zeros(-ii_from+1,1); data(1:ii_to)];
         else
             dataforch=data(ii_from:ii_to);
         end
     else
         %data is too short
-        %     can_read=0;
+        can_read=0;
         dataforch=[data(ii_from:end);zeros(ii_to-length(data)+1,1)];
     end
     
@@ -101,7 +102,7 @@ try
         X=[1:3*FWHM]; %Burst is calculated for 3*FWHM samples with peak in the middle
         k=normpdf(X,3*FWHM/2,FWHM/2.35482); %normpdf(x,mu,sigma), FWHM=2*sqrt(2*ln(2))=2.3548*sigma
         k=k/max(k); %Normalized to 1 at peak
-        handles.amplitudeHz=40;
+%         handles.amplitudeHz=40;
         Fgamma=handles.amplitudeHz; %75
         g_burst=k.*cos(2*pi*Fgamma*t(1:length(k)));
         
@@ -238,6 +239,7 @@ try
                 
                 % The cases below are used by batch processing
             case 9
+                %LFP low gamma burst at 180 degrees, high MI S+, low MI S-
                 
                 %if it is S-handles.drgbchoices.evTypeNos=[3 5 7 9 11 13 16:21];
    

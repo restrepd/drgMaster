@@ -9,7 +9,8 @@ testLFP=handles.data_vs_simulate;
 evTypeNo=handles.evTypeNo;
 sessionNo=handles.sessionNo;
 
-trialNo=find(handles.drg.session(sessionNo).trial_start<handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),1,'last');
+% trialNo=find(handles.drg.session(sessionNo).trial_start<handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),1,'last');
+trialNo = drgFindTrNo(handles,evNo,sessionNo,evTypeNo);
 
 ii_zero=floor(((handles.drg.session(sessionNo).events(evTypeNo).times(evNo)-handles.drg.session(sessionNo).trial_start(trialNo)))...
     *handles.drg.draq_p.ActualRate+1);

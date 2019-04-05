@@ -28,28 +28,6 @@ choiceFileName=handles.drgbchoices.FileName;
  %Very, very important!
 handles.evTypeNo=handles.drgbchoices.referenceEvent;
 
-%If you want to skip files that have already been processed enter the number of the first file
-% first_file=handles.drgb.first_file;
-
-% %NOTE: For the moment because of parallel processing I am defaulting to
-% %start with file 1
-% first_file=1;
-% 
-% if first_file==1
-%     handles.drgb.lfpevpair_no=0;
-%     handles.drgb.lfp_per_exp_no=0;
-%     first_out=1;
-% else
-%     load([handles.drgb.outPathName handles.drgb.outFileName])
-%     handles.drgb=handles_drgb.drgb;
-%     %The user may add new files
-%     handles.drgbchoices.no_files=new_no_files;
-%     handles.drgbchoices.PathName=choicePathName;
-%     handles.drgbchoices.FileName=choiceFileName;
-%     first_out=0;
-% end
-
-% test_batch=handles.drgbchoices.test_batch;
 
 %Parallel batch processing for each file
 lfp_per_file=[];
@@ -64,7 +42,7 @@ for filNum=first_file:handles.drgbchoices.no_files
     lfp_per_file(filNum).wave_f=[];
     lfp_per_file(filNum).wave_out_times=[];
     lfp_per_file(filNum).eventlabels=[];
-    
+     
     %Make sure that all the files exist
     jtFileName=handles.drgbchoices.FileName{filNum};
     if iscell(handles.drgbchoices.PathName)

@@ -7,7 +7,9 @@ end
 
 sessionNo=handles.sessionNo;
 
-trialNo=find(handles.drg.session(sessionNo).trial_start<handles.drg.session(sessionNo).events(evTypeNo).times(evNo),1,'last');
+trialNo = drgFindTrNo(handles,evNo,sessionNo,evTypeNo);
+
+% trialNo=find(handles.drg.session(sessionNo).trial_start<handles.drg.session(sessionNo).events(evTypeNo).times(evNo),1,'last');
 
 switch handles.drg.session(sessionNo).draq_p.dgordra
     
