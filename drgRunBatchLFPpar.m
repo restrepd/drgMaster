@@ -6,7 +6,12 @@ function drgRunBatchLFPpar
 %
 % An example of this file: drgbChoicesDanielPrelim
 %
+% handles.drgbchoices.analyses
+% 1 LFP power for case 20 in drgAnalysisBatchLFP
+% 2 PAC for cases 19 and 23 in drgAnalysisBatchLFP
+% 5 event-related LFP wavelet analysis for case 22 of drgAnalysisBatchLFP
 %
+% All others have not been vetted
 
 tic
 
@@ -255,7 +260,8 @@ if all_files_present==1
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).all_phase_histo=handlespf.drgb.PAC.all_phase_histo;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).perCorrPAC=handlespf.drgb.PAC.perCorr;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).which_eventPAC=handlespf.drgb.PAC.which_event;
-                                
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).peakAngleForPower=handlespf.drgb.PAC.peakAngleForPower;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).troughAngleForPower=handlespf.drgb.PAC.troughAngleForPower;
                                 
                                 %Enter the per experiment values
                                 lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).no_trials=lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).no_trials+handlespf.drgb.PAC.no_trials;

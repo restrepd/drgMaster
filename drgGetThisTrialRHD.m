@@ -59,7 +59,7 @@ num_amplifier_channels=handles.drg.session(sessionNo).draq_d.num_amplifier_chann
 num_samples_per_data_block=handles.drg.session(sessionNo).draq_d.num_samples_per_data_block;
 num_board_adc_channels=handles.drg.session(sessionNo).draq_d.num_board_adc_channels;
 num_board_dig_in_channels=handles.drg.session(sessionNo).draq_d.num_board_dig_in_channels;
-
+ 
 %Now read the data
 for i=handles.drg.session(sessionNo).draq_d.start_blockNo(trialNo):handles.drg.session(sessionNo).draq_d.end_blockNo(trialNo)
     % In version 1.2, we moved from saving timestamps as unsigned

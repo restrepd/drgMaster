@@ -213,8 +213,9 @@ if all_files_present==1
                         
                         gcp
                         
-                        parfor LFPNo=1:no_elect
-                            %                                                      for LFPNo=1:no_elect
+%                         parfor LFPNo=1:no_elect
+                            
+                        for LFPNo=1:no_elect
                             handlespf=struct();
                             handlespf=handles;
                             
@@ -297,7 +298,7 @@ if all_files_present==1
                                     end
                                 end
                             end
-                            
+                             
                             %Now calculate the PAC
                             if (sum(handlespf.drgbchoices.which_discriminant==4)>0)||(sum(handlespf.drgbchoices.which_discriminant==5)>0)||...
                                     (sum(handlespf.drgbchoices.which_discriminant==7)>0)

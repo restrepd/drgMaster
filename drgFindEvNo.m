@@ -16,7 +16,7 @@ end
 %     evNo=evNos(1);
 % end
 
-
+ 
 [this_min,evNo]=min(abs(handles.drg.session(sessionNo).events(evTypeNo).times-handles.drg.session(sessionNo).trial_start(trNo)));
 if this_min>handles.drg.session(sessionNo).draq_p.sec_before_trigger
      evNo=-1;

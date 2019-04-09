@@ -843,7 +843,7 @@ function openJt_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
+ 
 [jtFileName,jtPathName] = uigetfile('jt_times*.mat','Select jt_times file to open');
 handles.jtfullName=[jtPathName,jtFileName];
 handles.jtFileName=jtFileName;

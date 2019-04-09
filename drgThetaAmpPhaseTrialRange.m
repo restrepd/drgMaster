@@ -57,27 +57,38 @@ MI_retr=[];
 which_event=[];
 all_out_time_PAChisto=[];
 spm=[];
-
+trials_attempted=0;
 
 for trNo=firstTr:lastTr
-    
-    if handles.displayData==1
-        trial_no=trNo
-    end
-    
-    evNo = drgFindEvNo(handles,trNo,sessionNo);
      
+    evNo = drgFindEvNo(handles,trNo,sessionNo);
+    
+    %     if handles.displayData==1
+    %         trial_no=trNo
+    %         eventNo=evNo
+    %     end
+%     if trNo==12
+%         pffft=1;
+%     end
+    
     if evNo~=-1
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
          
         if excludeTrial==0
-            
+             
+            trials_attempted=trials_attempted+1;
             [LFPlow, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
             [LFPhigh, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
             
             if (can_read1==1)&(can_read2==1)
+                
                 no_trials=no_trials+1;
-               %If this is being used for batch processing find out whether
+                
+                if handles.displayData==1
+                    fprintf(1, ['Trial No %d, event No %d, processed trial no %d\n'], trNo,evNo,no_trials);
+                end
+                
+                %If this is being used for batch processing find out whether
                 %this is an S+
                 eventNo = drgFindEvNo(handles,trNo,sessionNo,splus);
                 if eventNo~=-1
@@ -140,7 +151,19 @@ for trNo=firstTr:lastTr
                         end
                     end
                 end
+            else
+                if handles.displayData==1
+                    fprintf(1, ['Trial No %d, event No %d, LFP could not be read\n'], trNo,evNo);
+                end
             end
+        else
+            if handles.displayData==1
+                fprintf(1, ['Trial No %d, event No %d, trial excluded\n'], trNo,evNo);
+            end
+        end
+    else
+        if handles.displayData==1
+            fprintf(1, ['Trial No %d, event No %d\n'], trNo,evNo);
         end
     end
     %end
@@ -157,7 +180,7 @@ if handles.displayData==0
         [max_hist max_ii]=max(mean(enc_phase_histo(logical(spm),:),1));
         meanPeakAngle=(phase(max_ii)*(pi/180))-pi;
         handles.drgb.PAC.peakAngleForPower=phase(max_ii);
-
+ 
         [min_hist min_ii]=min(mean(enc_phase_histo(logical(spm),:),1));
         meanTroughAngle=(phase(min_ii)*(pi/180))-pi;
         handles.drgb.PAC.troughAngleForPower=phase(min_ii);
@@ -315,7 +338,7 @@ if handles.displayData==1
     plot(out_times,(180/pi)*circ_axial(circ_mean(all_out_phase*pi/180)'),'ob')
     ylim([0 360])
     
-    
+     
     mean_peakPower=mean(peakPower,1)';
     CI_peakPower = bootci(1000, {@mean, peakPower})';
     CI_peakPower(:,1)=mean_peakPower-CI_peakPower(:,1);
@@ -371,6 +394,31 @@ if handles.displayData==1
     title(['Phase-amplitude coupling timecourse ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
     
     %     (180/pi)*circ_mean(all_out_phase'*pi/180)'
+    try
+        close 8
+    catch
+    end
+    
+    hFig8=figure(8);
+    hold on
+    
+    %Naive
+    if sum((handles.drgb.PAC.perCorr>=45)&(handles.drgb.PAC.perCorr<=65))>2
+        [f_MI,x_MI] = drg_ecdf(mod_indx((handles.drgb.PAC.perCorr>=45)&(handles.drgb.PAC.perCorr<=65)));
+        plot(x_MI,f_MI,'-b','LineWidth',3);
+    end
+    
+    %Proficient
+    if sum(handles.drgb.PAC.perCorr>=80)>2
+        [f_MI,x_MI] = drg_ecdf(mod_indx(handles.drgb.PAC.perCorr>=80));
+        plot(x_MI,f_MI,'-r','LineWidth',3);
+    end   
+    
+    xlabel('MI')
+    ylabel('Probability')
+    title('Cumulative histogram for MI')
+    legend('Naive','Proficient')
+                                    
     try
         close 2
     catch
@@ -503,9 +551,9 @@ if handles.displayData==1
 end
 
 if handles.displayData==1
-    fprintf(1, ['\nPCA processed for %d out of %d trials \n\n'], no_trials,lastTr);
+    fprintf(1, ['\nPCA processed for %d out of %d trials \n\n'], no_trials,trials_attempted);
 end
-
+ 
 pfffft=1;
 
 
