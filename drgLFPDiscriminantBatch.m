@@ -213,9 +213,9 @@ if all_files_present==1
                         
                         gcp
                         
-%                         parfor LFPNo=1:no_elect
+                        parfor LFPNo=1:no_elect
                             
-                        for LFPNo=1:no_elect
+%                         for LFPNo=1:no_elect
                             handlespf=struct();
                             handlespf=handles;
                             
@@ -2705,7 +2705,7 @@ if all_files_present==1
                                             discriminant_correctPAC(1,time_point)=100*sum(sum(test_out.*per_targets))/N;
                                             discriminant_correct_shuffledPAC(1,time_point)=100*sum(sum(shuffled_out.*per_targets))/N;
                                             fprintf(1, 'LDA percent correct classification %d (for timepoint %d out of %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/N,time_point,length(t_pac));
-                                            
+                                            pffft=1;
                                         end
                                     end
                                     
