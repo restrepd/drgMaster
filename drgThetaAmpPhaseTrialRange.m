@@ -63,14 +63,6 @@ for trNo=firstTr:lastTr
      
     evNo = drgFindEvNo(handles,trNo,sessionNo);
     
-    %     if handles.displayData==1
-    %         trial_no=trNo
-    %         eventNo=evNo
-    %     end
-%     if trNo==12
-%         pffft=1;
-%     end
-    
     if evNo~=-1
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
          
@@ -191,12 +183,14 @@ else
         %trial to trial when there are two peaks
         [max_hist max_ii]=max(mean(enc_phase_histo));
         meanPeakAngle=(phase(max_ii)*(pi/180))-pi;
+        handles.drgb.PAC.peakAngleForPower=phase(max_ii);
         if handles.displayData==1
             handles.peakAngle_for_power=phase(max_ii);
             set(handles.set_peakAngle,'String',num2str(phase(max_ii)));
         end
         [min_hist min_ii]=min(mean(enc_phase_histo));
         meanTroughAngle=(phase(min_ii)*(pi/180))-pi;
+        handles.drgb.PAC.troughAngleForPower=phase(min_ii);
         if handles.displayData==1
             handles.troughAngle_for_power=phase(min_ii);
             set(handles.set_troughAngle,'String',num2str(phase(min_ii)));
@@ -365,6 +359,8 @@ if handles.displayData==1
     xlabel('Time(sec)')
     ylabel('Peak power (dB)')
     legend([hltrough hlpeak],{'Trough','Peak'})
+    title(['Power (dB, PAC high frequency envelope)  ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
+    
     
     if handles.autoscale==0
         ylim([handles.minLogP handles.maxLogP]);
@@ -541,8 +537,8 @@ if handles.displayData==1
     set(hFig5, 'units','normalized','position',[.59 .05 .35 .35])
     
     if no_encoding_trials>0
-        rose(pi*meanVectorAngle/180,12)
-        title('Mean phase')
+        polarhistogram(pi*peakAngle/180,12)
+        title('Peak angle')
     end
     
     

@@ -49,14 +49,14 @@ times_lick_freq=([1:(ceil((handles.time_end-handles.time_start-2*handles.time_pa
 
 for trNo=firstTr:lastTr
     
-    if handles.save_drgb==0
-        trialNo=trNo
-    end
+    %     if handles.save_drgb==0
+    %         trialNo=trNo
+    %     end
     
     evNo = drgFindEvNo(handles,trNo,sessionNo);
     
     if evNo~=-1
- 
+        
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
         
         if excludeTrial==0
@@ -69,6 +69,11 @@ for trNo=firstTr:lastTr
                 no_trials=no_trials+1;
                 trials_included(no_trials)=trNo;
                 
+                if handles.displayData==1
+                    fprintf(1, ['drgGetLicks trial No %d, event No %d, processed trial no %d\n'], trNo,evNo,no_trials);
+                end
+                
+                
                 %Get the licks
                 [lickLFP, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
                 
@@ -77,7 +82,7 @@ for trNo=firstTr:lastTr
                 lick_trace=[];
                 lick_trace=lickLFP(int32(ii_start_licks):int32(ii_end_licks));
                 lick_traces(no_trials,1:length(lick_trace))=lick_trace;
-            
+                
                 
                 inter_lick_intervals_licks=[];
                 ii_ili_licks=0;
@@ -127,7 +132,7 @@ for trNo=firstTr:lastTr
                             temp_stamped_lick_ii(no_trials)=temp_stamped_lick_ii(no_trials)+1;
                             these_temp_stamped_lick_times(no_trials,temp_stamped_lick_ii(no_trials))=(ii/handles.drg.session(sessionNo).draq_p.ActualRate)+min_t+handles.time_pad;
                         end
-
+                        
                         end_event=find(lick_trace(ii:end)<thershold_licks,1,'first');
                         if isempty(end_event)
                             the_end=1;
@@ -140,33 +145,52 @@ for trNo=firstTr:lastTr
                 %Find the lick frequency
                 for jj=1:temp_stamped_lick_ii(no_trials)
                     if (these_temp_stamped_lick_times(no_trials,jj)>times_lick_freq(1)-(dt_licks/2))&...
-                           (these_temp_stamped_lick_times(no_trials,jj)<times_lick_freq(end)+(dt_licks/2)) 
+                            (these_temp_stamped_lick_times(no_trials,jj)<times_lick_freq(end)+(dt_licks/2))
                         jj_lick_time=ceil((these_temp_stamped_lick_times(no_trials,jj)-(min_t+handles.time_pad))/dt_licks);
-                        lick_freq(1,jj_lick_time)=lick_freq(1,jj_lick_time)+1;
+%                         lick_freq(1,jj_lick_time)=lick_freq(1,jj_lick_time)+1;
                         lick_freq_per_trial(no_trials,jj_lick_time)=lick_freq_per_trial(no_trials,jj_lick_time)+1;
                     end
                 end
                 
-                
+            else
+                if handles.displayData==1
+                    fprintf(1, ['drgGetLicks trial No %d, event No %d, LFP could not be read\n'], trNo,evNo);
+                end
             end
+        else
+            if handles.displayData==1
+                fprintf(1, ['drgGetLicks trial No %d, event No %d, trial excluded\n'], trNo,evNo);
+            end
+        end
+    else
+        if handles.displayData==1
+            fprintf(1, ['drgGetLicks trial No %d, event No %d\n'], trNo,evNo);
         end
     end
 end
- 
+
 %Convolve lick_freq using a window
-conv_win=ones(1,handles.window/dt_licks);
+lick_freq=mean(lick_freq_per_trial(temp_stamped_lick_ii(1:no_trials)>0,:),1);
+
+no_conv_points=ceil(0.3/dt_licks);
+conv_win=ones(1,no_conv_points);
+
 lick_freq=conv(lick_freq,conv_win,'same');
-lick_freq=lick_freq/(no_trials*handles.window);
 
-for ii=1:lastTr-firstTr+1
-    lick_freq_per_trial(ii,:)=conv(lick_freq_per_trial(ii,:),conv_win,'same');
+ntrs=0;
+for trNo=1:no_trials
+    if temp_stamped_lick_ii(trNo)>0
+        ntrs=ntrs+1;
+        conv_lick_freq_per_trial(ntrs,:)=conv(lick_freq_per_trial(trNo,:),conv_win,'same');
+    end
 end
-lick_freq_per_trial=lick_freq_per_trial/(dt_licks*handles.window);
-lick_freq_per_trial=lick_freq_per_trial(1:no_trials,:);
+CIlickf = bootci(1000, @mean, conv_lick_freq_per_trial);
+CIlickf(1,:)=lick_freq-CIlickf(1,:);
+CIlickf(2,:)=CIlickf(2,:)-lick_freq;
 
-CIlickf = bootci(1000, @mean, lick_freq_per_trial);
-CIlickf(1,:)=mean(lick_freq_per_trial)-CIlickf(1,:);
-CIlickf(2,:)=CIlickf(2,:)-mean(lick_freq_per_trial);
+lick_freq=lick_freq/(dt_licks*no_conv_points);
+CIlickf=CIlickf/(dt_licks*no_conv_points);
+
 
 lick_traces=lick_traces(1:no_trials,1:ceil((handles.time_end-handles.time_start-2*handles.time_pad)*handles.drg.session(sessionNo).draq_p.ActualRate));
 lick_trace_times=([1:ceil((handles.time_end-handles.time_start-2*handles.time_pad)*handles.drg.session(sessionNo).draq_p.ActualRate)]/handles.drg.session(sessionNo).draq_p.ActualRate)+min_t+handles.time_pad;

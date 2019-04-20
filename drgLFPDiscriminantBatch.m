@@ -2605,7 +2605,7 @@ if all_files_present==1
                                         shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t_pac));
                                         per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
                                         
-                                        for time_point=1:length(t_pac)
+                                        parfor time_point=1:length(t_pac)
                                             
                                             %LFP power per trial per electrode
                                             measurements=zeros(N,length(handles.drgbchoices.which_electrodes)*no_bins);

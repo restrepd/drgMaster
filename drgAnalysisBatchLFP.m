@@ -1,7 +1,6 @@
 function drgAnalysisBatchLFP(handles)
 
-%drgAnalysisBatchLFP displays the LFP power spectrum for drgRunBatch-generated
-%data
+%drgAnalysisBatchLFP displays the LFP power and PAC data processed bydrgRunBatchLFPpar
 
 %Which analysis is performed is determined by the value enterd in the
 %variable which_display:
@@ -72,8 +71,10 @@ function drgAnalysisBatchLFP(handles)
 %
 % 22 ERWA analysis for LFP power 
 %
-% 23 Oscillatory power at the peak and trough of the PAC
-
+% 23 Oscillatory power calculated from the amplitude of the Hilbert envelope of the high 
+% frequency at the peak and trough of the low frequency phase
+%
+% 24 Oscillatory wavelet power calculated at the peak and trough of the low frequency PAC phase
 %% Read the BatchParameters
 [parsFileName,parsPathName] = uigetfile({'drgLFPBatchAnalPars*.m'},'Select the .m file with all the parameters for LFP batch analysis');
 fprintf(1, ['\ndrgAnalysisBatchLFP run for ' parsFileName '\n\n']);
@@ -183,7 +184,7 @@ end
 
 event1=eventType(1);
 event2=eventType(2);
-
+ 
 
 %Ask user for the drgb output .mat file and load those data
 [handles.drgb.outFileName,handles.PathName] = uigetfile('*.mat','Select the drgb output file');
@@ -209,6 +210,7 @@ switch which_display
         frequency=handles_drgb.drgb.lfpevpair(1).f_coh;
     case 22
         frequency=handles_drgb.drgb.lfpevpair(1).wave_fERWA;
+    case 24
     otherwise
         if isfield(handles_drgb.drgb,'freq_for_LFPpower')
             frequency=handles_drgb.drgb.freq_for_LFPpower;
@@ -13991,6 +13993,939 @@ switch which_display
                                                             this_peakPACpower_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanPeakPower(trials_in_event_Ev)-handles_drgb.drgb.lfpevpair(lfpodRefNo).PAC(pacii).meanPeakPower(trials_in_event_Ev);
                                                             this_troughPACpower_Ev=zeros(sum(trials_in_event_Ev),1);
                                                             this_troughPACpower_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PAC(pacii).meanTroughPower(trials_in_event_Ev)-handles_drgb.drgb.lfpevpair(lfpodRefNo).PAC(pacii).meanTroughPower(trials_in_event_Ev);
+                                                            
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_peakPACpower_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1 ...
+                                                                :theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_peakPACpower_Ev;
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_troughPACpower_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1 ...
+                                                                :theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_troughPACpower_Ev;
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).whichMouse(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=mouseNo*ones(1,length(this_peakPACpower_Ev));
+                                                            theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev);
+                                                            
+                                                            %Save per session value for peak power
+                                                            mean_PACpower_No=mean_PACpower_No+1;
+                                                            mean_peakPACpower(mean_PACpower_No)=mean(this_peakPACpower_Ev);
+                                                            mean_troughPACpower(mean_PACpower_No)=mean(this_troughPACpower_Ev);
+                                                            mean_PACpower_perii(mean_PACpower_No)=per_ii;
+                                                            mean_PACpower_evNo(mean_PACpower_No)=evNo;
+                                                            mean_PACpower_pacii(mean_PACpower_No)=pacii;
+                                                            mean_PACpower_fileNo(mean_PACpower_No)=fileNo;
+                                                            mean_PACpower_mouse(mean_PACpower_No)=mouseNo;
+                                                            per_session_group_no(mean_PACpower_No)=handles_drgb.drgbchoices.group_no(fileNo);
+                                                            
+                                                            
+                                                            mouse_has_files=1;
+                                                            
+                                                        end
+                                                        
+                                                        
+                                                        fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode %d\n'],sum(trials_in_event_Ev), evNo,fileNo,elec);
+                                                        
+                                                    else
+                                                        
+                                                        
+                                                        fprintf(1, ['%d trials in event No %d fewer than minimum trials per event ' evTypeLabels{evNo} ' for file No %d electrode %d\n'],sum(trials_in_event_Ev), min_trials_per_event,fileNo,elec);
+                                                        
+                                                        
+                                                    end
+                                                    
+                                                    
+                                                end
+                                                
+                                            else
+                                                
+                                                fprintf(1, ['Empty percent_mask for file No %d electrode %d\n'],fileNo,elec);
+                                                
+                                            end
+                                            
+                                        else
+                                            
+                                            fprintf(1, ['Empty PAC for file No %d electrode %d\n'],fileNo,elec);
+                                            
+                                        end
+                                        
+                                        
+                                    else
+                                        fprintf(1, ['Empty lfpevpair for file No %d electrode %d\n'],fileNo,elec);
+                                        
+                                        
+                                    end
+                                end %if mouseNo
+                            end
+                        end %fileNo
+                        
+                        if theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv>0
+                            
+                            %Calculate per mouse PAC power
+                            for evNo=1:length(eventType)
+                                for pacii=1:no_pacii
+                                    for group_no=1:max(handles_drgb.drgbchoices.group_no)
+                                        %Calculate per mouse PAC power
+                                        mean_PACpower_No_per_mouse=mean_PACpower_No_per_mouse+1;
+                                        this_mouse_peakPACpower=[];
+                                        this_mouse_peakPACpower=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_peakPACpower_Ev;
+                                        this_mouse_troughPACpower=[];
+                                        this_mouse_troughPACpower=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_troughPACpower_Ev;
+                                        if ~isempty(this_mouse_peakPACpower)
+                                            mean_peakPACpower_per_mouse(mean_PACpower_No_per_mouse)=mean(this_mouse_peakPACpower);
+                                            mean_troughPACpower_per_mouse(mean_PACpower_No_per_mouse)=mean(this_mouse_troughPACpower);
+                                        else
+                                            mean_peakPACpower_per_mouse(mean_PACpower_No_per_mouse)=NaN;
+                                            mean_troughPACpower_per_mouse(mean_PACpower_No_per_mouse)=NaN;
+                                        end
+                                        
+                                        mean_PACpower_perii_per_mouse(mean_PACpower_No_per_mouse)=per_ii;
+                                        mean_PACpower_evNo_per_mouse(mean_PACpower_No_per_mouse)=evNo;
+                                        mean_PACpower_pacii_per_mouse(mean_PACpower_No_per_mouse)=pacii;
+                                        mean_PACpower_mouseNo_per_mouse(mean_PACpower_No_per_mouse)=mouseNo;
+                                        mean_PACpower_electNo_per_mouse(mean_PACpower_No_per_mouse)=elec;
+                                        mean_PACpower_group_no_per_mouse(mean_PACpower_No_per_mouse)=group_no;
+                                        
+                                    end
+                                end
+                            end
+                        end
+                        
+                    end
+                    
+                end
+                
+                if mouse_has_files==1
+                    mouse_included(mouseNo)=1;
+                else
+                    mouse_included(mouseNo)=0;
+                end
+            end
+            
+            
+        end
+        fprintf(1, '\n\n')
+        
+        
+        %Now plot the average peakPACpower for each electrode calculated per mouse
+        %(including all sessions for each mouse)
+        for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
+            
+            data_PACpower=[];
+            prof_naive=[];
+            events=[];
+            groups=[];
+            mice=[];
+            
+            %Plot the average
+            try
+                close(pacii)
+            catch
+            end
+            hFig=figure(pacii);
+            
+            set(hFig, 'units','normalized','position',[.1 .2 .7 .7])
+            subplot(2,1,1)
+            hold on
+            
+            bar_lab_loc=[];
+            no_ev_labels=0;
+            ii_gr_included=0;
+            
+            for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                
+                include_group=0;
+                
+                for evNo=1:length(eventType)
+                    
+                    for per_ii=1:2
+                        
+                        if sum(eventType==3)>0
+                            bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(2-evNo);
+                        else
+                            bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(length(eventType)-evNo);
+                        end
+                        
+                        these_offsets(per_ii)=bar_offset;
+                        
+                        if sum((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))>1
+                            
+                            include_group=1;
+                            
+                            if per_ii==1
+                                bar(bar_offset,mean(mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))),'r','LineWidth', 3,'EdgeColor','none')
+                            else
+                                bar(bar_offset,mean(mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))),'b','LineWidth', 3,'EdgeColor','none')
+                            end
+                            
+                            
+                            plot(bar_offset,mean(mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))),'ok','LineWidth', 3)
+                            plot((bar_offset)*ones(1,sum((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))),...
+                                mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)),'o',...
+                                'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+                            
+                            if sum((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))>=2
+                                CI = bootci(1000, {@mean, mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))},'type','cper');
+                                plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                            end
+                            
+                            %Save data for anovan
+                            data_PACpower=[data_PACpower mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))];
+                            prof_naive=[prof_naive per_ii*ones(1,sum((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)))];
+                            events=[events evNo*ones(1,sum((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)))];
+                            groups=[groups grNo*ones(1,sum((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)))];
+                            mice=[mice mean_PACpower_mouseNo_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))];
+                            
+                        end
+                    end
+                    if include_group==1
+                        bar_lab_loc=[bar_lab_loc mean(these_offsets)];
+                        no_ev_labels=no_ev_labels+1;
+                        if sum(eventType==3)>0
+                            bar_labels{no_ev_labels}=evTypeLabels{evNo};
+                        else
+                            bar_labels{no_ev_labels}=num2str(concs(evNo));
+                        end
+                    end
+                end
+                if include_group==1
+                    ii_gr_included=ii_gr_included+1;
+                    groups_included(ii_gr_included)=grNo;
+                end
+                
+            end
+            
+            title('Peak PAC power')
+            
+            
+            %Annotations identifying groups
+            x_interval=0.8/ii_gr_included;
+            for ii=1:ii_gr_included
+                annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
+            end
+            
+            %Proficient/Naive annotations
+            annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
+            annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
+            
+            %x labels
+            to_sort=[bar_lab_loc' [1:length(bar_lab_loc)]'];
+            sorted_A=sortrows(to_sort);
+            sorted_bar_lab_loc=sorted_A(:,1);
+            for ii=1:length(bar_lab_loc)
+                sorted_bar_labels{ii}=bar_labels{sorted_A(ii,2)};
+            end
+            xticks(sorted_bar_lab_loc)
+            xticklabels(sorted_bar_labels)
+            
+            if sum(eventType==3)==0
+                xlabel('Concentration (%)')
+            end
+            
+            ylabel('dB')
+            ylim1(pacii,:)=ylim;
+            
+            %Calculate anovan for inteaction
+            fprintf(1, ['ANOVAN for average peak PAC power for each electrode calculated per mouse with mouse as random factor PAC theta/' freq_names{pacii+1} '\n'])
+            [p,tbl,stats]=anovan(data_PACpower,{prof_naive, events, groups, mice},'varnames',{'proficient_vs_naive','events','groups','mice'},'display','off','random',4);
+            fprintf(1, ['p value for anovan peak PAC power per mouse per electrode for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+            fprintf(1, ['p value for anovan peak PAC power per mouse per electrode for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
+            fprintf(1, ['p value for anovan peak PAC power per mouse per electrode for groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
+            
+            %Calculate anovan for inteaction
+            fprintf(1, ['ANOVAN for average peak PAC power for each electrode calculated per mouse without mouse as a factor for PAC theta/' freq_names{pacii+1} '\n'])
+            [p,tbl,stats]=anovan(data_PACpower,{prof_naive, events, groups},'varnames',{'proficient_vs_naive','events','groups'},'display','off');
+            fprintf(1, ['p value for anovan peak PAC power per mouse per electrode for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+            fprintf(1, ['p value for anovan peak PAC power per mouse per electrode for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
+            fprintf(1, ['p value for anovan peak PAC power per mouse per electrode for groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
+            
+        end
+        
+        
+        %Now plot the average troughPACpower for each electrode calculated per mouse
+        %(including all sessions for each mouse)
+        for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
+            
+            data_PACpower=[];
+            prof_naive=[];
+            events=[];
+            groups=[];
+            mice=[];
+            
+            %Plot the average
+           
+            hFig=figure(pacii);
+            subplot(2,1,2)
+            hold on
+            
+            bar_lab_loc=[];
+            no_ev_labels=0;
+            ii_gr_included=0;
+            
+            for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                
+                include_group=0;
+                
+                for evNo=1:length(eventType)
+                    
+                    for per_ii=1:2
+                        
+                        if sum(eventType==3)>0
+                            bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(2-evNo);
+                        else
+                            bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(length(eventType)-evNo);
+                        end
+                        
+                        these_offsets(per_ii)=bar_offset;
+                        
+                        if sum((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))>1
+                            
+                            include_group=1;
+                            
+                            if per_ii==1
+                                bar(bar_offset,mean(mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))),'r','LineWidth', 3,'EdgeColor','none')
+                            else
+                                bar(bar_offset,mean(mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))),'b','LineWidth', 3,'EdgeColor','none')
+                            end
+                            
+                            
+                            plot(bar_offset,mean(mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))),'ok','LineWidth', 3)
+                            plot((bar_offset)*ones(1,sum((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))),...
+                                mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)),'o',...
+                                'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+                            
+                            if sum((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))>=2
+                                CI = bootci(1000, {@mean, mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))},'type','cper');
+                                plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                            end
+                            
+                            %Save data for anovan
+                            data_PACpower=[data_PACpower mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))];
+                            prof_naive=[prof_naive per_ii*ones(1,sum((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)))];
+                            events=[events evNo*ones(1,sum((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)))];
+                            groups=[groups grNo*ones(1,sum((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)))];
+                            mice=[mice mean_PACpower_mouseNo_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))];
+                            
+                        end
+                    end
+                    if include_group==1
+                        bar_lab_loc=[bar_lab_loc mean(these_offsets)];
+                        no_ev_labels=no_ev_labels+1;
+                        if sum(eventType==3)>0
+                            bar_labels{no_ev_labels}=evTypeLabels{evNo};
+                        else
+                            bar_labels{no_ev_labels}=num2str(concs(evNo));
+                        end
+                    end
+                end
+                if include_group==1
+                    ii_gr_included=ii_gr_included+1;
+                    groups_included(ii_gr_included)=grNo;
+                end
+            end
+            
+            title('Trough PAC power')
+            
+            suptitle(['Average PAC power for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1}])
+            
+            
+            %Annotations identifying groups
+            x_interval=0.8/ii_gr_included;
+            for ii=1:ii_gr_included
+                annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
+            end
+            
+            %Proficient/Naive annotations
+            annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
+            annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
+            
+            %x labels
+            to_sort=[bar_lab_loc' [1:length(bar_lab_loc)]'];
+            sorted_A=sortrows(to_sort);
+            sorted_bar_lab_loc=sorted_A(:,1);
+            for ii=1:length(bar_lab_loc)
+                sorted_bar_labels{ii}=bar_labels{sorted_A(ii,2)};
+            end
+            xticks(sorted_bar_lab_loc)
+            xticklabels(sorted_bar_labels)
+            
+            if sum(eventType==3)==0
+                xlabel('Concentration (%)')
+            end
+            
+            ylabel('dB')
+            ylim2=ylim;
+            ylim([min([ylim1(pacii,1) ylim2(1)]) max([ylim1(pacii,2) ylim2(2)])])
+            
+        end
+        
+        %Now do the cumulative histograms and ranksums for PAC power for each electrode calculated with all sessons per mouse
+        pvals=[];
+        legends=[];
+        prof_naive_leg{1}='Naive';
+        prof_naive_leg{2}='Proficient';
+        
+        
+        for pacii=1:no_pacii
+            
+            %Find max and min to use for xlim
+            maxpower=-200;
+            minpower=200;
+            for evNo=1:length(eventType)
+                for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                    for per_ii=1:2      %performance bins. blue = naive, red = proficient
+                        if sum((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))>1
+                            maxpower=max([maxpower max(mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)))]);
+                            minpower=min([minpower min(mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)))]);
+                        end
+                    end 
+                end
+            end
+            
+            try
+                close(pacii+3)
+            catch
+            end
+            hFig=figure(pacii+3);
+            
+            
+            set(hFig, 'units','normalized','position',[.1 .1 .7 .8])
+            
+            
+            %Plot the peak PAC power
+            ii_rank=0;
+            input_data=[];
+            for evNo=1:length(eventType)
+                
+                subplot(2,2,evNo)
+                hold on
+                
+                for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                    
+                    
+                    
+                    for per_ii=1:2      %performance bins. blue = naive, red = proficient
+                        
+                        
+                        if sum((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))>1
+                            
+                            [f_mi,x_mi] = drg_ecdf(mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)));
+                            cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).f_mi=f_mi;
+                            cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).x_mi=x_mi;
+                            if grNo==1
+                                if per_ii==1
+                                    legends.pacii(pacii).evNo(evNo).p1=plot(x_mi,f_mi,'Color',[1 0 0],'LineWidth',3);
+                                else
+                                    legends.pacii(pacii).evNo(evNo).p2=plot(x_mi,f_mi,'Color',[0 0 1],'LineWidth',3);
+                                end
+                            else
+                                if per_ii==1
+                                    legends.pacii(pacii).evNo(evNo).p3=plot(x_mi,f_mi,'Color',[1 0.7 0.7],'LineWidth',3);
+                                else
+                                    legends.pacii(pacii).evNo(evNo).p4=plot(x_mi,f_mi,'Color',[0.7 0.7 1],'LineWidth',3);
+                                end
+                            end
+                            
+                            
+                            %Compute per mouse avearge
+                            each_mouse_average_PACpower=[];
+                            no_mice_included=0;
+                            for mouseNo=1:max(mean_PACpower_mouseNo_per_mouse)
+                                if mouse_included(mouseNo)==1
+                                    if sum(handles_drgb.drgbchoices.group_no(handles_drgb.drgbchoices.mouse_no==mouseNo)==grNo)
+                                        if sum((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)&(mean_PACpower_mouseNo_per_mouse==mouseNo))>0
+                                            no_mice_included=no_mice_included+1;
+                                            each_mouse_average_PACpower(no_mice_included)=mean(mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)&(mean_PACpower_mouseNo_per_mouse==mouseNo)));
+                                        end
+                                    end
+                                end
+                            end
+                            
+                            %Show average per mouse
+                            if no_mice_included>0
+                                for jj=1:length(each_mouse_average_PACpower)
+                                    this_f_mi=[];
+                                    this_f_mi=cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).f_mi;
+                                    
+                                    this_x_mi=[];
+                                    this_x_mi=cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).x_mi;
+                                    
+                                    xii_below=find(this_x_mi<each_mouse_average_PACpower(jj),1,'last');
+                                    xii_above=find(this_x_mi>each_mouse_average_PACpower(jj),1,'first');
+                                    
+                                    slope=(this_f_mi(xii_above)-this_f_mi(xii_below))/(this_x_mi(xii_above)-this_x_mi(xii_below));
+                                    intercept=this_f_mi(xii_above)-slope*this_x_mi(xii_above);
+                                    
+                                    this_f=slope*each_mouse_average_PACpower(jj)+intercept;
+                                    
+                                    if grNo==1
+                                        if per_ii==1
+                                            plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[1 0 0],'MarkerEdge',[1 0 0],'MarkerSize',10)
+                                        else
+                                            plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[0 0 1],'MarkerEdge',[0 0 1],'MarkerSize',10)
+                                        end
+                                    else
+                                        if per_ii==1
+                                            plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[1 0.7 0.7],'MarkerEdge',[1 0.7 0.7],'MarkerSize',10)
+                                        else
+                                            plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[0.7 0.7 1],'MarkerEdge',[0.7 0.7 1],'MarkerSize',10)
+                                        end
+                                    end
+                                    
+                                end
+                            end
+                            
+                            %Save data for ranksum
+                            ii_rank=ii_rank+1;
+                            input_data(ii_rank).data=mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo));
+                            input_data(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
+                         end
+                    end
+                    
+                end
+                
+                title(evTypeLabels{evNo})
+                xlabel('Peak PAC power (dB)')
+                ylabel('Probability')
+                xlim([minpower-0.1*(maxpower-minpower) maxpower+0.1*(maxpower-minpower)])
+            end
+
+            
+            %Now do the ranksums
+            fprintf(1, ['Ranksum or t-test p values for peak PAC power for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
+            output_data = drgMutiRanksumorTtest(input_data);
+
+            fprintf(1, ['\n\n'])
+            
+            
+            %Plot the trough PAC power
+            ii_rank=0;
+            input_data=[];
+            for evNo=1:length(eventType)
+                
+                subplot(2,2,evNo+2)
+                hold on
+                
+                for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                    
+                    
+                    
+                    for per_ii=1:2      %performance bins. blue = naive, red = proficient
+                        
+                        
+                        if sum((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))>1
+                            
+                            [f_mi,x_mi] = drg_ecdf(mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)));
+                            cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).f_mi=f_mi;
+                            cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).x_mi=x_mi;
+                            if grNo==1
+                                if per_ii==1
+                                    legends.pacii(pacii).evNo(evNo).p1=plot(x_mi,f_mi,'Color',[1 0 0],'LineWidth',3);
+                                else
+                                    legends.pacii(pacii).evNo(evNo).p2=plot(x_mi,f_mi,'Color',[0 0 1],'LineWidth',3);
+                                end
+                            else
+                                if per_ii==1
+                                    legends.pacii(pacii).evNo(evNo).p3=plot(x_mi,f_mi,'Color',[1 0.7 0.7],'LineWidth',3);
+                                else
+                                    legends.pacii(pacii).evNo(evNo).p4=plot(x_mi,f_mi,'Color',[0.7 0.7 1],'LineWidth',3);
+                                end
+                            end
+                            
+                            %Compute per mouse avearge
+                            each_mouse_average_PACpower=[];
+                            no_mice_included=0;
+                            for mouseNo=1:max(mean_PACpower_mouseNo_per_mouse)
+                                if mouse_included(mouseNo)==1
+                                    if sum(handles_drgb.drgbchoices.group_no(handles_drgb.drgbchoices.mouse_no==mouseNo)==grNo)
+                                        if sum((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)&(mean_PACpower_mouseNo_per_mouse==mouseNo))>0
+                                            no_mice_included=no_mice_included+1;
+                                            each_mouse_average_PACpower(no_mice_included)=mean(mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)&(mean_PACpower_mouseNo_per_mouse==mouseNo)));
+                                        end
+                                    end
+                                end
+                            end
+                            
+                            %Show average per mouse
+                            if no_mice_included>0
+                                for jj=1:length(each_mouse_average_PACpower)
+                                    this_f_mi=[];
+                                    this_f_mi=cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).f_mi;
+                                    
+                                    this_x_mi=[];
+                                    this_x_mi=cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).x_mi;
+                                    
+                                    xii_below=find(this_x_mi<each_mouse_average_PACpower(jj),1,'last');
+                                    xii_above=find(this_x_mi>each_mouse_average_PACpower(jj),1,'first');
+                                    
+                                    slope=(this_f_mi(xii_above)-this_f_mi(xii_below))/(this_x_mi(xii_above)-this_x_mi(xii_below));
+                                    intercept=this_f_mi(xii_above)-slope*this_x_mi(xii_above);
+                                    
+                                    this_f=slope*each_mouse_average_PACpower(jj)+intercept;
+                                    
+                                    if grNo==1
+                                        if per_ii==1
+                                            plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[1 0 0],'MarkerEdge',[1 0 0],'MarkerSize',10)
+                                        else
+                                            plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[0 0 1],'MarkerEdge',[0 0 1],'MarkerSize',10)
+                                        end
+                                    else
+                                        if per_ii==1
+                                            plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[1 0.7 0.7],'MarkerEdge',[1 0.7 0.7],'MarkerSize',10)
+                                        else
+                                            plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[0.7 0.7 1],'MarkerEdge',[0.7 0.7 1],'MarkerSize',10)
+                                        end
+                                    end
+                                    
+                                end
+                            end
+                            
+                            %Save data for ranksum
+                            ii_rank=ii_rank+1;
+                            input_data(ii_rank).data=mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo));
+                            input_data(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
+                             end
+                    end
+                    
+                end
+                
+                title(evTypeLabels{evNo})
+                xlabel('Trough PAC power (dB)')
+                ylabel('Probability')
+                xlim([minpower-0.1*(maxpower-minpower) maxpower+0.1*(maxpower-minpower)])
+            end
+
+            suptitle(['Average PAC power for each electrode calculated per  for PAC theta/' freq_names{pacii+1}])
+            
+            %Now do the ranksums
+            fprintf(1, ['Ranksum or t-test p values for trough PAC power for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
+            output_data = drgMutiRanksumorTtest(input_data);
+
+            fprintf(1, ['\n\n'])
+
+        end
+        
+
+        %Now plot the average PAC power per mouse averaged over electrodes
+        for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
+            
+            
+            %Plot the average PAC power per mouse averaged over electrodes
+            try
+                close(pacii+6)
+            catch
+            end
+            hFig=figure(pacii+6);
+            set(hFig, 'units','normalized','position',[.1 .5 .7 .7])
+            
+            %Peak PAC power
+            subplot(2,1,1)
+            hold on
+            
+            
+            %             bar_lab_loc=[];
+            no_ev_labels=0;
+            ii_gr_included=0;
+            
+            ii_rank=0;
+            input_data=[];
+            
+            for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                
+                include_group=0;
+                
+                for evNo=1:length(eventType)
+                    
+                    for per_ii=1:2
+                        
+                        if sum(eventType==3)>0
+                            bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(2-evNo);
+                        else
+                            bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(length(eventType)-evNo);
+                        end
+                        
+                        these_offsets(per_ii)=bar_offset;
+                        
+                        if sum((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))>1
+                            
+                            include_group=1;
+                            
+                            %Compute per mouse avearge
+                            each_mouse_average_PACpower=[];
+                            no_mice_included=0;
+                            for mouseNo=1:max(mean_PACpower_mouseNo_per_mouse)
+                                if mouse_included(mouseNo)==1
+                                    if sum(handles_drgb.drgbchoices.group_no(handles_drgb.drgbchoices.mouse_no==mouseNo)==grNo)
+                                        if sum((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)&(mean_PACpower_mouseNo_per_mouse==mouseNo))>0
+                                            no_mice_included=no_mice_included+1;
+                                            each_mouse_average_PACpower(no_mice_included)=mean(mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)&(mean_PACpower_mouseNo_per_mouse==mouseNo)));
+                                        end
+                                    end
+                                end
+                            end
+                            if no_mice_included>0
+                                
+                                include_group=1;
+                                
+                                if per_ii==1
+                                    bar(bar_offset,mean(each_mouse_average_PACpower),'r','LineWidth', 3,'EdgeColor','none')
+                                else
+                                    bar(bar_offset,mean(each_mouse_average_PACpower),'b','LineWidth', 3,'EdgeColor','none')
+                                end
+                                
+                                
+                                plot(bar_offset,mean(each_mouse_average_PACpower),'ok','LineWidth', 3)
+                                plot((bar_offset)*ones(1,length(each_mouse_average_PACpower)),each_mouse_average_PACpower,'o',...
+                                    'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+                                
+                                if length(each_mouse_average_PACpower)>2
+                                    CI = bootci(1000, {@mean, each_mouse_average_PACpower},'type','cper');
+                                    plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                                end
+                                
+                                
+                                
+                                %Save data for ranksum
+                                ii_rank=ii_rank+1;
+                                input_data(ii_rank).data=each_mouse_average_PACpower;
+                                input_data(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
+                                
+                            end
+                        end
+                    end
+                end
+                
+                
+                if include_group==1
+                    ii_gr_included=ii_gr_included+1;
+                    groups_included(ii_gr_included)=grNo;
+                end
+            end
+            
+            title('Peak PAC power')
+
+            %Annotations identifying groups
+            x_interval=0.8/ii_gr_included;
+            for ii=1:ii_gr_included
+                annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
+            end
+            
+            %Proficient/Naive annotations
+            annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
+            annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
+            
+   
+            xticks(sorted_bar_lab_loc)
+            xticklabels(sorted_bar_labels)
+            
+            if sum(eventType==3)==0
+                xlabel('Concentration (%)')
+            end
+            
+            ylabel('dB')
+            
+            %Now do the ranksums
+            fprintf(1, ['Ranksum or t-test p values for peak PAC power per mouse averaged over electrodes for PAC theta PAC theta' freq_names{pacii+1} '\n'])
+            output_data = drgMutiRanksumorTtest(input_data);
+            
+            %Trough power
+            subplot(2,1,2)
+            hold on
+            
+            
+            %             bar_lab_loc=[];
+            no_ev_labels=0;
+            ii_gr_included=0;
+            
+            ii_rank=0;
+            input_data=[];
+            
+            for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                
+                include_group=0;
+                
+                for evNo=1:length(eventType)
+                    
+                    for per_ii=1:2
+                        
+                        if sum(eventType==3)>0
+                            bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(2-evNo);
+                        else
+                            bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(length(eventType)-evNo);
+                        end
+                        
+                        these_offsets(per_ii)=bar_offset;
+                        
+                        if sum((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))>1
+                            
+                            include_group=1;
+                            
+                            %Compute per mouse avearge
+                            each_mouse_average_PACpower=[];
+                            no_mice_included=0;
+                            for mouseNo=1:max(mean_PACpower_mouseNo_per_mouse)
+                                if mouse_included(mouseNo)==1
+                                    if sum(handles_drgb.drgbchoices.group_no(handles_drgb.drgbchoices.mouse_no==mouseNo)==grNo)
+                                        if sum((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)&(mean_PACpower_mouseNo_per_mouse==mouseNo))>0
+                                            no_mice_included=no_mice_included+1;
+                                            each_mouse_average_PACpower(no_mice_included)=mean(mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)&(mean_PACpower_mouseNo_per_mouse==mouseNo)));
+                                        end
+                                    end
+                                end
+                            end
+                            if no_mice_included>0
+                                
+                                include_group=1;
+                                
+                                if per_ii==1
+                                    bar(bar_offset,mean(each_mouse_average_PACpower),'r','LineWidth', 3,'EdgeColor','none')
+                                else
+                                    bar(bar_offset,mean(each_mouse_average_PACpower),'b','LineWidth', 3,'EdgeColor','none')
+                                end
+                                
+                                
+                                plot(bar_offset,mean(each_mouse_average_PACpower),'ok','LineWidth', 3)
+                                plot((bar_offset)*ones(1,length(each_mouse_average_PACpower)),each_mouse_average_PACpower,'o',...
+                                    'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+                                
+                                if length(each_mouse_average_PACpower)>2
+                                    CI = bootci(1000, {@mean, each_mouse_average_PACpower},'type','cper');
+                                    plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                                end
+                                
+                                
+                                
+                                %Save data for ranksum
+                                ii_rank=ii_rank+1;
+                                input_data(ii_rank).data=each_mouse_average_PACpower;
+                                input_data(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
+                                
+                            end
+                        end
+                    end
+                end
+                
+                
+                if include_group==1
+                    ii_gr_included=ii_gr_included+1;
+                    groups_included(ii_gr_included)=grNo;
+                end
+            end
+            
+            title('Trough PAC power')
+            suptitle(['Average PAC power per mouse averaged over all electrodes for PAC theta/' freq_names{pacii+1}])
+
+            %Annotations identifying groups
+            x_interval=0.8/ii_gr_included;
+            for ii=1:ii_gr_included
+                annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
+            end
+            
+            %Proficient/Naive annotations
+            annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
+            annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
+            
+            %             %x labels
+            %             to_sort=[bar_lab_loc' [1:length(bar_lab_loc)]'];
+            %             sorted_A=sortrows(to_sort);
+            %             sorted_bar_lab_loc=sorted_A(:,1);
+            %             for ii=1:length(bar_lab_loc)
+            %                 sorted_bar_labels{ii}=bar_labels{sorted_A(ii,2)};
+            %             end
+            xticks(sorted_bar_lab_loc)
+            xticklabels(sorted_bar_labels)
+            
+            if sum(eventType==3)==0
+                xlabel('Concentration (%)')
+            end
+            
+            ylabel('dB')
+            
+            %Now do the ranksums
+            fprintf(1, ['Ranksum or t-test p values for trough PAC power per mouse averaged over electrodes for PAC theta PAC theta' freq_names{pacii+1} '\n'])
+            output_data = drgMutiRanksumorTtest(input_data);
+            
+        end
+        
+        pfft=1;
+        
+    case 24
+        %24 Oscillatory wavelet power at the peak and trough of the PAC
+        
+        mean_PACpower_No_per_mouse=0;
+        
+        mean_PACpower_No=0;
+        mean_peakPACpower=[];
+        mean_troughPACpower=[];
+        mean_PACpower_perii=[];
+        mean_PACpower_evNo=[];
+        mean_PACpower_pacii=[];
+        mean_PACpower_fileNo=[];
+        per_session_group_no=[];
+        mean_VL=[];
+        mean_VA=[];
+        mean_PA=[];
+        
+        
+        fprintf(1, ['PAC power analysis for Justin''s paper\n\n'])
+        p_vals=[];
+        no_files=max(files);
+        
+        if exist('which_electrodes')==0
+            which_electrodes=[1:16];
+        end
+        
+        
+        szpc=size(percent_windows);
+        for per_ii=1:szpc(1)
+            
+            
+            
+            for mouseNo=1:max(handles_drgb.drgbchoices.mouse_no)
+                mouse_has_files=0;
+                for elec=1:16
+                    if sum(which_electrodes==elec)>0
+                        
+                        theseEvNos_thisMouse_thisElec=[];
+                        for evNo=1:length(eventType)
+                            for pacii=1:no_pacii
+                                for group_no=1:max(handles_drgb.drgbchoices.group_no)
+                                    theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv=0;
+                                end
+                            end
+                        end
+                        
+                        
+                        for fileNo=1:no_files
+                            %If this file is in the list of files the user wants to process in drgAnalysisBatchLFP continue
+                            if sum(files==fileNo)>0
+                                if handles_drgb.drgbchoices.mouse_no(fileNo)==mouseNo
+                                    lfpodNo=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==winNo));
+                                    lfpodRefNo=find((files_per_lfp==fileNo)&(elec_per_lfp==elec)&(window_per_lfp==refWin));
+                                    
+                                    if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo)))&(~isempty(handles_drgb.drgb.lfpevpair(lfpodRefNo)))
+                                        
+                                        
+                                        if (~isempty(handles_drgb.drgb.lfpevpair(lfpodNo).PAC))&(~isempty(handles_drgb.drgb.lfpevpair(lfpodRefNo).PAC))
+                                            
+                                            percent_mask=[];
+                                            percent_mask=logical((handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).perCorrPAC>=percent_windows(per_ii,1))...
+                                                &(handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).perCorrPAC<=percent_windows(per_ii,2)));
+                                            
+                                            if ~isempty(percent_mask)
+                                                
+                                                
+                                                for evNo=1:length(eventType)
+                                                    
+                                                    trials_in_event_Ev=[];
+                                                    trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).which_eventPAC(eventType(evNo),:)==1)&percent_mask;
+                                                    
+                                                    if (sum(trials_in_event_Ev)>=1)
+                                                        
+                                                        %Do per bandwidth analysis
+                                                        for pacii=1:no_pacii
+                                                            
+                                                            group_no=handles_drgb.drgbchoices.group_no(fileNo);
+                                                            
+                                                            %Enter the PACpower
+                                                            this_peakPACpower_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_peakPACpower_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PACwave(pacii).meanPeakPower(trials_in_event_Ev)-handles_drgb.drgb.lfpevpair(lfpodRefNo).PACwave(pacii).meanPeakPower(trials_in_event_Ev);
+                                                            this_troughPACpower_Ev=zeros(sum(trials_in_event_Ev),1);
+                                                            this_troughPACpower_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PACwave(pacii).meanTroughPower(trials_in_event_Ev)-handles_drgb.drgb.lfpevpair(lfpodRefNo).PACwave(pacii).meanTroughPower(trials_in_event_Ev);
                                                             
                                                             theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_peakPACpower_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1 ...
                                                                 :theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_peakPACpower_Ev;

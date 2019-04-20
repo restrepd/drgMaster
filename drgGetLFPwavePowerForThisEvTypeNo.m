@@ -7,8 +7,8 @@ Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
 dec_n=fix(handles.drg.session(sessionNo).draq_p.ActualRate/1000);
 freq=handles.burstLowF:(handles.burstHighF-handles.burstLowF)/100:handles.burstHighF;
 
-window=round(handles.window*handles.drg.draq_p.ActualRate); 
-noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate); 
+window=round(handles.window*handles.drg.draq_p.ActualRate);
+noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate);
 
 
 
@@ -53,9 +53,9 @@ scales = a0.^(minscale:maxscale).*dt;
 
 for trNo=firstTr:lastTr
     
-    if handles.save_drgb==0
-        trialNo=trNo
-    end
+    %     if handles.save_drgb==0
+    %         trialNo=trNo
+    %     end
     
     evNo = drgFindEvNo(handles,trNo,sessionNo);
     
@@ -85,19 +85,18 @@ for trNo=firstTr:lastTr
                 max_t=handles.time_end;
             end
             
-
-                
+            
+            
             [LFP, trialNo, can_read] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
-%             load('/Users/restrepd/Documents/Projects/Ethan/MEA to dg/thisLFP.mat')
-%             LFP(1,1:119281)=thisLFP(1,:);
+            
             
             if (can_read==1)
                 
-   
+                
                 %Now do the wavelet transform
                 decLFP=decimate(LFP,dec_n);
                 decFs=Fs/dec_n;
-               
+                
                 cwtLFP = cwtft({detrend(double(decLFP)),1/decFs},'wavelet','morl','scales',scales);
                 Prev=abs(cwtLFP.cfs).^2;
                 P=Prev(end:-1:1,:);
@@ -108,6 +107,11 @@ for trNo=firstTr:lastTr
                 
                 no_trials=no_trials+1;
                 this_trialNo(no_trials)=trNo;
+                
+                if handles.displayData==1
+                    fprintf(1, ['drgGetLFPwavePowerForThisEvTypeNo trial No %d, event No %d, processed trial no %d\n'], trNo,evNo,no_trials);
+                end
+                
                 
                 
                 all_times=t+min_t;
@@ -120,7 +124,7 @@ for trNo=firstTr:lastTr
                     P_ref=P(:,(all_times>=handles.startRef+handles.time_pad)&(all_times<=handles.endRef-handles.time_pad));
                     all_Power_ref(no_trials,1:length(f))=mean(P_ref,2);
                 end
-                  switch handles.drg.drta_p.which_c_program
+                switch handles.drg.drta_p.which_c_program
                     case {2,10}
                         perCorr_pertr(no_trials)=perCorr(drgFindEvNo(handles,trialNo,sessionNo,odorOn));
                     otherwise
@@ -141,7 +145,7 @@ for trNo=firstTr:lastTr
                                 else
                                     %These are not tstart, and the time
                                     %should be compared at OdorOn
-                                      %This is tstart
+                                    %This is tstart
                                     if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(2).times(evNo))>0
                                         which_event(evTypeNo,no_trials)=1;
                                     else
@@ -155,13 +159,23 @@ for trNo=firstTr:lastTr
                                 else
                                     which_event(evTypeNo,no_trials)=0;
                                 end
-                        end  
-                    end 
+                        end
+                    end
                 end
-                
+            else
+                if handles.displayData==1
+                    fprintf(1, ['drgGetLFPwavePowerForThisEvTypeNo trial No %d, event No %d, LFP could not be read\n'], trNo,evNo);
+                end
+            end
+        else
+            if handles.displayData==1
+                fprintf(1, ['drgGetLFPwavePowerForThisEvTypeNo trial No %d, event No %d, trial excluded\n'], trNo,evNo);
             end
         end %for evNo
-        
+    else
+        if handles.displayData==1
+            fprintf(1, ['drgGetLFPwavePowerForThisEvTypeNo trial No %d, event No %d\n'], trNo,evNo);
+        end
     end
     
 end

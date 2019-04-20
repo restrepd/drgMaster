@@ -1,17 +1,33 @@
 function drgRunBatchLFPpar
 
-%Ask user for the m file that contains information on what the user wants the analysis to be
-%This file has all the information on what the user wants done, which files
-%to process, what groups they fall into, etc
+%drgRunBatchLFPpar performs batch analysis of LFP power through fourier transform and wavelet analyisis
+%and phase amplitude coupling (PAC). drgRunBatchLFPpar asks the user for a drgbChoices .m file 
+%that has all the information on what the user wants done, which files
+%to process, what groups they fall into, etc. The processed data are saved in a .mat file and the analysis can be
+%displayed with drgAnalysisBatchLFP
 %
 % An example of this file: drgbChoicesDanielPrelim
 %
-% handles.drgbchoices.analyses
-% 1 LFP power for case 20 in drgAnalysisBatchLFP
-% 2 PAC for cases 19 and 23 in drgAnalysisBatchLFP
-% 5 event-related LFP wavelet analysis for case 22 of drgAnalysisBatchLFP
+% handles.drgbchoices.analyses chooses the analysis performed
 %
-% All others have not been vetted
+% 1 PAC for cases 19 (MI, angle, etc) and 23 (peak and trough power through
+% Hilbert) in drgAnalysisBatchLFP, vetted
+%
+% 2 LFP power for case 20 in drgAnalysisBatchLFP, vetted
+%
+% 3 Lick-related LFP analysis (fourier transform LFP power)
+%
+% 4 power for LFP wavelet analysis
+%
+% 5 event-related LFP wavelet analysis for case 22 of drgAnalysisBatchLFP,
+% vetted
+%
+% 6 phase comparison analysis
+%
+% 7 phase comparison analysis
+%
+% 8 LFP wavelet power computed at the peak and through of the low frequency wave
+% phase is calculated with a Hilbert transform (PAC)
 
 tic
 
@@ -84,9 +100,7 @@ if all_files_present==1
     
     parfor filNum=first_file:no_files
         try
-            %     for filNum=first_file:no_files
-            
-            %     for filNum=first_file:handles.drgbchoices.no_files
+%                 for filNum=first_file:no_files
             
             file_no=filNum
             handlespf=struct();
@@ -165,7 +179,7 @@ if all_files_present==1
                     
                     
                     
-                    
+                    %Set the lfp_per_file for the PAC analysis
                     if sum(handles.drgbchoices.analyses==1)>0
                         for ii=1:handles.no_PACpeaks
                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).no_trials=0;
@@ -176,6 +190,15 @@ if all_files_present==1
                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).all_phase_histo=[];
                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).perCorrPAC=[];
                             lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).which_eventPAC=[];
+                        end
+                    end
+                    
+                    %Set the lfp_per_file for the analysis of wavelet LFP power at peak and
+                    %trough of low frequency wave
+                    if sum(handles.drgbchoices.analyses==8)>0
+                        for ii=1:handles.no_PACpeaks
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC=[];
+                            lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PACwave=[]; 
                         end
                     end
                     
@@ -272,6 +295,43 @@ if all_files_present==1
                                 lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).all_phase_histo=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).all_phase_histo handlespf.drgb.PAC.all_phase_histo'];
                                 lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).perCorrPAC=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).perCorrPAC handlespf.drgb.PAC.perCorr];
                                 lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).which_eventPAC=[lfp_per_file(filNum).lfp_per_exp(lfp_per_file(filNum).lfp_per_exp_no).PAC(ii).which_eventPAC handlespf.drgb.PAC.which_event];
+                                
+                            end
+                        end
+                        
+                        %Get LFP wavelet power at the trough and peak of low frequency wave
+                        if sum(handles.drgbchoices.analyses==8)>0
+                            for ii=1:handles.no_PACpeaks
+                                handlespf.n_peak=ii;
+                                handlespf.peakLowF=handles.PACpeakLowF;
+                                handlespf.peakHighF=handles.PACpeakHighF;
+                                handlespf.burstLowF=handles.PACburstLowF(ii);
+                                handlespf.burstHighF=handles.PACburstHighF(ii);
+                                
+                                
+                                %Please note this is the same function called by
+                                %drgMaster when the user chooses Phase Amplitude
+                                %Coupling
+                                handlespf=drgLFPwaveTimecourse(handlespf);
+                                
+                                
+                                %Enter the per LFP values
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).no_trials=handlespf.drgb.PAC.no_trials;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).meanVectorLength=handlespf.drgb.PAC.meanVectorLength;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).meanVectorAngle=handlespf.drgb.PAC.meanVectorAngle;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).peakAngle=handlespf.drgb.PAC.peakAngle;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).mod_indx=handlespf.drgb.PAC.mod_indx;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).all_phase_histo=handlespf.drgb.PAC.all_phase_histo;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).perCorrPAC=handlespf.drgb.PAC.perCorr;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).which_eventPAC=handlespf.drgb.PAC.which_event;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).peakAngleForPower=handlespf.drgb.PAC.peakAngleForPower;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).troughAngleForPower=handlespf.drgb.PAC.troughAngleForPower;
+                                
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).t_pac=handlespf.drgb.PACwave.t_pac;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).PACtimecourse=handlespf.drgb.PACwave.PACtimecourse;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).meanPeakPower=handlespf.drgb.PACwave.meanPeakPower;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).meanTroughPower=handlespf.drgb.PACwave.meanTroughPower;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).meanPower=handlespf.drgb.PACwave.meanPower;
                                 
                             end
                         end
@@ -573,6 +633,14 @@ if all_files_present==1
             if (sum(handles.drgbchoices.analyses==1)>0)
                 handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).PAC=...
                     lfp_per_file(filNum).lfpevpair(ii).PAC;
+            end
+            
+            %LFP wave power at peak and trough of PAC
+            if (sum(handles.drgbchoices.analyses==8)>0)
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).PAC=...
+                    lfp_per_file(filNum).lfpevpair(ii).PAC;
+                handles.drgb.lfpevpair(handles.drgb.lfpevpair_no+ii).PACwave=...
+                    lfp_per_file(filNum).lfpevpair(ii).PACwave;   
             end
             
              if (sum(handles.drgbchoices.analyses==4)>0)
