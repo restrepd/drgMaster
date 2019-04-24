@@ -220,7 +220,7 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/20));
 %Note peak_amp_phase_timecourse_t goes from zero to
 %(time_end-time_start)+2*time_pad
 
-% 
+
 % % %Plot for troubleshooting
 % figure(10)
 % subplot(3,1,1)
@@ -246,7 +246,14 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/20));
 % plot((out_times+time_pad)*Fs,out_phase,'ok')
 % title('Angle for low frequency LFP/sniff')
 % 
-
+% %Plot for Justin's Fig. 4 (example of PAC wavelet power)
+% %
+% figure(16)
+% ii_pad=ceil(time_pad*Fs);
+% trimmed_anglethetaLFP=anglethetaLFP(ii_pad:end-ii_pad);
+% timeAngle=([1:length(trimmed_anglethetaLFP)]/Fs)-2;
+% plot(timeAngle,(180/pi)*(trimmed_anglethetaLFP+pi),'-b')
+% xlim([-2 5])
 
 pffft=1;
 

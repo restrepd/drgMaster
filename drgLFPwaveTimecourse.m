@@ -162,6 +162,7 @@ if handles.displayData==1
                 this_log_P_timecourse=zeros(length(freq),length(t));
                 this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trialNo,:,:));
                 log_P_per_trial_timecourse(y_shift+1:y_shift+length(freq),:)=this_log_P_timecourse;
+                shifted_freq(1,y_shift+1:y_shift+length(freq))=freq+(trialNo-1)*freq(end);
                 y_shift=y_shift+length(freq);
             end
             
@@ -380,28 +381,42 @@ if handles.displayData==1
         hold on
         
         mean_meanPower=mean(meanPower,1)';
-        CI_meanPower = bootci(1000, {@mean, meanPower})';
-        CI_meanPower(:,1)=mean_meanPower-CI_meanPower(:,1);
-        CI_meanPower(:,2)=CI_meanPower(:,2)-mean_meanPower;
-        
+        if no_trials>2
+            CI_meanPower = bootci(1000, {@mean, meanPower})';
+            CI_meanPower(:,1)=mean_meanPower-CI_meanPower(:,1);
+            CI_meanPower(:,2)=CI_meanPower(:,2)-mean_meanPower;
+        end
         
         mean_peakPower=mean(peakPower,1)';
-        CI_peakPower = bootci(1000, {@mean, peakPower})';
-        CI_peakPower(:,1)=mean_peakPower-CI_peakPower(:,1);
-        CI_peakPower(:,2)=CI_peakPower(:,2)-mean_peakPower;
-        
+        if no_trials>2
+            CI_peakPower = bootci(1000, {@mean, peakPower})';
+            CI_peakPower(:,1)=mean_peakPower-CI_peakPower(:,1);
+            CI_peakPower(:,2)=CI_peakPower(:,2)-mean_peakPower;
+        end
         
         mean_troughPower=mean(troughPower,1)';
-        CI_troughPower = bootci(1000, {@mean, troughPower})';
-        CI_troughPower(:,1)=mean_troughPower-CI_troughPower(:,1);
-        CI_troughPower(:,2)=CI_troughPower(:,2)-mean_troughPower;
+        if no_trials>2
+            CI_troughPower = bootci(1000, {@mean, troughPower})';
+            CI_troughPower(:,1)=mean_troughPower-CI_troughPower(:,1);
+            CI_troughPower(:,2)=CI_troughPower(:,2)-mean_troughPower;
+        end
         
-        [hlmean, hpmean]=boundedline(t_pac,mean_meanPower, CI_meanPower, 'g');
-        [hltrough, hptrough]=boundedline(t_pac,mean_troughPower, CI_troughPower, 'b');
-        [hlpeak, hppeak]=boundedline(t_pac,mean_peakPower, CI_peakPower, 'r');
+        if no_trials>2
+            [hlmean, hpmean]=boundedline(t_pac,mean_meanPower, CI_meanPower, 'g');
+            [hltrough, hptrough]=boundedline(t_pac,mean_troughPower, CI_troughPower, 'b');
+            [hlpeak, hppeak]=boundedline(t_pac,mean_peakPower, CI_peakPower, 'r');
+        else
+            plot(t_pac,mean_meanPower, 'g');
+            plot(t_pac,mean_troughPower,  'b');
+            plot(t_pac,mean_peakPower,  'r');
+        end
         xlabel('Time(sec)')
         ylabel('Wavelet power (dB)')
-        legend([hltrough hlpeak hlmean],{'Trough','Peak','Mean'})
+        if no_trials>2
+            legend([hltrough hlpeak hlmean],{'Trough','Peak','Mean'})
+        else
+            legend('Mean','Trough','Peak')
+        end
         title(['Power (dB, wavelet)  ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
         
         

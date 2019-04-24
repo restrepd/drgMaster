@@ -197,7 +197,9 @@ else
         end
     else
         meanPeakAngle=(handles.peakAngle_for_power*(pi/180))-pi;
+        handles.drgb.PAC.peakAngleForPower=handles.peakAngle_for_power;
         meanTroughAngle=(handles.troughAngle_for_power*(pi/180))-pi;
+        handles.drgb.PAC.troughAngleForPower=handles.troughAngle_for_power;
     end
 end
 
@@ -334,16 +336,19 @@ if handles.displayData==1
     
      
     mean_peakPower=mean(peakPower,1)';
-    CI_peakPower = bootci(1000, {@mean, peakPower})';
-    CI_peakPower(:,1)=mean_peakPower-CI_peakPower(:,1);
-    CI_peakPower(:,2)=CI_peakPower(:,2)-mean_peakPower;
-
+    if no_trials>2
+        CI_peakPower = bootci(1000, {@mean, peakPower})';
+        CI_peakPower(:,1)=mean_peakPower-CI_peakPower(:,1);
+        CI_peakPower(:,2)=CI_peakPower(:,2)-mean_peakPower;
+    end
     
 
     mean_troughPower=mean(troughPower,1)';
-    CI_troughPower = bootci(1000, {@mean, troughPower})';
-    CI_troughPower(:,1)=mean_troughPower-CI_troughPower(:,1);
-    CI_troughPower(:,2)=CI_troughPower(:,2)-mean_troughPower;
+    if no_trials>2
+        CI_troughPower = bootci(1000, {@mean, troughPower})';
+        CI_troughPower(:,1)=mean_troughPower-CI_troughPower(:,1);
+        CI_troughPower(:,2)=CI_troughPower(:,2)-mean_troughPower;
+    end
     
     try
         close 7
@@ -354,11 +359,21 @@ if handles.displayData==1
     set(hFig7, 'units','normalized','position',[.25 .2 .7 .23])
     hold on
     
-    [hltrough, hptrough]=boundedline(t,mean_troughPower, CI_troughPower, 'b');
-    [hlpeak, hppeak]=boundedline(t,mean_peakPower, CI_peakPower, 'r');
+    if no_trials>2
+        [hltrough, hptrough]=boundedline(t,mean_troughPower, CI_troughPower, 'b');
+        [hlpeak, hppeak]=boundedline(t,mean_peakPower, CI_peakPower, 'r');
+    else
+        plot(t,mean_troughPower, 'b')
+        plot(t,mean_peakPower, 'r')
+    end
     xlabel('Time(sec)')
     ylabel('Peak power (dB)')
-    legend([hltrough hlpeak],{'Trough','Peak'})
+    
+    if no_trials>2
+        legend([hltrough hlpeak],{'Trough','Peak'})
+    else
+       legend('Through','Peak') 
+    end
     title(['Power (dB, PAC high frequency envelope)  ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
     
     
@@ -428,7 +443,7 @@ if handles.displayData==1
     trials=1:no_trials;
     plot(trials,mod_indx,'o-')
     hold on
-    if length(mod_indx>20)
+    if length(mod_indx)>20
         no_conv_points=6;
         conv_win=ones(1,no_conv_points);
         mod_indx_extend=[mean(mod_indx(1:no_conv_points/2))*ones(1,no_conv_points) mod_indx mean(mod_indx(end-(no_conv_points/2)+1:end))*ones(1,no_conv_points)];
@@ -447,7 +462,7 @@ if handles.displayData==1
     trials=1:no_trials;
     plot(trials,meanVectorLength,'o-')
     hold on
-    if length(meanVectorLength>20)
+    if length(meanVectorLength)>20
         no_conv_points=6;
         conv_win=ones(1,no_conv_points);
         meanVectorLength_extend=[mean(meanVectorLength(1:no_conv_points/2))*ones(1,no_conv_points) meanVectorLength mean(meanVectorLength(end-(no_conv_points/2)+1:end))*ones(1,no_conv_points)];
@@ -458,7 +473,7 @@ if handles.displayData==1
     xlabel('Trial No')
     ylabel('Mean vector length')
     title('Mean vector length vs trial number')
-    xlim([1 no_trials]);
+    xlim([0 no_trials]);
     
     % figure(11)
     % plot(trials,mod_indx,'o-k','MarkerEdgeColor','k','MarkerFaceColor','k','MarkerSize',7,'LineWidth',2)
@@ -488,45 +503,47 @@ if handles.displayData==1
     text(20,yl_enc(1)+0.9*(yl_enc(2)-yl_enc(1)),['MI= ' num2str(mean_MI_enc)])
     
     
-    
-    try
-        close 3
-    catch
+    if no_trials>2
+        try
+            close 3
+        catch
+        end
+        
+        hFig3 = figure(3);
+        set(hFig3, 'units','normalized','position',[.01 .1 .23 .8])
+        
+        min_prob=prctile(all_phase_histo(:),5);
+        max_prob=prctile(all_phase_histo(:),95);
+        
+        trials=1:no_trials;
+        %pcolor(repmat(phase,length(trials),1),repmat(trials',1,length(phase)),all_phase_histo)
+        drg_pcolor(repmat(phase,length(trials),1),repmat(trials',1,length(phase)),all_phase_histo)
+        colormap jet
+        shading flat
+        % min_prob=0.0113;
+        % max_prob=0.0314;
+        caxis([min_prob    max_prob])
+        xlabel('Phase for low freq oscillation (deg)')
+        ylabel('Trial No');
+        title(['Phase-amplitude coupling per trial' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
+        
+        
+        try
+            close 4
+        catch
+        end
+        
+        hFig4 = figure(4);
+        set(hFig4, 'units','normalized','position',[.49 .1 .05 .3])
+        
+        
+        prain=[min_prob:(max_prob-min_prob)/99:max_prob];
+        pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
+        colormap jet
+        shading interp
+        ax=gca;
+        set(ax,'XTickLabel','')
     end
-    
-    hFig3 = figure(3);
-    set(hFig3, 'units','normalized','position',[.01 .1 .23 .8])
-    
-    min_prob=prctile(all_phase_histo(:),5);
-    max_prob=prctile(all_phase_histo(:),95);
-    
-    trials=1:no_trials;
-    %pcolor(repmat(phase,length(trials),1),repmat(trials',1,length(phase)),all_phase_histo)
-    drg_pcolor(repmat(phase,length(trials),1),repmat(trials',1,length(phase)),all_phase_histo)
-    colormap jet
-    shading flat
-    % min_prob=0.0113;
-    % max_prob=0.0314;
-    caxis([min_prob    max_prob])
-    xlabel('Phase for low freq oscillation (deg)')
-    ylabel('Trial No');
-    title(['Phase-amplitude coupling per trial' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
-    
-    try
-        close 4
-    catch
-    end
-    
-    hFig4 = figure(4);
-    set(hFig4, 'units','normalized','position',[.49 .1 .05 .3])
-    
-    
-    prain=[min_prob:(max_prob-min_prob)/99:max_prob];
-    pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
-    colormap jet
-    shading interp
-    ax=gca;
-    set(ax,'XTickLabel','')
     
     try
         close 5

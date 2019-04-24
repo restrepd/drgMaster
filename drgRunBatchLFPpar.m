@@ -98,9 +98,9 @@ if all_files_present==1
 
     no_files=handles.drgbchoices.no_files;
     
-    parfor filNum=first_file:no_files
-        try
-%                 for filNum=first_file:no_files
+%     parfor filNum=first_file:no_files
+%         try
+                for filNum=first_file:no_files
             
             file_no=filNum
             handlespf=struct();
@@ -307,13 +307,15 @@ if all_files_present==1
                                 handlespf.peakHighF=handles.PACpeakHighF;
                                 handlespf.burstLowF=handles.PACburstLowF(ii);
                                 handlespf.burstHighF=handles.PACburstHighF(ii);
-                                
+                                this_subtractRef=handlespf.subtractRef;
+                                handlespf.subtractRef=0;
                                 
                                 %Please note this is the same function called by
                                 %drgMaster when the user chooses Phase Amplitude
                                 %Coupling
                                 handlespf=drgLFPwaveTimecourse(handlespf);
                                 
+                                handlespf.subtractRef=this_subtractRef;
                                 
                                 %Enter the per LFP values
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PAC(ii).no_trials=handlespf.drgb.PAC.no_trials;
@@ -565,9 +567,13 @@ if all_files_present==1
                 
                 
             end
-        catch
-            fprintf(1, '\n\nProcessing failed for file number: %d\n\n',filNum);
-        end
+%         catch
+%             fprintf(1, '\n\nProcessing failed for file number: %d\n\n',filNum);
+%             
+%             %Save this failed file
+%             drgSaveParFail([handlespf.drgb.outPathName tempDirName '/'],this_jt(10:end),filNum,handlespf)
+%             
+%         end
     end
     
     

@@ -1,10 +1,11 @@
 function drgRunBatchLFPxLFPpar
 
-%Ask user for the m file that contains information on what the user wants the analysis to be
-%This file has all the information on what the user wants done, which files
-%to process, what groups they fall into, etc
+% This code does batch analysis for interactions between LFPs
 %
-% An example of this file: drgbChoicesDanielPrelim
+% A choices file such as drgbChoicesDanielNRG1heptanol11919 is required
+% Which analysis is performed is chosen with handles.drgbchoices.analyses
+%
+% 8 Does LFP coherence analysis
 %
 %
 
