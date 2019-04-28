@@ -1,4 +1,5 @@
-function [lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times,no_trials,trials_included]=drgGetLicks(handles)
+function [lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times...
+    ,no_trials,trials_included,thershold_licks]=drgGetLicks(handles)
 
 %Get licks for those trials that have an LFP that can be read
 firstTr=handles.trialNo;

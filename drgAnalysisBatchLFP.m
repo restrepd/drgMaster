@@ -1,6 +1,6 @@
 function drgAnalysisBatchLFP(handles)
 
-%drgAnalysisBatchLFP displays the LFP power and PAC data processed bydrgRunBatchLFPpar
+%drgAnalysisBatchLFP displays the LFP power and PAC data processed by drgRunBatchLFPpar
 
 %Which analysis is performed is determined by the value enterd in the
 %variable which_display:

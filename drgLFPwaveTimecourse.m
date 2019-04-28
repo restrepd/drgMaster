@@ -1,13 +1,13 @@
 function handles=drgLFPwaveTimecourse(handles)
 %Generates a timecourse of the LFP power in decibels 10*log10(Power)
 
-
+ 
 [t,freq,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo]=drgGetLFPwavePowerForThisEvTypeNo(handles);
 
 
 
 %Calculate the licks
-[lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times,no_trials,trials_included]=drgGetLicks(handles);
+[lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times,no_trials,trials_included,lick_threshold]=drgGetLicks(handles);
 
 %Get PAC
 handles=drgThetaAmpPhaseTrialRange(handles);
