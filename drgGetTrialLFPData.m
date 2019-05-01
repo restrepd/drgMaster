@@ -80,7 +80,7 @@ try
         dataforch=[data(ii_from:end);zeros(ii_to-length(data)+1,1)];
     end
     
-    if testLFP==0
+    if (testLFP==0)||(lfpElectrode>=18)
         dataforch=dataforch';
     else
         dataforch=[];
@@ -137,7 +137,7 @@ try
         for peakNo=1:length(loc)
             licks(loc(peakNo):loc(peakNo)+200)=500;
         end
-         
+          
         switch testLFP
             
             case 1

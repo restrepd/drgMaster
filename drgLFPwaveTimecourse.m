@@ -8,15 +8,18 @@ function handles=drgLFPwaveTimecourse(handles)
 
 %Calculate the licks
 [lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times,no_trials,trials_included,lick_threshold]=drgGetLicks(handles);
-
+ 
 %Get PAC
 handles=drgThetaAmpPhaseTrialRange(handles);
+
+%Please note that more trials are excluded from the PAC analysis than from
+%the lick analysis
 
 %Find the wavelet power at the peak and trough
 dt=handles.window-handles.noverlap;
 t_pac=[handles.time_start+handles.time_pad:dt:handles.time_end-handles.time_pad];
 handles.drgb.PACwave.t_pac=t_pac;
-peakPower=zeros(no_trials,length(t_pac));
+peakPower=zeros(handles.drgb.PAC.no_trials,length(t_pac));
 %Find the value of gamma power at each point
 out_times_env=handles.drgb.PAC.out_times_env;
 out_times_env=out_times_env+handles.time_start+handles.time_pad;
@@ -24,7 +27,7 @@ meanPeakAngle=(handles.drgb.PAC.peakAngleForPower*(pi/180))-pi;
 meanTroughAngle=(handles.drgb.PAC.troughAngleForPower*(pi/180))-pi;
 
 %Find peak wavelet power
-for trNum=1:no_trials
+for trNum=1:handles.drgb.PAC.no_trials
     this_peakPower=[];
     this_peakPower_times=[];
     ii=1;
@@ -75,8 +78,8 @@ for trNum=1:no_trials
 end
 
 %Find trough power
-troughPower=zeros(no_trials,length(t_pac));
-for trNum=1:no_trials
+troughPower=zeros(handles.drgb.PAC.no_trials,length(t_pac));
+for trNum=1:handles.drgb.PAC.no_trials
     this_troughPower=[];
     this_troughPower_times=[];
     ii=1;
@@ -126,7 +129,7 @@ for trNum=1:no_trials
 end
 
 %Calculate mean power
-for trNum=1:no_trials
+for trNum=1:handles.drgb.PAC.no_trials
     for ii_t=1:length(t_pac)
         if ii_t==1
             meanPower(trNum,ii_t)=mean(10*log10(all_Power_timecourse(trNum,:,1)),2);
@@ -337,8 +340,10 @@ if handles.displayData==1
         
         %Plot lick traces
         for ii=1:no_trials
-            plot(lick_trace_times,lick_traces(ii,:)+y_shift,'-r')
-            y_shift=y_shift+1.5*(per99-per1);
+            if sum(trials_included(ii)==handles.drgb.PAC.this_trialNo)>0
+                plot(lick_trace_times,lick_traces(ii,:)+y_shift,'-r')
+                y_shift=y_shift+1.5*(per99-per1);
+            end
         end
         
         y_shift=y_shift+1.5*(per99-per1);

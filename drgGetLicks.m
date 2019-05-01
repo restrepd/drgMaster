@@ -37,7 +37,6 @@ handles.evTypeNo=evtNo;
 
 thershold_licks=prctile(all_licks,1)+((prctile(all_licks,99)-prctile(all_licks,1))/2);
 
-
 no_trials=0;
 trials_included=[];
 temp_stamped_lick_ii=zeros(1,lastTr-firstTr+1);
