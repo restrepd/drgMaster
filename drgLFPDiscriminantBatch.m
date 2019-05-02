@@ -36,7 +36,7 @@ function drgLFPDiscriminantBatch
 close all
 clear all
 
-
+percent_correct_ii=1;
 
 first_file=1;
 figNo=0;
@@ -51,7 +51,7 @@ eval(['handles=' choiceFileName(1:end-2) ';'])
 handles.choiceFileName=choiceFileName;
 handles.choiceBatchPathName=choiceBatchPathName;
 
-p=gcp;
+p=gcp; 
 
 new_no_files=handles.drgbchoices.no_files;
 choicePathName=handles.drgbchoices.PathName;
@@ -70,6 +70,24 @@ if exist([handles.drgb.outPathName 'Discriminant_' handles.drgb.outFileName])==2
     else
         overwrite_out_file=0;
         load([handles.drgb.outPathName 'Discriminant_' handles.drgb.outFileName])
+    end
+end
+
+%Uncomment to find out which files were processed
+for mouseNo=1:max(handles.drgbchoices.mouse_no)
+    for groupNo=1:max(handles.drgbchoices.group_no)
+        
+        %Find out whether this mouse/group was processed
+        if (sum(handles.drgbchoices.which_discriminant==10)>0)
+            try
+                dcalc=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo);
+                process_data_for_mouse=0;
+                fprintf(1, ['Mouse no %d ' handles.drgbchoices.group_no_names{groupNo} ' was processed\n\n'],mouseNo);
+            catch
+                process_data_for_mouse=1;
+                fprintf(1, ['Mouse no %d ' handles.drgbchoices.group_no_names{groupNo} ' was not processed\n\n'],mouseNo);
+            end
+        end
     end
 end
 
@@ -113,15 +131,27 @@ if all_files_present==1
             
             fprintf(1, ['Mouse no %d ' handles.drgbchoices.group_no_names{groupNo} '\n\n'],mouseNo);
             
+            process_data_for_mouse=1;
             if overwrite_out_file==1
                 process_data_for_mouse=1;
             else
                 %Find out whether this mouse/group was processed
-                try
-                    dcalc=handles_out.discriminant_per_mouse(mouseNo).group(groupNo);
-                    process_data_for_mouse=0;
-                catch
-                    process_data_for_mouse=1;
+                if (sum(handles.drgbchoices.which_discriminant==2)>0)
+                    try
+                        dcalc=handles_out.discriminant_per_mouse(mouseNo).group(groupNo);
+                        process_data_for_mouse=0;
+                    catch
+                        process_data_for_mouse=1;
+                    end
+                end
+                %Find out whether this mouse/group was processed
+                if (sum(handles.drgbchoices.which_discriminant==10)>0)
+                    try
+                        dcalc=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo);
+                        process_data_for_mouse=0;
+                    catch
+                        process_data_for_mouse=1;
+                    end
                 end
             end
             

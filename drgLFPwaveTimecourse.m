@@ -26,6 +26,7 @@ out_times_env=out_times_env+handles.time_start+handles.time_pad;
 meanPeakAngle=(handles.drgb.PAC.peakAngleForPower*(pi/180))-pi;
 meanTroughAngle=(handles.drgb.PAC.troughAngleForPower*(pi/180))-pi;
 
+
 %Find peak wavelet power
 for trNum=1:handles.drgb.PAC.no_trials
     this_peakPower=[];
@@ -385,11 +386,16 @@ if handles.displayData==1
         
         hold on
         
-        mean_meanPower=mean(meanPower,1)';
-        if no_trials>2
-            CI_meanPower = bootci(1000, {@mean, meanPower})';
-            CI_meanPower(:,1)=mean_meanPower-CI_meanPower(:,1);
-            CI_meanPower(:,2)=CI_meanPower(:,2)-mean_meanPower;
+        try
+            mean_calc=1;
+            mean_meanPower=mean(meanPower,1)';
+            if no_trials>2
+                CI_meanPower = bootci(1000, {@mean, meanPower})';
+                CI_meanPower(:,1)=mean_meanPower-CI_meanPower(:,1);
+                CI_meanPower(:,2)=CI_meanPower(:,2)-mean_meanPower;
+            end
+        catch
+            mean_calc=0;
         end
         
         mean_peakPower=mean(peakPower,1)';
@@ -407,20 +413,32 @@ if handles.displayData==1
         end
         
         if no_trials>2
-            [hlmean, hpmean]=boundedline(t_pac,mean_meanPower, CI_meanPower, 'g');
+            if mean_calc==1
+                [hlmean, hpmean]=boundedline(t_pac,mean_meanPower, CI_meanPower, 'g');
+            end
             [hltrough, hptrough]=boundedline(t_pac,mean_troughPower, CI_troughPower, 'b');
             [hlpeak, hppeak]=boundedline(t_pac,mean_peakPower, CI_peakPower, 'r');
         else
-            plot(t_pac,mean_meanPower, 'g');
+            if mean_calc==1
+                plot(t_pac,mean_meanPower, 'g');
+            end
             plot(t_pac,mean_troughPower,  'b');
             plot(t_pac,mean_peakPower,  'r');
         end
         xlabel('Time(sec)')
         ylabel('Wavelet power (dB)')
-        if no_trials>2
-            legend([hltrough hlpeak hlmean],{'Trough','Peak','Mean'})
+        if mean_calc==1
+            if no_trials>2
+                legend([hltrough hlpeak hlmean],{'Trough','Peak','Mean'})
+            else
+                legend('Mean','Trough','Peak')
+            end
         else
-            legend('Mean','Trough','Peak')
+            if no_trials>2
+                legend([hltrough hlpeak],{'Trough','Peak'})
+            else
+                legend('Trough','Peak')
+            end
         end
         title(['Power (dB, wavelet)  ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
         
