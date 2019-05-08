@@ -8861,21 +8861,7 @@ switch which_display
             end
             
             ylabel('Modulation Index')
-            
-            
-            %Calculate anovan for inteaction
-            fprintf(1, ['ANOVAN for average MI for each electrode calculated per mouse with mouse as random factor PAC theta/' freq_names{pacii+1} '\n'])
-            [p,tbl,stats]=anovan(data_MI,{prof_naive, events, groups, mice},'varnames',{'proficient_vs_naive','events','groups','mice'},'display','off','random',4);
-            fprintf(1, ['p value for anovan MI per mouse per electrode for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan MI per mouse per electrode for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-            fprintf(1, ['p value for anovan MI per mouse per electrode for groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
-            
-            %Calculate anovan for inteaction
-            fprintf(1, ['ANOVAN for average MI for each electrode calculated per mouse without mouse as a factor for PAC theta/' freq_names{pacii+1} '\n'])
-            [p,tbl,stats]=anovan(data_MI,{prof_naive, events, groups},'varnames',{'proficient_vs_naive','events','groups'},'display','off');
-            fprintf(1, ['p value for anovan MI per mouse per electrode for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan MI per mouse per electrode for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-            fprintf(1, ['p value for anovan MI per mouse per electrode for groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
+           
             
         end
         
@@ -8887,6 +8873,8 @@ switch which_display
             
             ii_rank=0;
             mi_rank=[];
+            glm_ii=0;
+            glm_mi=[];
             maxmi=-200;
             minmi=200;
             
@@ -8963,7 +8951,6 @@ switch which_display
             %suptitle(['Average MI for each electrode calculated per  for PAC theta/' freq_names{pacii+1}])
             
             %Now do the ranksums
-            fprintf(1, ['Ranksum or t-test p values for average MI for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
             prof_naive_leg{1}='Proficient';
             prof_naive_leg{2}='Naive';
             
@@ -8971,8 +8958,26 @@ switch which_display
             for ii=1:ii_rank
                 input_data(ii).data=mi_rank(ii).mi;
                 input_data(ii).description=[handles_drgb.drgbchoices.group_no_names{mi_rank(ii).grNo} ' ' evTypeLabels{mi_rank(ii).evNo} ' ' prof_naive_leg{mi_rank(ii).per_ii}];
+                
+                glm_mi.data(glm_ii+1:glm_ii+length(mi_rank(ii).mi))=mi_rank(ii).mi;
+                glm_mi.group(glm_ii+1:glm_ii+length(mi_rank(ii).mi))=mi_rank(ii).grNo;
+                glm_mi.perCorr(glm_ii+1:glm_ii+length(mi_rank(ii).mi))=mi_rank(ii).per_ii;
+                glm_mi.event(glm_ii+1:glm_ii+length(mi_rank(ii).mi))=mi_rank(ii).evNo;
+                glm_ii=glm_ii+length(mi_rank(ii).mi);
             end
+            
+            %Perform the glm
+            fprintf(1, ['\n\nglm for MI for Theta/' freq_names{pacii+1} '\n'])
+            tbl = table(glm_mi.data',glm_mi.group',glm_mi.perCorr',glm_mi.event',...
+                'VariableNames',{'MI','group','perCorr','event'});
+            mdl = fitglm(tbl,'MI~group+perCorr+event+group*perCorr+group*event+perCorr*event+perCorr*group*event'...
+                ,'CategoricalVars',[2,3,4])
+            
+            %Do the ranksum/t-test
+            fprintf(1, ['Ranksum or t-test p values for average MI for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
             [output_data] = drgMutiRanksumorTtest(input_data);
+            
+            
             
 %             for ii=1:ii_rank
 %                 for jj=ii+1:ii_rank
@@ -11040,12 +11045,7 @@ switch which_display
         end
         fprintf(1, '\n\n')
         
-        pFDRauROC=drsFDRpval(p_vals_ROC);
-        fprintf(1, ['pFDR for per electrode auROC  = %d\n\n'],pFDRauROC);
-        
-        per_mouse_pFDRauROC=drsFDRpval(per_mouse_p_vals_ROC);
-        fprintf(1, ['pFDR for per mouse auROC  = %d\n\n'],per_mouse_pFDRauROC);
-        
+    
         
         %Now plot the per mouse delta LFP power computed for each electrode
         pvals=[];
@@ -11074,9 +11074,9 @@ switch which_display
             no_ev_labels=0;
             ii_gr_included=0;
             
-            fprintf(1, ['\n\n'])
-            fprintf(1, ['ANOVAN for delta dB power per mouse per electrode, mouse as random factor\n\n'])
             
+%             fprintf(1, ['ANOVAN for delta dB power per mouse per electrode, mouse as random factor\n\n'])
+%             
             
             for grNo=1:max(handles_drgb.drgbchoices.group_no)
                 
@@ -11196,12 +11196,12 @@ switch which_display
             
             
             
-            %Calculate anovan for inteaction
-            [p,tbl,stats]=anovan(data_delta_dB,{prof_naive events mice electrodes},'varnames',{'proficient_vs_naive','events','groups','mice'},'display','off','random',4);
-            fprintf(1, ['p value for anovan delta dB power per mouse per electrode for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for events ' freq_names{bwii} '= %d \n'],  p(2));
-            fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
-            
+%             %Calculate anovan for inteaction
+%             [p,tbl,stats]=anovan(data_delta_dB,{prof_naive events mice electrodes},'varnames',{'proficient_vs_naive','events','groups','mice'},'display','off','random',4);
+%             fprintf(1, ['p value for anovan delta dB power per mouse per electrode for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
+%             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for events ' freq_names{bwii} '= %d \n'],  p(2));
+%             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
+%             
             
             %Plot the cumulative histos and do ranksum
             %Plot the average
@@ -11214,9 +11214,12 @@ switch which_display
             set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
             
             set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-            
+            prof_naive_leg{1}='Proficient';
+            prof_naive_leg{2}='Naive';
             ii_rank=0;
             dBpower_rank=[];
+            glm_dBpower_rank=[];
+            glm_ii=0;
             maxdB=-200;
             mindB=200;
             for evNo=1:length(eventType)
@@ -11253,12 +11256,24 @@ switch which_display
                             
                             %Save data for ranksum
                             ii_rank=ii_rank+1;
-                            dBpower_rank(ii_rank).delta_dBpower=delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)&(delta_dB_group_no_per_mouse==grNo));
+                            dBpower_rank(ii_rank).data=delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)&(delta_dB_group_no_per_mouse==grNo));
+                            dBpower_rank(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
                             dBpower_rank(ii_rank).per_ii=per_ii;
                             dBpower_rank(ii_rank).grNo=grNo;
                             dBpower_rank(ii_rank).evNo=evNo;
+                            
+                            no_points=length(delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)&(delta_dB_group_no_per_mouse==grNo)));
+                            glm_dBpower_rank.data(glm_ii+1:glm_ii+no_points)=delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)&(delta_dB_group_no_per_mouse==grNo));
+                            glm_dBpower_rank.per_ii(glm_ii+1:glm_ii+no_points)=per_ii;
+                            glm_dBpower_rank.grNo(glm_ii+1:glm_ii+no_points)=grNo;
+                            glm_dBpower_rank.evNo(glm_ii+1:glm_ii+no_points)=evNo;
+                            glm_ii=glm_ii+no_points;
+                            
+                            
                             maxdB=max([maxdB max(delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)&(delta_dB_group_no_per_mouse==grNo)))]);
                             mindB=min([mindB min(delta_dB_per_mouse((delta_dB_perii_per_mouse==per_ii)&(delta_dB_evNo_per_mouse==evNo)&(delta_dB_bwii_per_mouse==bwii)&(delta_dB_group_no_per_mouse==grNo)))]);
+                            
+                            
                         end
                     end
                     
@@ -11274,29 +11289,24 @@ switch which_display
                 subplot(length(eventType),1,evNo)
                 xlim([mindB-0.1*(maxdB-mindB) maxdB+0.1*(maxdB-mindB)])
             end
+                            
+             %Perform the glm
+            fprintf(1, ['\n\nglm for delta dB power per electrode for ' freq_names{bwii} '\n'])
+            tbl = table(glm_dBpower_rank.data',glm_dBpower_rank.grNo',glm_dBpower_rank.per_ii',glm_dBpower_rank.evNo',...
+                'VariableNames',{'dBpower','group','perCorr','event'});
+            mdl = fitglm(tbl,'dBpower~group+perCorr+event+group*perCorr+group*event+perCorr*event+group*event*perCorr'...
+                ,'CategoricalVars',[2,3,4])
             
-            %Now do the ranksums
-            fprintf(1, ['Ranksum or t-test p values for delta dB power per electrode for ' freq_names{bwii} '\n'])
-            prof_naive_leg{1}='Proficient';
-            prof_naive_leg{2}='Naive';
-            for ii=1:ii_rank
-                for jj=ii+1:ii_rank
-                    [p, r_or_t]=drg_ranksum_or_ttest(dBpower_rank(ii).delta_dBpower,dBpower_rank(jj).delta_dBpower);
-                    if r_or_t==0
-                        fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{dBpower_rank(ii).grNo} ' ' evTypeLabels{dBpower_rank(ii).evNo} ' ' prof_naive_leg{dBpower_rank(ii).per_ii} ' vs ' ...
-                            handles_drgb.drgbchoices.group_no_names{dBpower_rank(jj).grNo} ' ' evTypeLabels{dBpower_rank(jj).evNo} ' ' prof_naive_leg{dBpower_rank(jj).per_ii} ' =  %d\n'],p)
-                    else
-                        fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{dBpower_rank(ii).grNo} ' ' evTypeLabels{dBpower_rank(ii).evNo} ' ' prof_naive_leg{dBpower_rank(ii).per_ii} ' vs ' ...
-                            handles_drgb.drgbchoices.group_no_names{dBpower_rank(jj).grNo} ' ' evTypeLabels{dBpower_rank(jj).evNo} ' ' prof_naive_leg{dBpower_rank(jj).per_ii} ' =  %d\n'],p)
-                    end
-                    pvals=[pvals p];
-                end
+            %Do ranksum/t test
+            fprintf(1, ['\n\nRanksum or t-test p values for delta dB power per electrode for ' freq_names{bwii} '\n'])
+            try
+                [output_data] = drgMutiRanksumorTtest(dBpower_rank);
+                fprintf(1, '\n\n')
+            catch
             end
-            fprintf(1, ['\n\n'])
+            
             
         end
-        pFDR = drsFDRpval(pvals);
-        fprintf(1, ['pFDR = %d \n\n'],pFDR)
         fprintf(1, ['\n\n'])
         
         %Now plot the histograms and the average per mouse LFP power
@@ -11325,9 +11335,7 @@ switch which_display
             bar_lab_loc=[];
             no_ev_labels=0;
             ii_gr_included=0;
-            
-            fprintf(1, ['\n\n'])
-            fprintf(1, ['ANOVAN for delta dB power per mouse, electrode average\n\n'])
+
             
             for grNo=1:max(handles_drgb.drgbchoices.group_no)
                 
@@ -11429,17 +11437,7 @@ switch which_display
             ylabel('Delta power (dB)')
             
             
-            
-            %Calculate anovan for inteaction
-            
-            
-            [p,tbl,stats]=anovan(per_mouse_data_delta_dB,{per_mouse_prof_naive per_mouse_events per_mouse_groups},'varnames',{'proficient_vs_naive','events','groups'},'display','off');
-            fprintf(1, ['p value for anovan delta dB histogram per mouse, electrode avearage for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan delta dB histogram  per mouse, electrode avearage for events ' freq_names{bwii} '= %d \n'],  p(2));
-            fprintf(1, ['p value for anovan delta dB histogram  per mouse, electrode avearage for groups ' freq_names{bwii} '= %d \n\n'],  p(2));
-            
-            
-            
+    
         end
         fprintf(1, ['\n\n'])
         
@@ -11468,8 +11466,8 @@ switch which_display
             no_ev_labels=0;
             ii_gr_included=0;
             
-            fprintf(1, ['\n\n'])
-            fprintf(1, ['ANOVAN for auROC per mouse per electrode\n\n'])
+            
+            
             
             for grNo=1:max(handles_drgb.drgbchoices.group_no)
                 
@@ -11574,39 +11572,9 @@ switch which_display
             
             ylabel('auROC')
             
-            if sum(eventType==3)>0
-                %S+ S-
-                %Calculate anovan for inteaction
-                fprintf(1, ['ANOVAN for auROC per mouse per electrode for concentrations separated by two steps, mouse random factor\n'])
-                [p,tbl,stats]=anovan(data_auROC,{prof_naive groups mice},'varnames',{'proficient_vs_naive','groups','mice'},'display','off','random',3);
-                fprintf(1, ['p value for anovan auROC per mouse per electrode for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-                fprintf(1, ['p value for anovan auROC  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(2));
-                
-                %Calculate anovan for inteaction
-                fprintf(1, ['ANOVAN for auROC per mouse per electrode for concentrations separated by two steps\n'])
-                [p,tbl,stats]=anovan(data_auROC,{prof_naive groups},'varnames',{'proficient_vs_naive','groups'},'display','off');
-                fprintf(1, ['p value for anovan auROC per mouse per electrode for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-                fprintf(1, ['p value for anovan auROC  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(2));
-            else
-                %Calculate anovan for inteaction
-                fprintf(1, ['ANOVAN for auROC per mouse per electrode for concentrations separated by two steps, mouse random factor\n'])
-                [p,tbl,stats]=anovan(data_auROC,{prof_naive within_between groups mice},'varnames',{'proficient_vs_naive','within_between','groups','mice'},'display','off','random',4);
-                fprintf(1, ['p value for anovan auROC per mouse per electrode for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-                fprintf(1, ['p value for anovan auROC  per mouse per electrode for within vs between ' freq_names{bwii} '= %d \n'],  p(2));
-                fprintf(1, ['p value for anovan auROC  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
-                
-                
-                %Calculate anovan for inteaction
-                fprintf(1, ['ANOVAN for auROC per mouse per electrode for concentrations separated by two steps\n'])
-                [p,tbl,stats]=anovan(data_auROC,{prof_naive within_between groups},'varnames',{'proficient_vs_naive','within_between','groups'},'display','off');
-                fprintf(1, ['p value for anovan auROC per mouse per electrode for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-                fprintf(1, ['p value for anovan auROC  per mouse per electrode for within vs between ' freq_names{bwii} '= %d \n'],  p(2));
-                fprintf(1, ['p value for anovan auROC  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
-                
-            end
+            
         end
         
-        fprintf(1, ['\n\n'])
         
         
         
@@ -11629,6 +11597,8 @@ switch which_display
                 hold on
                 
                 ii_rank=0;
+                glm_auROC=[];
+                glm_ii=0;
                 
                 for grNo=1:max(handles_drgb.drgbchoices.group_no)
                     
@@ -11663,9 +11633,16 @@ switch which_display
                             
                             %Save data for ranksum
                             ii_rank=ii_rank+1;
-                            ranksum_auROC(ii_rank).auROC=auROC((ROCper_ii==per_ii)&(ROCbandwidth==bwii)&(ROCgroups==grNo));
+                            ranksum_auROC(ii_rank).data=auROC((ROCper_ii==per_ii)&(ROCbandwidth==bwii)&(ROCgroups==grNo));
+                            ranksum_auROC(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' prof_naive_leg{per_ii}];
                             ranksum_auROC(ii_rank).per_ii=per_ii;
                             ranksum_auROC(ii_rank).grNo=grNo;
+                            
+                            glm_auROC.data(glm_ii+1:glm_ii+length(auROC((ROCper_ii==per_ii)&(ROCbandwidth==bwii)&(ROCgroups==grNo))))=auROC((ROCper_ii==per_ii)&(ROCbandwidth==bwii)&(ROCgroups==grNo));
+                            glm_auROC.perCorr(glm_ii+1:glm_ii+length(auROC((ROCper_ii==per_ii)&(ROCbandwidth==bwii)&(ROCgroups==grNo))))=per_ii;
+                            glm_auROC.grNo(glm_ii+1:glm_ii+length(auROC((ROCper_ii==per_ii)&(ROCbandwidth==bwii)&(ROCgroups==grNo))))=grNo;
+                            glm_ii=glm_ii+length(auROC((ROCper_ii==per_ii)&(ROCbandwidth==bwii)&(ROCgroups==grNo)));
+                            
                         end
                     end
                     
@@ -11683,30 +11660,26 @@ switch which_display
                 xlabel('auROC')
                 ylabel('Cumulative probability')
                 
-                %Now do the ranksums
-                fprintf(1, ['Ranksum or t-test p values for ' freq_names{bwii} '\n'])
-                prof_naive_leg{1}='Proficient';
-                prof_naive_leg{2}='Naive';
-                for ii=1:ii_rank
-                    for jj=ii+1:ii_rank
-                        [p, r_or_t]=drg_ranksum_or_ttest(ranksum_auROC(ii).auROC,ranksum_auROC(jj).auROC);
-                        if r_or_t==0
-                            fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{ranksum_auROC(ii).grNo} ' ' prof_naive_leg{ranksum_auROC(ii).per_ii} ' vs ' ...
-                                handles_drgb.drgbchoices.group_no_names{ranksum_auROC(jj).grNo} ' ' prof_naive_leg{ranksum_auROC(jj).per_ii} ' =  %d\n'],p)
-                        else
-                            fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{ranksum_auROC(ii).grNo} ' ' prof_naive_leg{ranksum_auROC(ii).per_ii} ' vs ' ...
-                                handles_drgb.drgbchoices.group_no_names{ranksum_auROC(jj).grNo} ' ' prof_naive_leg{ranksum_auROC(jj).per_ii} ' =  %d\n'],p)
-                        end
-                        pvals=[pvals p];
-                    end
+                
+                %Perform the glm
+                fprintf(1, ['\n\nglm for auROC for ' freq_names{bwii} '\n'])
+                tbl = table(glm_auROC.data',glm_auROC.grNo',glm_auROC.perCorr',...
+                    'VariableNames',{'auROC','group','perCorr'});
+                mdl = fitglm(tbl,'auROC~group+perCorr+perCorr*group','CategoricalVars',[2,3])
+                
+                %Do ranksum/t test
+                fprintf(1, ['\n\nRanksum or t-test p values for auROC for ' freq_names{bwii} '\n'])
+                try
+                    [output_data] = drgMutiRanksumorTtest(ranksum_auROC);
+                    fprintf(1, '\n\n')
+                catch
                 end
-                fprintf(1, ['\n\n'])
+                
                 
             end
         end
         fprintf(1, ['\n\n'])
-        pFDR = drsFDRpval(pvals);
-        fprintf(1, ['pFDR = %d \n\n'],pFDR)
+
         
         
         pffft=1;

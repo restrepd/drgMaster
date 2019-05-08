@@ -771,6 +771,161 @@ if all_files_present==1
                         %Extract timecourse for wavelet power calculated at PAC phase
                         if (sum(handles.drgbchoices.which_discriminant==10)>0)||(sum(handles.drgbchoices.which_discriminant==11)>0)||...
                                 (sum(handles.drgbchoices.which_discriminant==12)>0)
+                            %If there are different numbers of trials weed
+                            %out the mismatched trials
+                            PACii=1;
+                            lastNoTrials=par_out(1).PAC(PACii).no_trials;
+                            these_trials=par_out(1).PAC(PACii).this_trialNo;
+                            trials_match=1;
+                            minLFP=1;
+                            for LFPNo=2:length(handles.drgbchoices.which_electrodes)
+                                if par_out(LFPNo).PAC(PACii).no_trials~=lastNoTrials
+                                    trials_match=0;
+                                end
+                                these_trials=intersect(these_trials,par_out(LFPNo).PAC(PACii).this_trialNo);
+                            end
+                            
+                            if trials_match==0
+                                %The code below makes all LFPs have the
+                                %same number of trials shared by lte
+                                %largest subset of electrodes
+                                
+                                %Find largest subset of shared trials
+                                PACii=1;
+                                no_trn=1;
+                                no_trials_per_LFP(no_trn)=par_out(1).PAC(PACii).no_trials;
+                                no_LFPs(no_trn)=1;
+                                for LFPNo=2:length(handles.drgbchoices.which_electrodes)
+                                    if sum(no_trials_per_LFP==par_out(LFPNo).PAC(PACii).no_trials)>0
+                                        ii=find(no_trials_per_LFP==par_out(LFPNo).PAC(PACii).no_trials);
+                                        no_LFPs(ii)=no_LFPs(ii)+1;
+                                    else
+                                        no_trn=no_trn+1;
+                                        no_LFPs(no_trn)=1;
+                                        no_trials_per_LFP(no_trn)=par_out(LFPNo).PAC(PACii).no_trials;
+                                    end
+                                end
+                                
+                                %Find the largest subset
+                                [max_no, max_ii]=max(no_LFPs);
+                                maxLFPs=zeros(1,max_no);
+                                jj=0;
+                                for LFPNo=1:length(handles.drgbchoices.which_electrodes)
+                                    if no_trials_per_LFP(max_ii)==par_out(LFPNo).PAC(PACii).no_trials
+                                        jj=jj+1;
+                                        maxLFPs(jj)=LFPNo;
+                                    end
+                                end
+                                
+                                for LFPNo=1:length(handles.drgbchoices.which_electrodes)
+                                    for PACii=1:length(handles.drgbchoices.PACburstLowF)
+                                        if  par_out(LFPNo).PAC(PACii).no_trials~=no_trials_per_LFP(max_ii)
+                                            [min_dist,ii_replace]=min(abs(LFPNo-maxLFPs));
+                                            LFPrep=maxLFPs(ii_replace(1));
+                                            par_out(LFPNo).PAC(PACii).no_trials=par_out(LFPrep).PAC(PACii).no_trials;
+                                            par_out(LFPNo).PAC(PACii).this_trialNo=par_out(LFPrep).PAC(PACii).this_trialNo;
+                                            par_out(LFPNo).PAC(PACii).meanVectorLength=par_out(LFPrep).PAC(PACii).meanVectorLength;
+                                            par_out(LFPNo).PAC(PACii).meanVectorAngle=par_out(LFPrep).PAC(PACii).meanVectorAngle;
+                                            par_out(LFPNo).PAC(PACii).peakAngle=par_out(LFPrep).PAC(PACii).peakAngle;
+                                            par_out(LFPNo).PAC(PACii).mod_indx=par_out(LFPrep).PAC(PACii).mod_indx;
+                                            par_out(LFPNo).PAC(PACii).all_phase_histo=par_out(LFPrep).PAC(PACii).all_phase_histo;
+                                            par_out(LFPNo).PAC(PACii).perCorrPAC=par_out(LFPrep).PAC(PACii).perCorrPAC;
+                                            par_out(LFPNo).PAC(PACii).which_eventPAC=par_out(LFPrep).PAC(PACii).which_eventPAC;
+                                            par_out(LFPNo).PAC(PACii).meanPeakAngle=par_out(LFPrep).PAC(PACii).meanPeakAngle;
+                                            par_out(LFPNo).PAC(PACii).meanPeakPower=par_out(LFPrep).PAC(PACii).meanPeakPower;
+                                            par_out(LFPNo).PAC(PACii).meanTroughPower=par_out(LFPrep).PAC(PACii).meanTroughPower;
+                                            par_out(LFPNo).PAC(PACii).PACtimecourse=par_out(LFPrep).PAC(PACii).PACtimecourse;
+                                            
+                                            
+                                            %Enter the per LFP values for PACwave
+                                            par_out(LFPNo).PACwave(PACii).meanPeakPower=par_out(LFPrep).PACwave(PACii).meanPeakPower;
+                                            par_out(LFPNo).PACwave(PACii).meanTroughPower=par_out(LFPrep).PACwave(PACii).meanTroughPower;
+                                            par_out(LFPNo).PACwave(PACii).meanPower=par_out(LFPrep).PACwave(PACii).meanPower;
+                                            par_out(LFPNo).PACwave(PACii).PACtimecourse=par_out(LFPrep).PACwave(PACii).PACtimecourse;
+                                            
+                                        end
+                                    end
+                                end
+                                
+                              
+%                                 %The code below trims the number of trials
+%                                 %to the smallest possible number
+%                                 for LFPNo=1:length(handles.drgbchoices.which_electrodes)
+%                                     for PACii=1:length(handles.drgbchoices.PACburstLowF)
+%                                         %
+%                                         par_out(LFPNo).PAC(PACii).no_trials=length(these_trials);
+%                                         par_out(LFPNo).PAC(PACii).this_trialNo=these_trials;
+%                                         
+%                                         meanVectorLength=zeros(1,length(these_trials));
+%                                         meanVectorAngle=zeros(1,length(these_trials));
+%                                         peakAngle=zeros(1,length(these_trials));
+%                                         mod_indx=zeros(1,length(these_trials));
+%                                         all_phase_histo=zeros(length(these_trials),size(par_out(LFPNo).PAC(PACii).all_phase_histo,2));
+%                                         perCorr=zeros(1,length(these_trials));
+%                                         which_event=zeros(size(par_out(LFPNo).PAC(PACii).which_eventPAC,1),length(these_trials));
+%                                         meanPeakAngle=zeros(1,length(these_trials));
+%                                         meanPeakPower=zeros(1,length(these_trials));
+%                                         meanTroughPower=zeros(1,length(these_trials));
+%                                         out_PACtimecourse=struct;
+%                                         
+%                                         meanPeakPowerwave=zeros(1,length(these_trials));
+%                                         meanTroughPowerwave=zeros(1,length(these_trials));
+%                                         meanPowerwave=zeros(1,length(these_trials));
+%                                         out_PACtimecoursewave=struct;
+%                                         this_trialNo=[];
+%                                         
+%                                         for new_trNo=1:length(these_trials)
+%                                             trNo=find(these_trials(new_trNo)==par_out(LFPNo).PAC(PACii).this_trialNo);
+%                                             this_trialNo(new_trNo)=par_out(LFPNo).PAC(PACii).this_trialNo(trNo);
+%                                             meanVectorLength(new_trNo)=par_out(LFPNo).PAC(PACii).meanVectorLength(trNo);
+%                                             meanVectorAngle=par_out(LFPNo).PAC(PACii).meanVectorAngle(trNo);
+%                                             peakAngle(new_trNo)=par_out(LFPNo).PAC(PACii).peakAngle(trNo);
+%                                             mod_indx(new_trNo)= par_out(LFPNo).PAC(PACii).mod_indx(trNo);
+%                                             all_phase_histo(new_trNo,:)=par_out(LFPNo).PAC(PACii).all_phase_histo(trNo,:);
+%                                             perCorr(new_trNo)=par_out(LFPNo).PAC(PACii).perCorrPAC(trNo);
+%                                             which_event(:,new_trNo)=par_out(LFPNo).PAC(PACii).which_eventPAC(:,trNo);
+%                                             meanPeakAngle(new_trNo)=par_out(LFPNo).PAC(PACii).meanPeakAngle(trNo);
+%                                             meanPeakPower(new_trNo)=par_out(LFPNo).PAC(PACii).meanPeakPower(trNo);
+%                                             meanTroughPower(new_trNo)=par_out(LFPNo).PAC(PACii).meanTroughPower(trNo);
+%                                             out_PACtimecourse(new_trNo).out_times=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).out_times;
+%                                             out_PACtimecourse(new_trNo).out_phase=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).out_phase;
+%                                             out_PACtimecourse(new_trNo).out_time_PAChisto=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).out_time_PAChisto;
+%                                             out_PACtimecourse(new_trNo).peakPower=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).peakPower;
+%                                             out_PACtimecourse(new_trNo).troughPower=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).troughPower;
+%                                             
+%                                             meanPeakPowerwave(new_trNo)=par_out(LFPNo).PACwave(PACii).meanPeakPower(trNo);
+%                                             meanTroughPowerwave(new_trNo)=par_out(LFPNo).PACwave(PACii).meanTroughPower(trNo);
+%                                             meanPowerwave(new_trNo)=par_out(LFPNo).PACwave(PACii).meanPower(trNo);
+%                                             out_PACtimecoursewave(new_trNo).peakPower=par_out(LFPNo).PACwave(PACii).PACtimecourse(trNo).peakPower;
+%                                             out_PACtimecoursewave(new_trNo).troughPower=par_out(LFPNo).PACwave(PACii).PACtimecourse(trNo).troughPower;
+%                                             out_PACtimecoursewave(new_trNo).troughPower=par_out(LFPNo).PACwave(PACii).PACtimecourse(trNo).troughPower;
+%                                             
+%                                         end
+%                                         par_out(LFPNo).PAC(PACii).this_trialNo=zeros(1,length(this_trialNo));
+%                                         par_out(LFPNo).PAC(PACii).this_trialNo=this_trialNo;
+%                                         par_out(LFPNo).PAC(PACii).meanVectorLength=meanVectorLength;
+%                                         par_out(LFPNo).PAC(PACii).meanVectorAngle=meanVectorAngle;
+%                                         par_out(LFPNo).PAC(PACii).peakAngle=peakAngle;
+%                                         par_out(LFPNo).PAC(PACii).mod_indx=mod_indx;
+%                                         par_out(LFPNo).PAC(PACii).all_phase_histo=all_phase_histo;
+%                                         par_out(LFPNo).PAC(PACii).perCorrPAC=perCorr;
+%                                         par_out(LFPNo).PAC(PACii).which_eventPAC=which_event;
+%                                         par_out(LFPNo).PAC(PACii).meanPeakAngle=meanPeakAngle;
+%                                         par_out(LFPNo).PAC(PACii).meanPeakPower=meanPeakPower;
+%                                         par_out(LFPNo).PAC(PACii).meanTroughPower=meanTroughPower;
+%                                         par_out(LFPNo).PAC(PACii).PACtimecourse=out_PACtimecourse;
+%                                         
+%                                         
+%                                         %Enter the per LFP values for PACwave
+%                                         par_out(LFPNo).PACwave(PACii).meanPeakPower=meanPeakPowerwave;
+%                                         par_out(LFPNo).PACwave(PACii).meanTroughPower=meanTroughPowerwave;
+%                                         par_out(LFPNo).PACwave(PACii).meanPower=meanPowerwave;
+%                                         par_out(LFPNo).PACwave(PACii).PACtimecourse=out_PACtimecoursewave;
+%                                     end
+%                                 end
+                                fprintf(1, 'WARNING. Number of trials trimmed because For file no %d the number of trials differ between different LFPs\n ',filNum);
+                            end
+                            
                             t=t_pac;
                             for LFPNo=1:length(handles.drgbchoices.which_electrodes)
                                 
@@ -940,6 +1095,26 @@ if all_files_present==1
                         if (sum(handles.drgbchoices.which_discriminant==10)>0)||(sum(handles.drgbchoices.which_discriminant==11)>0)||...
                                 (sum(handles.drgbchoices.which_discriminant==12)>0)
                             t=t_pac;
+                            
+                            if (trials_match==0)||(par_out(1).PAC(1).no_trials~=length(stamped_lick_ii))
+                               %Trim the licks
+                               
+                               these_trials=par_out(1).PAC(1).this_trialNo;
+                               old_lick_traces=lick_traces;
+                               lick_traces=zeros(length(these_trials),size(lick_traces,2));
+                               old_stamped_lick_ii=stamped_lick_ii;
+                               stamped_lick_ii=zeros(1,length(these_trials));
+                               old_trials_included_l=trials_included_l;
+                               trials_included_l=[];
+                               
+                               for new_trNo=1:par_out(1).PAC(1).no_trials
+                                   trNo=find(these_trials(new_trNo)==old_trials_included_l);
+                                   lick_traces(new_trNo,:)=old_lick_traces(trNo,:);
+                                   stamped_lick_ii(new_trNo)=old_stamped_lick_ii(trNo);
+                                   trials_included_l(new_trNo)=old_trials_included_l(trNo);
+                               end
+                               
+                            end
                             
                             %Genetrate the licks
                             these_licks_per_t=zeros(par_out(1).PAC(1).no_trials,length(t));

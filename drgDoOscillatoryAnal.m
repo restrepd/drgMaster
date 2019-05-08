@@ -4,21 +4,21 @@ switch handles.analysisNoOsc
     case 1
         drgThetaAmpPhaseTrialRange(handles);
     case 2
-        drgMIvsHiLoTrialRange(handles)
+        drgMIvsHiLoTrialRange(handles);
     case 3
-        drgLFPspect(handles)
+        drgLFPspect(handles);
     case 4
-        drgLFPPerTrial(handles)
+        drgLFPPerTrial(handles);
     case 5 
-        drgLFPandLicksPerTrial(handles)
+        drgLFPandLicksPerTrial(handles);
     case 6
-        drgLFPspectTimecourse(handles)
+        drgLFPspectTimecourse(handles);
     case 7
-        drgPhaseTimecourse(handles)
+        drgPhaseTimecourse(handles);
     case 8
-        drgThetaAmpPhaseLick(handles)
+        drgThetaAmpPhaseLick(handles);
     case 9
-        drgLFPwaveTimecourse(handles)
+        drgLFPwaveTimecourse(handles);
     case 10 
         drgComparePhases(handles);
     case 11
@@ -28,7 +28,8 @@ switch handles.analysisNoOsc
     case 13
         drgEventRelatedROCAnalysis(handles);
     case 14
-        drgEventRelatedWaveletAnalysis(handles);
+%         drgEventRelatedWaveletAnalysis(handles);
+        drgLFP_ERWA(handles);
     case 15
          drgERWAtimecourse(handles);
     case 16

@@ -496,7 +496,9 @@ for trNo=firstTr:lastTr
                     end
                     
                     thERLFP_per_trial(no_trials,:)=mean(thERLFP,1);
-                    no_ref_evs_per_trial_th(no_trials)=no_ref_evs_this_trial_th;
+                    if handles.subtractRef==1
+                        no_ref_evs_per_trial_th(no_trials)=no_ref_evs_this_trial_th;
+                    end
                     
                     if isfield(handles,'drgbchoices')
                         for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
@@ -816,6 +818,27 @@ if handles.displayData==1
     xlabel('Time (s)')
     %ylim([-300 300])
     set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+    
+    pffft=1;
+    
+    if no_trials==1
+        %If this is a single trial plot the licks
+        try
+            close 11
+        catch
+        end
+        
+        hFig11 = figure(11);
+        set(hFig11, 'units','normalized','position',[.07 .7 .55 .3])
+        
+        
+        these_lick_times=these_lick_times+handles.time_start+handles.time_pad;
+        hold on
+        for ilick=1:length(these_lick_times)
+            plot([these_lick_times(ilick) these_lick_times(ilick)],[0 1],'-k','LineWidth',3)
+        end
+        xlim([handles.time_start+handles.time_pad handles.time_end-handles.time_pad])
+    end
     
     
     

@@ -596,12 +596,16 @@ switch which_display
         %Plot average percent correct for the LDA for peak and trough for
         %wavelet power referenced to PAC phase
         t=handles_out.t_power;
-       
+        
         for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             p_correct_stats=[];
             ii_stats=0;
             p_dim_stats=[];
             ii_dim_stats=0;
+            glm_ii=0;
+            glm_correct=[];
+            glm_dim_ii=0;
+            glm_dim=[];
             for percent_correct_ii=1:2
                 
                 for groupNo=1:max(handles_out.drgbchoices.group_no)
@@ -615,22 +619,22 @@ switch which_display
                     all_discriminant_correct_shuffled_trough=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
                     
                     for mouseNo=1:length(handles_out.discriminant_PACwavepower)
-                                try
-                                    if handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated==1
-                                        per_ii=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials;
-                                        no_mice=no_mice+1;
-                                        if (per_ii>=20)&(sum(no_mice==mice_excluded)==0)
-                                            no_mice_included=no_mice_included+1;
-                                            all_discriminant_correct_peak(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_peak;
-                                            all_discriminant_correct_trough(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_trough;
-                                            all_discriminant_correct_shuffled_peak(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_shuffled_peak;
-                                            all_discriminant_correct_shuffled_trough(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_shuffled_trough;
-                                            all_dimensionality_peak(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).dimensionality_peak;
-                                            all_dimensionality_trough(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).dimensionality_trough;
-                                        end
-                                    end
-                                catch
+                        try
+                            if handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated==1
+                                per_ii=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials;
+                                no_mice=no_mice+1;
+                                if (per_ii>=20)&(sum(no_mice==mice_excluded)==0)
+                                    no_mice_included=no_mice_included+1;
+                                    all_discriminant_correct_peak(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_peak;
+                                    all_discriminant_correct_trough(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_trough;
+                                    all_discriminant_correct_shuffled_peak(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_shuffled_peak;
+                                    all_discriminant_correct_shuffled_trough(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_shuffled_trough;
+                                    all_dimensionality_peak(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).dimensionality_peak;
+                                    all_dimensionality_trough(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).dimensionality_trough;
                                 end
+                            end
+                        catch
+                        end
                     end
                     
                     
@@ -675,6 +679,15 @@ switch which_display
                     p_correct_stats(ii_stats).per_corr_ii=percent_correct_ii;
                     p_correct_stats(ii_stats).groupNo=groupNo;
                     
+                    
+                    glm_correct.data(glm_ii+1:glm_ii+length(data))=data;
+                    glm_correct.PACii(glm_ii+1:glm_ii+length(data))=PACii;
+                    glm_correct.group(glm_ii+1:glm_ii+length(data))=groupNo;
+                    glm_correct.perCorr(glm_ii+1:glm_ii+length(data))=percent_correct_ii;
+                    glm_correct.shuffled(glm_ii+1:glm_ii+length(data))=1;
+                    glm_correct.peak(glm_ii+1:glm_ii+length(data))=1;
+                    glm_ii=glm_ii+length(data);
+                    
                     data=[];
                     for mouseNo=1:no_mice_included
                         data=[data (mean(all_discriminant_correct_shuffled_trough(mouseNo,(t>=auc_from)&(t<=auc_to)),2)-50)/50];
@@ -687,6 +700,16 @@ switch which_display
                     p_correct_stats(ii_stats).PACii=PACii;
                     p_correct_stats(ii_stats).per_corr_ii=percent_correct_ii;
                     p_correct_stats(ii_stats).groupNo=groupNo;
+                    
+                    glm_correct.data(glm_ii+1:glm_ii+length(data))=data;
+                    glm_correct.PACii(glm_ii+1:glm_ii+length(data))=PACii;
+                    glm_correct.group(glm_ii+1:glm_ii+length(data))=groupNo;
+                    glm_correct.perCorr(glm_ii+1:glm_ii+length(data))=percent_correct_ii;
+                    glm_correct.shuffled(glm_ii+1:glm_ii+length(data))=1;
+                    glm_correct.peak(glm_ii+1:glm_ii+length(data))=0;
+                    glm_ii=glm_ii+length(data);
+                    
+                    
                     
                     %Now plot the percent correct for the trough
                     all_discriminant_correct_trough=all_discriminant_correct_trough(1:no_mice_included,:);
@@ -713,6 +736,13 @@ switch which_display
                     p_correct_stats(ii_stats).per_corr_ii=percent_correct_ii;
                     p_correct_stats(ii_stats).groupNo=groupNo;
                     
+                    glm_correct.data(glm_ii+1:glm_ii+length(data))=data;
+                    glm_correct.PACii(glm_ii+1:glm_ii+length(data))=PACii;
+                    glm_correct.group(glm_ii+1:glm_ii+length(data))=groupNo;
+                    glm_correct.perCorr(glm_ii+1:glm_ii+length(data))=percent_correct_ii;
+                    glm_correct.shuffled(glm_ii+1:glm_ii+length(data))=0;
+                    glm_correct.peak(glm_ii+1:glm_ii+length(data))=0;
+                    glm_ii=glm_ii+length(data);
                     
                     %Now plot the percent correct for the peak
                     all_discriminant_correct_peak=all_discriminant_correct_peak(1:no_mice_included,:);
@@ -741,6 +771,13 @@ switch which_display
                     p_correct_stats(ii_stats).per_corr_ii=percent_correct_ii;
                     p_correct_stats(ii_stats).groupNo=groupNo;
                     
+                    glm_correct.data(glm_ii+1:glm_ii+length(data))=data;
+                    glm_correct.PACii(glm_ii+1:glm_ii+length(data))=PACii;
+                    glm_correct.group(glm_ii+1:glm_ii+length(data))=groupNo;
+                    glm_correct.perCorr(glm_ii+1:glm_ii+length(data))=percent_correct_ii;
+                    glm_correct.shuffled(glm_ii+1:glm_ii+length(data))=0;
+                    glm_correct.peak(glm_ii+1:glm_ii+length(data))=1;
+                    glm_ii=glm_ii+length(data);
                     
                     %Odor on markers
                     plot([0 0],[0 100],'-k')
@@ -781,7 +818,7 @@ switch which_display
                     %Plot dimensionality and save the data for
                     %the ranksum
                     
-                    winNo=1
+                    winNo=1;
                     figNo=figNo+1;
                     try
                         close(figNo)
@@ -791,7 +828,7 @@ switch which_display
                     
                     hold on
                     
-
+                    
                     %Now plot the dimensionality  for the trough
                     all_dimensionality_trough=all_dimensionality_trough(1:no_mice_included,:);
                     mean_dc_trough=mean(all_dimensionality_trough,1)';
@@ -818,6 +855,13 @@ switch which_display
                     dim_stats(ii_dim_stats).PACii=PACii;
                     dim_stats(ii_dim_stats).per_corr_ii=percent_correct_ii;
                     dim_stats(ii_dim_stats).groupNo=groupNo;
+                    
+                    glm_dim.data(glm_dim_ii+1:glm_dim_ii+length(data))=data;
+                    glm_dim.PACii(glm_dim_ii+1:glm_dim_ii+length(data))=PACii;
+                    glm_dim.group(glm_dim_ii+1:glm_dim_ii+length(data))=groupNo;
+                    glm_dim.perCorr(glm_dim_ii+1:glm_dim_ii+length(data))=percent_correct_ii;
+                    glm_dim.peak(glm_dim_ii+1:glm_dim_ii+length(data))=0;
+                    glm_dim_ii=glm_dim_ii+length(data);
                     
                     
                     %Now plot the percent correct for the peak
@@ -847,6 +891,12 @@ switch which_display
                     dim_stats(ii_dim_stats).per_corr_ii=percent_correct_ii;
                     dim_stats(ii_dim_stats).groupNo=groupNo;
                     
+                    glm_dim.data(glm_dim_ii+1:glm_dim_ii+length(data))=data;
+                    glm_dim.PACii(glm_dim_ii+1:glm_dim_ii+length(data))=PACii;
+                    glm_dim.group(glm_dim_ii+1:glm_dim_ii+length(data))=groupNo;
+                    glm_dim.perCorr(glm_dim_ii+1:glm_dim_ii+length(data))=percent_correct_ii;
+                    glm_dim.peak(glm_dim_ii+1:glm_dim_ii+length(data))=1;
+                    glm_dim_ii=glm_dim_ii+length(data);
                     
                     %Odor on markers
                     this_yl=ylim;
@@ -858,24 +908,45 @@ switch which_display
                     legend([hltrough hlpeak],{'Trough','Peak'})
                     xlabel('Time (sec)')
                     ylabel(['Dimensionality '  handles_out.drgbchoices.per_lab{percent_correct_ii}])
-                   
+                    
                     
                     pffft=1;
                 end
             end
+            
+            %Perform the glm
+            fprintf(1, ['\n\nglm for area under the curve for Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
+            tbl = table(glm_correct.data',glm_correct.group',glm_correct.perCorr',glm_correct.shuffled',glm_correct.peak',...
+                'VariableNames',{'prediction','fwd_rev','perCorr','shuffled','peak_trough'});
+            mdl = fitglm(tbl,'prediction~fwd_rev+perCorr+shuffled+peak_trough+peak_trough*shuffled+peak_trough*perCorr+perCorr*shuffled+perCorr*shuffled*peak_trough'...
+                ,'CategoricalVars',[2,3,4,5])
+            
             %Do ranksum/t test
-            fprintf(1, ['Ranksum or t-test p values for area under the curve for Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
+            fprintf(1, ['\n\nRanksum or t-test p values for area under the curve for Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
             try
                 [output_data] = drgMutiRanksumorTtest(p_correct_stats);
                 fprintf(1, '\n\n')
             catch
             end
-            fprintf(1, ['Ranksum or t-test p values for dimensionality for Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
+            
+          
+            %Perform the glm
+            fprintf(1, ['\n\nglm for dimensionality for Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
+            tbl = table(glm_dim.data',glm_dim.group',glm_dim.perCorr',glm_dim.peak',...
+                'VariableNames',{'prediction','fwd_rev','perCorr','peak_trough'});
+            mdl = fitglm(tbl,'prediction~fwd_rev+perCorr+peak_trough+peak_trough*perCorr'...
+                ,'CategoricalVars',[2,3,4])
+            
+            fprintf(1, ['\n\nRanksum or t-test p values for dimensionality for Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
             try
                 [output_data] = drgMutiRanksumorTtest(dim_stats);
                 fprintf(1, '\n\n')
             catch
             end
+            
+           
+            
+            pffft=1;
         end
         
         
@@ -898,7 +969,7 @@ switch which_display
                     hFig=figure(figNo);
                     
                     
-%                     set(hFig, 'units','normalized','position',[.2 .2 .7 .7])
+                    %                     set(hFig, 'units','normalized','position',[.2 .2 .7 .7])
                     
                     
                     
@@ -1047,8 +1118,8 @@ switch which_display
                         CIPC1ev1(2,:)=CIPC1ev1(2,:)-mean_PC1ev1;
                         [hlCR, hpCR] = boundedline(t',mean_PC1ev1', CIPC1ev1', 'r');
                         
-%                         maxPC1=max([maxCIPC1ev2 maxCIPC1ev1]);
-%                         minPC1=min([minCIPC1ev2 minCIPC1ev1]);
+                        %                         maxPC1=max([maxCIPC1ev2 maxCIPC1ev1]);
+                        %                         minPC1=min([minCIPC1ev2 minCIPC1ev1]);
                         
                         %Odor on markers
                         plot([0 0],[minPC1-0.1*(maxPC1-minPC1) maxPC1+0.1*(maxPC1-minPC1)],'-k')
@@ -1098,7 +1169,8 @@ switch which_display
             end
             suptitle(['All trials. Group: ' handles_out.drgbchoices.group_no_names{groupNo} ' # of mice: ' num2str(no_mice_per(1)) ' ' handles_out.drgbchoices.per_lab{1} ' ' num2str(no_mice_per(2)) ' ' handles_out.drgbchoices.per_lab{2}])
         end
-      pffft=1;  
+        
+
 end
 
 

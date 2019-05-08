@@ -2,7 +2,7 @@ function handles=drgLFPwaveTimecourse(handles)
 %Generates a timecourse of the LFP power in decibels 10*log10(Power)
 
  
-[t,freq,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo]=drgGetLFPwavePowerForThisEvTypeNo(handles);
+[t_apt,freq,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo]=drgGetLFPwavePowerForThisEvTypeNo(handles);
 
 
 
@@ -38,7 +38,7 @@ for trNum=1:handles.drgb.PAC.no_trials
     this_LFPenv=handles.drgb.PAC.PACtimecourse(trNum).decLFPgenv;
     while at_end==0
         ii_next=find(this_angleTetaLFP(ii:end)>=meanPeakAngle,1,'first');
-        if (~isempty(ii_next))&(ii+ii_next-1<=length(out_times_env))
+        if (~isempty(ii_next))&(ii+ii_next-1<=length(t_apt))
             jj=jj+1;
             this_peakPower(jj)=mean(10*log10(all_Power_timecourse(trNum,:,ii+ii_next-1)),2);
             this_peakPower_times(jj)=out_times_env(ii+ii_next-1);
@@ -90,7 +90,7 @@ for trNum=1:handles.drgb.PAC.no_trials
     this_LFPenv=handles.drgb.PAC.PACtimecourse(trNum).decLFPgenv;
     while at_end==0
         ii_next=find(this_angleTetaLFP(ii:end)>=meanTroughAngle,1,'first');
-        if (~isempty(ii_next))&(ii+ii_next-1<=length(out_times_env))
+        if (~isempty(ii_next))&(ii+ii_next-1<=length(t_apt))
             jj=jj+1;
             this_troughPower(jj)=mean(10*log10(all_Power_timecourse(trNum,:,ii+ii_next-1)),2);
             this_troughPower_times(jj)=out_times_env(ii+ii_next-1);
@@ -138,7 +138,7 @@ for trNum=1:handles.drgb.PAC.no_trials
             if ii_t==length(t_pac)
                 meanPower(trNum,ii_t)=mean(10*log10(all_Power_timecourse(trNum,:,end)),2);
             else
-                meanPower(trNum,ii_t)=mean(mean(10*log10(all_Power_timecourse(trNum,:,(out_times_env>=t_pac(ii_t)-(dt/2))&(out_times_env<t_pac(ii_t)+(dt/2)))),2),3);
+                meanPower(trNum,ii_t)=mean(mean(10*log10(all_Power_timecourse(trNum,:,(t_apt>=t_pac(ii_t)-(dt/2))&(t_apt<t_pac(ii_t)+(dt/2)))),2),3);
             end
         end
     end
@@ -156,14 +156,14 @@ if handles.displayData==1
         %Timecourse doing average after log
         %Get max and min
         if handles.subtractRef==0
-            log_P_timecourse=zeros(length(freq),length(t));
+            log_P_timecourse=zeros(length(freq),length(t_apt));
             log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse),1);
             
             %Per trial power plot
-            log_P_per_trial_timecourse=zeros(length(freq)*length(this_trialNo),length(t));
+            log_P_per_trial_timecourse=zeros(length(freq)*length(this_trialNo),length(t_apt));
             y_shift=0;
             for trialNo=1:length(this_trialNo)
-                this_log_P_timecourse=zeros(length(freq),length(t));
+                this_log_P_timecourse=zeros(length(freq),length(t_apt));
                 this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trialNo,:,:));
                 log_P_per_trial_timecourse(y_shift+1:y_shift+length(freq),:)=this_log_P_timecourse;
                 shifted_freq(1,y_shift+1:y_shift+length(freq))=freq+(trialNo-1)*freq(end);
@@ -183,21 +183,21 @@ if handles.displayData==1
                 minLogPper=handles.minLogP;
             end
         else
-            log_P_timecourse=zeros(length(freq),length(t));
+            log_P_timecourse=zeros(length(freq),length(t_apt));
             log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse),1);
-            log_P_timecourse_ref=zeros(length(freq),length(t));
-            log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref),1)',1,length(t));
+            log_P_timecourse_ref=zeros(length(freq),length(t_apt));
+            log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref),1)',1,length(t_apt));
             
             %Per trial power plot
-            log_P_per_trial_timecourse_sub=zeros(length(freq)*length(this_trialNo),length(t));
+            log_P_per_trial_timecourse_sub=zeros(length(freq)*length(this_trialNo),length(t_apt));
             y_shift=0;
             sy_shift=0;
             shifted_freq=[];
             for trialNo=1:length(this_trialNo)
-                this_log_P_timecourse=zeros(length(freq),length(t));
+                this_log_P_timecourse=zeros(length(freq),length(t_apt));
                 this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trialNo,:,:));
-                this_log_P_timecourse_ref=zeros(length(freq),length(t));
-                this_log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref(trialNo,:)),1)',1,length(t));
+                this_log_P_timecourse_ref=zeros(length(freq),length(t_apt));
+                this_log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref(trialNo,:)),1)',1,length(t_apt));
                 log_P_per_trial_timecourse_sub(y_shift+1:y_shift+length(freq),:)=this_log_P_timecourse-this_log_P_timecourse_ref;
                 shifted_freq(1,y_shift+1:y_shift+length(freq))=freq+(trialNo-1)*freq(end);
                 y_shift=y_shift+length(freq);
@@ -230,10 +230,10 @@ if handles.displayData==1
         hFig9 = figure(9);
         set(hFig9, 'units','normalized','position',[.07 .05 .75 .3])
         if handles.subtractRef==0
-            drg_pcolor(repmat(t,length(freq),1)',repmat(freq,length(t),1),log_P_timecourse')
+            drg_pcolor(repmat(t_apt,length(freq),1)',repmat(freq,length(t_apt),1),log_P_timecourse')
         else
             %pcolor(repmat(t,length(f),1)',repmat(f,length(t),1),10*log10(P_timecourse')-10*log10(P_timecourse_ref'))
-            drg_pcolor(repmat(t,length(freq),1)',repmat(freq,length(t),1),log_P_timecourse'-log_P_timecourse_ref')
+            drg_pcolor(repmat(t_apt,length(freq),1)',repmat(freq,length(t_apt),1),log_P_timecourse'-log_P_timecourse_ref')
             %imagesc(t,f,10*log10(P_timecourse')-10*log10(P_timecourse_ref'))
         end
         
@@ -255,7 +255,7 @@ if handles.displayData==1
             ffrom=freq(1)+0.95*(freq(end)-freq(1));
             
             
-            for t1=t(1):t(2)-t(1):t(end)
+            for t1=t_apt(1):t_apt(2)-t_apt(1):t_apt(end)
                 plot([t1 t1],[ffrom freq(end)],'-w','LineWidth',3)
             end
             
@@ -291,10 +291,10 @@ if handles.displayData==1
         set(hFig11, 'units','normalized','position',[.07 .1 .75 .3])
         
         if handles.subtractRef==0
-            drg_pcolor(repmat(t,length(freq)*length(this_trialNo),1)',repmat(shifted_freq,length(t),1),log_P_per_trial_timecourse')
+            drg_pcolor(repmat(t_apt,length(freq)*length(this_trialNo),1)',repmat(shifted_freq,length(t_apt),1),log_P_per_trial_timecourse')
         else
             %pcolor(repmat(t,length(f),1)',repmat(f,length(t),1),10*log10(P_timecourse')-10*log10(P_timecourse_ref'))
-            drg_pcolor(repmat(t,length(freq)*length(this_trialNo),1)',repmat(shifted_freq,length(t),1),log_P_per_trial_timecourse_sub')
+            drg_pcolor(repmat(t_apt,length(freq)*length(this_trialNo),1)',repmat(shifted_freq,length(t_apt),1),log_P_per_trial_timecourse_sub')
             %imagesc(t,f,10*log10(P_timecourse')-10*log10(P_timecourse_ref'))
         end
         
@@ -349,7 +349,7 @@ if handles.displayData==1
         
         y_shift=y_shift+1.5*(per99-per1);
         ylim([0 y_shift])
-        xlim([t(1) t(end)])
+        xlim([t_apt(1) t_apt(end)])
         xlabel('time(sec)')
         title('Lick traces')
         

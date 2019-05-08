@@ -80,9 +80,10 @@ try
         dataforch=[data(ii_from:end);zeros(ii_to-length(data)+1,1)];
     end
     
-    if (testLFP==0)||(lfpElectrode>=18)
+    if (testLFP==0)
         dataforch=dataforch';
     else
+        dataforch_original=dataforch;
         dataforch=[];
         %Setup a signal with high and low frequency oscillations
         Fs=handles.drg.draq_p.ActualRate;
@@ -131,8 +132,8 @@ try
         pink_noise = pink_noise(nT60+1:end);    % Skip transient response
         pink_n_fact=2000;
         
-        %Generate licks at the troughs of the theta LFP
-        [peaks,loc]=findpeaks(-LFPtheta,1,'MinPeakHeight',0.5,'MinPeakDistance',0);
+        %Generate licks at the peaks of the theta LFP
+        [peaks,loc]=findpeaks(LFPtheta,1,'MinPeakHeight',0.5,'MinPeakDistance',0);
         licks=zeros(1,length(LFPtheta));
         for peakNo=1:length(loc)
             licks(loc(peakNo):loc(peakNo)+200)=500;
@@ -199,22 +200,28 @@ try
                     dataforch=500*(LFPtheta+0.0125*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
                 end
             case 5
-                
                 %10 Hz and 80Hz 10 dB
-                dataforch=0.002*(6*sin(2*pi*t_tort*Ftheta/Fs)+6*sin(2*pi*t_tort*Fgamma/Fs));
-                dataforch= dataforch+noiseFact*randn(1,length(dataforch));
-                dataforch=dataforch.*(0.02*no_odorLFP+odorLFP)+noiseFact*randn(1,length(dataforch));
+                if lfpElectrode>=18
+                    dataforch=licks';
+                else
+                    dataforch=0.002*(6*sin(2*pi*t_tort*Ftheta/Fs)+6*sin(2*pi*t_tort*Fgamma/Fs));
+                    dataforch= dataforch+noiseFact*randn(1,length(dataforch));
+                    dataforch=dataforch.*(0.02*no_odorLFP+odorLFP)+noiseFact*randn(1,length(dataforch));
+                end
             case 6
                 %10 Hz and 80Hz 20 dB
-                dataforch=0.005*(6*sin(2*pi*t_tort*Ftheta/Fs)+6*sin(2*pi*t_tort*Fgamma/Fs));
-                dataforch= dataforch+noiseFact*randn(1,length(dataforch));
-                dataforch=dataforch.*(0.02*no_odorLFP+odorLFP)+noiseFact*randn(1,length(dataforch));
+                if lfpElectrode>=18
+                    dataforch=licks';
+                else
+                    dataforch=0.005*(6*sin(2*pi*t_tort*Ftheta/Fs)+6*sin(2*pi*t_tort*Fgamma/Fs));
+                    dataforch= dataforch+noiseFact*randn(1,length(dataforch));
+                    dataforch=dataforch.*(0.02*no_odorLFP+odorLFP)+noiseFact*randn(1,length(dataforch));
+                end
             case 7
                 %10 and 80Hz centered on the lick
                 if lfpElectrode==19
-                    %Licks starting at -1 and 1.5
-                    licks=(~((time<1.5)|(time>2)))|(~((time<-1)|(time>-0.5)));
-                    dataforch=1000*licks+2000;
+                    %Licks 
+                    dataforch=licks;
                 else
                     %0.4sec 80 Hz sine wave burst centered at the lick
                     LFPburst=(~((time<1.3)|(time>1.7)));
@@ -223,96 +230,105 @@ try
                     dataforch=dataforch.*(0.05*noLFPburst+LFPburst)+noiseFact*randn(1,length(dataforch));
                 end
             case 8
-                %LFP gamma burst at zero degrees, low MI, low power
-                gammaFact=1;
-                shift_burst=-ceil(length(k)/2);
-                shift_trough=0.5*(1/Ftheta)*Fs; %trough
-                for ii=1:floor((time_end-time_start)*Ftheta)
-                    LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
-                end
-                if lfpElectrode==19
-                    dataforch=licks;
+                if (lfpElectrode>=18)
+                    dataforch=licks';
                 else
-%                     dataforch=500*(LFPtheta+0.015*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
-                     dataforch=100*(LFPtheta+0.015*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
-                end
-                
-                % The cases below are used by batch processing
-            case 9
-                %LFP low gamma burst at 180 degrees, high MI S+, low MI S-
-                
-                %if it is S-handles.drgbchoices.evTypeNos=[3 5 7 9 11 13 16:21];
-   
-                %First find out if this is S+ or S-
-                
-                if sum(handles.drg.session(1).events(5).times==handles.drg.session(1).events(evTypeNo).times(evNo))>0
-                    %This is S+
-                    %LFP gamma burst at 180 degrees, high MI
-                    gammaFact=30;  %15 is good for high gamma, 30 great for low gamma
-                    shift_burst=-ceil(length(k)/2);
-                    shift_trough=0; %peak
-                    for ii=1:floor((time_end-time_start)*Ftheta)
-                        LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
-                    end
-                    if lfpElectrode==19
-                        dataforch=licks;
-                    else
-                        dataforch=500*(LFPtheta+0.0125*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
-                    end
-                    
-                else
-                    %This is S-
-                    %LFP gamma burst at 180 degrees, low MI
-                    gammaFact=10;
-                    shift_burst=-ceil(length(k)/2);
-                    shift_trough=0; %peak
-                    for ii=1:floor((time_end-time_start)*Ftheta)
-                        LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
-                    end
-                    
-                    if lfpElectrode==19
-                        dataforch=licks;
-                    else
-                        dataforch=500*(LFPtheta+0.0125*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
-                    end
-                end
-                
-            case 10
-                
-                %if it is S-handles.drgbchoices.evTypeNos=[3 5 7 9 11 13 16:21];
-  
-                %First find out if this is S+ or S-
-                
-                if sum(handles.drg.session(1).events(5).times==handles.drg.session(1).events(evTypeNo).times(evNo))>0
-                    %This is S+
-                   %LFP gamma burst at 180 degrees, high MI
-                    gammaFact=15;
-                    shift_burst=-ceil(length(k)/2);
-                    shift_trough=0; %peak
-                    for ii=1:floor((time_end-time_start)*Ftheta)
-                        LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
-                    end
-                    
-                    if lfpElectrode==19
-                        dataforch=licks;
-                    else
-                        dataforch=500*(LFPtheta+0.0125*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
-                    end
-                else
-                    %This is S-
-                    %LFP gamma burst at zero degrees, high MI
-                    gammaFact=15;
+                    %LFP gamma burst at zero degrees, low MI, low power
+                    gammaFact=1;
                     shift_burst=-ceil(length(k)/2);
                     shift_trough=0.5*(1/Ftheta)*Fs; %trough
                     for ii=1:floor((time_end-time_start)*Ftheta)
                         LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
                     end
-                    
-                    
                     if lfpElectrode==19
                         dataforch=licks;
                     else
-                        dataforch=500*(LFPtheta+0.015*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
+                        %                     dataforch=500*(LFPtheta+0.015*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
+                        dataforch=100*(LFPtheta+0.015*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
+                    end
+                end
+                % The cases below are used by batch processing
+            case 9
+                %LFP low gamma burst at 180 degrees, high MI S+, low MI S-
+                
+                %if it is S-handles.drgbchoices.evTypeNos=[3 5 7 9 11 13 16:21];
+                
+                %First find out if this is S+ or S-
+                if (lfpElectrode>=18)
+                    dataforch=licks';
+                else
+                    if sum(handles.drg.session(1).events(5).times==handles.drg.session(1).events(evTypeNo).times(evNo))>0
+                        %This is S+
+                        %LFP gamma burst at 180 degrees, high MI
+                        gammaFact=30;  %15 is good for high gamma, 30 great for low gamma
+                        shift_burst=-ceil(length(k)/2);
+                        shift_trough=0; %peak
+                        for ii=1:floor((time_end-time_start)*Ftheta)
+                            LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
+                        end
+                        if lfpElectrode==19
+                            dataforch=licks;
+                        else
+                            dataforch=500*(LFPtheta+0.0125*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
+                        end
+                        
+                    else
+                        %This is S-
+                        %LFP gamma burst at 180 degrees, low MI
+                        gammaFact=10;
+                        shift_burst=-ceil(length(k)/2);
+                        shift_trough=0; %peak
+                        for ii=1:floor((time_end-time_start)*Ftheta)
+                            LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
+                        end
+                        
+                        if lfpElectrode==19
+                            dataforch=licks;
+                        else
+                            dataforch=500*(LFPtheta+0.0125*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
+                        end
+                    end
+                end
+            case 10
+                
+                if (lfpElectrode>=18)
+                    dataforch=licks';
+                else
+                    %if it is S-handles.drgbchoices.evTypeNos=[3 5 7 9 11 13 16:21];
+                    
+                    %First find out if this is S+ or S-
+                    
+                    if sum(handles.drg.session(1).events(5).times==handles.drg.session(1).events(evTypeNo).times(evNo))>0
+                        %This is S+
+                        %LFP gamma burst at 180 degrees, high MI
+                        gammaFact=15;
+                        shift_burst=-ceil(length(k)/2);
+                        shift_trough=0; %peak
+                        for ii=1:floor((time_end-time_start)*Ftheta)
+                            LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
+                        end
+                        
+                        if lfpElectrode==19
+                            dataforch=licks;
+                        else
+                            dataforch=500*(LFPtheta+0.0125*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
+                        end
+                    else
+                        %This is S-
+                        %LFP gamma burst at zero degrees, high MI
+                        gammaFact=15;
+                        shift_burst=-ceil(length(k)/2);
+                        shift_trough=0.5*(1/Ftheta)*Fs; %trough
+                        for ii=1:floor((time_end-time_start)*Ftheta)
+                            LFPbursts(floor(ii*(Fs/Ftheta)+shift_burst+shift_trough)+1:floor(ii*(Fs/Ftheta)+shift_trough+shift_burst)+length(k))=gammaFact*g_burst;
+                        end
+                        
+                        
+                        if lfpElectrode==19
+                            dataforch=licks;
+                        else
+                            dataforch=500*(LFPtheta+0.015*LFPbursts(1:length(LFPtheta))).*(0.02*no_odorLFP+odorLFP)+pink_n_fact*pink_noise;
+                        end
                     end
                 end
         end
