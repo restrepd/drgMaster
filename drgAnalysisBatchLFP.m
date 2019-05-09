@@ -8967,14 +8967,27 @@ switch which_display
             end
             
             %Perform the glm
-            fprintf(1, ['\n\nglm for MI for Theta/' freq_names{pacii+1} '\n'])
-            tbl = table(glm_mi.data',glm_mi.group',glm_mi.perCorr',glm_mi.event',...
-                'VariableNames',{'MI','group','perCorr','event'});
-            mdl = fitglm(tbl,'MI~group+perCorr+event+group*perCorr+group*event+perCorr*event+perCorr*group*event'...
-                ,'CategoricalVars',[2,3,4])
+            fprintf(1, ['glm for average MI for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
+           
+            if sum(glm_mi.group==1)==length(glm_mi.group)
+                %There is only one group here (e.g. for Justin's paper we only include
+                %forward)
+                fprintf(1, ['\n\nglm for MI for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_mi.data',glm_mi.perCorr',glm_mi.event',...
+                    'VariableNames',{'MI','perCorr','event'});
+                mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
+                    ,'CategoricalVars',[2,3])
+            else
+               
+                fprintf(1, ['\n\nglm for MI for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_mi.data',glm_mi.group',glm_mi.perCorr',glm_mi.event',...
+                    'VariableNames',{'MI','group','perCorr','event'});
+                mdl = fitglm(tbl,'MI~group+perCorr+event+perCorr*group*event'...
+                    ,'CategoricalVars',[2,3,4])
+            end
             
             %Do the ranksum/t-test
-            fprintf(1, ['Ranksum or t-test p values for average MI for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
+            fprintf(1, ['\n\nRanksum or t-test p values for average MI for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
             [output_data] = drgMutiRanksumorTtest(input_data);
             
             
@@ -9161,17 +9174,17 @@ switch which_display
             
             ylabel('Modulation Index')
             
-            %Calculate anovan for inteaction
-            [p,tbl,stats]=anovan(data_MI_per_mouse,{prof_naive_per_mouse events_per_mouse, groups_per_mouse},'model','interaction','varnames',{'proficient_vs_naive','events','groups'},'display','off');
-            fprintf(1, ['anovan MI per mouse averaged over electrodes for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-            
-            fprintf(1, ['anovan p value for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-            fprintf(1, ['anovan p value for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-            fprintf(1, ['anovan p value for groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(3));
-            fprintf(1, ['anovan p value for naive vs proficient * events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-            fprintf(1, ['anovan p value for naive vs proficient * groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-            fprintf(1, ['anovan p value for events * groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
-            
+%             %Calculate anovan for inteaction
+%             [p,tbl,stats]=anovan(data_MI_per_mouse,{prof_naive_per_mouse events_per_mouse, groups_per_mouse},'model','interaction','varnames',{'proficient_vs_naive','events','groups'},'display','off');
+%             fprintf(1, ['anovan MI per mouse averaged over electrodes for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+%             
+%             fprintf(1, ['anovan p value for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+%             fprintf(1, ['anovan p value for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
+%             fprintf(1, ['anovan p value for groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(3));
+%             fprintf(1, ['anovan p value for naive vs proficient * events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+%             fprintf(1, ['anovan p value for naive vs proficient * groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
+%             fprintf(1, ['anovan p value for events * groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
+%             
         end
         
         for pacii=1:no_pacii
@@ -9260,6 +9273,8 @@ switch which_display
             
             ii_rank=0;
             VL_rank=[];
+            glm_VL=[];
+            glm_ii=0;
             maxVL=-2000;
             minVL=2000;
             
@@ -9484,11 +9499,42 @@ switch which_display
             end
 
             %Now do the ranksum or t-test
-            fprintf(1, ['Ranksum or t-test for mean vector length for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
             prof_naive_leg{1}='Proficient';
             prof_naive_leg{2}='Naive';
+             
+            input_data=[];
+            for ii=1:ii_rank
+                input_data(ii).data=VL_rank(ii).meanVL;
+                input_data(ii).description=[handles_drgb.drgbchoices.group_no_names{VL_rank(ii).grNo} ' ' evTypeLabels{VL_rank(ii).evNo} ' ' prof_naive_leg{VL_rank(ii).per_ii}];
+                
+                glm_VL.data(glm_ii+1:glm_ii+length(VL_rank(ii).meanVL))=VL_rank(ii).meanVL;
+                glm_VL.group(glm_ii+1:glm_ii+length(VL_rank(ii).meanVL))=VL_rank(ii).grNo;
+                glm_VL.perCorr(glm_ii+1:glm_ii+length(VL_rank(ii).meanVL))=VL_rank(ii).per_ii;
+                glm_VL.event(glm_ii+1:glm_ii+length(VL_rank(ii).meanVL))=VL_rank(ii).evNo;
+                glm_ii=glm_ii+length(VL_rank(ii).meanVL);
+            end
             
-
+            %Perform the glm
+            fprintf(1, ['glm for mean vector length for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
+            
+            if sum(glm_VL.group==1)==length(glm_VL.group)
+                %There is only one group here (e.g. for Justin's paper we only include
+                %forward)
+                fprintf(1, ['\n\nglm for vector length for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_VL.data',glm_VL.perCorr',glm_VL.event',...
+                    'VariableNames',{'Vector_length','perCorr','event'});
+                mdl = fitglm(tbl,'Vector_length~perCorr+event+perCorr*event'...
+                    ,'CategoricalVars',[2,3])
+            else
+               
+                fprintf(1, ['\n\nglm for vector length for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_VL.data',glm_VL.group',glm_VL.perCorr',glm_VL.event',...
+                    'VariableNames',{'Vector_length','group','perCorr','event'});
+                mdl = fitglm(tbl,'Vector_length~group+perCorr+event+perCorr*group*event'...
+                    ,'CategoricalVars',[2,3,4])
+            end
+            
+            fprintf(1, ['\n\nRanksum or t-test for mean vector length for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
             input_data=[];
             for ii=1:ii_rank
                 input_data(ii).data=VL_rank(ii).meanVL;
@@ -9577,6 +9623,8 @@ switch which_display
             
             ii_rank=0;
             PAvar_rank=[];
+            glm_PAvar=[];
+            glm_ii=0;
             maxPAvar=-2000;
             minPAvar=2000;
             
@@ -9800,8 +9848,40 @@ switch which_display
                  xlim([minPAvar-0.1*(maxPAvar-minPAvar) maxPAvar+0.1*(maxPAvar-minPAvar)])
             end
 
+            input_data=[];
+            for ii=1:ii_rank
+                input_data(ii).data=PAvar_rank(ii).meanPAvar;
+                input_data(ii).description=[handles_drgb.drgbchoices.group_no_names{PAvar_rank(ii).grNo} ' ' evTypeLabels{PAvar_rank(ii).evNo} ' ' prof_naive_leg{PAvar_rank(ii).per_ii}];
+                
+                glm_PAvar.data(glm_ii+1:glm_ii+length(PAvar_rank(ii).meanPAvar))=PAvar_rank(ii).meanPAvar;
+                glm_PAvar.group(glm_ii+1:glm_ii+length(PAvar_rank(ii).meanPAvar))=PAvar_rank(ii).grNo;
+                glm_PAvar.perCorr(glm_ii+1:glm_ii+length(PAvar_rank(ii).meanPAvar))=PAvar_rank(ii).per_ii;
+                glm_PAvar.event(glm_ii+1:glm_ii+length(PAvar_rank(ii).meanPAvar))=PAvar_rank(ii).evNo;
+                glm_ii=glm_ii+length(PAvar_rank(ii).meanPAvar);
+            end
+            
+            %Perform the glm
+            fprintf(1, ['glm for  peak angle variance for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
+            
+            if sum(glm_PAvar.group==1)==length(glm_PAvar.group)
+                %There is only one group here (e.g. for Justin's paper we only include
+                %forward)
+                fprintf(1, ['\n\nglm for peak angle variance for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_PAvar.data',glm_PAvar.perCorr',glm_PAvar.event',...
+                    'VariableNames',{'Peak_angle_var','perCorr','event'});
+                mdl = fitglm(tbl,'Peak_angle_var~perCorr+event+perCorr*event'...
+                    ,'CategoricalVars',[2,3])
+            else
+               
+                fprintf(1, ['\n\nglm for peak angle variance for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_PAvar.data',glm_PAvar.group',glm_PAvar.perCorr',glm_PAvar.event',...
+                    'VariableNames',{'Peak_angle_var','group','perCorr','event'});
+                mdl = fitglm(tbl,'Peak_angle_var~group+perCorr+event+perCorr*group*event'...
+                    ,'CategoricalVars',[2,3,4])
+            end
+            
             %Now do the ranksum or t-test
-            fprintf(1, ['Ranksum or t-test for mean vector length for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
+            fprintf(1, ['\n\nRanksum or t-test for peak angle variance for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
             prof_naive_leg{1}='Proficient';
             prof_naive_leg{2}='Naive';
             
@@ -10182,7 +10262,7 @@ switch which_display
             end
 
             %Now do the Watson-Williams test
-            fprintf(1, ['Watson-Williams test p values for mean vector angle for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
+            fprintf(1, ['\n\nWatson-Williams test p values for mean vector angle for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
             prof_naive_leg{1}='Proficient';
             prof_naive_leg{2}='Naive';
             
@@ -10244,6 +10324,8 @@ switch which_display
             
             ii_rank=0;
             PA_rank=[];
+            glm_PA=[];
+            glm_ii=0;
             maxPA=-2000;
             minPA=2000;
             
@@ -10391,10 +10473,42 @@ switch which_display
             
             %suptitle(['Mean vector angle per mouse for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1} ])
             
+            %Do a glm
+            
+            for ii=1:ii_rank   
+                glm_PA.data(glm_ii+1:glm_ii+length(PA_rank(ii).meanPA))=PA_rank(ii).meanPA;
+                glm_PA.group(glm_ii+1:glm_ii+length(PA_rank(ii).meanPA))=PA_rank(ii).grNo;
+                glm_PA.perCorr(glm_ii+1:glm_ii+length(PA_rank(ii).meanPA))=PA_rank(ii).per_ii;
+                glm_PA.event(glm_ii+1:glm_ii+length(PA_rank(ii).meanPA))=PA_rank(ii).evNo;
+                glm_ii=glm_ii+length(PA_rank(ii).meanPA);
+            end
+            
+            %Perform the glm
+            fprintf(1, ['glm forpeak angle for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
+            
+            if sum(glm_PA.group==1)==length(glm_PA.group)
+                %There is only one group here (e.g. for Justin's paper we only include
+                %forward)
+                fprintf(1, ['\n\nglm for peak angle for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_PA.data',glm_PA.perCorr',glm_PA.event',...
+                    'VariableNames',{'Peak_angle_var','perCorr','event'});
+                mdl = fitglm(tbl,'Peak_angle_var~perCorr+event+perCorr*event'...
+                    ,'CategoricalVars',[2,3])
+            else
+               
+                fprintf(1, ['\n\nglm for peak angle for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_PA.data',glm_PA.group',glm_PA.perCorr',glm_PA.event',...
+                    'VariableNames',{'Peak_angle_var','group','perCorr','event'});
+                mdl = fitglm(tbl,'Peak_angle_var~group+perCorr+event+perCorr*group*event'...
+                    ,'CategoricalVars',[2,3,4])
+            end
+            
             %Now do the Watson-Williams test
             fprintf(1, ['Watson-Williams test p values for peak angle for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
             prof_naive_leg{1}='Proficient';
             prof_naive_leg{2}='Naive';
+            
+            
             
             ww_test_out.ii_out=0;
             pvals=[];
@@ -11294,7 +11408,7 @@ switch which_display
             fprintf(1, ['\n\nglm for delta dB power per electrode for ' freq_names{bwii} '\n'])
             tbl = table(glm_dBpower_rank.data',glm_dBpower_rank.grNo',glm_dBpower_rank.per_ii',glm_dBpower_rank.evNo',...
                 'VariableNames',{'dBpower','group','perCorr','event'});
-            mdl = fitglm(tbl,'dBpower~group+perCorr+event+group*perCorr+group*event+perCorr*event+group*event*perCorr'...
+            mdl = fitglm(tbl,'dBpower~group+perCorr+event+group*event*perCorr'...
                 ,'CategoricalVars',[2,3,4])
             
             %Do ranksum/t test
@@ -11884,13 +11998,13 @@ switch which_display
             
             
         end
-        fprintf(1, '\n\n')
-        
-        pFDRauROC=drsFDRpval(p_vals_ROC);
-        fprintf(1, ['pFDR for per electrode pair auROC  = %d\n\n'],pFDRauROC);
-        
-        per_mouse_pFDRauROC=drsFDRpval(per_mouse_p_vals_ROC);
-        fprintf(1, ['pFDR for per mouse auROC  = %d\n\n'],per_mouse_pFDRauROC);
+%         fprintf(1, '\n\n')
+%         
+%         pFDRauROC=drsFDRpval(p_vals_ROC);
+%         fprintf(1, ['pFDR for per electrode pair auROC  = %d\n\n'],pFDRauROC);
+%         
+%         per_mouse_pFDRauROC=drsFDRpval(per_mouse_p_vals_ROC);
+%         fprintf(1, ['pFDR for per mouse auROC  = %d\n\n'],per_mouse_pFDRauROC);
         
         
         %Now plot the average per electrode, all sessions for each mouse
@@ -11918,9 +12032,6 @@ switch which_display
             bar_lab_loc=[];
             no_ev_labels=0;
             ii_gr_included=0;
-            
-            fprintf(1, ['\n\n'])
-            fprintf(1, ['ANOVAN for delta dB power per mouse per electrode, mouse as random factor\n\n'])
             
             
             for grNo=1:max(handles_drgb.drgbchoices.group_no)
@@ -12045,143 +12156,18 @@ switch which_display
             
             
             
-            %Calculate anovan for inteaction
-            [p,tbl,stats]=anovan(data_delta_dB,{prof_naive events mice electrodes},'varnames',{'proficient_vs_naive','events','groups','mice'},'display','off','random',4);
-            fprintf(1, ['p value for anovan delta dB power per mouse per electrode for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for events ' freq_names{bwii} '= %d \n'],  p(2));
-            fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
-            
+%             %Calculate anovan for inteaction
+%             [p,tbl,stats]=anovan(data_delta_dB,{prof_naive events mice electrodes},'varnames',{'proficient_vs_naive','events','groups','mice'},'display','off','random',4);
+%             fprintf(1, ['p value for anovan delta dB power per mouse per electrode for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
+%             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for events ' freq_names{bwii} '= %d \n'],  p(2));
+%             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
+%             
             
             
         end
         fprintf(1, ['\n\n'])
         
-        %For rm anova use a for loop to make a table with the following columns:
-        %proficient_naive
-        %group
-        %mouse
-        %event
-        %for each electrode one column with dB power
-        
-        %I do not think repeated measures anova is granted here. I am
-        %commenting this out
-        
-        
-        %
-        %         for bwii=1:no_bandwidths
-        %
-        %             fprintf(1, ['Repeated measures anova for delta coherence during odor' freq_names{bwii} '\n\n'])
-        %
-        %             %For all the condiitons setup the table
-        %             kk=0;
-        %             mouse_col=[];
-        %             naive_proficient_col=[];
-        %             event_col=[];
-        %             group_col=[];
-        %             deltaCxy_cols=[];
-        %             Cxy_cols=[];
-        %             for mouseNo=1:max(handles_drgb.drgbchoices.mouse_no)
-        %
-        %
-        %
-        %                 for evNo=1:length(eventType)
-        %
-        %
-        %                     for per_ii=1:2
-        %
-        %
-        %                         this_ii=(deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_mouseNo_per_mouse==mouseNo)&(deltaCxy_elec_pair_per_mouse==1);
-        %                         these_elecs=(deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_mouseNo_per_mouse==mouseNo);
-        %
-        %                         if sum(this_ii)>0
-        %                             kk=kk+1;
-        %
-        %                             mouse_col(kk,1)=deltaCxy_mouseNo_per_mouse(this_ii);
-        %                             naive_proficient_col(kk,1)=deltaCxy_perii_per_mouse(this_ii);
-        %                             event_col(kk,1)=deltaCxy_evNo_per_mouse(this_ii);
-        %                             group_col(kk,1)=deltaCxy_group_no_per_mouse(this_ii);
-        %                             deltaCxy_cols(kk,1:max(deltaCxy_elec_pair_per_mouse))=deltaCxy_per_mouse(these_elecs);
-        %                             Cxy_cols(kk,1:max(deltaCxy_elec_pair_per_mouse))=Cxy_per_mouse(these_elecs);
-        %                         end
-        %                     end
-        %                 end
-        %
-        %             end
-        %
-        %             t = table(group_col,naive_proficient_col,event_col,mouse_col,deltaCxy_cols(:,1),deltaCxy_cols(:,2),...
-        %                 deltaCxy_cols(:,3),deltaCxy_cols(:,4),deltaCxy_cols(:,5),deltaCxy_cols(:,6),deltaCxy_cols(:,7),deltaCxy_cols(:,8),...
-        %                 deltaCxy_cols(:,9),deltaCxy_cols(:,10),deltaCxy_cols(:,11),deltaCxy_cols(:,12),deltaCxy_cols(:,13),deltaCxy_cols(:,14),...
-        %                 deltaCxy_cols(:,15),deltaCxy_cols(:,16),...
-        %                 'VariableNames',{'Genotype','Proficiency','Event','Mouse','deltaCxy1','deltaCxy2',...
-        %                 'deltaCxy3','deltaCxy4','deltaCxy5','deltaCxy6','deltaCxy7','deltaCxy8','deltaCxy9','deltaCxy10',...
-        %                 'deltaCxy11','deltaCxy12','deltaCxy13','deltaCxy14','deltaCxy15','deltaCxy16'});
-        %             electrode_pairs=[1:16]'; %these are the electrode pairs
-        %             rm = fitrm(t,'deltaCxy1-deltaCxy16 ~ Genotype + Proficiency + Event + Mouse','WithinDesign',electrode_pairs)
-        %
-        %             % Perform repeated measures analysis of variance.
-        % %             ranovatbl = ranova(rm)
-        %             anovatbl=anova(rm,'WithinModel',electrode_pairs)
-        %             fprintf(1, '\n\n\n\n')
-        %         end
-        %
-        %
-        %
-        %         for bwii=1:no_bandwidths
-        %
-        %             fprintf(1, ['Repeated measures anova for coherence before the odor ' freq_names{bwii} '\n\n'])
-        %
-        %             %For all the condiitons setup the table
-        %             kk=0;
-        %             mouse_col=[];
-        %             naive_proficient_col=[];
-        %             event_col=[];
-        %             group_col=[];
-        %             deltaCxy_cols=[];
-        %             Cxy_cols=[];
-        %             for mouseNo=1:max(handles_drgb.drgbchoices.mouse_no)
-        %
-        %
-        %
-        %                 for evNo=1:length(eventType)
-        %
-        %
-        %                     for per_ii=1:2
-        %
-        %
-        %                         this_ii=(deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_mouseNo_per_mouse==mouseNo)&(deltaCxy_elec_pair_per_mouse==1);
-        %                         these_elecs=(deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_mouseNo_per_mouse==mouseNo);
-        %
-        %                         if sum(this_ii)>0
-        %                             kk=kk+1;
-        %
-        %                             mouse_col(kk,1)=deltaCxy_mouseNo_per_mouse(this_ii);
-        %                             naive_proficient_col(kk,1)=deltaCxy_perii_per_mouse(this_ii);
-        %                             event_col(kk,1)=deltaCxy_evNo_per_mouse(this_ii);
-        %                             group_col(kk,1)=deltaCxy_group_no_per_mouse(this_ii);
-        %                             deltaCxy_cols(kk,1:max(deltaCxy_elec_pair_per_mouse))=deltaCxy_per_mouse(these_elecs);
-        %                             Cxy_cols(kk,1:max(deltaCxy_elec_pair_per_mouse))=Cxy_per_mouse(these_elecs);
-        %                         end
-        %                     end
-        %                 end
-        %
-        %             end
-        %
-        %             t = table(group_col,naive_proficient_col,event_col,mouse_col,Cxy_cols(:,1),Cxy_cols(:,2),...
-        %                 Cxy_cols(:,3),Cxy_cols(:,4),Cxy_cols(:,5),Cxy_cols(:,6),Cxy_cols(:,7),Cxy_cols(:,8),...
-        %                 Cxy_cols(:,9),Cxy_cols(:,10),Cxy_cols(:,11),Cxy_cols(:,12),Cxy_cols(:,13),Cxy_cols(:,14),...
-        %                 Cxy_cols(:,15),Cxy_cols(:,16),...
-        %                 'VariableNames',{'Genotype','Proficiency','Event','Mouse','Cxy1','Cxy2',...
-        %                 'Cxy3','Cxy4','Cxy5','Cxy6','Cxy7','Cxy8','Cxy9','Cxy10',...
-        %                 'Cxy11','Cxy12','Cxy13','Cxy14','Cxy15','Cxy16'});
-        %             electrode_pairs=[1:16]'; %these are the electrode pairs
-        %             rm = fitrm(t,'Cxy1-Cxy16 ~ Genotype + Proficiency + Event + Mouse','WithinDesign',electrode_pairs)
-        %             % Perform repeated measures analysis of variance.
-        % %             ranovatbl = ranova(rm)
-        %             anovatbl=anova(rm,'WithinModel',electrode_pairs)
-        %             fprintf(1, '\n\n\n\n')
-        %         end
-        %
-        %
+       
         
         
         %Now plot the average per mouse LFP power
@@ -12209,8 +12195,8 @@ switch which_display
             no_ev_labels=0;
             ii_gr_included=0;
             
-            fprintf(1, ['\n\n'])
-            fprintf(1, ['ANOVAN for delta dB power per mouse, electrode average\n\n'])
+%             fprintf(1, ['\n\n'])
+%             fprintf(1, ['ANOVAN for delta dB power per mouse, electrode average\n\n'])
             
             for grNo=1:max(handles_drgb.drgbchoices.group_no)
                 
@@ -12313,15 +12299,15 @@ switch which_display
             
             
             
-            %Calculate anovan for inteaction
-            
-            
-            [p,tbl,stats]=anovan(per_mouse_data_delta_dB,{per_mouse_prof_naive per_mouse_events per_mouse_groups},'varnames',{'proficient_vs_naive','events','groups'},'display','off');
-            fprintf(1, ['p value for anovan delta dB histogram per mouse, electrode avearage for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan delta dB histogram  per mouse, electrode avearage for events ' freq_names{bwii} '= %d \n'],  p(2));
-            fprintf(1, ['p value for anovan delta dB histogram  per mouse, electrode avearage for groups ' freq_names{bwii} '= %d \n\n'],  p(2));
-            
-            
+%             %Calculate anovan for inteaction
+%             
+%             
+%             [p,tbl,stats]=anovan(per_mouse_data_delta_dB,{per_mouse_prof_naive per_mouse_events per_mouse_groups},'varnames',{'proficient_vs_naive','events','groups'},'display','off');
+%             fprintf(1, ['p value for anovan delta dB histogram per mouse, electrode avearage for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
+%             fprintf(1, ['p value for anovan delta dB histogram  per mouse, electrode avearage for events ' freq_names{bwii} '= %d \n'],  p(2));
+%             fprintf(1, ['p value for anovan delta dB histogram  per mouse, electrode avearage for groups ' freq_names{bwii} '= %d \n\n'],  p(2));
+%             
+%             
             
         end
         
@@ -12334,9 +12320,11 @@ switch which_display
             for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
                 
                 %fprintf for ranksums
-                fprintf(1, ['Ranksum or t-test p values for delta coherence for ' freq_names{bwii} '\n'])
+%                 fprintf(1, ['Ranksum or t-test p values for delta coherence for ' freq_names{bwii} '\n'])
                 
                 ii_rank=0;
+                glm_coh=[];
+                glm_ii=0;
                 for evNo=1:length(eventType)
                     %Plot the average
                     
@@ -12409,30 +12397,73 @@ switch which_display
                     
                 end
                 
+                %Now do the ranksums
+                prof_naive_leg{1}='Proficient';
+                prof_naive_leg{2}='Naive';
                 
+                input_data=[];
                 for ii=1:ii_rank
-                    for jj=ii+1:ii_rank
-                        [p, r_or_t]=drg_ranksum_or_ttest(ranksum_deltaCxy(ii).deltaCxy,ranksum_deltaCxy(jj).deltaCxy);
-                        if r_or_t==0
-                            fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(ii).evNo} ' vs ' ...
-                                handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(jj).evNo} ' =  %d\n'],p)
-                        else
-                            fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(ii).evNo} ' vs ' ...
-                                handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(jj).evNo} ' =  %d\n'],p)
-                        end
-                        
-                        pvals=[pvals p];
-                    end
+                    input_data(ii).data=ranksum_deltaCxy(ii).deltaCxy;
+                    input_data(ii).description=[handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' evTypeLabels{ranksum_deltaCxy(ii).evNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii}];
+                    input_data(ii).per_ii=ranksum_deltaCxy(ii).per_ii;
+                    input_data(ii).grNo=ranksum_deltaCxy(ii).grNo;
+                    input_data(ii).evNo=ranksum_deltaCxy(ii).evNo;
+                    
+                    glm_coh.data(glm_ii+1:glm_ii+length(ranksum_deltaCxy(ii).deltaCxy))=ranksum_deltaCxy(ii).deltaCxy;
+                    glm_coh.group(glm_ii+1:glm_ii+length(ranksum_deltaCxy(ii).deltaCxy))=ranksum_deltaCxy(ii).grNo;
+                    glm_coh.perCorr(glm_ii+1:glm_ii+length(ranksum_deltaCxy(ii).deltaCxy))=ranksum_deltaCxy(ii).per_ii;
+                    glm_coh.event(glm_ii+1:glm_ii+length(ranksum_deltaCxy(ii).deltaCxy))=ranksum_deltaCxy(ii).evNo;
+                    glm_ii=glm_ii+length(ranksum_deltaCxy(ii).deltaCxy);
                 end
+                
+                %Perform the glm
+                fprintf(1, ['glm for delta coherence for each electrode pair calculated per mouse for ' freq_names{bwii} '\n'])
+                
+                if sum(glm_coh.group==1)==length(glm_coh.group)
+                    %There is only one group here (e.g. for Justin's paper we only include
+                    %forward)
+                    fprintf(1, ['\n\nglm for delta coherence for ' freq_names{bwii} '\n'])
+                    tbl = table(glm_coh.data',glm_coh.perCorr',glm_coh.event',...
+                        'VariableNames',{'delta_coherence','perCorr','event'});
+                    mdl = fitglm(tbl,'delta_coherence~perCorr+event+perCorr*event'...
+                        ,'CategoricalVars',[2,3])
+                else
+                    
+                    fprintf(1, ['\n\nglm for delta coherence for ' freq_names{bwii} '\n'])
+                    tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.event',...
+                        'VariableNames',{'delta_coherence','group','perCorr','event'});
+                    mdl = fitglm(tbl,'delta_coherence~group+perCorr+event+perCorr*group*event'...
+                        ,'CategoricalVars',[2,3,4])
+                end
+                
+                %Do the ranksum/t-test
+                fprintf(1, ['\n\nRanksum or t-test p values for delta coherence for each electrode pair calculated per mouse for ' freq_names{bwii} '\n'])
+                [output_data] = drgMutiRanksumorTtest(input_data);
+                
+                
+%                 for ii=1:ii_rank
+%                     for jj=ii+1:ii_rank
+%                         [p, r_or_t]=drg_ranksum_or_ttest(ranksum_deltaCxy(ii).deltaCxy,ranksum_deltaCxy(jj).deltaCxy);
+%                         if r_or_t==0
+%                             fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(ii).evNo} ' vs ' ...
+%                                 handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(jj).evNo} ' =  %d\n'],p)
+%                         else
+%                             fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(ii).evNo} ' vs ' ...
+%                                 handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(jj).evNo} ' =  %d\n'],p)
+%                         end
+%                         
+%                         pvals=[pvals p];
+%                     end
+%                 end
                 
                 fprintf(1, ['\n\n'])
                 
             end
         end
         fprintf(1, ['\n\n'])
-        pFDR = drsFDRpval(pvals);
-        fprintf(1, ['pFDR = %d \n\n'],pFDR)
-        fprintf(1, ['\n\n'])
+%         pFDR = drsFDRpval(pvals);
+%         fprintf(1, ['pFDR = %d \n\n'],pFDR)
+%         fprintf(1, ['\n\n'])
         
         
         %Display cumulative histograms for  coherence before odor on for average per electrode per mouse and do ranksum
@@ -12442,9 +12473,11 @@ switch which_display
             for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
                 
                 %fprintf for ranksums
-                fprintf(1, ['Ranksum or t-test p values for coherence before odor for ' freq_names{bwii} '\n'])
+%                 fprintf(1, ['Ranksum or t-test p values for coherence before odor for ' freq_names{bwii} '\n'])
                 
                 ii_rank=0;
+                glm_coh_pre=[];
+                glm_ii=0;
                 
                 
                 try
@@ -12516,28 +12549,65 @@ switch which_display
                 
                 
                 
-                
+                input_data=[];
                 for ii=1:ii_rank
-                    for jj=ii+1:ii_rank
-                        [p, r_or_t]=drg_ranksum_or_ttest(ranksum_Cxy(ii).Cxy,ranksum_Cxy(jj).Cxy);
-                        if r_or_t==0
-                            fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii}  ' vs ' ...
-                                handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii}  ' =  %d\n'],p)
-                        else
-                            fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii}  ' vs ' ...
-                                handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii}  ' =  %d\n'],p)
-                        end
-                        pvals=[pvals p];
-                    end
+                    input_data(ii).data=ranksum_Cxy(ii).Cxy;
+                    input_data(ii).description=[handles_drgb.drgbchoices.group_no_names{ranksum_Cxy(ii).grNo} ' '  prof_naive_leg{ranksum_Cxy(ii).per_ii}];
+                    input_data(ii).per_ii=ranksum_Cxy(ii).per_ii;
+                    input_data(ii).grNo=ranksum_Cxy(ii).grNo;
+
+                    glm_coh_pre.data(glm_ii+1:glm_ii+length(ranksum_Cxy(ii).Cxy))=ranksum_Cxy(ii).Cxy;
+                    glm_coh_pre.group(glm_ii+1:glm_ii+length(ranksum_Cxy(ii).Cxy))=ranksum_Cxy(ii).grNo;
+                    glm_coh_pre.perCorr(glm_ii+1:glm_ii+length(ranksum_Cxy(ii).Cxy))=ranksum_Cxy(ii).per_ii;
+                    glm_ii=glm_ii+length(ranksum_Cxy(ii).Cxy);
                 end
                 
+                %Perform the glm
+                fprintf(1, ['glm for pre-odor coherence for each electrode pair calculated per mouse for ' freq_names{bwii} '\n'])
+                
+                if sum(glm_coh.group==1)==length(glm_coh.group)
+                    %There is only one group here (e.g. for Justin's paper we only include
+                    %forward)
+                    fprintf(1, ['\n\nglm for pre-odor coherence for ' freq_names{bwii} '\n'])
+                    tbl = table(glm_coh.data',glm_coh.perCorr',...
+                        'VariableNames',{'pre_odor_coherence','perCorr'});
+                    mdl = fitglm(tbl,'pre_odor_coherence~perCorr'...
+                        ,'CategoricalVars',[2])
+                else
+                    
+                    fprintf(1, ['\n\nglm for pre-odor coherence for ' freq_names{bwii} '\n'])
+                    tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',...
+                        'VariableNames',{'pre_odor_coherence','group','perCorr'});
+                    mdl = fitglm(tbl,'pre_odor_coherence~group+perCorr+perCorr*group'...
+                        ,'CategoricalVars',[2,3])
+                end
+                
+                %Do the ranksum/t-test
+                fprintf(1, ['\n\nRanksum or t-test p values for pre-odor coherence for each electrode pair calculated per mouse for ' freq_names{bwii} '\n'])
+                [output_data] = drgMutiRanksumorTtest(input_data);
+                
+                
+%                 for ii=1:ii_rank
+%                     for jj=ii+1:ii_rank
+%                         [p, r_or_t]=drg_ranksum_or_ttest(ranksum_Cxy(ii).Cxy,ranksum_Cxy(jj).Cxy);
+%                         if r_or_t==0
+%                             fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii}  ' vs ' ...
+%                                 handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii}  ' =  %d\n'],p)
+%                         else
+%                             fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii}  ' vs ' ...
+%                                 handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii}  ' =  %d\n'],p)
+%                         end
+%                         pvals=[pvals p];
+%                     end
+%                 end
+%                 
                 fprintf(1, ['\n\n'])
                 
             end
         end
-        fprintf(1, ['\n\n'])
-        pFDR = drsFDRpval(pvals);
-        fprintf(1, ['pFDR = %d \n\n'],pFDR)
+%         fprintf(1, ['\n\n'])
+%         pFDR = drsFDRpval(pvals);
+%         fprintf(1, ['pFDR = %d \n\n'],pFDR)
         fprintf(1, ['\n\n'])
         
         
@@ -15125,20 +15195,7 @@ switch which_display
             ylabel('dB')
             ylim1(pacii,:)=ylim;
             
-            %Calculate anovan for inteaction
-            fprintf(1, ['ANOVAN for average peak PAC power for each electrode calculated per mouse with mouse as random factor PAC theta/' freq_names{pacii+1} '\n'])
-            [p,tbl,stats]=anovan(data_PACpower,{prof_naive, events, groups, mice},'varnames',{'proficient_vs_naive','events','groups','mice'},'display','off','random',4);
-            fprintf(1, ['p value for anovan peak PAC power per mouse per electrode for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan peak PAC power per mouse per electrode for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-            fprintf(1, ['p value for anovan peak PAC power per mouse per electrode for groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
-            
-            %Calculate anovan for inteaction
-            fprintf(1, ['ANOVAN for average peak PAC power for each electrode calculated per mouse without mouse as a factor for PAC theta/' freq_names{pacii+1} '\n'])
-            [p,tbl,stats]=anovan(data_PACpower,{prof_naive, events, groups},'varnames',{'proficient_vs_naive','events','groups'},'display','off');
-            fprintf(1, ['p value for anovan peak PAC power per mouse per electrode for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-            fprintf(1, ['p value for anovan peak PAC power per mouse per electrode for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-            fprintf(1, ['p value for anovan peak PAC power per mouse per electrode for groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
-            
+      
         end
         
         
@@ -15295,6 +15352,12 @@ switch which_display
             %Plot the peak PAC power
             ii_rank=0;
             input_data=[];
+            ii_rankpt=0;
+            input_datapt=[];
+            glm_peakwave=[];
+            glm_ii=0;
+            glm_ptwave=[];
+            glmpt_ii=0;
             for evNo=1:length(eventType)
                 
                 subplot(2,2,evNo)
@@ -15379,7 +15442,18 @@ switch which_display
                             ii_rank=ii_rank+1;
                             input_data(ii_rank).data=mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo));
                             input_data(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
-                         end
+                            input_data(ii_rank).per_ii=per_ii;
+                            input_data(ii_rank).grNo=grNo;
+                            input_data(ii_rank).evNo=evNo;
+                            
+                            ii_rankpt=ii_rankpt+1;
+                            input_datapt(ii_rankpt).data=mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo));
+                            input_datapt(ii_rankpt).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
+                            input_datapt(ii_rankpt).per_ii=per_ii;
+                            input_datapt(ii_rankpt).grNo=grNo;
+                            input_datapt(ii_rankpt).evNo=evNo;
+                            input_datapt(ii_rankpt).peak_trough=1;
+                        end
                     end
                     
                 end
@@ -15390,9 +15464,37 @@ switch which_display
                 xlim([minpower-0.1*(maxpower-minpower) maxpower+0.1*(maxpower-minpower)])
             end
 
+           
+            for ii=1:ii_rank
+                glm_peakwave.data(glm_ii+1:glm_ii+length(input_data(ii).data))=input_data(ii).data;
+                glm_peakwave.group(glm_ii+1:glm_ii+length(input_data(ii).data))=input_data(ii).grNo;
+                glm_peakwave.perCorr(glm_ii+1:glm_ii+length(input_data(ii).data))=input_data(ii).per_ii;
+                glm_peakwave.event(glm_ii+1:glm_ii+length(input_data(ii).data))=input_data(ii).evNo;
+                glm_ii=glm_ii+length(input_data(ii).data);
+            end
             
+            %Perform the glm
+            fprintf(1, ['\nglm for wavelet power at the peak of theta for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
+            
+            if sum(glm_peakwave.group==1)==length(glm_peakwave.group)
+                %There is only one group here (e.g. for Justin's paper we only include
+                %forward)
+                fprintf(1, ['\n\nglm for vector length for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_peakwave.data',glm_peakwave.perCorr',glm_peakwave.event',...
+                    'VariableNames',{'Peak_wave','perCorr','event'});
+                mdl = fitglm(tbl,'Peak_wave~perCorr+event+perCorr*event'...
+                    ,'CategoricalVars',[2,3])
+            else
+               
+                fprintf(1, ['\n\nglm for vector length for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_peakwave.data',glm_peakwave.group',glm_peakwave.perCorr',glm_peakwave.event',...
+                    'VariableNames',{'Peak_wave','group','perCorr','event'});
+                mdl = fitglm(tbl,'Peak_wave~group+perCorr+event+perCorr*group*event'...
+                    ,'CategoricalVars',[2,3,4])
+            end
+            
+            fprintf(1, ['\n\nRanksum or t-test for  wavelet power at the peak of theta for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
             %Now do the ranksums
-            fprintf(1, ['Ranksum or t-test p values for peak PAC power for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
             output_data = drgMutiRanksumorTtest(input_data);
 
             fprintf(1, ['\n\n'])
@@ -15401,6 +15503,8 @@ switch which_display
             %Plot the trough PAC power
             ii_rank=0;
             input_data=[];
+            glm_troughwave=[];
+            glm_ii=0;
             for evNo=1:length(eventType)
                 
                 subplot(2,2,evNo+2)
@@ -15484,7 +15588,18 @@ switch which_display
                             ii_rank=ii_rank+1;
                             input_data(ii_rank).data=mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo));
                             input_data(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
-                             end
+                            input_data(ii_rank).per_ii=per_ii;
+                            input_data(ii_rank).grNo=grNo;
+                            input_data(ii_rank).evNo=evNo;
+                        
+                            ii_rankpt=ii_rankpt+1;
+                            input_datapt(ii_rankpt).data=mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo));
+                            input_datapt(ii_rankpt).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
+                            input_datapt(ii_rankpt).per_ii=per_ii;
+                            input_datapt(ii_rankpt).grNo=grNo;
+                            input_datapt(ii_rankpt).evNo=evNo;
+                            input_datapt(ii_rankpt).peak_trough=2;
+                        end
                     end
                     
                 end
@@ -15497,9 +15612,76 @@ switch which_display
 
             suptitle(['Average PAC power for each electrode calculated per  for PAC theta/' freq_names{pacii+1}])
             
+            
+            %glm for trough
+            for ii=1:ii_rank
+                glm_troughwave.data(glm_ii+1:glm_ii+length(input_data(ii).data))=input_data(ii).data;
+                glm_troughwave.group(glm_ii+1:glm_ii+length(input_data(ii).data))=input_data(ii).grNo;
+                glm_troughwave.perCorr(glm_ii+1:glm_ii+length(input_data(ii).data))=input_data(ii).per_ii;
+                glm_troughwave.event(glm_ii+1:glm_ii+length(input_data(ii).data))=input_data(ii).evNo;
+                glm_ii=glm_ii+length(input_data(ii).data);
+            end
+            
+            %Perform the glm
+            fprintf(1, ['\nglm for wavelet power at the trough of theta for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
+            
+            if sum(glm_troughwave.group==1)==length(glm_troughwave.group)
+                %There is only one group here (e.g. for Justin's paper we only include
+                %forward)
+                fprintf(1, ['\n\nglm for wavelet power at the trough of Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_troughwave.data',glm_troughwave.perCorr',glm_troughwave.event',...
+                    'VariableNames',{'Trough_wave','perCorr','event'});
+                mdl = fitglm(tbl,'Trough_wave~perCorr+event+perCorr*event'...
+                    ,'CategoricalVars',[2,3])
+            else
+               
+                fprintf(1, ['\n\nglm for wavelet power at the trough of Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_troughwave.data',glm_troughwave.group',glm_troughwave.perCorr',glm_troughwave.event',...
+                    'VariableNames',{'Trough_wave','group','perCorr','event'});
+                mdl = fitglm(tbl,'Trough_wave~group+perCorr+event+perCorr*group*event'...
+                    ,'CategoricalVars',[2,3,4])
+            end
+            
             %Now do the ranksums
-            fprintf(1, ['Ranksum or t-test p values for trough PAC power for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
+            fprintf(1, ['\n\nRanksum or t-test p values for trough PAC power for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
             output_data = drgMutiRanksumorTtest(input_data);
+
+            fprintf(1, ['\n\n'])
+            
+            %glm for peak and trough
+            %glm for trough
+            for ii=1:ii_rankpt
+                glm_ptwave.data(glmpt_ii+1:glmpt_ii+length(input_datapt(ii).data))=input_datapt(ii).data;
+                glm_ptwave.group(glmpt_ii+1:glmpt_ii+length(input_datapt(ii).data))=input_datapt(ii).grNo;
+                glm_ptwave.perCorr(glmpt_ii+1:glmpt_ii+length(input_datapt(ii).data))=input_datapt(ii).per_ii;
+                glm_ptwave.event(glmpt_ii+1:glmpt_ii+length(input_datapt(ii).data))=input_datapt(ii).evNo;
+                glm_ptwave.peak_trough(glmpt_ii+1:glmpt_ii+length(input_datapt(ii).data))=input_datapt(ii).peak_trough;
+                glmpt_ii=glmpt_ii+length(input_datapt(ii).data);
+            end
+            
+            %Perform the glm
+            fprintf(1, ['\nglm for wavelet power at the peak or trough of theta for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
+            
+            if sum(glm_ptwave.group==1)==length(glm_ptwave.group)
+                %There is only one group here (e.g. for Justin's paper we only include
+                %forward)
+                fprintf(1, ['\n\nglm for wavelet power at the peak or trough of Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_ptwave.data',glm_ptwave.perCorr',glm_ptwave.event',glm_ptwave.peak_trough',...
+                    'VariableNames',{'wave_power','perCorr','event','peak_vs_trough'});
+                mdl = fitglm(tbl,'wave_power~perCorr+event+peak_vs_trough+perCorr*event*peak_vs_trough'...
+                    ,'CategoricalVars',[2,3])
+            else
+               
+                fprintf(1, ['\n\nglm for wavelet power at the peak or trough of Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_ptwave.data',glm_ptwave.group',glm_ptwave.perCorr',glm_ptwave.event',glm_ptwave.peak_trough',...
+                    'VariableNames',{'Trough_wave','group','perCorr','event','peak_vs_trough'});
+                mdl = fitglm(tbl,'Trough_wave~group+perCorr+event+peak_vs_trough+perCorr*group*event*peak_vs_trough'...
+                    ,'CategoricalVars',[2,3,4])
+            end
+            
+            %Now do the ranksums
+            fprintf(1, ['\n\nRanksum or t-test p values for peak or trough PAC power for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
+            output_data = drgMutiRanksumorTtest(input_datapt);
 
             fprintf(1, ['\n\n'])
 
@@ -15624,10 +15806,10 @@ switch which_display
             
             ylabel('dB')
             
-            %Now do the ranksums
-            fprintf(1, ['Ranksum or t-test p values for peak PAC power per mouse averaged over electrodes for PAC theta PAC theta' freq_names{pacii+1} '\n'])
-            output_data = drgMutiRanksumorTtest(input_data);
-            
+%             %Now do the ranksums
+%             fprintf(1, ['Ranksum or t-test p values for peak PAC power per mouse averaged over electrodes for PAC theta PAC theta' freq_names{pacii+1} '\n'])
+%             output_data = drgMutiRanksumorTtest(input_data);
+%             
             %Trough power
             subplot(2,1,2)
             hold on
@@ -15639,6 +15821,8 @@ switch which_display
             
             ii_rank=0;
             input_data=[];
+            glm_averagewave=[];
+            glm_ii=0;
             
             for grNo=1:max(handles_drgb.drgbchoices.group_no)
                 
@@ -15699,7 +15883,9 @@ switch which_display
                                 ii_rank=ii_rank+1;
                                 input_data(ii_rank).data=each_mouse_average_PACpower;
                                 input_data(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
-                                
+                                input_data(ii_rank).per_ii=per_ii;
+                                input_data(ii_rank).grNo=grNo;
+                                input_data(ii_rank).evNo=evNo;
                             end
                         end
                     end
@@ -15740,6 +15926,36 @@ switch which_display
             end
             
             ylabel('dB')
+            
+             
+           
+            for ii=1:ii_rank
+                glm_averagewave.data(glm_ii+1:glm_ii+length(input_data(ii).data))=input_data(ii).data;
+                glm_averagewave.group(glm_ii+1:glm_ii+length(input_data(ii).data))=input_data(ii).grNo;
+                glm_averagewave.perCorr(glm_ii+1:glm_ii+length(input_data(ii).data))=input_data(ii).per_ii;
+                glm_averagewave.event(glm_ii+1:glm_ii+length(input_data(ii).data))=input_data(ii).evNo;
+                glm_ii=glm_ii+length(input_data(ii).data);
+            end
+            
+            %Perform the glm
+            fprintf(1, ['\nglm for average wavelet power for each electrode calculated per mouse ' freq_names{pacii+1} '\n'])
+            
+            if sum(glm_averagewave.group==1)==length(glm_averagewave.group)
+                %There is only one group here (e.g. for Justin's paper we only include
+                %forward)
+                fprintf(1, ['\n\nglm for average wavelet power for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_averagewave.data',glm_averagewave.perCorr',glm_averagewave.event',...
+                    'VariableNames',{'Average_wave','perCorr','event'});
+                mdl = fitglm(tbl,'Average_wave~perCorr+event+perCorr*event'...
+                    ,'CategoricalVars',[2,3])
+            else
+               
+                fprintf(1, ['\n\nglm for average wavelet power for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_averagewave.data',glm_averagewave.group',glm_averagewave.perCorr',glm_averagewave.event',...
+                    'VariableNames',{'Average_wave','group','perCorr','event'});
+                mdl = fitglm(tbl,'Average_wave~group+perCorr+event+perCorr*group*event'...
+                    ,'CategoricalVars',[2,3,4])
+            end
             
             %Now do the ranksums
             fprintf(1, ['Ranksum or t-test p values for trough PAC power per mouse averaged over electrodes for PAC theta PAC theta' freq_names{pacii+1} '\n'])
