@@ -1,4 +1,4 @@
-function [log_P_t,which_event,freq,out_times,perCorrERP,no_events_per_trial,trials_with_wavelick, f_lick]=drgLFP_ERWA(handles)
+function [log_P_t,which_event,freq,out_times,perCorrERP,no_events_per_trial,trials_with_wavelick,f_lick,mean_lick_phase]=drgLFP_ERWA(handles)
 %Generates a event related wavelet power for licks
 
 odorOn=2;
@@ -31,7 +31,6 @@ else
     handles.time_end=endRef+wing_dt;
 end
 
-handles.time_end=handles.time_end+wing_dt;
 [t_apt,freq,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo]=drgGetLFPwavePowerForThisEvTypeNo(handles);
 
 %Calculate the licks (no wing nescessary)
@@ -46,7 +45,7 @@ wing_dt=0.2;
 dt=t_apt(2)-t_apt(1);
 wing_ii=fix(wing_dt/dt);
 out_times=double([-wing_ii:wing_ii])*dt;
-
+envelope_times=handles.drgb.PAC.out_times_env+handles.time_start+handles.time_pad;
 
 total_no_licks=0;
 total_trNo=0;
@@ -70,6 +69,7 @@ log_P_t=zeros(total_trNo,length(freq),length(out_times));
 perCorrERP=zeros(1,total_trNo);
 no_events_per_trial=zeros(1,total_trNo);
 trials_with_wavelick=zeros(1,total_trNo);
+mean_lick_phase=zeros(1,total_trNo);
 f_lick=zeros(1,total_trNo);
 first_which=0;
 %log_P_timecourse=zeros(total_trNo,length(freq),length(t_apt));
@@ -83,8 +83,19 @@ for trNo=1:length(this_trialNo)
         licks_for_this_trial=[];
         licks_for_this_trial=these_stamped_lick_times(this_lick_trNo,1:stamped_lick_ii(this_lick_trNo));
         no_licks=sum((licks_for_this_trial>time_start+handles.time_pad)&(licks_for_this_trial<=time_end-handles.time_pad));
-        
+        these_angles=zeros(1,no_licks);
         if no_licks>0
+            %Calculate the mean phase for licks
+            jj_l=0;
+            for kk_licks=1:length(licks_for_this_trial)
+                if (licks_for_this_trial(kk_licks)>time_start+handles.time_pad)&(licks_for_this_trial(kk_licks)<=time_end-handles.time_pad)
+                   [mint this_ii_lick]=min(abs(envelope_times-licks_for_this_trial(kk_licks)));
+                   jj_l=jj_l+1;
+                   these_angles(jj_l)=handles.drgb.PAC.PACtimecourse(trNo).decanglethetaLFP(this_ii_lick);
+                end
+            end
+            mean_lick_phase(trNo)=(180/pi)*circ_axial(circ_mean(these_angles')');
+            
             %Calculate log power
             if handles.subtractRef==0
                 this_log_P_timecourse=zeros(length(freq),length(t_apt));
@@ -178,7 +189,7 @@ if handles.displayData==1
         
         %Plot the ERP timecourse
         hFig1 = figure(15);
-        set(hFig1, 'units','normalized','position',[.07 .1 .55 .3])
+        set(hFig1, 'units','normalized','position',[.04 .1 .55 .3])
         
         %Calculate the mean ERP timecourse
         mean_log_P_t=zeros(length(freq),length(out_times));
@@ -216,7 +227,7 @@ if handles.displayData==1
         end
         
         hFig2 = figure(16);
-        set(hFig2, 'units','normalized','position',[.63 .1 .05 .3])
+        set(hFig2, 'units','normalized','position',[.6 .1 .05 .3])
         
         prain=[minLogP:(maxLogP-minLogP)/99:maxLogP];
         drg_pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
@@ -226,6 +237,15 @@ if handles.displayData==1
         set(ax,'XTickLabel','')
         ylabel('dB')
         
+        try
+            close 17
+        catch
+        end
+        
+        hFig2 = figure(17);
+        set(hFig2, 'units','normalized','position',[.67 .1 .3 .3])
+        polarhistogram(pi*mean_lick_phase/180,6)
+        title(['Mean angle for per trial phase of the licks  for ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
         
     end
 end

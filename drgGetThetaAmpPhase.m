@@ -216,7 +216,7 @@ decLFPgenv=decimate(LFPgenv(int64(time_pad*Fs):end-int64(time_pad*Fs)-1),dec_n);
 decanglethetaLFP=decimate(anglethetaLFP(int64(time_pad*Fs):end-int64(time_pad*Fs)-1),dec_n);
 % decLFPgenv=decimate(LFPgenv(time_pad*Fs:end-time_pad*Fs-1),20);
 % decanglethetaLFP=decimate(anglethetaLFP(time_pad*Fs:end-time_pad*Fs-1),20);
-out_times_env=[1:length(decLFPgenv)]*(1/(Fs/20));
+out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 
 %Note peak_amp_phase_timecourse_t goes from zero to
 %(time_end-time_start)+2*time_pad

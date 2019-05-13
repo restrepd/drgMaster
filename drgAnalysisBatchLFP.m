@@ -10483,25 +10483,25 @@ switch which_display
                 glm_ii=glm_ii+length(PA_rank(ii).meanPA);
             end
             
-            %Perform the glm
-            fprintf(1, ['glm forpeak angle for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
-            
-            if sum(glm_PA.group==1)==length(glm_PA.group)
-                %There is only one group here (e.g. for Justin's paper we only include
-                %forward)
-                fprintf(1, ['\n\nglm for peak angle for Theta/' freq_names{pacii+1} '\n'])
-                tbl = table(glm_PA.data',glm_PA.perCorr',glm_PA.event',...
-                    'VariableNames',{'Peak_angle_var','perCorr','event'});
-                mdl = fitglm(tbl,'Peak_angle_var~perCorr+event+perCorr*event'...
-                    ,'CategoricalVars',[2,3])
-            else
-               
-                fprintf(1, ['\n\nglm for peak angle for Theta/' freq_names{pacii+1} '\n'])
-                tbl = table(glm_PA.data',glm_PA.group',glm_PA.perCorr',glm_PA.event',...
-                    'VariableNames',{'Peak_angle_var','group','perCorr','event'});
-                mdl = fitglm(tbl,'Peak_angle_var~group+perCorr+event+perCorr*group*event'...
-                    ,'CategoricalVars',[2,3,4])
-            end
+%             %Perform the glm
+%             fprintf(1, ['glm forpeak angle for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
+%             
+%             if sum(glm_PA.group==1)==length(glm_PA.group)
+%                 %There is only one group here (e.g. for Justin's paper we only include
+%                 %forward)
+%                 fprintf(1, ['\n\nglm for peak angle for Theta/' freq_names{pacii+1} '\n'])
+%                 tbl = table(glm_PA.data',glm_PA.perCorr',glm_PA.event',...
+%                     'VariableNames',{'Peak_angle_var','perCorr','event'});
+%                 mdl = fitglm(tbl,'Peak_angle_var~perCorr+event+perCorr*event'...
+%                     ,'CategoricalVars',[2,3])
+%             else
+%                
+%                 fprintf(1, ['\n\nglm for peak angle for Theta/' freq_names{pacii+1} '\n'])
+%                 tbl = table(glm_PA.data',glm_PA.group',glm_PA.perCorr',glm_PA.event',...
+%                     'VariableNames',{'Peak_angle_var','group','perCorr','event'});
+%                 mdl = fitglm(tbl,'Peak_angle_var~group+perCorr+event+perCorr*group*event'...
+%                     ,'CategoricalVars',[2,3,4])
+%             end
             
             %Now do the Watson-Williams test
             fprintf(1, ['Watson-Williams test p values for peak angle for each electrode calculated per mouse for PAC theta ' freq_names{pacii+1} '\n'])
@@ -11888,8 +11888,10 @@ switch which_display
                                             
                                             % Ev1
                                             this_deltaCxy=zeros(sum(trials_in_event_Ev),length(frequency));
-                                            this_deltaCxy(:,:)=mean(handles_drgb.drgb.lfpevpair(lfppairNo).all_Cxy_timecourse(trials_in_event_Ev,:,:)...
-                                                -handles_drgb.drgb.lfpevpair(lfppairNo_ref).all_Cxy_timecourse(trials_in_event_Ev,:,:),3);
+                                            this_deltaCxy(:,:)=mean(handles_drgb.drgb.lfpevpair(lfppairNo).all_Cxy_timecourse(trials_in_event_Ev,:,:),3);
+                                            
+%                                             this_deltaCxy(:,:)=mean(handles_drgb.drgb.lfpevpair(lfppairNo).all_Cxy_timecourse(trials_in_event_Ev,:,:)...
+%                                                 -handles_drgb.drgb.lfpevpair(lfppairNo_ref).all_Cxy_timecourse(trials_in_event_Ev,:,:),3);
                                             
                                             if sum(isnan(this_deltaCxy))>0
                                                 this_file_is_nan=1;
@@ -12126,7 +12128,8 @@ switch which_display
                 end
             end
             
-            title([freq_names{bwii} ' average delta coherence per mouse, per electrode'])
+%             title([freq_names{bwii} ' average delta coherence per mouse, per electrode'])
+            title([freq_names{bwii} ' average coherence per mouse, per electrode during odor'])
             
             %Annotations identifying groups
             x_interval=0.8/ii_gr_included;
@@ -12152,8 +12155,8 @@ switch which_display
                 xlabel('Concentration (%)')
             end
             
-            ylabel('Delta coherence')
-            
+%             ylabel('Delta coherence')
+             ylabel('Coherence')
             
             
 %             %Calculate anovan for inteaction
@@ -12262,13 +12265,17 @@ switch which_display
                     groups_included(ii_gr_included)=grNo;
                 end
             end
-            if sum(eventType==3)>0
-                title([freq_names{bwii} ' delta coherence per mouse, electrode average'])
+%             if sum(eventType==3)>0
+%                 title([freq_names{bwii} ' delta coherence per mouse, electrode average'])
+%             else
+%                 title([freq_names{bwii} ' delta coherence per mouse, electrode avearage concentrations two steps appart'])
+%             end
+            
+             if sum(eventType==3)>0
+                title([freq_names{bwii} ' coherence during odor per mouse, electrode average'])
             else
-                title([freq_names{bwii} ' delta coherence per mouse, electrode avearage concentrations two steps appart'])
+                title([freq_names{bwii} ' coherence during odor per mouse, electrode avearage concentrations two steps appart'])
             end
-            
-            
             
             %Annotations identifying groups
             x_interval=0.8/ii_gr_included;
@@ -12295,7 +12302,8 @@ switch which_display
             end
             
             
-            ylabel('Delta coherence')
+%             ylabel('Delta coherence')
+            ylabel('Coherence')
             
             
             
@@ -12353,21 +12361,56 @@ switch which_display
                                 if per_ii==1
                                     if grNo==1
                                         [f_aic,x_aic] = drg_ecdf(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
-                                        plot(x_aic,f_aic,'Color',[1 0 0],'LineWidth',3)
+                                        p1=plot(x_aic,f_aic,'Color',[1 0 0],'LineWidth',3);
                                     else
                                         [f_aic,x_aic] = drg_ecdf(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
-                                        plot(x_aic,f_aic,'Color',[0 0 1],'LineWidth',3)
+                                        p2=plot(x_aic,f_aic,'Color',[1 0.7 0.7],'LineWidth',3);
                                     end
                                 else
                                     if grNo==1
                                         [f_aic,x_aic] = drg_ecdf(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
-                                        plot(x_aic,f_aic,'Color',[1 0 0])
+                                        p3=plot(x_aic,f_aic,'Color',[0 0 1],'LineWidth',3);
                                     else
                                         [f_aic,x_aic] = drg_ecdf(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
-                                        plot(x_aic,f_aic,'Color',[0 0 1])
+                                        p4=plot(x_aic,f_aic,'Color',[0.7 0.7 1],'LineWidth',3);
                                     end
                                 end
                                 
+                                %Compute and plot per mouse avearge for this group
+                                no_mice_for_this_group=0;
+                                each_mouse_average_delta_Cxy=[];
+                                for mouseNo=1:max(deltaCxy_mouseNo_per_mouse)
+                                    if sum((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_mouseNo_per_mouse==mouseNo)&(deltaCxy_group_no_per_mouse==grNo))>0
+                                        no_mice_for_this_group=no_mice_for_this_group+1;
+                                        each_mouse_average_delta_Cxy(no_mice_for_this_group)=mean(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_mouseNo_per_mouse==mouseNo)&(deltaCxy_group_no_per_mouse==grNo)));
+                                    end
+                                end
+                                
+                                for jj=1:length(each_mouse_average_delta_Cxy)
+
+                                    xii_below=find(x_aic<each_mouse_average_delta_Cxy(jj),1,'last');
+                                    xii_above=find(x_aic>each_mouse_average_delta_Cxy(jj),1,'first');
+                                    
+                                    slope=(f_aic(xii_above)-f_aic(xii_below))/(x_aic(xii_above)-x_aic(xii_below));
+                                    intercept=f_aic(xii_above)-slope*x_aic(xii_above);
+                                    
+                                    this_f=slope*each_mouse_average_delta_Cxy(jj)+intercept;
+                                    
+                                    if grNo==1
+                                        if per_ii==1
+                                            plot(each_mouse_average_delta_Cxy(jj),this_f,'o','MarkerFace',[1 0 0],'MarkerEdge',[1 0 0],'MarkerSize',10)
+                                        else
+                                            plot(each_mouse_average_delta_Cxy(jj),this_f,'o','MarkerFace',[0 0 1],'MarkerEdge',[0 0 1],'MarkerSize',10)
+                                        end
+                                    else
+                                        if per_ii==1
+                                            plot(each_mouse_average_delta_Cxy(jj),this_f,'o','MarkerFace',[1 0.7 0.7],'MarkerEdge',[1 0.7 0.7],'MarkerSize',10)
+                                        else
+                                            plot(each_mouse_average_delta_Cxy(jj),this_f,'o','MarkerFace',[0.7 0.7 1],'MarkerEdge',[0.7 0.7 1],'MarkerSize',10)
+                                        end
+                                    end
+                                    
+                                end
                                 
                                 %Save data for ranksum
                                 ii_rank=ii_rank+1;
@@ -12383,12 +12426,14 @@ switch which_display
                             groups_included(ii_gr_included)=grNo;
                         end
                     end
-                    title([freq_names{bwii} ' delta coherence per electrode (per mouse) for ' evTypeLabels{evNo}])
+%                     title([freq_names{bwii} ' delta coherence per electrode (per mouse) for ' evTypeLabels{evNo}])
+                    title([freq_names{bwii} ' coherence per electrode (per mouse) for ' evTypeLabels{evNo}])
                     
-                    legend([handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive']...
-                        ,[handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
+                    legend([p1 p2 p3 p4],{[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' proficient'],...
+                        [handles_drgb.drgbchoices.group_no_names{1} ' naive'],[handles_drgb.drgbchoices.group_no_names{2} ' naive']})
                     
-                    xlabel('delta coherence')
+%                     xlabel('delta coherence')
+                     xlabel('Coherence')
                     ylabel('Cumulative probability')
                     
                     
@@ -12417,19 +12462,21 @@ switch which_display
                 end
                 
                 %Perform the glm
-                fprintf(1, ['glm for delta coherence for each electrode pair calculated per mouse for ' freq_names{bwii} '\n'])
+%                 fprintf(1, ['glm for delta coherence for each electrode pair calculated per mouse for ' freq_names{bwii} '\n'])
+                fprintf(1, ['glm for ' freq_names{bwii} ' coherence during odor for each electrode pair calculated per mouse\n'])
+               
                 
                 if sum(glm_coh.group==1)==length(glm_coh.group)
                     %There is only one group here (e.g. for Justin's paper we only include
                     %forward)
-                    fprintf(1, ['\n\nglm for delta coherence for ' freq_names{bwii} '\n'])
+                    fprintf(1, ['\n\nglm for odor coherence for ' freq_names{bwii} '\n'])
                     tbl = table(glm_coh.data',glm_coh.perCorr',glm_coh.event',...
                         'VariableNames',{'delta_coherence','perCorr','event'});
                     mdl = fitglm(tbl,'delta_coherence~perCorr+event+perCorr*event'...
                         ,'CategoricalVars',[2,3])
                 else
                     
-                    fprintf(1, ['\n\nglm for delta coherence for ' freq_names{bwii} '\n'])
+                    fprintf(1, ['\n\nglm for odor coherence for ' freq_names{bwii} '\n'])
                     tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.event',...
                         'VariableNames',{'delta_coherence','group','perCorr','event'});
                     mdl = fitglm(tbl,'delta_coherence~group+perCorr+event+perCorr*group*event'...
@@ -12437,7 +12484,7 @@ switch which_display
                 end
                 
                 %Do the ranksum/t-test
-                fprintf(1, ['\n\nRanksum or t-test p values for delta coherence for each electrode pair calculated per mouse for ' freq_names{bwii} '\n'])
+                fprintf(1, ['\n\nRanksum or t-test p values for odor coherence for each electrode pair calculated per mouse for ' freq_names{bwii} '\n'])
                 [output_data] = drgMutiRanksumorTtest(input_data);
                 
                 

@@ -39,9 +39,9 @@ figNo=0;
 
 
 %Define the windows for analysis
-window_start=[1];
-window_end=[2.5];
-no_wins=1;
+window_start=[-1 0.5];
+window_end=[0 2.5];
+no_wins=2;
 
 %This is the window for area under the curve case 3
 auc_from=0.1;
@@ -841,28 +841,33 @@ switch which_display
                         plot(t,mean_dc_trough,'b')
                     end
                     
-                    
-                    data=[];
-                    for mouseNo=1:no_mice_included
-                        data=[data mean(all_dimensionality_trough(mouseNo,(t>=window_start(winNo))&(t<=window_end(winNo))),2)];
+                    for winNo=1:no_wins
+                        data=[];
+                        for mouseNo=1:no_mice_included
+                            data=[data mean(all_dimensionality_trough(mouseNo,(t>=window_start(winNo))&(t<=window_end(winNo))),2)];
+                        end
+                        ii_dim_stats=ii_dim_stats+1;
+                        dim_stats(ii_dim_stats).data=data;
+                        if winNo==1
+                            dim_stats(ii_dim_stats).description=[handles_out.drgbchoices.group_no_names{groupNo} ' ' ...
+                                handles_out.drgbchoices.per_lab{percent_correct_ii} ' pre-odor, trough'];
+                        else
+                            dim_stats(ii_dim_stats).description=[handles_out.drgbchoices.group_no_names{groupNo} ' ' ...
+                                handles_out.drgbchoices.per_lab{percent_correct_ii} ' odor, trough'];
+                        end
+                        dim_stats(ii_dim_stats).winNo=winNo;
+                        dim_stats(ii_dim_stats).PACii=PACii;
+                        dim_stats(ii_dim_stats).per_corr_ii=percent_correct_ii;
+                        dim_stats(ii_dim_stats).groupNo=groupNo;
+                        
+                        glm_dim.data(glm_dim_ii+1:glm_dim_ii+length(data))=data;
+                        glm_dim.PACii(glm_dim_ii+1:glm_dim_ii+length(data))=PACii;
+                        glm_dim.group(glm_dim_ii+1:glm_dim_ii+length(data))=groupNo;
+                        glm_dim.odor_window(glm_dim_ii+1:glm_dim_ii+length(data))=winNo;
+                        glm_dim.perCorr(glm_dim_ii+1:glm_dim_ii+length(data))=percent_correct_ii;
+                        glm_dim.peak(glm_dim_ii+1:glm_dim_ii+length(data))=0;
+                        glm_dim_ii=glm_dim_ii+length(data);
                     end
-                    ii_dim_stats=ii_dim_stats+1;
-                    dim_stats(ii_dim_stats).data=data;
-                    dim_stats(ii_dim_stats).description=[handles_out.drgbchoices.group_no_names{groupNo} ' ' ...
-                        handles_out.drgbchoices.per_lab{percent_correct_ii}...
-                        ' trough'];
-                    dim_stats(ii_dim_stats).winNo=winNo;
-                    dim_stats(ii_dim_stats).PACii=PACii;
-                    dim_stats(ii_dim_stats).per_corr_ii=percent_correct_ii;
-                    dim_stats(ii_dim_stats).groupNo=groupNo;
-                    
-                    glm_dim.data(glm_dim_ii+1:glm_dim_ii+length(data))=data;
-                    glm_dim.PACii(glm_dim_ii+1:glm_dim_ii+length(data))=PACii;
-                    glm_dim.group(glm_dim_ii+1:glm_dim_ii+length(data))=groupNo;
-                    glm_dim.perCorr(glm_dim_ii+1:glm_dim_ii+length(data))=percent_correct_ii;
-                    glm_dim.peak(glm_dim_ii+1:glm_dim_ii+length(data))=0;
-                    glm_dim_ii=glm_dim_ii+length(data);
-                    
                     
                     %Now plot the percent correct for the peak
                     all_dimensionality_peak=all_dimensionality_peak(1:no_mice_included,:);
@@ -876,27 +881,33 @@ switch which_display
                         plot(t,mean_dc_peak,'r')
                     end
                     
-                    
-                    data=[];
-                    for mouseNo=1:no_mice_included
-                        data=[data mean(all_dimensionality_peak(mouseNo,(t>=window_start(winNo))&(t<=window_end(winNo))),2)];
+                    for winNo=1:no_wins
+                        data=[];
+                        for mouseNo=1:no_mice_included
+                            data=[data mean(all_dimensionality_peak(mouseNo,(t>=window_start(winNo))&(t<=window_end(winNo))),2)];
+                        end
+                        ii_dim_stats=ii_dim_stats+1;
+                        dim_stats(ii_dim_stats).data=data;
+                        if winNo==1
+                            dim_stats(ii_dim_stats).description=[handles_out.drgbchoices.group_no_names{groupNo} ' ' ...
+                                handles_out.drgbchoices.per_lab{percent_correct_ii} ' pre-odor, peak'];
+                        else
+                            dim_stats(ii_dim_stats).description=[handles_out.drgbchoices.group_no_names{groupNo} ' ' ...
+                                handles_out.drgbchoices.per_lab{percent_correct_ii} ' odor, peak'];
+                        end
+                        dim_stats(ii_dim_stats).winNo=winNo;
+                        dim_stats(ii_dim_stats).PACii=PACii;
+                        dim_stats(ii_dim_stats).per_corr_ii=percent_correct_ii;
+                        dim_stats(ii_dim_stats).groupNo=groupNo;
+                        
+                        glm_dim.data(glm_dim_ii+1:glm_dim_ii+length(data))=data;
+                        glm_dim.PACii(glm_dim_ii+1:glm_dim_ii+length(data))=PACii;
+                        glm_dim.group(glm_dim_ii+1:glm_dim_ii+length(data))=groupNo;
+                        glm_dim.odor_window(glm_dim_ii+1:glm_dim_ii+length(data))=winNo;
+                        glm_dim.perCorr(glm_dim_ii+1:glm_dim_ii+length(data))=percent_correct_ii;
+                        glm_dim.peak(glm_dim_ii+1:glm_dim_ii+length(data))=1;
+                        glm_dim_ii=glm_dim_ii+length(data);
                     end
-                    ii_dim_stats=ii_dim_stats+1;
-                    dim_stats(ii_dim_stats).data=data;
-                    dim_stats(ii_dim_stats).description=[handles_out.drgbchoices.group_no_names{groupNo} ' ' ...
-                        handles_out.drgbchoices.per_lab{percent_correct_ii}...
-                        ' peak'];
-                    dim_stats(ii_dim_stats).winNo=winNo;
-                    dim_stats(ii_dim_stats).PACii=PACii;
-                    dim_stats(ii_dim_stats).per_corr_ii=percent_correct_ii;
-                    dim_stats(ii_dim_stats).groupNo=groupNo;
-                    
-                    glm_dim.data(glm_dim_ii+1:glm_dim_ii+length(data))=data;
-                    glm_dim.PACii(glm_dim_ii+1:glm_dim_ii+length(data))=PACii;
-                    glm_dim.group(glm_dim_ii+1:glm_dim_ii+length(data))=groupNo;
-                    glm_dim.perCorr(glm_dim_ii+1:glm_dim_ii+length(data))=percent_correct_ii;
-                    glm_dim.peak(glm_dim_ii+1:glm_dim_ii+length(data))=1;
-                    glm_dim_ii=glm_dim_ii+length(data);
                     
                     %Odor on markers
                     this_yl=ylim;
@@ -932,10 +943,10 @@ switch which_display
           
             %Perform the glm
             fprintf(1, ['\n\nglm for dimensionality for Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
-            tbl = table(glm_dim.data',glm_dim.group',glm_dim.perCorr',glm_dim.peak',...
-                'VariableNames',{'prediction','fwd_rev','perCorr','peak_trough'});
-            mdl = fitglm(tbl,'prediction~fwd_rev+perCorr+peak_trough+peak_trough*perCorr'...
-                ,'CategoricalVars',[2,3,4])
+            tbl = table(glm_dim.data',glm_dim.group',glm_dim.perCorr',glm_dim.peak',glm_dim.odor_window',...
+                'VariableNames',{'prediction','fwd_rev','perCorr','peak_trough','odor_window'});
+            mdl = fitglm(tbl,'prediction~fwd_rev+perCorr+peak_trough+odor_window+peak_trough*perCorr*fwd_rev*odor_window'...
+                ,'CategoricalVars',[2,3,4,5])
             
             fprintf(1, ['\n\nRanksum or t-test p values for dimensionality for Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
             try

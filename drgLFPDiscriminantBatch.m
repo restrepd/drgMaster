@@ -3603,7 +3603,7 @@ if all_files_present==1
                                             suptitle(['PAC wavelet power LDA analysis for Theta/' handles.drgbchoices.PACnames{PACii} ' PAC, mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
                                         end
                                         
-                                        handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_peak=p_val_trough;
+                                        handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_trough=p_val_trough;
                                         
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_trough=zeros(1,length(t));
