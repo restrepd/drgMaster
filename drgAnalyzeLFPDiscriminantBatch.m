@@ -14,10 +14,11 @@ function drgAnalyzeLFPDiscriminantBatch
 %power referenced to the phase of PAC and plots PC1 for the PCA.
 %These are choices 10 and 11 in drgLFPDiscriminantBatch
 
+warning('off')
 close all
 clear all
 
-
+t_odor_arrival=0.1;
 
 which_display=3;
 mice_excluded=[];
@@ -829,7 +830,7 @@ switch which_display
                     hold on
                     
                     
-                    %Now plot the dimensionality  for the trough
+                    %Now plot the dimensionality for the trough
                     all_dimensionality_trough=all_dimensionality_trough(1:no_mice_included,:);
                     mean_dc_trough=mean(all_dimensionality_trough,1)';
                     if size(all_dimensionality_trough,1)>2
@@ -964,9 +965,6 @@ switch which_display
         
         %Plot PCA results
         for groupNo=1:max(handles_out.drgbchoices.group_no)
-            
-            
-            
             
             for percent_correct_ii=1:2
                 for pca_ii=1:3
@@ -1179,6 +1177,258 @@ switch which_display
                 end
             end
             suptitle(['All trials. Group: ' handles_out.drgbchoices.group_no_names{groupNo} ' # of mice: ' num2str(no_mice_per(1)) ' ' handles_out.drgbchoices.per_lab{1} ' ' num2str(no_mice_per(2)) ' ' handles_out.drgbchoices.per_lab{2}])
+        end
+        
+        %Now plot log(p) and find decision times
+        
+        for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
+            
+      
+            for percent_correct_ii=1:2
+                
+                for groupNo=1:max(handles_out.drgbchoices.group_no)
+                    
+                    %Gather all the data
+                    no_mice=0;
+                    no_mice_included=0;
+                    all_discriminant_p_val_lick=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
+                    all_discriminant_p_val_peak=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
+                    all_discriminant_p_val_trough=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
+
+                    for mouseNo=1:length(handles_out.discriminant_PACwavepower)
+                        try
+                            if handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated==1
+                                per_ii=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials;
+                                no_mice=no_mice+1;
+                                if (per_ii>=20)&(sum(no_mice==mice_excluded)==0)
+                                    no_mice_included=no_mice_included+1;
+                                    all_discriminant_p_val_lick(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_lick;
+                                    all_discriminant_p_val_peak(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_peak;
+                                    all_discriminant_p_val_trough(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_trough;
+                                end
+                            end
+                        catch
+                        end
+                    end
+                    
+                    t_det_stats=[];
+                    ii_stats=0;
+            
+                    no_mice_per(percent_correct_ii)=no_mice_included;
+                    
+                    %Plot the p value timecourse and compute the decision time
+                    figNo=figNo+1;
+                    try
+                        close(figNo)
+                    catch
+                    end
+                    hFig=figure(figNo);
+                    
+                    hold on
+                    
+                    all_discriminant_p_val_lick=all_discriminant_p_val_lick(1:no_mice_included,:);
+                    all_discriminant_p_val_peak=all_discriminant_p_val_peak(1:no_mice_included,:);
+                    all_discriminant_p_val_trough=all_discriminant_p_val_trough(1:no_mice_included,:);
+                    
+                    mean_p_val_licks=nanmean(all_discriminant_p_val_lick,1)';
+                    if size(all_discriminant_p_val_lick,1)>2
+                        CIlicks = bootci(1000, {@nanmean, all_discriminant_p_val_lick})';
+                        CIlicks(:,1)=log10(mean_p_val_licks)-log10(CIlicks(:,1));
+                        CIlicks(:,2)=log10(CIlicks(:,2))-log10(mean_p_val_licks);
+                        [hlick, hpCR] = boundedline(t,log10(mean_p_val_licks), CIlicks, 'k');
+                    else
+                        plot(t,mean_p_val_licks,'-k')
+                    end
+                    
+                    
+                    wing=1;
+                    t_detect=zeros(1,no_mice_included);
+                    jj_start=find(t>=t_odor_arrival,1,'first');
+                    %Find the discrimination time
+                    for ii=1:no_mice_included
+                        this_p_val_licks=[];
+                        this_p_val_licks=all_discriminant_p_val_lick(ii,:);
+                        found_disc_t=0;
+                        while (found_disc_t==0)&(jj_start<length(t))
+                            ii_next=find(this_p_val_licks(1,jj_start:end)<=0.05,1,'first');
+                            if isempty(ii_next)
+                                jj_start=length(t);
+                                ii_next=1;
+                            else
+                                if jj_start+ii_next+wing>length(t)
+                                    found_disc_t=1;
+                                else
+                                    if sum(this_p_val_licks(1,jj_start+ii_next:jj_start+ii_next+wing)>0.05)>=1
+                                        jj_start=jj_start+ii_next;
+                                    else
+                                        found_disc_t=1;
+                                    end
+                                end
+                            end
+                        end
+                        t_detect(ii)=t(jj_start+ii_next-1)-t_odor_arrival;
+                    end
+                    
+                    fprintf(1, ['Lick discrimination time (sec) %d\n'],mean(t_detect))
+                    
+                    lick_t_detect=t_detect;
+                    
+                    ii_stats=ii_stats+1;
+                    t_det_stats(ii_stats).data=t_detect;
+                    t_det_stats(ii_stats).description='licks';
+                    
+                    mean_p_val_troughs=nanmean(all_discriminant_p_val_trough,1)';
+                    if size(all_discriminant_p_val_trough,1)>2
+                        CItroughs = bootci(1000, {@nanmean, all_discriminant_p_val_trough})';
+                        CItroughs(:,1)=log10(mean_p_val_troughs)-log10(CItroughs(:,1));
+                        CItroughs(:,2)=log10(CItroughs(:,2))-log10(mean_p_val_troughs);
+                        [hltrough, hpCR] = boundedline(t,log10(mean_p_val_troughs), CItroughs, 'b');
+                    else
+                        plot(t,mean_p_val_troughs,'-b')
+                    end
+                    
+                    
+                    
+                    t_detect=zeros(1,no_mice_included);
+                    jj_start=find(t>=t_odor_arrival,1,'first');
+                    %Find the discrimination time
+                    for ii=1:no_mice_included
+                        this_p_val_troughs=[];
+                        this_p_val_troughs=all_discriminant_p_val_trough(ii,:);
+                        found_disc_t=0;
+                        while (found_disc_t==0)&(jj_start<length(t))
+                            ii_next=find(this_p_val_troughs(1,jj_start:end)<=0.05,1,'first');
+                            if isempty(ii_next)
+                                jj_start=length(t);
+                                ii_next=1;
+                            else
+                                if jj_start+ii_next+wing>length(t)
+                                    found_disc_t=1;
+                                else
+                                    if sum(this_p_val_troughs(1,jj_start+ii_next:jj_start+ii_next+wing)>0.05)>=1
+                                        jj_start=jj_start+ii_next;
+                                    else
+                                        found_disc_t=1;
+                                    end
+                                end
+                            end
+                        end
+                        t_detect(ii)=t(jj_start+ii_next-1)-t_odor_arrival;
+                    end
+                    
+                    trough_t_detect=t_detect;
+                    
+                    fprintf(1, ['Trough discrimination time (sec) %d\n'],mean(t_detect))
+                    
+                    ii_stats=ii_stats+1;
+                    t_det_stats(ii_stats).data=t_detect;
+                    t_det_stats(ii_stats).description='troughs';
+                    
+                    mean_p_val_peaks=nanmean(all_discriminant_p_val_peak,1)';
+                    if size(all_discriminant_p_val_peak,1)>2
+                        CIpeaks = bootci(1000, {@nanmean, all_discriminant_p_val_peak})';
+                        CIpeaks(:,1)=log10(mean_p_val_peaks)-log10(CIpeaks(:,1));
+                        CIpeaks(:,2)=log10(CIpeaks(:,2))-log10(mean_p_val_peaks);
+                        [hpeak, hpCR] = boundedline(t,log10(mean_p_val_peaks), CIpeaks, 'r');
+                    else
+                        plot(t,mean_p_val_peaks,'-r')
+                    end
+                    
+                    
+                    
+                    t_detect=zeros(1,no_mice_included);
+                    jj_start=find(t>=t_odor_arrival,1,'first');
+                    %Find the discrimination time
+                    for ii=1:no_mice_included
+                        this_p_val_peaks=[];
+                        this_p_val_peaks=all_discriminant_p_val_peak(ii,:);
+                        found_disc_t=0;
+                        while (found_disc_t==0)&(jj_start<length(t))
+                            ii_next=find(this_p_val_peaks(1,jj_start:end)<=0.05,1,'first');
+                            if isempty(ii_next)
+                                jj_start=length(t);
+                                ii_next=1;
+                            else
+                                if jj_start+ii_next+wing>length(t)
+                                    found_disc_t=1;
+                                else
+                                    if sum(this_p_val_peaks(1,jj_start+ii_next:jj_start+ii_next+wing)>0.05)>=1
+                                        jj_start=jj_start+ii_next;
+                                    else
+                                        found_disc_t=1;
+                                    end
+                                end
+                            end
+                        end
+                        t_detect(ii)=t(jj_start+ii_next-1)-t_odor_arrival;
+                    end
+                    
+                    fprintf(1, ['Peak discrimination time (sec) %d\n'],mean(t_detect))
+                    
+                    peak_t_detect=t_detect;
+                    
+                    ii_stats=ii_stats+1;
+                    t_det_stats(ii_stats).data=t_detect;
+                    t_det_stats(ii_stats).description='peaks';
+                    
+                    plot(t,log10(mean_p_val_licks),'-k')
+                    plot(t,log10(mean_p_val_troughs),'-b')
+                    plot(t,log10(mean_p_val_peaks),'-r')
+                    plot([t(1) t(end)],[log10(0.05) log10(0.05)],'-r')
+                        
+                    
+                    %Odor on markers
+                   
+                    odorhl=plot([0 2.5],[0 0],'-k','LineWidth',5);
+                    
+                    
+                    title(['p value for Theta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii}])
+                    
+                    xlabel('Time (sec)')
+                    ylabel(['p value '  handles_out.drgbchoices.per_lab{percent_correct_ii}])
+                   
+                    legend([hlick hltrough hpeak],{'Licks','Trough','Peak'})
+
+                        
+                    
+                    %Do ranksum/t test
+                    fprintf(1, ['\n\nRanksum or t-test p values for area under the curve for Theta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii} '\n'])
+                    try
+                        [output_data] = drgMutiRanksumorTtest(t_det_stats);
+                        fprintf(1, '\n\n')
+                    catch
+                    end
+                    
+                    %Plot decision time reationship
+                       figNo=figNo+1;
+                    try
+                        close(figNo)
+                    catch
+                    end
+                    hFig=figure(figNo);
+                    hold on
+                    
+                    plot(lick_t_detect,peak_t_detect,'or')
+                    plot(lick_t_detect,trough_t_detect,'ob')
+                    
+                    ylim_out=ylim;
+                    xlim_out=xlim;
+                    
+                    ylim([0 max([xlim_out(2) ylim_out(2)])])
+                    xlim([0 max([xlim_out(2) ylim_out(2)])])
+                    
+                    
+                    plot([0 max([xlim_out(2) ylim_out(2)])],[0 max([xlim_out(2) ylim_out(2)])],'-k')
+                    
+                    title(['Decision times for Theta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii}])
+                    xlabel('Decision time licks (sec)')
+                    ylabel('Decision time wavelet power (sec)')
+                    legend('Peak','Trough')
+                end
+            end
+            
+            
+            pffft=1;
         end
         
 

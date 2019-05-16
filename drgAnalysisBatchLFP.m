@@ -10743,6 +10743,10 @@ switch which_display
         end
         pfft=1;
         
+        save([handles.PathName handles.drgb.outFileName(1:end-4) handles_pars.output_suffix],'PAvar_rank','mi_rank')
+        
+        pffft=1;
+        
          
     case 20
         % Multiclass ROC analysis of LFP power differences for naive and proficient

@@ -31,7 +31,12 @@ function drgLFPDiscriminantBatch
 %
 %11 PCA for wavelet power calculated at the PAC phase
 %
-%12 LDA for wavelet power calculated at the PAC phase
+%12 LDA for subsets of electrodes for wavelet power calculated at the PAC phase
+%
+%13 LDA for laser for wavelet power calculated at the PAC phase
+%
+%14 PCA for laser for wavelet power calculated at the PAC phase
+%
 
 close all
 clear all
@@ -51,7 +56,7 @@ eval(['handles=' choiceFileName(1:end-2) ';'])
 handles.choiceFileName=choiceFileName;
 handles.choiceBatchPathName=choiceBatchPathName;
 
-p=gcp; 
+p=gcp;
 
 new_no_files=handles.drgbchoices.no_files;
 choicePathName=handles.drgbchoices.PathName;
@@ -91,6 +96,11 @@ for mouseNo=1:max(handles.drgbchoices.mouse_no)
     end
 end
 
+%Did the user specify keep_phase?
+if ~isfield(handles.drgbchoices,'keep_phase')
+    handles.drgbchoices.keep_phase=0;
+end
+
 %Parallel batch processing for each file
 all_files_present=1;
 for filNum=first_file:handles.drgbchoices.no_files
@@ -101,7 +111,7 @@ for filNum=first_file:handles.drgbchoices.no_files
         jtPathName=handles.drgbchoices.PathName{filNum};
     else
         jtPathName=handles.drgbchoices.PathName;
-    end    
+    end
     if exist([jtPathName jtFileName])==0
         fprintf(1, ['Program will be terminated because file No %d, ' jtPathName jtFileName ' does not exist\n'],filNum);
         all_files_present=0;
@@ -113,6 +123,8 @@ for filNum=first_file:handles.drgbchoices.no_files
     end
     
 end
+
+phase_per_file=[];
 
 if all_files_present==1
     
@@ -127,8 +139,14 @@ if all_files_present==1
     no_files=handles.drgbchoices.no_files;
     
     for mouseNo=1:max(handles.drgbchoices.mouse_no)
+        if (sum(handles.drgbchoices.which_discriminant==13)>0)
+            no_trialsPACwave=0;
+            mouse_has_data=0;
+        end
+        
         for groupNo=1:max(handles.drgbchoices.group_no)
             
+
             fprintf(1, ['Mouse no %d ' handles.drgbchoices.group_no_names{groupNo} '\n\n'],mouseNo);
             
             process_data_for_mouse=1;
@@ -158,8 +176,11 @@ if all_files_present==1
             if process_data_for_mouse==1
                 no_trials=0;
                 no_trialsPAC=0;
-                no_trialsPACwave=0;
-                mouse_has_data=0;
+                
+                if ~(sum(handles.drgbchoices.which_discriminant==13)>0)
+                    no_trialsPACwave=0;
+                    mouse_has_data=0;
+                end
                 
                 for filNum=first_file:no_files
                     if (handles.drgbchoices.mouse_no(filNum)==mouseNo)&(handles.drgbchoices.group_no(filNum)==groupNo)
@@ -183,7 +204,7 @@ if all_files_present==1
                         end
                         
                         if exist([jtPathNameSource jtFileName])==0
-                            waitfor(msgbox('Please plug the hard drive back in...'));    
+                            waitfor(msgbox('Please plug the hard drive back in...'));
                         end
                         
                         jtPathName=handles.drgb.outPathName;
@@ -206,7 +227,7 @@ if all_files_present==1
                             %                                 handles.drg.drta_p.fullName=[jtPathName jtFileName(10:end-4) '.rhd'];
                         end
                         
-                          
+                        
                         drgRead_jt_times(jtPathName,jtFileName);
                         FileName=[jtFileName(10:end-4) '_drg.mat'];
                         fullName=[jtPathName,FileName];
@@ -255,7 +276,8 @@ if all_files_present==1
                         
                         %Initalize the output variable for parfor for PAC
                         if (sum(handles.drgbchoices.which_discriminant==4)>0)||(sum(handles.drgbchoices.which_discriminant==5)>0)...
-                                ||(sum(handles.drgbchoices.which_discriminant==7)>0)||(sum(handles.drgbchoices.which_discriminant==10)>0)
+                                ||(sum(handles.drgbchoices.which_discriminant==7)>0)||(sum(handles.drgbchoices.which_discriminant==10)>0)...
+                                ||(sum(handles.drgbchoices.which_discriminant==13)>0)
                             for LFPNo=1:no_elect
                                 
                                 for ii=1:handles.drgbchoices.no_PACpeaks
@@ -271,13 +293,15 @@ if all_files_present==1
                                     par_out(LFPNo).PAC(ii).which_eventPAC=[];
                                     par_out(LFPNo).PAC(ii).meanPeakAngle=[];
                                     par_out(LFPNo).PAC(ii).PACtimecourse=[];
+                                    par_out(LFPNo).PAC(ii).peakAngleForPower=[];
+                                    par_out(LFPNo).PAC(ii).troughAngleForPower=[];
                                     par_out(LFPNo).t_power=[];
                                 end
                             end
-                           
+                            
                         end
                         
-                         if (sum(handles.drgbchoices.which_discriminant==10)>0)
+                        if (sum(handles.drgbchoices.which_discriminant==10)>0)||(sum(handles.drgbchoices.which_discriminant==13)>0)
                             for LFPNo=1:no_elect
                                 
                                 for ii=1:handles.drgbchoices.no_PACpeaks
@@ -287,10 +311,10 @@ if all_files_present==1
                                     par_out(LFPNo).PACwave(ii).meanPeakPower=[];
                                     par_out(LFPNo).PACwave(ii).meanTroughPower=[];
                                     par_out(LFPNo).PACwave(ii).meanPower=[];
-
+                                    
                                 end
                             end
-                           
+                            
                         end
                         
                         
@@ -298,7 +322,7 @@ if all_files_present==1
                         
                         parfor LFPNo=1:no_elect
                             
-%                         for LFPNo=1:no_elect
+%                                                     for LFPNo=1:no_elect
                             handlespf=struct();
                             handlespf=handles;
                             
@@ -381,7 +405,7 @@ if all_files_present==1
                                     end
                                 end
                             end
-                             
+                            
                             %Now calculate the PAC
                             if (sum(handlespf.drgbchoices.which_discriminant==4)>0)||(sum(handlespf.drgbchoices.which_discriminant==5)>0)||...
                                     (sum(handlespf.drgbchoices.which_discriminant==7)>0)||(sum(handlespf.drgbchoices.which_discriminant==8)>0)||...
@@ -491,6 +515,7 @@ if all_files_present==1
                                     par_out(LFPNo).t_power=handlespf.drgb.PAC.t_power;
                                     
                                     
+                                    
                                 end
                                 fprintf(1, 'For file no %d, LFP no %d the number of trials included in PAC is %d (out of %d)\n',filNum,this_peakLFPNo,par_out(LFPNo).PAC(PACii).no_trials,handlespf.lastTrialNo);
                                 
@@ -498,7 +523,8 @@ if all_files_present==1
                             
                             %Now calculate wave power and PAC
                             if (sum(handlespf.drgbchoices.which_discriminant==10)>0)||(sum(handlespf.drgbchoices.which_discriminant==11)>0)...
-                                    ||(sum(handlespf.drgbchoices.which_discriminant==12)>0)
+                                    ||(sum(handlespf.drgbchoices.which_discriminant==12)>0)||(sum(handles.drgbchoices.which_discriminant==13)>0)...
+                                    ||(sum(handles.drgbchoices.which_discriminant==14)>0)
                                 for PACii=1:handlespf.drgbchoices.no_PACpeaks
                                     this_peakLFPNo=handlespf.drgbchoices.which_electrodes(LFPNo);
                                     handlespf.peakLFPNo=this_peakLFPNo;
@@ -510,10 +536,23 @@ if all_files_present==1
                                     handlespf.n_phase_bins=handlespf.drgbchoices.n_phase_bins;
                                     handlespf.lastTrialNo=handlespf.drg.session(1).noTrials;
                                     
+                                    if handlespf.drgbchoices.keep_phase==1
+                                        if filNum~=handles.drgbchoices.referenceAngleFile(filNum)
+                                            handlespf.use_peakAngle=1;
+                                            refFilNum=handles.drgbchoices.referenceAngleFile(filNum);
+                                            handlespf.peakAngle_for_power=phase_per_file(refFilNum).LFP(LFPNo).PAC(PACii).peakAngleForPower;
+                                            handlespf.troughAngle_for_power=phase_per_file(refFilNum).LFP(LFPNo).PAC(PACii).troughAngleForPower;
+                                        else
+                                            handlespf.use_peakAngle=0;
+                                        end
+                                    end
+                                     
                                     %Please note this is the same function called by
                                     %drgMaster when the user chooses Phase Amplitude
                                     %Coupling
                                     handlespf=drgLFPwaveTimecourse(handlespf);
+                                    
+                                    
                                     
                                     %Note: This prunning of trials is here because for a small number
                                     %of sessions trials included are nether S+ nor S-
@@ -626,6 +665,8 @@ if all_files_present==1
                                     par_out(LFPNo).PAC(PACii).meanTroughPower=meanTroughPower;
                                     par_out(LFPNo).PAC(PACii).PACtimecourse=out_PACtimecourse;
                                     par_out(LFPNo).t_power=handlespf.drgb.PAC.t_power;
+                                    par_out(LFPNo).PAC(PACii).peakAngleForPower=handlespf.drgb.PAC.peakAngleForPower;
+                                    par_out(LFPNo).PAC(PACii).troughAngleForPower=handlespf.drgb.PAC.troughAngleForPower;
                                     
                                     %Enter the per LFP values for PACwave
                                     par_out(LFPNo).PACwave(PACii).meanPeakPower=meanPeakPowerwave;
@@ -641,7 +682,7 @@ if all_files_present==1
                             end
                             
                         end
-                         
+                        
                         t_power=par_out(1).t_power;
                         t_pac=par_out(1).t_pac;
                         
@@ -770,7 +811,17 @@ if all_files_present==1
                         
                         %Extract timecourse for wavelet power calculated at PAC phase
                         if (sum(handles.drgbchoices.which_discriminant==10)>0)||(sum(handles.drgbchoices.which_discriminant==11)>0)||...
-                                (sum(handles.drgbchoices.which_discriminant==12)>0)
+                                (sum(handles.drgbchoices.which_discriminant==12)>0)||(sum(handles.drgbchoices.which_discriminant==13)>0)...
+                                ||(sum(handles.drgbchoices.which_discriminant==14)>0)
+                            
+                            %Save the peak and trough phase
+                            for LFPNo=1:length(handles.drgbchoices.which_electrodes)
+                                for PACii=1:length(handles.drgbchoices.PACburstLowF)
+                                    phase_per_file(filNum).LFP(LFPNo).PAC(PACii).peakAngleForPower=par_out(LFPNo).PAC(PACii).peakAngleForPower;
+                                    phase_per_file(filNum).LFP(LFPNo).PAC(PACii).troughAngleForPower=par_out(LFPNo).PAC(PACii).troughAngleForPower;
+                                end
+                            end
+                            
                             %If there are different numbers of trials weed
                             %out the mismatched trials
                             PACii=1;
@@ -847,82 +898,82 @@ if all_files_present==1
                                     end
                                 end
                                 
-                              
-%                                 %The code below trims the number of trials
-%                                 %to the smallest possible number
-%                                 for LFPNo=1:length(handles.drgbchoices.which_electrodes)
-%                                     for PACii=1:length(handles.drgbchoices.PACburstLowF)
-%                                         %
-%                                         par_out(LFPNo).PAC(PACii).no_trials=length(these_trials);
-%                                         par_out(LFPNo).PAC(PACii).this_trialNo=these_trials;
-%                                         
-%                                         meanVectorLength=zeros(1,length(these_trials));
-%                                         meanVectorAngle=zeros(1,length(these_trials));
-%                                         peakAngle=zeros(1,length(these_trials));
-%                                         mod_indx=zeros(1,length(these_trials));
-%                                         all_phase_histo=zeros(length(these_trials),size(par_out(LFPNo).PAC(PACii).all_phase_histo,2));
-%                                         perCorr=zeros(1,length(these_trials));
-%                                         which_event=zeros(size(par_out(LFPNo).PAC(PACii).which_eventPAC,1),length(these_trials));
-%                                         meanPeakAngle=zeros(1,length(these_trials));
-%                                         meanPeakPower=zeros(1,length(these_trials));
-%                                         meanTroughPower=zeros(1,length(these_trials));
-%                                         out_PACtimecourse=struct;
-%                                         
-%                                         meanPeakPowerwave=zeros(1,length(these_trials));
-%                                         meanTroughPowerwave=zeros(1,length(these_trials));
-%                                         meanPowerwave=zeros(1,length(these_trials));
-%                                         out_PACtimecoursewave=struct;
-%                                         this_trialNo=[];
-%                                         
-%                                         for new_trNo=1:length(these_trials)
-%                                             trNo=find(these_trials(new_trNo)==par_out(LFPNo).PAC(PACii).this_trialNo);
-%                                             this_trialNo(new_trNo)=par_out(LFPNo).PAC(PACii).this_trialNo(trNo);
-%                                             meanVectorLength(new_trNo)=par_out(LFPNo).PAC(PACii).meanVectorLength(trNo);
-%                                             meanVectorAngle=par_out(LFPNo).PAC(PACii).meanVectorAngle(trNo);
-%                                             peakAngle(new_trNo)=par_out(LFPNo).PAC(PACii).peakAngle(trNo);
-%                                             mod_indx(new_trNo)= par_out(LFPNo).PAC(PACii).mod_indx(trNo);
-%                                             all_phase_histo(new_trNo,:)=par_out(LFPNo).PAC(PACii).all_phase_histo(trNo,:);
-%                                             perCorr(new_trNo)=par_out(LFPNo).PAC(PACii).perCorrPAC(trNo);
-%                                             which_event(:,new_trNo)=par_out(LFPNo).PAC(PACii).which_eventPAC(:,trNo);
-%                                             meanPeakAngle(new_trNo)=par_out(LFPNo).PAC(PACii).meanPeakAngle(trNo);
-%                                             meanPeakPower(new_trNo)=par_out(LFPNo).PAC(PACii).meanPeakPower(trNo);
-%                                             meanTroughPower(new_trNo)=par_out(LFPNo).PAC(PACii).meanTroughPower(trNo);
-%                                             out_PACtimecourse(new_trNo).out_times=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).out_times;
-%                                             out_PACtimecourse(new_trNo).out_phase=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).out_phase;
-%                                             out_PACtimecourse(new_trNo).out_time_PAChisto=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).out_time_PAChisto;
-%                                             out_PACtimecourse(new_trNo).peakPower=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).peakPower;
-%                                             out_PACtimecourse(new_trNo).troughPower=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).troughPower;
-%                                             
-%                                             meanPeakPowerwave(new_trNo)=par_out(LFPNo).PACwave(PACii).meanPeakPower(trNo);
-%                                             meanTroughPowerwave(new_trNo)=par_out(LFPNo).PACwave(PACii).meanTroughPower(trNo);
-%                                             meanPowerwave(new_trNo)=par_out(LFPNo).PACwave(PACii).meanPower(trNo);
-%                                             out_PACtimecoursewave(new_trNo).peakPower=par_out(LFPNo).PACwave(PACii).PACtimecourse(trNo).peakPower;
-%                                             out_PACtimecoursewave(new_trNo).troughPower=par_out(LFPNo).PACwave(PACii).PACtimecourse(trNo).troughPower;
-%                                             out_PACtimecoursewave(new_trNo).troughPower=par_out(LFPNo).PACwave(PACii).PACtimecourse(trNo).troughPower;
-%                                             
-%                                         end
-%                                         par_out(LFPNo).PAC(PACii).this_trialNo=zeros(1,length(this_trialNo));
-%                                         par_out(LFPNo).PAC(PACii).this_trialNo=this_trialNo;
-%                                         par_out(LFPNo).PAC(PACii).meanVectorLength=meanVectorLength;
-%                                         par_out(LFPNo).PAC(PACii).meanVectorAngle=meanVectorAngle;
-%                                         par_out(LFPNo).PAC(PACii).peakAngle=peakAngle;
-%                                         par_out(LFPNo).PAC(PACii).mod_indx=mod_indx;
-%                                         par_out(LFPNo).PAC(PACii).all_phase_histo=all_phase_histo;
-%                                         par_out(LFPNo).PAC(PACii).perCorrPAC=perCorr;
-%                                         par_out(LFPNo).PAC(PACii).which_eventPAC=which_event;
-%                                         par_out(LFPNo).PAC(PACii).meanPeakAngle=meanPeakAngle;
-%                                         par_out(LFPNo).PAC(PACii).meanPeakPower=meanPeakPower;
-%                                         par_out(LFPNo).PAC(PACii).meanTroughPower=meanTroughPower;
-%                                         par_out(LFPNo).PAC(PACii).PACtimecourse=out_PACtimecourse;
-%                                         
-%                                         
-%                                         %Enter the per LFP values for PACwave
-%                                         par_out(LFPNo).PACwave(PACii).meanPeakPower=meanPeakPowerwave;
-%                                         par_out(LFPNo).PACwave(PACii).meanTroughPower=meanTroughPowerwave;
-%                                         par_out(LFPNo).PACwave(PACii).meanPower=meanPowerwave;
-%                                         par_out(LFPNo).PACwave(PACii).PACtimecourse=out_PACtimecoursewave;
-%                                     end
-%                                 end
+                                
+                                %                                 %The code below trims the number of trials
+                                %                                 %to the smallest possible number
+                                %                                 for LFPNo=1:length(handles.drgbchoices.which_electrodes)
+                                %                                     for PACii=1:length(handles.drgbchoices.PACburstLowF)
+                                %                                         %
+                                %                                         par_out(LFPNo).PAC(PACii).no_trials=length(these_trials);
+                                %                                         par_out(LFPNo).PAC(PACii).this_trialNo=these_trials;
+                                %
+                                %                                         meanVectorLength=zeros(1,length(these_trials));
+                                %                                         meanVectorAngle=zeros(1,length(these_trials));
+                                %                                         peakAngle=zeros(1,length(these_trials));
+                                %                                         mod_indx=zeros(1,length(these_trials));
+                                %                                         all_phase_histo=zeros(length(these_trials),size(par_out(LFPNo).PAC(PACii).all_phase_histo,2));
+                                %                                         perCorr=zeros(1,length(these_trials));
+                                %                                         which_event=zeros(size(par_out(LFPNo).PAC(PACii).which_eventPAC,1),length(these_trials));
+                                %                                         meanPeakAngle=zeros(1,length(these_trials));
+                                %                                         meanPeakPower=zeros(1,length(these_trials));
+                                %                                         meanTroughPower=zeros(1,length(these_trials));
+                                %                                         out_PACtimecourse=struct;
+                                %
+                                %                                         meanPeakPowerwave=zeros(1,length(these_trials));
+                                %                                         meanTroughPowerwave=zeros(1,length(these_trials));
+                                %                                         meanPowerwave=zeros(1,length(these_trials));
+                                %                                         out_PACtimecoursewave=struct;
+                                %                                         this_trialNo=[];
+                                %
+                                %                                         for new_trNo=1:length(these_trials)
+                                %                                             trNo=find(these_trials(new_trNo)==par_out(LFPNo).PAC(PACii).this_trialNo);
+                                %                                             this_trialNo(new_trNo)=par_out(LFPNo).PAC(PACii).this_trialNo(trNo);
+                                %                                             meanVectorLength(new_trNo)=par_out(LFPNo).PAC(PACii).meanVectorLength(trNo);
+                                %                                             meanVectorAngle=par_out(LFPNo).PAC(PACii).meanVectorAngle(trNo);
+                                %                                             peakAngle(new_trNo)=par_out(LFPNo).PAC(PACii).peakAngle(trNo);
+                                %                                             mod_indx(new_trNo)= par_out(LFPNo).PAC(PACii).mod_indx(trNo);
+                                %                                             all_phase_histo(new_trNo,:)=par_out(LFPNo).PAC(PACii).all_phase_histo(trNo,:);
+                                %                                             perCorr(new_trNo)=par_out(LFPNo).PAC(PACii).perCorrPAC(trNo);
+                                %                                             which_event(:,new_trNo)=par_out(LFPNo).PAC(PACii).which_eventPAC(:,trNo);
+                                %                                             meanPeakAngle(new_trNo)=par_out(LFPNo).PAC(PACii).meanPeakAngle(trNo);
+                                %                                             meanPeakPower(new_trNo)=par_out(LFPNo).PAC(PACii).meanPeakPower(trNo);
+                                %                                             meanTroughPower(new_trNo)=par_out(LFPNo).PAC(PACii).meanTroughPower(trNo);
+                                %                                             out_PACtimecourse(new_trNo).out_times=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).out_times;
+                                %                                             out_PACtimecourse(new_trNo).out_phase=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).out_phase;
+                                %                                             out_PACtimecourse(new_trNo).out_time_PAChisto=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).out_time_PAChisto;
+                                %                                             out_PACtimecourse(new_trNo).peakPower=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).peakPower;
+                                %                                             out_PACtimecourse(new_trNo).troughPower=par_out(LFPNo).PAC(PACii).PACtimecourse(trNo).troughPower;
+                                %
+                                %                                             meanPeakPowerwave(new_trNo)=par_out(LFPNo).PACwave(PACii).meanPeakPower(trNo);
+                                %                                             meanTroughPowerwave(new_trNo)=par_out(LFPNo).PACwave(PACii).meanTroughPower(trNo);
+                                %                                             meanPowerwave(new_trNo)=par_out(LFPNo).PACwave(PACii).meanPower(trNo);
+                                %                                             out_PACtimecoursewave(new_trNo).peakPower=par_out(LFPNo).PACwave(PACii).PACtimecourse(trNo).peakPower;
+                                %                                             out_PACtimecoursewave(new_trNo).troughPower=par_out(LFPNo).PACwave(PACii).PACtimecourse(trNo).troughPower;
+                                %                                             out_PACtimecoursewave(new_trNo).troughPower=par_out(LFPNo).PACwave(PACii).PACtimecourse(trNo).troughPower;
+                                %
+                                %                                         end
+                                %                                         par_out(LFPNo).PAC(PACii).this_trialNo=zeros(1,length(this_trialNo));
+                                %                                         par_out(LFPNo).PAC(PACii).this_trialNo=this_trialNo;
+                                %                                         par_out(LFPNo).PAC(PACii).meanVectorLength=meanVectorLength;
+                                %                                         par_out(LFPNo).PAC(PACii).meanVectorAngle=meanVectorAngle;
+                                %                                         par_out(LFPNo).PAC(PACii).peakAngle=peakAngle;
+                                %                                         par_out(LFPNo).PAC(PACii).mod_indx=mod_indx;
+                                %                                         par_out(LFPNo).PAC(PACii).all_phase_histo=all_phase_histo;
+                                %                                         par_out(LFPNo).PAC(PACii).perCorrPAC=perCorr;
+                                %                                         par_out(LFPNo).PAC(PACii).which_eventPAC=which_event;
+                                %                                         par_out(LFPNo).PAC(PACii).meanPeakAngle=meanPeakAngle;
+                                %                                         par_out(LFPNo).PAC(PACii).meanPeakPower=meanPeakPower;
+                                %                                         par_out(LFPNo).PAC(PACii).meanTroughPower=meanTroughPower;
+                                %                                         par_out(LFPNo).PAC(PACii).PACtimecourse=out_PACtimecourse;
+                                %
+                                %
+                                %                                         %Enter the per LFP values for PACwave
+                                %                                         par_out(LFPNo).PACwave(PACii).meanPeakPower=meanPeakPowerwave;
+                                %                                         par_out(LFPNo).PACwave(PACii).meanTroughPower=meanTroughPowerwave;
+                                %                                         par_out(LFPNo).PACwave(PACii).meanPower=meanPowerwave;
+                                %                                         par_out(LFPNo).PACwave(PACii).PACtimecourse=out_PACtimecoursewave;
+                                %                                     end
+                                %                                 end
                                 fprintf(1, 'WARNING. Number of trials trimmed because For file no %d the number of trials differ between different LFPs\n ',filNum);
                             end
                             
@@ -978,11 +1029,11 @@ if all_files_present==1
                         
                         [lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii...
                             ,these_stamped_lick_times,no_trials_l,trials_included_l, lick_threshold]=drgGetLicks(handles);
-
+                        
                         %Extract the data for powerLFP
                         if (sum(handles.drgbchoices.which_discriminant==1)>0)||(sum(handles.drgbchoices.which_discriminant==2)>0)...
                                 ||(sum(handles.drgbchoices.which_discriminant==3)>0)||(sum(handles.drgbchoices.which_discriminant==6)>0)
-                             t=par_out(1).t;
+                            t=par_out(1).t;
                             %Save all_which_events and all_perCorr_pertr
                             if filNum==first_file_for_this_mouse
                                 all_which_events=zeros(length(handles.drgbchoices.evTypeNos),par_out(1).length_trial_no);
@@ -1093,27 +1144,28 @@ if all_files_present==1
                         
                         %Extract the data for wavelet power computed at PAC phase
                         if (sum(handles.drgbchoices.which_discriminant==10)>0)||(sum(handles.drgbchoices.which_discriminant==11)>0)||...
-                                (sum(handles.drgbchoices.which_discriminant==12)>0)
+                                (sum(handles.drgbchoices.which_discriminant==12)>0)||(sum(handles.drgbchoices.which_discriminant==13)>0)...
+                                ||(sum(handles.drgbchoices.which_discriminant==14)>0)
                             t=t_pac;
                             
                             if (trials_match==0)||(par_out(1).PAC(1).no_trials~=length(stamped_lick_ii))
-                               %Trim the licks
-                               
-                               these_trials=par_out(1).PAC(1).this_trialNo;
-                               old_lick_traces=lick_traces;
-                               lick_traces=zeros(length(these_trials),size(lick_traces,2));
-                               old_stamped_lick_ii=stamped_lick_ii;
-                               stamped_lick_ii=zeros(1,length(these_trials));
-                               old_trials_included_l=trials_included_l;
-                               trials_included_l=[];
-                               
-                               for new_trNo=1:par_out(1).PAC(1).no_trials
-                                   trNo=find(these_trials(new_trNo)==old_trials_included_l);
-                                   lick_traces(new_trNo,:)=old_lick_traces(trNo,:);
-                                   stamped_lick_ii(new_trNo)=old_stamped_lick_ii(trNo);
-                                   trials_included_l(new_trNo)=old_trials_included_l(trNo);
-                               end
-                               
+                                %Trim the licks
+                                
+                                these_trials=par_out(1).PAC(1).this_trialNo;
+                                old_lick_traces=lick_traces;
+                                lick_traces=zeros(length(these_trials),size(lick_traces,2));
+                                old_stamped_lick_ii=stamped_lick_ii;
+                                stamped_lick_ii=zeros(1,length(these_trials));
+                                old_trials_included_l=trials_included_l;
+                                trials_included_l=[];
+                                
+                                for new_trNo=1:par_out(1).PAC(1).no_trials
+                                    trNo=find(these_trials(new_trNo)==old_trials_included_l);
+                                    lick_traces(new_trNo,:)=old_lick_traces(trNo,:);
+                                    stamped_lick_ii(new_trNo)=old_stamped_lick_ii(trNo);
+                                    trials_included_l(new_trNo)=old_trials_included_l(trNo);
+                                end
+                                
                             end
                             
                             %Genetrate the licks
@@ -1136,16 +1188,18 @@ if all_files_present==1
                                 all_perCorr_pertrPACwave=zeros(1,par_out(1).PAC(1).no_trials);
                                 all_perCorr_pertrPACwave(:,:)=par_out(1).PAC(1).perCorrPAC;
                                 
-%                                 all_stamped_lick_timesPACwave=zeros(par_out(1).PAC(1).no_trials,250);
-%                                 sztslt=size(these_stamped_lick_times);
+                                all_groups_pertrPACwave=groupNo*ones(1,par_out(1).PAC(1).no_trials);
+                                
+                                %                                 all_stamped_lick_timesPACwave=zeros(par_out(1).PAC(1).no_trials,250);
+                                %                                 sztslt=size(these_stamped_lick_times);
                                 all_stamped_lick_iiPACwave=zeros(1,par_out(1).PAC(1).no_trials);
                                 all_stamped_lick_iiPACwave=stamped_lick_ii;
                                 
-%                                 for ii=1:par_out(1).PAC(1).no_trials
-%                                     kk=find(trials_included_l==par_out(1).PAC(1).this_trialNo(ii));
-%                                     all_stamped_lick_timesPACwave(ii,1:sztslt(2))=these_stamped_lick_times(kk,:);
-%                                     all_stamped_lick_iiPACwave(1,ii)=stamped_lick_ii(kk);
-%                                 end
+                                %                                 for ii=1:par_out(1).PAC(1).no_trials
+                                %                                     kk=find(trials_included_l==par_out(1).PAC(1).this_trialNo(ii));
+                                %                                     all_stamped_lick_timesPACwave(ii,1:sztslt(2))=these_stamped_lick_times(kk,:);
+                                %                                     all_stamped_lick_iiPACwave(1,ii)=stamped_lick_ii(kk);
+                                %                                 end
                                 
                                 all_licks_per_tPACwave=zeros(par_out(1).PAC(1).no_trials,length(t));
                                 all_licks_per_tPACwave(:,:)=these_licks_per_t;
@@ -1162,6 +1216,12 @@ if all_files_present==1
                                 all_perCorr_pertrPACwave=zeros(1,par_out(1).PAC(1).no_trials+no_trialsPACwave);
                                 all_perCorr_pertrPACwave(:,1:no_trialsPACwave)=this_all_perCorr_pertrwave;
                                 all_perCorr_pertrPACwave(:,no_trialsPACwave+1:no_trialsPACwave+par_out(1).PAC(1).no_trials)=par_out(1).PAC(1).perCorrPAC;
+                                
+                                this_all_groups_pertrwave=[];
+                                this_all_groups_pertrwave=all_groups_pertrPACwave;
+                                all_groups_pertrPACwave=zeros(1,par_out(1).PAC(1).no_trials+no_trialsPACwave);
+                                all_groups_pertrPACwave(:,1:no_trialsPACwave)=this_all_groups_pertrwave;
+                                all_groups_pertrPACwave(:,no_trialsPACwave+1:no_trialsPACwave+par_out(1).PAC(1).no_trials)=groupNo*ones(1,par_out(1).PAC(1).no_trials);
                                 
                                 this_all_stamped_lick_iiPACwave=[];
                                 this_all_stamped_lick_iiPACwave=all_stamped_lick_iiPACwave;
@@ -1182,7 +1242,7 @@ if all_files_present==1
                         
                         
                         %Delete temp files
-                          
+                        
                         
                         %Delete temp files
                         delete([jtPathName jtFileName]);
@@ -1207,7 +1267,7 @@ if all_files_present==1
                     %Calculate discriminant analysis and PCA for LFP power
                     if (sum(handles.drgbchoices.which_discriminant==1)>0)||(sum(handles.drgbchoices.which_discriminant==2)>0)...
                             ||(sum(handles.drgbchoices.which_discriminant==3)>0)||(sum(handles.drgbchoices.which_discriminant==6)>0)
-                         t=par_out(1).t;
+                        t=par_out(1).t;
                         for bwii=1:length(handles.drgbchoices.lowF)
                             
                             for percent_correct_ii=1:length(handles.drgbchoices.per_lab)
@@ -1815,7 +1875,7 @@ if all_files_present==1
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).dimensionality=zeros(1,length(t));
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).dimensionality(1,:)=dimensionality(1,:);
                                         
-
+                                        
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).auROC=zeros(1,length(t));
                                         handles_out.discriminant_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).bwii(bwii).auROC=auROC;
                                         
@@ -2234,7 +2294,7 @@ if all_files_present==1
                                             ylim([mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)])
                                         end
                                         %suptitle(['PAC power LDA analysis for Theta/' handles.drgbchoices.PACnames{PACii} ' PAC, mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
-
+                                        
                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_peak=zeros(1,length(t));
                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_peak(1,:)=discriminant_correct(1,:);
@@ -2260,15 +2320,15 @@ if all_files_present==1
                                         these_all_which_events=all_which_eventsPAC(:,these_per_corr);
                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
                                         
-%                                         these_all_stamped_lick_times=[];
-%                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
-%                                         
-%                                         these_all_stamped_lick_ii=[];
-%                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
-                                    
-                                     %Linear discriminant analysis for
+                                        %                                         these_all_stamped_lick_times=[];
+                                        %                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                                        %
+                                        %                                         these_all_stamped_lick_ii=[];
+                                        %                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                                        
+                                        %Linear discriminant analysis for
                                         %trough PAC power
                                         
                                         these_all_log_P_timecoursePAC=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t));
@@ -2477,23 +2537,23 @@ if all_files_present==1
                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).test_out_per_timepoint_trough=test_out_per_timepoint;
                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).shuffled_out_per_timepoint_trough=shuffled_out_per_timepoint;
                                         
-%                                         handles_out.t_power=t';
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials=N;
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).per_targets=per_targets;
-%                                         
-%                                         these_all_which_events=[];
-%                                         these_all_which_events=all_which_eventsPAC(:,these_per_corr);
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
-%                                         
-%                                         these_all_stamped_lick_times=[];
-%                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
-%                                         
-%                                         these_all_stamped_lick_ii=[];
-%                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
-                                   
-                                    
+                                        %                                         handles_out.t_power=t';
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials=N;
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).per_targets=per_targets;
+                                        %
+                                        %                                         these_all_which_events=[];
+                                        %                                         these_all_which_events=all_which_eventsPAC(:,these_per_corr);
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
+                                        %
+                                        %                                         these_all_stamped_lick_times=[];
+                                        %                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                                        %
+                                        %                                         these_all_stamped_lick_ii=[];
+                                        %                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                                        
+                                        
                                     end
                                     
                                     if sum(handles.drgbchoices.which_discriminant==8)>0
@@ -2519,7 +2579,7 @@ if all_files_present==1
                                         for time_point=1:length(t)
                                             par_t_out(time_point).principal_components=zeros(N,length(handles.drgbchoices.which_electrodes));
                                         end
-
+                                        
                                         
                                         for time_point=1:length(t)
                                             
@@ -2532,7 +2592,7 @@ if all_files_present==1
                                             
                                         end
                                         
-                                        %NOTE: Useful info from MATLAB answers. MATLAB PCA normalizes the input raw 
+                                        %NOTE: Useful info from MATLAB answers. MATLAB PCA normalizes the input raw
                                         %data so that the normalized data has zero mean (does not scale it for standard deviation).
                                         %Because of this the following code holds true
                                         % mydata = 10 + randn(20,5); %Random data 20 observations, 5 variables
@@ -2646,15 +2706,15 @@ if all_files_present==1
                                         these_all_which_events=all_which_eventsPAC(:,these_per_corr);
                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
                                         
-%                                         these_all_stamped_lick_times=[];
-%                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
-%                                         
-%                                         these_all_stamped_lick_ii=[];
-%                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                                        %                                         these_all_stamped_lick_times=[];
+                                        %                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                                        %
+                                        %                                         these_all_stamped_lick_ii=[];
+                                        %                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
                                         
- 
+                                        
                                         %PCA for trough PAC power
                                         
                                         these_all_log_P_timecoursePAC=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t));
@@ -2692,7 +2752,7 @@ if all_files_present==1
                                             
                                         end
                                         
-                                        %NOTE: Useful info from MATLAB answers. MATLAB PCA normalizes the input raw 
+                                        %NOTE: Useful info from MATLAB answers. MATLAB PCA normalizes the input raw
                                         %data so that the normalized data has zero mean (does not scale it for standard deviation).
                                         %Because of this the following code holds true
                                         % mydata = 10 + randn(20,5); %Random data 20 observations, 5 variables
@@ -2785,27 +2845,27 @@ if all_files_present==1
                                             ylabel('PC1')
                                         end
                                         
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).principal_components_trough=zeros(length(t),N,length(handles.drgbchoices.which_electrodes));
                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).principal_components_trough=principal_components;
                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).PC_variance_trough=zeros(length(t),length(handles.drgbchoices.which_electrodes));
                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).PC_variance_trough=PC_variance;
-
-%                                         handles_out.t_power=t';
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials=N;
-%                                         
-%                                         these_all_which_events=[];
-%                                         these_all_which_events=all_which_eventsPAC(:,these_per_corr);
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
-%                                         
-%                                         these_all_stamped_lick_times=[];
-%                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
-%                                         
-%                                         these_all_stamped_lick_ii=[];
-%                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
-%                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
-                                       
+                                        
+                                        %                                         handles_out.t_power=t';
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials=N;
+                                        %
+                                        %                                         these_all_which_events=[];
+                                        %                                         these_all_which_events=all_which_eventsPAC(:,these_per_corr);
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
+                                        %
+                                        %                                         these_all_stamped_lick_times=[];
+                                        %                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                                        %
+                                        %                                         these_all_stamped_lick_ii=[];
+                                        %                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                                        %                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                                        
                                     end
                                     
                                     if sum(handles.drgbchoices.which_discriminant==9)>0
@@ -3117,7 +3177,7 @@ if all_files_present==1
                                 these_all_stamped_lick_ii=[];
                                 these_all_stamped_lick_ii=all_stamped_lick_iiPACwave(1,these_per_corr);
                                 
-
+                                
                                 %Do the analysis only if there are more than 20 trials
                                 if N>=20
                                     
@@ -3352,7 +3412,7 @@ if all_files_present==1
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).all_licks_per_tPACwave=these_all_licks_per_tPACwave;
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_peak=p_val_peak;
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_lick=p_val_lick;
-                  
+                                        
                                         handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_peak=zeros(1,length(t));
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_peak(1,:)=discriminant_correct(1,:);
@@ -3378,15 +3438,15 @@ if all_files_present==1
                                         these_all_which_events=all_which_eventsPACwave(:,these_per_corr);
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
                                         
-%                                         these_all_stamped_lick_times=[];
-%                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
-%                                         
-%                                         these_all_stamped_lick_ii=[];
-%                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
-                                    
-                                     %Linear discriminant analysis for
+                                        %                                         these_all_stamped_lick_times=[];
+                                        %                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                                        %
+                                        %                                         these_all_stamped_lick_ii=[];
+                                        %                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                                        
+                                        %Linear discriminant analysis for
                                         %trough PAC power
                                         
                                         these_all_log_P_timecoursePACwave=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t));
@@ -3590,7 +3650,7 @@ if all_files_present==1
                                             %Plot p value
                                             subplot(2,5,[4,5,9,10])
                                             hold on
-                                          
+                                            
                                             p1=plot(t,log10(p_val_lick),'-k');
                                             p2=plot(t,log10(p_val_trough),'-b');
                                             p3=plot(t,log10(p_val_peak),'-m');
@@ -3622,23 +3682,23 @@ if all_files_present==1
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).shuffled_out_per_timepoint_trough=shuffled_out_per_timepoint;
                                         
                                         
-%                                         handles_out.t_power=t';
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials=N;
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).per_targets=per_targets;
-%                                         
-%                                         these_all_which_events=[];
-%                                         these_all_which_events=all_which_eventsPACwave(:,these_per_corr);
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
-%                                         
-%                                         these_all_stamped_lick_times=[];
-%                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
-%                                         
-%                                         these_all_stamped_lick_ii=[];
-%                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
-                                   
-                                    
+                                        %                                         handles_out.t_power=t';
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials=N;
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).per_targets=per_targets;
+                                        %
+                                        %                                         these_all_which_events=[];
+                                        %                                         these_all_which_events=all_which_eventsPACwave(:,these_per_corr);
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
+                                        %
+                                        %                                         these_all_stamped_lick_times=[];
+                                        %                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                                        %
+                                        %                                         these_all_stamped_lick_ii=[];
+                                        %                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                                        
+                                        
                                     end
                                     
                                     if sum(handles.drgbchoices.which_discriminant==11)>0
@@ -3664,7 +3724,7 @@ if all_files_present==1
                                         for time_point=1:length(t)
                                             par_t_out(time_point).principal_components=zeros(N,length(handles.drgbchoices.which_electrodes));
                                         end
-
+                                        
                                         
                                         for time_point=1:length(t)
                                             
@@ -3677,7 +3737,7 @@ if all_files_present==1
                                             
                                         end
                                         
-                                        %NOTE: Useful info from MATLAB answers. MATLAB PCA normalizes the input raw 
+                                        %NOTE: Useful info from MATLAB answers. MATLAB PCA normalizes the input raw
                                         %data so that the normalized data has zero mean (does not scale it for standard deviation).
                                         %Because of this the following code holds true
                                         % mydata = 10 + randn(20,5); %Random data 20 observations, 5 variables
@@ -3791,15 +3851,15 @@ if all_files_present==1
                                         these_all_which_events=all_which_eventsPACwave(:,these_per_corr);
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
                                         
-%                                         these_all_stamped_lick_times=[];
-%                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
-%                                         
-%                                         these_all_stamped_lick_ii=[];
-%                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                                        %                                         these_all_stamped_lick_times=[];
+                                        %                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                                        %
+                                        %                                         these_all_stamped_lick_ii=[];
+                                        %                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
                                         
- 
+                                        
                                         %PCA for trough PAC wavelet power
                                         
                                         these_all_log_P_timecoursePACwave=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t));
@@ -3837,7 +3897,7 @@ if all_files_present==1
                                             
                                         end
                                         
-                                        %NOTE: Useful info from MATLAB answers. MATLAB PCA normalizes the input raw 
+                                        %NOTE: Useful info from MATLAB answers. MATLAB PCA normalizes the input raw
                                         %data so that the normalized data has zero mean (does not scale it for standard deviation).
                                         %Because of this the following code holds true
                                         % mydata = 10 + randn(20,5); %Random data 20 observations, 5 variables
@@ -3930,33 +3990,33 @@ if all_files_present==1
                                             ylabel('PC1')
                                         end
                                         
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).principal_components_trough=zeros(length(t),N,length(handles.drgbchoices.which_electrodes));
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).principal_components_trough=principal_components;
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).PC_variance_trough=zeros(length(t),length(handles.drgbchoices.which_electrodes));
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).PC_variance_trough=PC_variance;
-
-%                                         handles_out.t_power=t';
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials=N;
-%                                         
-%                                         these_all_which_events=[];
-%                                         these_all_which_events=all_which_eventsPACwave(:,these_per_corr);
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
-%                                         
-%                                         these_all_stamped_lick_times=[];
-%                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
-%                                         
-%                                         these_all_stamped_lick_ii=[];
-%                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
-%                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
-                                       
+                                        
+                                        %                                         handles_out.t_power=t';
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials=N;
+                                        %
+                                        %                                         these_all_which_events=[];
+                                        %                                         these_all_which_events=all_which_eventsPACwave(:,these_per_corr);
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
+                                        %
+                                        %                                         these_all_stamped_lick_times=[];
+                                        %                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                                        %
+                                        %                                         these_all_stamped_lick_ii=[];
+                                        %                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                                        %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                                        
                                     end
                                     
                                     if sum(handles.drgbchoices.which_discriminant==12)>0
                                         
                                         %First do peak PAC wavelet power
-                                        %LDA for subsets of electrodes for PAC wavelet power 
+                                        %LDA for subsets of electrodes for PAC wavelet power
                                         
                                         t_from=2.15;
                                         t_to=2.5;
@@ -4231,7 +4291,7 @@ if all_files_present==1
                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).ecomb_par_out_peak=par_out;
                                         
                                         %First do trough PAC wavelet power
-                                        %LDA for subsets of electrodes for PAC wavelet power 
+                                        %LDA for subsets of electrodes for PAC wavelet power
                                         
                                         t_from=2.15;
                                         t_to=2.5;
@@ -4513,6 +4573,9 @@ if all_files_present==1
                             end
                         end
                     end
+                    
+                    
+                    
                     
                     %Calculate discriminant analysis and PCA for PAC
                     if (sum(handles.drgbchoices.which_discriminant==4)>0)||(sum(handles.drgbchoices.which_discriminant==5)>0)
@@ -4916,10 +4979,1435 @@ if all_files_present==1
                 save([handles.drgb.outPathName 'Discriminant_' handles.drgb.outFileName],'handles_out','-v7.3')
             end
         end
+        
+        if (mouse_has_data==1)&(process_data_for_mouse==1)& ((sum(handles.drgbchoices.which_discriminant==13)>0)||(sum(handles.drgbchoices.which_discriminant==14)>0))
+            %Calculate discriminant analysis for wavelet power calculated at different PAC phases
+            
+            
+            t=t_pac;
+            for PACii=1:length(handles.drgbchoices.PACburstLowF)
+                
+                %Note, group 1 no laser, group 2 laser
+                for groupNo=1:2
+                    %Group No 1 is before laser, group 2 is with laser light on
+                    
+                    discriminant_correct=zeros(1,length(t));
+                    discriminant_correct_shuffled=zeros(1,length(t));
+                    auROC=zeros(1,length(t));
+                    
+                    trials_for_this_group=(all_perCorr_pertrPACwave>=handles.drgbchoices.percent_windows(percent_correct_ii,1))...
+                        &(all_perCorr_pertrPACwave<=handles.drgbchoices.percent_windows(percent_correct_ii,2));
+                    N=sum(these_per_corr);
+                    
+                    
+                    %Stamp the licks
+                    these_all_licks_per_tPACwave=[];
+                    these_all_licks_per_tPACwave=all_licks_per_tPACwave(these_per_corr,:);
+                    
+                    these_all_stamped_lick_ii=[];
+                    these_all_stamped_lick_ii=all_stamped_lick_iiPACwave(1,these_per_corr);
+                    
+                    
+                    %Do the analysis only if there are more than 20 trials
+                    if N>=20
+                        
+                        if (sum(handles.drgbchoices.which_discriminant==10)>0)
+                            %Linear discriminant analysis for
+                            %peak PAC power
+                            
+                            these_all_log_P_timecoursePACwave=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t));
+                            these_all_log_P_timecoursePACwave(:,:,:)=all_log_P_timecoursePACwavepeak(PACii,:,these_per_corr,:);
+                            
+                            these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
+                            for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                these_all_which_events(ii,:)= all_which_eventsPACwave(kk,these_per_corr);
+                            end
+                            
+                            
+                            
+                            fprintf(1, ['LDA processed for peak PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
+                            fprintf(1,'For these events: ')
+                            for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                fprintf(1,[handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(ii)} ' '])
+                            end
+                            fprintf(1,'\n')
+                            
+                            
+                            par_out=[];
+                            test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                            shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                            discriminant_correct=zeros(1,length(t));
+                            discriminant_correct_shuffled=zeros(1,length(t));
+                            auROC=zeros(1,length(t));
+                            dimensionality=zeros(1,length(t));
+                            per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                            
+                            parfor time_point=1:length(t)
+                                
+                                %LFP power per trial per electrode
+                                measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                measurements(:,:)=these_all_log_P_timecoursePACwave(:,:,time_point)';
+                                
+                                %Dimensionality
+                                %Rows: trials, Columns: electrodes
+                                Signal=measurements;
+                                dimensionality(time_point) = nansum(eig(cov(Signal)))^2/nansum(eig(cov(Signal)).^2);
+                                
+                                %Enter strings labeling each event (one event for
+                                %each trial)
+                                events=[];
+                                
+                                for ii=1:N
+                                    this_event=zeros(length(handles.drgbchoices.events_to_discriminate),1);
+                                    this_event=these_all_which_events(:,ii);
+                                    
+                                    events{ii,1}=handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(logical(this_event))};
+                                    
+                                end
+                                
+                                tested_events=[];
+                                shuffled_tested_events=[];
+                                scores=[];
+                                for ii=1:N
+                                    %Partition the data into training and test sets.
+                                    
+                                    %Create input and target vectors leaving one trial out
+                                    %For per_input each column has the dF/F for one trial
+                                    %each row is a single time point for dF/F for one of the cells
+                                    %For per_target the top row is 1 if the odor is S+ and 0 if it is
+                                    %S-, and row 2 has 1 for S-
+                                    idxTrn=ones(N,1);
+                                    idxTrn(ii)=0;
+                                    idxTest=zeros(N,1);
+                                    idxTest(ii)=1;
+                                    
+                                    %Store the training data in a table.
+                                    tblTrn=[];
+                                    tblTrn = array2table(measurements(logical(idxTrn),:));
+                                    tblTrn.Y = events(logical(idxTrn));
+                                    
+                                    %Train a discriminant analysis model using the training set and default options.
+                                    %By default this is a regularized linear discriminant analysis (LDA)
+                                    Mdl = fitcdiscr(tblTrn,'Y');
+                                    
+                                    %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
+                                    [label,score] = predict(Mdl,measurements(logical(idxTest),:));
+                                    
+                                    tested_events{ii,1}=label{1};
+                                    scores(ii)=score(2);
+                                    
+                                    %Do LDA with shuffled trials
+                                    shuffled_measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                    shuffled_measurements(:,:)=measurements(randperm(N),:);
+                                    
+                                    %Store the training data in a table.
+                                    sh_tblTrn=[];
+                                    sh_tblTrn = array2table(shuffled_measurements(logical(idxTrn),:));
+                                    sh_tblTrn.Y = events(logical(idxTrn));
+                                    
+                                    %Train a discriminant analysis model using the training set and default options.
+                                    %By default this is a regularized linear discriminant analysis (LDA)
+                                    sh_Mdl = fitcdiscr(sh_tblTrn,'Y');
+                                    
+                                    %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
+                                    sh_label = predict(Mdl,shuffled_measurements(logical(idxTest),:));
+                                    
+                                    shuffled_tested_events{ii,1}=sh_label{1};
+                                    
+                                end
+                                
+                                %Calculate auROC
+                                [X,Y,T,AUC] = perfcurve(events,scores',handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)});
+                                auROC(1,time_point)=AUC-0.5;
+                                %test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                                
+                                
+                                per_targets=these_all_which_events;
+                                
+                                test_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                shuffled_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                for ii=1:N
+                                    for jj=1:length(handles.drgbchoices.events_to_discriminate)
+                                        if strcmp(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(jj)},tested_events{ii})
+                                            test_out(jj,ii)=1;
+                                        else
+                                            test_out(jj,ii)=0;
+                                        end
+                                        if strcmp(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(jj)},shuffled_tested_events{ii})
+                                            shuffled_out(jj,ii)=1;
+                                        else
+                                            shuffled_out(jj,ii)=0;
+                                        end
+                                    end
+                                end
+                                
+                                test_out_per_timepoint(:,:,time_point)=test_out;
+                                shuffled_out_per_timepoint(:,:,time_point)=shuffled_out;
+                                discriminant_correct(1,time_point)=100*sum(sum(test_out.*per_targets))/N;
+                                discriminant_correct_shuffled(1,time_point)=100*sum(sum(shuffled_out.*per_targets))/N;
+                                fprintf(1, 'LDA for peak PAC wavelet power percent correct classification %d (for timepoint %d out of %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/N,time_point,length(t));
+                                
+                            end
+                            
+                            
+                            if PACii==3
+                                figNo=figNo+1;
+                                try
+                                    close(figNo)
+                                catch
+                                end
+                                
+                                hFig=figure(figNo)
+                                set(hFig, 'units','normalized','position',[.1 .4 .75 .47])
+                                
+                                subplot(2,5,1)
+                                hold on
+                                
+                                per95=prctile(discriminant_correct_shuffled(1,:),95);
+                                per5=prctile(discriminant_correct_shuffled(1,:),5);
+                                CIsh=[mean(discriminant_correct_shuffled(1,:))-per5 per95-mean(discriminant_correct_shuffled(1,:))]';
+                                [hlCR, hpCR] = boundedline([t(1) t(end)],[mean(discriminant_correct_shuffled(1,:)) mean(discriminant_correct_shuffled(1,:))], CIsh', 'r');
+                                
+                                plot(t',discriminant_correct(1,:),'-k')
+                                
+                                %Odor on markers
+                                plot([0 0],[0 100],'-k')
+                                odorhl=plot([0 2.5],[20 20],'-k','LineWidth',5);
+                                plot([2.5 2.5],[0 100],'-k')
+                                
+                                %title(['LDA % correct for ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                xlabel('Time (sec)')
+                                ylabel('% correct peak')
+                                
+                                subplot(2,5,2)
+                                hold on
+                                
+                                plot(t,auROC,'-b')
+                                
+                                %Odor on markers
+                                plot([0 0],[-0.3 0.5],'-k')
+                                odorhl=plot([0 2.5],[0 0],'-k','LineWidth',5);
+                                plot([2.5 2.5],[0 0.5],'-k')
+                                
+                                %title(['auROC for LDA for ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                xlabel('Time (sec)')
+                                ylabel('auROC peak')
+                                ylim([-0.3 0.6])
+                                
+                                
+                                subplot(2,5,3)
+                                hold on
+                                
+                                plot(t,dimensionality,'-b')
+                                
+                                maxdim=max(dimensionality);
+                                mindim=min(dimensionality);
+                                
+                                %Odor on markers
+                                plot([0 0],[mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)],'-k')
+                                odorhl=plot([0 2.5],[mindim mindim],'-k','LineWidth',5);
+                                plot([2.5 2.5],[mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)],'-k')
+                                
+                                %title(['auROC for LDA for ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                xlabel('Time (sec)')
+                                ylabel('dimensionality peak')
+                                ylim([mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)])
+                            end
+                            
+                            %Calculate p value for the wavelet power
+                            p_val_peak=zeros(1,length(t));
+                            for ii_t=1:length(t)
+                                splus_out=zeros(1,sum(these_all_which_events(1,:)==1));
+                                splus_out(1,:)=test_out_per_timepoint(1,these_all_which_events(1,:)==1,ii_t);
+                                sminus_out=zeros(1,sum(these_all_which_events(1,:)==0));
+                                sminus_out(1,:)=test_out_per_timepoint(1,these_all_which_events(1,:)==0,ii_t);
+                                p_val_peak(ii_t)=ranksum(splus_out,sminus_out);
+                            end
+                            
+                            
+                            %Calculate p value for the licks
+                            p_val_lick=zeros(1,length(t));
+                            for ii_t=1:length(t)
+                                splus_licks=zeros(1,sum((these_all_which_events(1,:)==1)&(these_all_stamped_lick_ii>0)));
+                                splus_licks(1,:)=these_all_licks_per_tPACwave((these_all_which_events(1,:)==1)&(these_all_stamped_lick_ii>0),ii_t);
+                                sminus_licks=zeros(1,sum((these_all_which_events(1,:)==0)&(these_all_stamped_lick_ii>0)));
+                                sminus_licks(1,:)=these_all_licks_per_tPACwave((these_all_which_events(1,:)==0)&(these_all_stamped_lick_ii>0),ii_t);
+                                p_val_lick(ii_t)=ranksum(splus_licks,sminus_licks);
+                            end
+                            
+                            
+                            %suptitle(['PAC power LDA analysis for Theta/' handles.drgbchoices.PACnames{PACii} ' PAC, mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).all_stamped_lick_ii=these_all_stamped_lick_ii;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).all_licks_per_tPACwave=these_all_licks_per_tPACwave;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_peak=p_val_peak;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_lick=p_val_lick;
+                            
+                            handles_out.discriminant_PACpower_per_mouse(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_peak=zeros(1,length(t));
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_peak(1,:)=discriminant_correct(1,:);
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).dimensionality_peak=zeros(1,length(t));
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).dimensionality_peak(1,:)=dimensionality(1,:);
+                            
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auROC_peak=zeros(1,length(t));
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auROC_peak=auROC;
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_shuffled_peak=zeros(1,length(t));
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_shuffled_peak(1,:)=discriminant_correct_shuffled(1,:);
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).test_out_per_timepoint_peak=test_out_per_timepoint;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).shuffled_out_per_timepoint_peak=shuffled_out_per_timepoint;
+                            
+                            handles_out.t_power=t';
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials=N;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).per_targets=per_targets;
+                            
+                            these_all_which_events=[];
+                            these_all_which_events=all_which_eventsPACwave(:,these_per_corr);
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
+                            
+                            %                                         these_all_stamped_lick_times=[];
+                            %                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                            %
+                            %                                         these_all_stamped_lick_ii=[];
+                            %                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                            
+                            %Linear discriminant analysis for
+                            %trough PAC power
+                            
+                            these_all_log_P_timecoursePACwave=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t));
+                            these_all_log_P_timecoursePACwave(:,:,:)=all_log_P_timecoursePACwavetrough(PACii,:,these_per_corr,:);
+                            
+                            these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
+                            for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                these_all_which_events(ii,:)= all_which_eventsPACwave(kk,these_per_corr);
+                            end
+                            
+                            
+                            
+                            fprintf(1, ['LDA processed for trough PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
+                            fprintf(1,'For these events: ')
+                            for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                fprintf(1,[handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(ii)} ' '])
+                            end
+                            fprintf(1,'\n')
+                            
+                            
+                            par_out=[];
+                            test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                            shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                            discriminant_correct=zeros(1,length(t));
+                            discriminant_correct_shuffled=zeros(1,length(t));
+                            auROC=zeros(1,length(t));
+                            dimensionality=zeros(1,length(t));
+                            per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                            
+                            parfor time_point=1:length(t)
+                                
+                                %LFP power per trial per electrode
+                                measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                measurements(:,:)=these_all_log_P_timecoursePACwave(:,:,time_point)';
+                                
+                                %Dimensionality
+                                %Rows: trials, Columns: electrodes
+                                Signal=measurements;
+                                dimensionality(time_point) = nansum(eig(cov(Signal)))^2/nansum(eig(cov(Signal)).^2);
+                                
+                                %Enter strings labeling each event (one event for
+                                %each trial)
+                                events=[];
+                                
+                                for ii=1:N
+                                    this_event=zeros(length(handles.drgbchoices.events_to_discriminate),1);
+                                    this_event=these_all_which_events(:,ii);
+                                    
+                                    events{ii,1}=handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(logical(this_event))};
+                                    
+                                end
+                                
+                                tested_events=[];
+                                shuffled_tested_events=[];
+                                scores=[];
+                                for ii=1:N
+                                    %Partition the data into training and test sets.
+                                    
+                                    %Create input and target vectors leaving one trial out
+                                    %For per_input each column has the dF/F for one trial
+                                    %each row is a single time point for dF/F for one of the cells
+                                    %For per_target the top row is 1 if the odor is S+ and 0 if it is
+                                    %S-, and row 2 has 1 for S-
+                                    idxTrn=ones(N,1);
+                                    idxTrn(ii)=0;
+                                    idxTest=zeros(N,1);
+                                    idxTest(ii)=1;
+                                    
+                                    %Store the training data in a table.
+                                    tblTrn=[];
+                                    tblTrn = array2table(measurements(logical(idxTrn),:));
+                                    tblTrn.Y = events(logical(idxTrn));
+                                    
+                                    %Train a discriminant analysis model using the training set and default options.
+                                    %By default this is a regularized linear discriminant analysis (LDA)
+                                    Mdl = fitcdiscr(tblTrn,'Y');
+                                    
+                                    %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
+                                    [label,score] = predict(Mdl,measurements(logical(idxTest),:));
+                                    
+                                    tested_events{ii,1}=label{1};
+                                    scores(ii)=score(2);
+                                    
+                                    %Do LDA with shuffled trials
+                                    shuffled_measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                    shuffled_measurements(:,:)=measurements(randperm(N),:);
+                                    
+                                    %Store the training data in a table.
+                                    sh_tblTrn=[];
+                                    sh_tblTrn = array2table(shuffled_measurements(logical(idxTrn),:));
+                                    sh_tblTrn.Y = events(logical(idxTrn));
+                                    
+                                    %Train a discriminant analysis model using the training set and default options.
+                                    %By default this is a regularized linear discriminant analysis (LDA)
+                                    sh_Mdl = fitcdiscr(sh_tblTrn,'Y');
+                                    
+                                    %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
+                                    sh_label = predict(Mdl,shuffled_measurements(logical(idxTest),:));
+                                    
+                                    shuffled_tested_events{ii,1}=sh_label{1};
+                                    
+                                end
+                                
+                                %Calculate auROC
+                                [X,Y,T,AUC] = perfcurve(events,scores',handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)});
+                                auROC(1,time_point)=AUC-0.5;
+                                %test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                                
+                                
+                                per_targets=these_all_which_events;
+                                
+                                test_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                shuffled_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                for ii=1:N
+                                    for jj=1:length(handles.drgbchoices.events_to_discriminate)
+                                        if strcmp(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(jj)},tested_events{ii})
+                                            test_out(jj,ii)=1;
+                                        else
+                                            test_out(jj,ii)=0;
+                                        end
+                                        if strcmp(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(jj)},shuffled_tested_events{ii})
+                                            shuffled_out(jj,ii)=1;
+                                        else
+                                            shuffled_out(jj,ii)=0;
+                                        end
+                                    end
+                                end
+                                
+                                test_out_per_timepoint(:,:,time_point)=test_out;
+                                shuffled_out_per_timepoint(:,:,time_point)=shuffled_out;
+                                discriminant_correct(1,time_point)=100*sum(sum(test_out.*per_targets))/N;
+                                discriminant_correct_shuffled(1,time_point)=100*sum(sum(shuffled_out.*per_targets))/N;
+                                fprintf(1, 'LDA for trough PAC wavelet power percent correct classification %d (for timepoint %d out of %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/N,time_point,length(t));
+                                
+                            end
+                            
+                            p_val_trough=zeros(1,length(t));
+                            for ii_t=1:length(t)
+                                splus_out=zeros(1,sum(these_all_which_events(1,:)==1));
+                                splus_out(1,:)=test_out_per_timepoint(1,these_all_which_events(1,:)==1,ii_t);
+                                sminus_out=zeros(1,sum(these_all_which_events(1,:)==0));
+                                sminus_out(1,:)=test_out_per_timepoint(1,these_all_which_events(1,:)==0,ii_t);
+                                p_val_trough(ii_t)=ranksum(splus_out,sminus_out);
+                            end
+                            
+                            if PACii==3
+                                subplot(2,5,6)
+                                hold on
+                                
+                                per95=prctile(discriminant_correct_shuffled(1,:),95);
+                                per5=prctile(discriminant_correct_shuffled(1,:),5);
+                                CIsh=[mean(discriminant_correct_shuffled(1,:))-per5 per95-mean(discriminant_correct_shuffled(1,:))]';
+                                [hlCR, hpCR] = boundedline([t(1) t(end)],[mean(discriminant_correct_shuffled(1,:)) mean(discriminant_correct_shuffled(1,:))], CIsh', 'r');
+                                
+                                plot(t',discriminant_correct(1,:),'-k')
+                                
+                                %Odor on markers
+                                plot([0 0],[0 100],'-k')
+                                odorhl=plot([0 2.5],[20 20],'-k','LineWidth',5);
+                                plot([2.5 2.5],[0 100],'-k')
+                                
+                                %title(['LDA % correct for ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                xlabel('Time (sec)')
+                                ylabel('% correct trough')
+                                
+                                subplot(2,5,7)
+                                hold on
+                                
+                                plot(t,auROC,'-b')
+                                
+                                %Odor on markers
+                                plot([0 0],[0 0.5],'-k')
+                                odorhl=plot([0 2.5],[0 0],'-k','LineWidth',5);
+                                plot([2.5 2.5],[0 0.5],'-k')
+                                
+                                %title(['auROC for LDA for ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                xlabel('Time (sec)')
+                                ylabel('auROC trough')
+                                ylim([-0.3 0.6])
+                                
+                                %Plot dimensionality
+                                subplot(2,5,8)
+                                hold on
+                                
+                                plot(t,dimensionality,'-b')
+                                
+                                mindim=min(dimensionality);
+                                maxdim=max(dimensionality);
+                                
+                                %Odor on markers
+                                plot([0 0],[mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)],'-k')
+                                odorhl=plot([0 2.5],[0 0],'-k','LineWidth',5);
+                                plot([2.5 2.5],[mindim-0.1*(maxdim-mindim) maxdim+0.1*(maxdim-mindim)],'-k')
+                                
+                                %title(['auROC for LDA for ' handles.drgbchoices.bwlabels{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                xlabel('Time (sec)')
+                                ylabel('Dimensionality trough')
+                                xlim([-2 5])
+                                
+                                %Plot p value
+                                subplot(2,5,[4,5,9,10])
+                                hold on
+                                
+                                p1=plot(t,log10(p_val_lick),'-k');
+                                p2=plot(t,log10(p_val_trough),'-b');
+                                p3=plot(t,log10(p_val_peak),'-m');
+                                plot([t(1) t(end)],[log10(0.05) log10(0.05)],'-r')
+                                legend([p1 p2 p3],{'Licks','Trough','Peak'})
+                                ylabel('log(p)')
+                                xlabel('Time (sec)')
+                                xlim([-2 5])
+                                
+                                suptitle(['PAC wavelet power LDA analysis for Theta/' handles.drgbchoices.PACnames{PACii} ' PAC, mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                            end
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_trough=p_val_trough;
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_trough=zeros(1,length(t));
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_trough(1,:)=discriminant_correct(1,:);
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).dimensionality_trough=zeros(1,length(t));
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).dimensionality_trough(1,:)=dimensionality(1,:);
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auROC_trough=zeros(1,length(t));
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auROC_trough=auROC;
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_shuffled_trough=zeros(1,length(t));
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_shuffled_trough(1,:)=discriminant_correct_shuffled(1,:);
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).test_out_per_timepoint_trough=test_out_per_timepoint;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).shuffled_out_per_timepoint_trough=shuffled_out_per_timepoint;
+                            
+                            
+                            %                                         handles_out.t_power=t';
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials=N;
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).per_targets=per_targets;
+                            %
+                            %                                         these_all_which_events=[];
+                            %                                         these_all_which_events=all_which_eventsPACwave(:,these_per_corr);
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
+                            %
+                            %                                         these_all_stamped_lick_times=[];
+                            %                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                            %
+                            %                                         these_all_stamped_lick_ii=[];
+                            %                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                            
+                            
+                        end
+                        
+                        if sum(handles.drgbchoices.which_discriminant==11)>0
+                            
+                            %PCA for peak PAC wavelet power
+                            
+                            these_all_log_P_timecoursePACwave=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t));
+                            these_all_log_P_timecoursePACwave(:,:,:)=all_log_P_timecoursePACwavepeak(PACii,:,these_per_corr,:);
+                            
+                            these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
+                            for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                these_all_which_events(ii,:)= all_which_eventsPACwave(kk,these_per_corr);
+                            end
+                            
+                            fprintf(1, ['PCA processed for peak PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
+                            fprintf(1,'For these events: ')
+                            for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                fprintf(1,[handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(ii)} ' '])
+                            end
+                            fprintf(1,'\n')
+                            
+                            for time_point=1:length(t)
+                                par_t_out(time_point).principal_components=zeros(N,length(handles.drgbchoices.which_electrodes));
+                            end
+                            
+                            
+                            for time_point=1:length(t)
+                                
+                                %LFP power per trial per electrode
+                                measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                measurements(:,:)=these_all_log_P_timecoursePACwave(:,:,time_point)';
+                                
+                                %Do the PCA
+                                [coeff,par_t_out(time_point).principal_components,par_t_out(time_point).PC_variance]=pca(measurements);
+                                
+                            end
+                            
+                            %NOTE: Useful info from MATLAB answers. MATLAB PCA normalizes the input raw
+                            %data so that the normalized data has zero mean (does not scale it for standard deviation).
+                            %Because of this the following code holds true
+                            % mydata = 10 + randn(20,5); %Random data 20 observations, 5 variables
+                            % [coeff,scores_a] = pca(mydata); %Do PCA
+                            % mydata_mean = mean(mydata); %Find mean of data (columns)
+                            % mydata_mean = repmat(mydata_mean,20,1); %Replicate mean vector to matrix for subtraction
+                            % my_data_norm = mydata - mydata_mean; % Normalize data to zero mean y subtraction
+                            % scores_b = my_data_norm*coeff; %Manually calculate scores using PCA coeff and normalized data
+                            % err = max(max((abs(scores_a - scores_b)))) %Calculate error as the max of absolute difference in 2 methods
+                            % For my random data runs, err was of the order of 1e-15
+                            
+                            %Show a figure of the PCA and record the output
+                            
+                            principal_components=zeros(length(t),N,length(handles.drgbchoices.which_electrodes));
+                            PC_variance=zeros(length(t),length(handles.drgbchoices.which_electrodes));
+                            for time_point=1:length(t)
+                                principal_components(time_point,:,:)=par_t_out(time_point).principal_components;
+                                PC_variance(time_point,:)=par_t_out(time_point).PC_variance;
+                            end
+                            
+                            %Show the result of the PCA
+                            if PACii==3
+                                figNo=figNo+1;
+                                try
+                                    close(figNo)
+                                catch
+                                end
+                                
+                                figure(figNo)
+                                
+                                %Show PCA before odor on
+                                subplot(2,4,5)
+                                hold on
+                                
+                                these_pcs=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                these_pcs(:,:)=principal_components(6,:,:);
+                                plot(these_pcs(logical(these_all_which_events(1,:)),1),these_pcs(logical(these_all_which_events(1,:)),2),'or')
+                                plot(these_pcs(logical(these_all_which_events(2,:)),1),these_pcs(logical(these_all_which_events(2,:)),2),'ob')
+                                legend(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(1)},handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)})
+                                xlabel('PC1')
+                                ylabel('PC2')
+                                title('-1 sec peak')
+                                
+                                %Show PCA after odor
+                                subplot(2,4,6)
+                                hold on
+                                
+                                these_pcs=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                these_pcs(:,:)=principal_components(41,:,:);
+                                plot(these_pcs(logical(these_all_which_events(1,:)),1),these_pcs(logical(these_all_which_events(1,:)),2),'or')
+                                plot(these_pcs(logical(these_all_which_events(2,:)),1),these_pcs(logical(these_all_which_events(2,:)),2),'ob')
+                                legend(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(1)},handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)})
+                                xlabel('PC1')
+                                ylabel('PC2')
+                                title('2.5 sec peak')
+                                
+                                %Show the timecourse for PC1
+                                subplot(2,4,[1,2])
+                                hold on
+                                
+                                PC1ev1=zeros(length(t),sum(these_all_which_events(1,:)));
+                                PC1ev1(:,:)=principal_components(:,logical(these_all_which_events(1,:)),1);
+                                
+                                PC1ev2=zeros(length(t),sum(these_all_which_events(2,:)));
+                                PC1ev2(:,:)=principal_components(:,logical(these_all_which_events(2,:)),1);
+                                
+                                mean_PC1ev2=mean(PC1ev2,2)';
+                                CIPC1ev2 = bootci(1000, {@mean, PC1ev2'});
+                                maxCIPC1ev2=max(CIPC1ev2(:));
+                                minCIPC1ev2=min(CIPC1ev2(:));
+                                CIPC1ev2(1,:)=mean_PC1ev2-CIPC1ev2(1,:);
+                                CIPC1ev2(2,:)=CIPC1ev2(2,:)-mean_PC1ev2;
+                                [hlCR, hpCR] = boundedline(t',mean_PC1ev2', CIPC1ev2', 'b');
+                                
+                                mean_PC1ev1=mean(PC1ev1,2)';
+                                CIPC1ev1 = bootci(1000, {@mean, PC1ev1'});
+                                maxCIPC1ev1=max(CIPC1ev1(:));
+                                minCIPC1ev1=min(CIPC1ev1(:));
+                                CIPC1ev1(1,:)=mean_PC1ev1-CIPC1ev1(1,:);
+                                CIPC1ev1(2,:)=CIPC1ev1(2,:)-mean_PC1ev1;
+                                [hlCR, hpCR] = boundedline(t',mean_PC1ev1', CIPC1ev1', 'r');
+                                
+                                maxPC1=max([maxCIPC1ev2 maxCIPC1ev1]);
+                                minPC1=min([minCIPC1ev2 minCIPC1ev1]);
+                                
+                                %Odor on markers
+                                plot([0 0],[minPC1-0.1*(maxPC1-minPC1) maxPC1+0.1*(maxPC1-minPC1)],'-k')
+                                odorhl=plot([0 2.5],[minPC1-0.1*(maxPC1-minPC1) minPC1-0.1*(maxPC1-minPC1)],'-k','LineWidth',5);
+                                plot([2.5 2.5],[minPC1-0.1*(maxPC1-minPC1) maxPC1+0.1*(maxPC1-minPC1)],'-k')
+                                
+                                xlim([-2 5])
+                                ylim([minPC1-0.1*(maxPC1-minPC1) maxPC1+0.1*(maxPC1-minPC1)])
+                                text(-1,minPC1+0.9*(maxPC1-minPC1),handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(1)},'Color','r')
+                                text(-1,minPC1+0.8*(maxPC1-minPC1),handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)},'Color','b')
+                                title('PC1 for peak')
+                                xlabel('Time (sec)')
+                                ylabel('PC1')
+                            end
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PCA_calculated=1;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).principal_components_peak=zeros(length(t),N,length(handles.drgbchoices.which_electrodes));
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).principal_components_peak=principal_components;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).PC_variance_peak=zeros(length(t),length(handles.drgbchoices.which_electrodes));
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).PC_variance_peak=PC_variance;
+                            
+                            
+                            handles_out.t_power=t_power';
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials=N;
+                            
+                            these_all_which_events=[];
+                            these_all_which_events=all_which_eventsPACwave(:,these_per_corr);
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
+                            
+                            %                                         these_all_stamped_lick_times=[];
+                            %                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                            %
+                            %                                         these_all_stamped_lick_ii=[];
+                            %                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                            
+                            
+                            %PCA for trough PAC wavelet power
+                            
+                            these_all_log_P_timecoursePACwave=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(t));
+                            these_all_log_P_timecoursePACwave(:,:,:)=all_log_P_timecoursePACwavetrough(PACii,:,these_per_corr,:);
+                            
+                            these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
+                            for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                these_all_which_events(ii,:)= all_which_eventsPACwave(kk,these_per_corr);
+                            end
+                            
+                            fprintf(1, ['PCA processed for trough PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
+                            fprintf(1,'For these events: ')
+                            for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                fprintf(1,[handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(ii)} ' '])
+                            end
+                            fprintf(1,'\n')
+                            
+                            for time_point=1:length(t)
+                                par_t_out(time_point).principal_components=zeros(N,length(handles.drgbchoices.which_electrodes));
+                            end
+                            
+                            for time_point=1:length(t)
+                                par_t_out(time_point).principal_components=[];
+                            end
+                            
+                            for time_point=1:length(t)
+                                
+                                %LFP power per trial per electrode
+                                measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                measurements(:,:)=these_all_log_P_timecoursePACwave(:,:,time_point)';
+                                
+                                %Do the PCA
+                                [coeff,par_t_out(time_point).principal_components,par_t_out(time_point).PC_variance]=pca(measurements);
+                                
+                            end
+                            
+                            %NOTE: Useful info from MATLAB answers. MATLAB PCA normalizes the input raw
+                            %data so that the normalized data has zero mean (does not scale it for standard deviation).
+                            %Because of this the following code holds true
+                            % mydata = 10 + randn(20,5); %Random data 20 observations, 5 variables
+                            % [coeff,scores_a] = pca(mydata); %Do PCA
+                            % mydata_mean = mean(mydata); %Find mean of data (columns)
+                            % mydata_mean = repmat(mydata_mean,20,1); %Replicate mean vector to matrix for subtraction
+                            % my_data_norm = mydata - mydata_mean; % Normalize data to zero mean y subtraction
+                            % scores_b = my_data_norm*coeff; %Manually calculate scores using PCA coeff and normalized data
+                            % err = max(max((abs(scores_a - scores_b)))) %Calculate error as the max of absolute difference in 2 methods
+                            % For my random data runs, err was of the order of 1e-15
+                            
+                            %Show a figure of the PCA and record the output
+                            
+                            principal_components=zeros(length(t),N,length(handles.drgbchoices.which_electrodes));
+                            PC_variance=zeros(length(t),length(handles.drgbchoices.which_electrodes));
+                            for time_point=1:length(t)
+                                principal_components(time_point,:,:)=par_t_out(time_point).principal_components;
+                                PC_variance(time_point,:)=par_t_out(time_point).PC_variance;
+                            end
+                            
+                            
+                            if PACii==3
+                                %Show PCA before odor on
+                                subplot(2,4,7)
+                                hold on
+                                
+                                these_pcs=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                these_pcs(:,:)=principal_components(6,:,:);
+                                plot(these_pcs(logical(these_all_which_events(1,:)),1),these_pcs(logical(these_all_which_events(1,:)),2),'or')
+                                plot(these_pcs(logical(these_all_which_events(2,:)),1),these_pcs(logical(these_all_which_events(2,:)),2),'ob')
+                                legend(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(1)},handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)})
+                                xlabel('PC1')
+                                ylabel('PC2')
+                                title('-1 sec trough')
+                                
+                                %Show PCA after odor
+                                subplot(2,4,8)
+                                hold on
+                                
+                                these_pcs=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                these_pcs(:,:)=principal_components(41,:,:);
+                                plot(these_pcs(logical(these_all_which_events(1,:)),1),these_pcs(logical(these_all_which_events(1,:)),2),'or')
+                                plot(these_pcs(logical(these_all_which_events(2,:)),1),these_pcs(logical(these_all_which_events(2,:)),2),'ob')
+                                legend(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(1)},handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)})
+                                xlabel('PC1')
+                                ylabel('PC2')
+                                title('2.5 sec trough')
+                                
+                                %Show the timecourse for PC1
+                                subplot(2,4,[3,4])
+                                hold on
+                                
+                                PC1ev1=zeros(length(t),sum(these_all_which_events(1,:)));
+                                PC1ev1(:,:)=principal_components(:,logical(these_all_which_events(1,:)),1);
+                                
+                                PC1ev2=zeros(length(t),sum(these_all_which_events(2,:)));
+                                PC1ev2(:,:)=principal_components(:,logical(these_all_which_events(2,:)),1);
+                                
+                                mean_PC1ev2=mean(PC1ev2,2)';
+                                CIPC1ev2 = bootci(1000, {@mean, PC1ev2'});
+                                maxCIPC1ev2=max(CIPC1ev2(:));
+                                minCIPC1ev2=min(CIPC1ev2(:));
+                                CIPC1ev2(1,:)=mean_PC1ev2-CIPC1ev2(1,:);
+                                CIPC1ev2(2,:)=CIPC1ev2(2,:)-mean_PC1ev2;
+                                [hlCR, hpCR] = boundedline(t',mean_PC1ev2', CIPC1ev2', 'b');
+                                
+                                mean_PC1ev1=mean(PC1ev1,2)';
+                                CIPC1ev1 = bootci(1000, {@mean, PC1ev1'});
+                                maxCIPC1ev1=max(CIPC1ev1(:));
+                                minCIPC1ev1=min(CIPC1ev1(:));
+                                CIPC1ev1(1,:)=mean_PC1ev1-CIPC1ev1(1,:);
+                                CIPC1ev1(2,:)=CIPC1ev1(2,:)-mean_PC1ev1;
+                                [hlCR, hpCR] = boundedline(t',mean_PC1ev1', CIPC1ev1', 'r');
+                                
+                                %                                         maxPC1=max([maxCIPC1ev2 maxCIPC1ev1]);
+                                %                                         minPC1=min([minCIPC1ev2 minCIPC1ev1]);
+                                
+                                %Odor on markers
+                                plot([0 0],[minPC1-0.1*(maxPC1-minPC1) maxPC1+0.1*(maxPC1-minPC1)],'-k')
+                                odorhl=plot([0 2.5],[minPC1-0.1*(maxPC1-minPC1) minPC1-0.1*(maxPC1-minPC1)],'-k','LineWidth',5);
+                                plot([2.5 2.5],[minPC1-0.1*(maxPC1-minPC1) maxPC1+0.1*(maxPC1-minPC1)],'-k')
+                                
+                                xlim([-2 5])
+                                ylim([minPC1-0.1*(maxPC1-minPC1) maxPC1+0.1*(maxPC1-minPC1)])
+                                text(-1,minPC1+0.9*(maxPC1-minPC1),handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(1)},'Color','r')
+                                text(-1,minPC1+0.8*(maxPC1-minPC1),handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)},'Color','b')
+                                suptitle(['PAC wavelet power PC1 for Theta/' handles.drgbchoices.PACnames{PACii} ' PAC, for mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                                title('PC1 for trough')
+                                xlabel('Time (sec)')
+                                ylabel('PC1')
+                            end
+                            
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=1;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).principal_components_trough=zeros(length(t),N,length(handles.drgbchoices.which_electrodes));
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).principal_components_trough=principal_components;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).PC_variance_trough=zeros(length(t),length(handles.drgbchoices.which_electrodes));
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).PC_variance_trough=PC_variance;
+                            
+                            %                                         handles_out.t_power=t';
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).no_trials=N;
+                            %
+                            %                                         these_all_which_events=[];
+                            %                                         these_all_which_events=all_which_eventsPACwave(:,these_per_corr);
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events=these_all_which_events;
+                            %
+                            %                                         these_all_stamped_lick_times=[];
+                            %                                         these_all_stamped_lick_times=all_stamped_lick_times(these_per_corr,:);
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_times=these_all_stamped_lick_times;
+                            %
+                            %                                         these_all_stamped_lick_ii=[];
+                            %                                         these_all_stamped_lick_ii=all_stamped_lick_ii(1,these_per_corr);
+                            %                                         handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).stamped_lick_ii=these_all_stamped_lick_ii;
+                            
+                        end
+                        
+                        if sum(handles.drgbchoices.which_discriminant==12)>0
+                            
+                            %First do peak PAC wavelet power
+                            %LDA for subsets of electrodes for PAC wavelet power
+                            
+                            t_from=2.15;
+                            t_to=2.5;
+                            subt=t((t>=t_from)&(t<=t_to));
+                            
+                            these_all_log_P_timecoursePACwave=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(subt));
+                            these_all_log_P_timecoursePACwave(:,:,:)=all_log_P_timecoursePACwavepeak(PACii,:,these_per_corr,(t>=t_from)&(t<=t_to));
+                            
+                            these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
+                            for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                these_all_which_events(ii,:)= all_which_eventsPACwave(kk,these_per_corr);
+                            end
+                            
+                            fprintf(1, ['LDA processed for PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
+                            fprintf(1,'For these events: ')
+                            for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                fprintf(1,[handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(ii)} ' '])
+                            end
+                            fprintf(1,'\n')
+                            
+                            
+                            par_out=[];
+                            max_combs=25;
+                            for no_elect=1:length(handles.drgbchoices.which_electrodes)
+                                par_out(no_elect).no_elect=0;
+                                par_out(no_elect).no_timepoints=0;
+                                par_out(no_elect).is_tetrode(1:max_combs+4)=0;
+                                par_out(no_elect).discriminant_correct(1:250)=0;
+                                par_out(no_elect).no_samples=0;
+                                par_out(no_elect).discriminant_correct_shuffled(1:250)=0;
+                                par_out(no_elect).is_tetrode_per_sample(1:250)=0;
+                                par_out(no_elect).auROC(1:250)=0;
+                                par_out(no_elect).no_elect_combs=0;
+                            end
+                            
+                            %parfor no_elect=1:length(handles.drgbchoices.which_electrodes)
+                            parfor no_elect=1:length(handles.drgbchoices.which_electrodes)
+                                
+                                par_out(no_elect).no_elect=length(handles.drgbchoices.which_electrodes);
+                                par_out(no_elect).no_timepoints=length(subt);
+                                %Choose electrode combinations
+                                %(max =25)
+                                
+                                elect_combs=nchoosek(1:length(handles.drgbchoices.which_electrodes),no_elect);
+                                if size(elect_combs,1)>max_combs
+                                    no_chosen=0;
+                                    chosen_elecs=[];
+                                    while no_chosen<max_combs
+                                        add_these=randi(size(elect_combs,1),1,25-no_chosen);
+                                        chosen_elecs=unique([chosen_elecs add_these]);
+                                        no_chosen=length(chosen_elecs);
+                                    end
+                                    elect_combs=elect_combs(chosen_elecs,:);
+                                end
+                                
+                                no_el_combs=size(elect_combs,1);
+                                par_out(no_elect).no_elect_combs=no_el_combs;
+                                par_out(no_elect).is_tetrode(1:no_el_combs)=0;
+                                
+                                %if no_elect=4 also enter each
+                                %tetrode
+                                if no_elect==4
+                                    for tetNo=1:length(handles.drgbchoices.which_electrodes)/4
+                                        %Find if tetrode is included
+                                        tetrode_found=0;
+                                        for ii=1:no_el_combs
+                                            if sum(elect_combs(ii,:)==[(tetNo-1)*4+1:(tetNo-1)*4+4])==no_elect
+                                                tetrode_found=1;
+                                                par_out(no_elect).is_tetrode(ii)=1;
+                                            end
+                                        end
+                                        if tetrode_found==0
+                                            %Add tetrode
+                                            no_el_combs=no_el_combs+1;
+                                            elect_combs(no_el_combs,:)=[(tetNo-1)*4+1:(tetNo-1)*4+4];
+                                            par_out(no_elect).is_tetrode(no_el_combs)=1;
+                                        end
+                                        
+                                    end
+                                    
+                                end
+                                
+                                par_out(no_elect).no_elect_combs=no_el_combs;
+                                
+                                no_samples=0;
+                                for noelc=1:no_el_combs
+                                    for time_point=1:length(subt)
+                                        
+                                        %LFP power per trial per electrode
+                                        measurements=zeros(N,length(elect_combs(noelc,:)));
+                                        measurements(:,:)=these_all_log_P_timecoursePACwave(elect_combs(noelc,:),:,time_point)';
+                                        
+                                        %Enter strings labeling each event (one event for
+                                        %each trial)
+                                        events=[];
+                                        
+                                        for ii=1:N
+                                            this_event=zeros(length(handles.drgbchoices.events_to_discriminate),1);
+                                            this_event=these_all_which_events(:,ii);
+                                            events{ii,1}=handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(logical(this_event))};
+                                        end
+                                        
+                                        tested_events=[];
+                                        shuffled_tested_events=[];
+                                        scores=[];
+                                        for ii=1:N
+                                            %Partition the data into training and test sets.
+                                            
+                                            %Create input and target vectors leaving one trial out
+                                            %For per_input each column has the dF/F for one trial
+                                            %each row is a single time point for dF/F for one of the cells
+                                            %For per_target the top row is 1 if the odor is S+ and 0 if it is
+                                            %S-, and row 2 has 1 for S-
+                                            idxTrn=ones(N,1);
+                                            idxTrn(ii)=0;
+                                            idxTest=zeros(N,1);
+                                            idxTest(ii)=1;
+                                            
+                                            %Store the training data in a table.
+                                            tblTrn=[];
+                                            tblTrn = array2table(measurements(logical(idxTrn),:));
+                                            tblTrn.Y = events(logical(idxTrn));
+                                            
+                                            %Train a discriminant analysis model using the training set and default options.
+                                            %By default this is a regularized linear discriminant analysis (LDA)
+                                            Mdl = fitcdiscr(tblTrn,'Y');
+                                            
+                                            %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
+                                            [label,score] = predict(Mdl,measurements(logical(idxTest),:));
+                                            
+                                            tested_events{ii,1}=label{1};
+                                            scores(ii)=score(2);
+                                            
+                                            %Do LDA with shuffled trials
+                                            shuffled_measurements=zeros(N,size(measurements,2));
+                                            shuffled_measurements(:,:)=measurements(randperm(N),:);
+                                            
+                                            %Store the training data in a table.
+                                            sh_tblTrn=[];
+                                            sh_tblTrn = array2table(shuffled_measurements(logical(idxTrn),:));
+                                            sh_tblTrn.Y = events(logical(idxTrn));
+                                            
+                                            %Train a discriminant analysis model using the training set and default options.
+                                            %By default this is a regularized linear discriminant analysis (LDA)
+                                            sh_Mdl = fitcdiscr(sh_tblTrn,'Y');
+                                            
+                                            %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
+                                            sh_label = predict(Mdl,shuffled_measurements(logical(idxTest),:));
+                                            
+                                            shuffled_tested_events{ii,1}=sh_label{1};
+                                            
+                                        end
+                                        
+                                        %Calculate auROC
+                                        [X,Y,T,AUC] = perfcurve(events,scores',handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)});
+                                        %                                                     auROC(1,time_point)=AUC-0.5;
+                                        %test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                                        
+                                        
+                                        per_targets=these_all_which_events;
+                                        
+                                        test_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                        shuffled_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                        for ii=1:N
+                                            for jj=1:length(handles.drgbchoices.events_to_discriminate)
+                                                if strcmp(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(jj)},tested_events{ii})
+                                                    test_out(jj,ii)=1;
+                                                else
+                                                    test_out(jj,ii)=0;
+                                                end
+                                                if strcmp(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(jj)},shuffled_tested_events{ii})
+                                                    shuffled_out(jj,ii)=1;
+                                                else
+                                                    shuffled_out(jj,ii)=0;
+                                                end
+                                            end
+                                        end
+                                        
+                                        %                                                     test_out_per_timepoint(:,:,time_point)=test_out;
+                                        %                                                     shuffled_out_per_timepoint(:,:,time_point)=shuffled_out;
+                                        no_samples=no_samples+1;
+                                        par_out(no_elect).no_samples=no_samples;
+                                        if par_out(no_elect).is_tetrode(noelc)==1
+                                            par_out(no_elect).is_tetrode_per_sample(no_samples)=1;
+                                        else
+                                            par_out(no_elect).is_tetrode_per_sample(no_samples)=0;
+                                        end
+                                        par_out(no_elect).discriminant_correct(no_samples)=100*sum(sum(test_out.*per_targets))/N;
+                                        par_out(no_elect).discriminant_correct_shuffled(no_samples)=100*sum(sum(shuffled_out.*per_targets))/N;
+                                        par_out(no_elect).auROC(no_samples)=AUC-0.5;
+                                        fprintf(1, 'LDA PAC wavelet power percent correct classification %d (for timepoint %d and number of electrodes %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/N,time_point,no_elect);
+                                        
+                                    end
+                                end
+                            end
+                            
+                            if PACii==3
+                                figNo=figNo+1;
+                                try
+                                    close(figNo)
+                                catch
+                                end
+                                
+                                figure(figNo)
+                                
+                                subplot(1,2,1)
+                                hold on
+                                
+                                for elNo=1:par_out(1).no_elect
+                                    
+                                    mean_dcsh(elNo)=mean(par_out(elNo).discriminant_correct_shuffled(1:par_out(elNo).no_samples));
+                                    tempCIdcsh = bootci(1000, {@mean, par_out(elNo).discriminant_correct_shuffled(1:par_out(elNo).no_samples)})';
+                                    CIdcsh(elNo,1)=mean_dcsh(elNo)-tempCIdcsh(1);
+                                    CIdcsh(elNo,2)=tempCIdcsh(2)-mean_dcsh(elNo);
+                                    
+                                    
+                                    mean_dc(elNo)=mean(par_out(elNo).discriminant_correct(1:par_out(elNo).no_samples));
+                                    tempCIdc = bootci(1000, {@mean, par_out(elNo).discriminant_correct(1:par_out(elNo).no_samples)})';
+                                    CIdc(elNo,1)=mean_dc(elNo)-tempCIdc(1);
+                                    CIdc(elNo,2)=tempCIdc(2)-mean_dc(elNo);
+                                    
+                                end
+                                
+                                
+                                [hlCR, hpCR] = boundedline(1:par_out(1).no_elect,mean_dcsh, CIdcsh, 'b');
+                                [hlCR, hpCR] = boundedline(1:par_out(1).no_elect,mean_dc, CIdc, 'r');
+                                
+                                %Plot tetrodes here
+                                elNo=4;
+                                tetNo=0;
+                                for sampNo=1:par_out(elNo).no_timepoints:par_out(elNo).no_samples
+                                    if par_out(elNo).is_tetrode_per_sample(sampNo)==1
+                                        tetNo=tetNo+1;
+                                        mean_pcorr(tetNo)=mean(par_out(elNo).discriminant_correct(sampNo:sampNo+par_out(elNo).no_timepoints-1));
+                                    end
+                                end
+                                
+                                plot(elNo*ones(1,tetNo),mean_pcorr,'or')
+                                
+                                xlim([1 par_out(1).no_elect])
+                                ylim([40 110])
+                                
+                                
+                                xlabel('Number of electrodes used')
+                                ylabel('Percent correct')
+                                
+                                subplot(1,2,2)
+                                hold on
+                                
+                                
+                                for elNo=1:par_out(1).no_elect
+                                    mean_auROC(elNo)=mean(par_out(elNo).auROC(1:par_out(elNo).no_samples));
+                                    tempCIauROC = bootci(1000, {@mean, par_out(elNo).auROC(1:par_out(elNo).no_samples)})';
+                                    CIauROC(elNo,1)=mean_auROC(elNo)-tempCIauROC(1);
+                                    CIauROC(elNo,2)=tempCIauROC(2)-mean_auROC(elNo);
+                                end
+                                
+                                [hlCR, hpCR] = boundedline(1:par_out(1).no_elect,mean_auROC, CIauROC, 'r');
+                                
+                                xlim([1 par_out(1).no_elect])
+                                ylim([0 0.5])
+                                
+                                xlabel('Number of electrodes used')
+                                ylabel('auROC')
+                                ylim([-0.3 0.6])
+                                
+                                suptitle(['PAC peak wavelet power LDA ' handles.drgbchoices.PACnames{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                            end
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).ecomb_discriminant_calculated_peak=1;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).ecomb_par_out_peak=par_out;
+                            
+                            %First do trough PAC wavelet power
+                            %LDA for subsets of electrodes for PAC wavelet power
+                            
+                            t_from=2.15;
+                            t_to=2.5;
+                            subt=t((t>=t_from)&(t<=t_to));
+                            
+                            these_all_log_P_timecoursePACwave=zeros(length(handles.drgbchoices.which_electrodes),sum(these_per_corr),length(subt));
+                            these_all_log_P_timecoursePACwave(:,:,:)=all_log_P_timecoursePACwavetrough(PACii,:,these_per_corr,(t>=t_from)&(t<=t_to));
+                            
+                            these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
+                            for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                these_all_which_events(ii,:)= all_which_eventsPACwave(kk,these_per_corr);
+                            end
+                            
+                            fprintf(1, ['LDA processed for PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
+                            fprintf(1,'For these events: ')
+                            for ii=1:length(handles.drgbchoices.events_to_discriminate)
+                                fprintf(1,[handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(ii)} ' '])
+                            end
+                            fprintf(1,'\n')
+                            
+                            
+                            par_out=[];
+                            max_combs=25;
+                            for no_elect=1:length(handles.drgbchoices.which_electrodes)
+                                par_out(no_elect).no_elect=0;
+                                par_out(no_elect).no_timepoints=0;
+                                par_out(no_elect).is_tetrode(1:max_combs+4)=0;
+                                par_out(no_elect).discriminant_correct(1:250)=0;
+                                par_out(no_elect).no_samples=0;
+                                par_out(no_elect).discriminant_correct_shuffled(1:250)=0;
+                                par_out(no_elect).is_tetrode_per_sample(1:250)=0;
+                                par_out(no_elect).auROC(1:250)=0;
+                                par_out(no_elect).no_elect_combs=0;
+                            end
+                            
+                            %parfor no_elect=1:length(handles.drgbchoices.which_electrodes)
+                            parfor no_elect=1:length(handles.drgbchoices.which_electrodes)
+                                
+                                par_out(no_elect).no_elect=length(handles.drgbchoices.which_electrodes);
+                                par_out(no_elect).no_timepoints=length(subt);
+                                %Choose electrode combinations
+                                %(max =25)
+                                
+                                elect_combs=nchoosek(1:length(handles.drgbchoices.which_electrodes),no_elect);
+                                if size(elect_combs,1)>max_combs
+                                    no_chosen=0;
+                                    chosen_elecs=[];
+                                    while no_chosen<max_combs
+                                        add_these=randi(size(elect_combs,1),1,25-no_chosen);
+                                        chosen_elecs=unique([chosen_elecs add_these]);
+                                        no_chosen=length(chosen_elecs);
+                                    end
+                                    elect_combs=elect_combs(chosen_elecs,:);
+                                end
+                                
+                                no_el_combs=size(elect_combs,1);
+                                par_out(no_elect).no_elect_combs=no_el_combs;
+                                par_out(no_elect).is_tetrode(1:no_el_combs)=0;
+                                
+                                %if no_elect=4 also enter each
+                                %tetrode
+                                if no_elect==4
+                                    for tetNo=1:length(handles.drgbchoices.which_electrodes)/4
+                                        %Find if tetrode is included
+                                        tetrode_found=0;
+                                        for ii=1:no_el_combs
+                                            if sum(elect_combs(ii,:)==[(tetNo-1)*4+1:(tetNo-1)*4+4])==no_elect
+                                                tetrode_found=1;
+                                                par_out(no_elect).is_tetrode(ii)=1;
+                                            end
+                                        end
+                                        if tetrode_found==0
+                                            %Add tetrode
+                                            no_el_combs=no_el_combs+1;
+                                            elect_combs(no_el_combs,:)=[(tetNo-1)*4+1:(tetNo-1)*4+4];
+                                            par_out(no_elect).is_tetrode(no_el_combs)=1;
+                                        end
+                                        
+                                    end
+                                    
+                                end
+                                
+                                par_out(no_elect).no_elect_combs=no_el_combs;
+                                
+                                no_samples=0;
+                                for noelc=1:no_el_combs
+                                    for time_point=1:length(subt)
+                                        
+                                        %LFP power per trial per electrode
+                                        measurements=zeros(N,length(elect_combs(noelc,:)));
+                                        measurements(:,:)=these_all_log_P_timecoursePACwave(elect_combs(noelc,:),:,time_point)';
+                                        
+                                        %Enter strings labeling each event (one event for
+                                        %each trial)
+                                        events=[];
+                                        
+                                        for ii=1:N
+                                            this_event=zeros(length(handles.drgbchoices.events_to_discriminate),1);
+                                            this_event=these_all_which_events(:,ii);
+                                            events{ii,1}=handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(logical(this_event))};
+                                        end
+                                        
+                                        tested_events=[];
+                                        shuffled_tested_events=[];
+                                        scores=[];
+                                        for ii=1:N
+                                            %Partition the data into training and test sets.
+                                            
+                                            %Create input and target vectors leaving one trial out
+                                            %For per_input each column has the dF/F for one trial
+                                            %each row is a single time point for dF/F for one of the cells
+                                            %For per_target the top row is 1 if the odor is S+ and 0 if it is
+                                            %S-, and row 2 has 1 for S-
+                                            idxTrn=ones(N,1);
+                                            idxTrn(ii)=0;
+                                            idxTest=zeros(N,1);
+                                            idxTest(ii)=1;
+                                            
+                                            %Store the training data in a table.
+                                            tblTrn=[];
+                                            tblTrn = array2table(measurements(logical(idxTrn),:));
+                                            tblTrn.Y = events(logical(idxTrn));
+                                            
+                                            %Train a discriminant analysis model using the training set and default options.
+                                            %By default this is a regularized linear discriminant analysis (LDA)
+                                            Mdl = fitcdiscr(tblTrn,'Y');
+                                            
+                                            %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
+                                            [label,score] = predict(Mdl,measurements(logical(idxTest),:));
+                                            
+                                            tested_events{ii,1}=label{1};
+                                            scores(ii)=score(2);
+                                            
+                                            %Do LDA with shuffled trials
+                                            shuffled_measurements=zeros(N,size(measurements,2));
+                                            shuffled_measurements(:,:)=measurements(randperm(N),:);
+                                            
+                                            %Store the training data in a table.
+                                            sh_tblTrn=[];
+                                            sh_tblTrn = array2table(shuffled_measurements(logical(idxTrn),:));
+                                            sh_tblTrn.Y = events(logical(idxTrn));
+                                            
+                                            %Train a discriminant analysis model using the training set and default options.
+                                            %By default this is a regularized linear discriminant analysis (LDA)
+                                            sh_Mdl = fitcdiscr(sh_tblTrn,'Y');
+                                            
+                                            %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
+                                            sh_label = predict(Mdl,shuffled_measurements(logical(idxTest),:));
+                                            
+                                            shuffled_tested_events{ii,1}=sh_label{1};
+                                            
+                                        end
+                                        
+                                        %Calculate auROC
+                                        [X,Y,T,AUC] = perfcurve(events,scores',handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)});
+                                        %                                                     auROC(1,time_point)=AUC-0.5;
+                                        %test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
+                                        
+                                        
+                                        per_targets=these_all_which_events;
+                                        
+                                        test_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                        shuffled_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                        for ii=1:N
+                                            for jj=1:length(handles.drgbchoices.events_to_discriminate)
+                                                if strcmp(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(jj)},tested_events{ii})
+                                                    test_out(jj,ii)=1;
+                                                else
+                                                    test_out(jj,ii)=0;
+                                                end
+                                                if strcmp(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(jj)},shuffled_tested_events{ii})
+                                                    shuffled_out(jj,ii)=1;
+                                                else
+                                                    shuffled_out(jj,ii)=0;
+                                                end
+                                            end
+                                        end
+                                        
+                                        %                                                     test_out_per_timepoint(:,:,time_point)=test_out;
+                                        %                                                     shuffled_out_per_timepoint(:,:,time_point)=shuffled_out;
+                                        no_samples=no_samples+1;
+                                        par_out(no_elect).no_samples=no_samples;
+                                        if par_out(no_elect).is_tetrode(noelc)==1
+                                            par_out(no_elect).is_tetrode_per_sample(no_samples)=1;
+                                        else
+                                            par_out(no_elect).is_tetrode_per_sample(no_samples)=0;
+                                        end
+                                        par_out(no_elect).discriminant_correct(no_samples)=100*sum(sum(test_out.*per_targets))/N;
+                                        par_out(no_elect).discriminant_correct_shuffled(no_samples)=100*sum(sum(shuffled_out.*per_targets))/N;
+                                        par_out(no_elect).auROC(no_samples)=AUC-0.5;
+                                        fprintf(1, 'LDA PAC wavelet power percent correct classification %d (for timepoint %d and number of electrodes %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/N,time_point,no_elect);
+                                        
+                                    end
+                                end
+                            end
+                            
+                            if PACii==3
+                                figNo=figNo+1;
+                                try
+                                    close(figNo)
+                                catch
+                                end
+                                
+                                figure(figNo)
+                                
+                                subplot(1,2,1)
+                                hold on
+                                
+                                for elNo=1:par_out(1).no_elect
+                                    
+                                    mean_dcsh(elNo)=mean(par_out(elNo).discriminant_correct_shuffled(1:par_out(elNo).no_samples));
+                                    tempCIdcsh = bootci(1000, {@mean, par_out(elNo).discriminant_correct_shuffled(1:par_out(elNo).no_samples)})';
+                                    CIdcsh(elNo,1)=mean_dcsh(elNo)-tempCIdcsh(1);
+                                    CIdcsh(elNo,2)=tempCIdcsh(2)-mean_dcsh(elNo);
+                                    
+                                    
+                                    mean_dc(elNo)=mean(par_out(elNo).discriminant_correct(1:par_out(elNo).no_samples));
+                                    tempCIdc = bootci(1000, {@mean, par_out(elNo).discriminant_correct(1:par_out(elNo).no_samples)})';
+                                    CIdc(elNo,1)=mean_dc(elNo)-tempCIdc(1);
+                                    CIdc(elNo,2)=tempCIdc(2)-mean_dc(elNo);
+                                    
+                                end
+                                
+                                
+                                [hlCR, hpCR] = boundedline(1:par_out(1).no_elect,mean_dcsh, CIdcsh, 'b');
+                                [hlCR, hpCR] = boundedline(1:par_out(1).no_elect,mean_dc, CIdc, 'r');
+                                
+                                %Plot tetrodes here
+                                elNo=4;
+                                tetNo=0;
+                                for sampNo=1:par_out(elNo).no_timepoints:par_out(elNo).no_samples
+                                    if par_out(elNo).is_tetrode_per_sample(sampNo)==1
+                                        tetNo=tetNo+1;
+                                        mean_pcorr(tetNo)=mean(par_out(elNo).discriminant_correct(sampNo:sampNo+par_out(elNo).no_timepoints-1));
+                                    end
+                                end
+                                
+                                plot(elNo*ones(1,tetNo),mean_pcorr,'or')
+                                
+                                xlim([1 par_out(1).no_elect])
+                                ylim([40 110])
+                                
+                                
+                                xlabel('Number of electrodes used')
+                                ylabel('Percent correct')
+                                
+                                subplot(1,2,2)
+                                hold on
+                                
+                                
+                                for elNo=1:par_out(1).no_elect
+                                    mean_auROC(elNo)=mean(par_out(elNo).auROC(1:par_out(elNo).no_samples));
+                                    tempCIauROC = bootci(1000, {@mean, par_out(elNo).auROC(1:par_out(elNo).no_samples)})';
+                                    CIauROC(elNo,1)=mean_auROC(elNo)-tempCIauROC(1);
+                                    CIauROC(elNo,2)=tempCIauROC(2)-mean_auROC(elNo);
+                                end
+                                
+                                [hlCR, hpCR] = boundedline(1:par_out(1).no_elect,mean_auROC, CIauROC, 'r');
+                                
+                                xlim([1 par_out(1).no_elect])
+                                ylim([0 0.5])
+                                
+                                xlabel('Number of electrodes used')
+                                ylabel('auROC')
+                                ylim([-0.3 0.6])
+                                
+                                suptitle(['PAC wavelet power LDA ' handles.drgbchoices.PACnames{PACii} ' mouse No ' num2str(mouseNo) ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' ' handles.drgbchoices.group_no_names{groupNo}])
+                            end
+                            
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).ecomb_discriminant_calculated_trough=1;
+                            handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).ecomb_par_out_trough=par_out;
+                        end
+                        
+                    else
+                        handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).discriminant_calculated=0;
+                        fprintf(1, ['LDA/PCA not processed for PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' because there were only %d trials (fewer than 20 trials)\n'],mouseNo,N);
+                    end
+                end
+            end
+            
+            
+        end
     end
+    
 end
-
-
 
 pffft1=1;
 
