@@ -8869,6 +8869,7 @@ switch which_display
         figNo=figNo+3;
         pvals=[];
         legends=[];
+        out_mi_rank=[];
         for pacii=1:no_pacii
             
             ii_rank=0;
@@ -8990,7 +8991,7 @@ switch which_display
             fprintf(1, ['\n\nRanksum or t-test p values for average MI for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
             [output_data] = drgMutiRanksumorTtest(input_data);
             
-            
+            out_mi_rank(pacii).mi_rank=mi_rank;
             
 %             for ii=1:ii_rank
 %                 for jj=ii+1:ii_rank
@@ -9618,7 +9619,8 @@ switch which_display
         max_all_shifted_meansPAvar=[];
         all_means_shifted_meanPAvars=[];
         all_CIs_shifted_meanPAvars=[];
-                            
+        out_PAvar_rank=[];
+        
         for pacii=1:no_pacii
             
             ii_rank=0;
@@ -9893,6 +9895,7 @@ switch which_display
             end
             [output_data] = drgMutiRanksumorTtest(input_data);
             
+            out_PAvar_rank(pacii).PAvar_rank=PAvar_rank;
        
             fprintf(1, ['\n\n'])
  
@@ -10743,7 +10746,7 @@ switch which_display
         end
         pfft=1;
         
-        save([handles.PathName handles.drgb.outFileName(1:end-4) handles_pars.output_suffix],'PAvar_rank','mi_rank')
+        save([handles.PathName handles.drgb.outFileName(1:end-4) handles_pars.output_suffix],'out_PAvar_rank','out_mi_rank')
         
         pffft=1;
         
@@ -15373,6 +15376,7 @@ switch which_display
         prof_naive_leg{1}='Naive';
         prof_naive_leg{2}='Proficient';
         
+        wave_power=[];
         
         for pacii=1:no_pacii
             
@@ -15617,18 +15621,18 @@ switch which_display
                                     intercept=this_f_mi(xii_above)-slope*this_x_mi(xii_above);
                                     
                                     this_f=slope*each_mouse_average_PACpower(jj)+intercept;
-                                    
+                                    p3=[];
                                     if grNo==1
                                         if per_ii==1
-                                            plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[1 0 0],'MarkerEdge',[1 0 0],'MarkerSize',10)
+                                            p1=plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[1 0 0],'MarkerEdge',[1 0 0],'MarkerSize',10);
                                         else
-                                            plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[0 0 1],'MarkerEdge',[0 0 1],'MarkerSize',10)
+                                            p2=plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[0 0 1],'MarkerEdge',[0 0 1],'MarkerSize',10);
                                         end
                                     else
                                         if per_ii==1
-                                            plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[1 0.7 0.7],'MarkerEdge',[1 0.7 0.7],'MarkerSize',10)
+                                            p3=plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[1 0.7 0.7],'MarkerEdge',[1 0.7 0.7],'MarkerSize',10);
                                         else
-                                            plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[0.7 0.7 1],'MarkerEdge',[0.7 0.7 1],'MarkerSize',10)
+                                            p4=plot(each_mouse_average_PACpower(jj),this_f,'o','MarkerFace',[0.7 0.7 1],'MarkerEdge',[0.7 0.7 1],'MarkerSize',10);
                                         end
                                     end
                                     
@@ -15658,6 +15662,14 @@ switch which_display
                 title(evTypeLabels{evNo})
                 xlabel('Trough PAC power (dB)')
                 ylabel('Probability')
+                if isempty(p3)
+                    legend([p1 p2],{'Proficient','Naive'})
+                else
+                    if (~isempty(p3))&(~isempty(p4))
+                        legend([p1 p2 p3 p4],{['Proficient' handles_drgb.drgbchoices.group_no_names{1}],['Naive' handles_drgb.drgbchoices.group_no_names{1}],...
+                            ['Proficient' handles_drgb.drgbchoices.group_no_names{2}],['Naive' handles_drgb.drgbchoices.group_no_names{2}]})
+                    end
+                end
                 xlim([minpower-0.1*(maxpower-minpower) maxpower+0.1*(maxpower-minpower)])
             end
 
@@ -15735,6 +15747,8 @@ switch which_display
             output_data = drgMutiRanksumorTtest(input_datapt);
 
             fprintf(1, ['\n\n'])
+            
+            wave_power(pacii).input_datapt=input_datapt;
 
         end
         
@@ -16014,6 +16028,7 @@ switch which_display
             
         end
         
+        save([handles.PathName handles.drgb.outFileName(1:end-4) handles_pars.output_suffix],'wave_power')
         pfft=1;
         
 end

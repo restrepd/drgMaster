@@ -4,7 +4,7 @@ function [out_times,freq,all_Cxy_timecourse, trial_numbers, perCorr_pertr, which
 %Borjigin et al. www.pnas.org/cgi/content/short/1308285110
 %Coherence between EEG channels is measured by amplitude squared coherence 
 %Cxy(f) (mscohere.m in MATLAB signal toolbox; MathWorks, Inc.), which is a 
-%coherence estimate of the input signals x and y using Welch?s averaged, 
+%coherence estimate of the input signals x and y using Welch's averaged, 
 %modified periodogram method. The magnitude squared coherence estimate 
 %Cxy(f) is a function of frequency with values between 0 and 1 that 
 %indicates how well x corresponds to y at each frequency.

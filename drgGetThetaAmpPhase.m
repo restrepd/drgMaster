@@ -222,7 +222,7 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 %(time_end-time_start)+2*time_pad
 
 
-% % %Plot for troubleshooting
+% % % %Plot for troubleshooting
 % figure(10)
 % subplot(3,1,1)
 % plot(LFPgenv)
@@ -255,6 +255,47 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % timeAngle=([1:length(trimmed_anglethetaLFP)]/Fs)-2;
 % plot(timeAngle,(180/pi)*(trimmed_anglethetaLFP+pi),'-b')
 % xlim([-2 5])
+% 
+% 
+% % Plots for Daniel's Fig. 1
+% % Raw data
+% 
+% hFig=figure(18);
+% set(hFig, 'units','normalized','position',[.1 .4 .6 .25])
+% time=[1:length(LFPhigh(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,LFPhigh(time_pad*Fs+1:end-time_pad*Fs),'-b')
+% xlabel('Time (sec)')
+% ylim([-10000 10000])
+% ylabel('uv')
+% 
+% %Theta
+% hFig=figure(19);
+% set(hFig, 'units','normalized','position',[.1 .4 .6 .25])
+% time=[1:length(thfiltLFP(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,thfiltLFP(time_pad*Fs+1:end-time_pad*Fs),'-b')
+% xlabel('Time (sec)')
+% ylabel('uv')
+% ylim([-5000 5000])
+% 
+% %Theta phase
+% hFig=figure(20);
+% set(hFig, 'units','normalized','position',[.1 .4 .6 .25])
+% time=[1:length(anglethetaLFP(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,anglethetaLFP(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-b')
+% xlabel('Time (sec)')
+% ylabel('uv')
+% ylim([-200 200])
+% 
+% 
+% %Gamma + envelope
+% hFig=figure(21);
+% set(hFig, 'units','normalized','position',[.1 .4 .6 .25])
+% hold on
+% time=[1:length(LFPgenv(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,filtLFPgamma(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-b')
+% plot(time,LFPgenv(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-r')
+% plot(time,-LFPgenv(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-r')
+% xlabel('Time (sec)')
 
 pffft=1;
 

@@ -19,6 +19,7 @@ end
 if minCxy==maxCxy
     minCxy=maxCxy-0.01;
 end
+
 %Plot the timecourse
 try
     close(1)
@@ -53,4 +54,17 @@ shading interp
 ax=gca;
 set(ax,'XTickLabel','')
 % end
+
+% %This code is here for Daniels' Figure 1
+% %Plot the timecourse
+% try
+%     close(3)
+% catch
+% end
+% hFig3 = figure(3);
+% set(hFig3, 'units','normalized','position',[.07 .1 .75 .3])
+% plot(t',mean(Cxy_timecourse((f>=6)&(f<=14),:))','-k','LineWidth',3)
+% ylim([0 1])
+% xlabel('Time (sec)')
+% ylabel('Coherence')
 pffft=1
