@@ -15373,8 +15373,9 @@ switch which_display
         %Now do the cumulative histograms and ranksums for PAC power for each electrode calculated with all sessons per mouse
         pvals=[];
         legends=[];
-        prof_naive_leg{1}='Naive';
-        prof_naive_leg{2}='Proficient';
+%         prof_naive_leg{1}='Naive';
+%         prof_naive_leg{2}='Proficient';
+        prof_naive_leg=handles_pars.per_lab;
         
         wave_power=[];
         

@@ -785,7 +785,7 @@ switch which_display
                     odorhl=plot([0 2.5],[10 10],'-k','LineWidth',5);
                     plot([2.5 2.5],[0 100],'-k')
                     
-                    title(['LDA for teta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii}])
+                    title(['LDA for theta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii}])
                     
                     xlabel('Time (sec)')
                     ylabel(['% correct '  handles_out.drgbchoices.per_lab{percent_correct_ii}])
@@ -812,7 +812,7 @@ switch which_display
                     ylabel('AUC peak')
                     xlabel('AUC trough')
                     legend('Original','Shuffled')
-                    title(['Area under the curve for teta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii}])
+                    title(['Area under the curve for theta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii}])
                     
                     
                     
@@ -916,7 +916,7 @@ switch which_display
                     odorhl=plot([0 2.5],[this_yl(1)+0.1*(this_yl(2)-this_yl(1)) this_yl(1)+0.1*(this_yl(2)-this_yl(1))],'-k','LineWidth',5);
                     plot([2.5 2.5],this_yl,'-k')
                     
-                    title(['Dimensionality for teta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii}])
+                    title(['Dimensionality for theta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii}])
                     legend([hltrough hlpeak],{'Trough','Peak'})
                     xlabel('Time (sec)')
                     ylabel(['Dimensionality '  handles_out.drgbchoices.per_lab{percent_correct_ii}])
