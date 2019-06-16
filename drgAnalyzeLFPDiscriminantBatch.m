@@ -18,6 +18,8 @@ warning('off')
 close all
 clear all
 
+
+
 t_odor_arrival=0.1;
 
 which_display=3;
@@ -34,6 +36,10 @@ end
 
 discriminant_name=[pname fname];
 load(discriminant_name)
+
+t_pac=handles_out.t_power';
+t_power=handles_out.t_power';
+handles.drg=handles_out.drg;
 
 figNo=0;
 
