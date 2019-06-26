@@ -576,6 +576,8 @@ if handles.displayData==1
     fprintf(1, ['\nPCA processed for %d out of %d trials \n\n'], no_trials,trials_attempted);
 end
 
+% pangle=pi*peakAngle/180;
+% save('cs_minus.mat','mod_indx','pangle')
 pfffft=1;
 
 

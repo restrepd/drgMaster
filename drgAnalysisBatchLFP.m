@@ -165,7 +165,7 @@ end
 
 refWin=handles_pars.refWin;
 
- 
+  
 %% The code processing pairwise batch LFP starts here
 
 close all
@@ -8870,80 +8870,207 @@ switch which_display
         pvals=[];
         legends=[];
         out_mi_rank=[];
+        ii_rank=0;
         for pacii=1:no_pacii
             
-            ii_rank=0;
-            mi_rank=[];
+ 
             glm_ii=0;
             glm_mi=[];
             maxmi=-200;
             minmi=200;
+            input_data=[];
+            ii=0;
+            prof_naive_leg{1}='Proficient';
+            prof_naive_leg{2}='Naive';
             
-            try
-                close(pacii+figNo)
-            catch
-            end
-            hFig=figure(pacii+figNo);
-            
-            if length(eventType)>2
-                set(hFig, 'units','normalized','position',[.1 .1 .7 .8])
-            else
-                set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
-            end
-            
-            
+            %Find out which groups the user is including
+            group_included=zeros(1,max(handles_drgb.drgbchoices.group_no))
             for evNo=1:length(eventType)
-                
-                subplot(ceil(length(eventType)/2),2,evNo)
-                hold on
-                
                 for grNo=1:max(handles_drgb.drgbchoices.group_no)
-                    
-                    
-                    
                     for per_ii=1:2      %performance bins. blue = naive, red = proficient
-                        
-                        
                         if sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
-                            
-                            [f_mi,x_mi] = drg_ecdf(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)));
-                            cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).f_mi=f_mi;
-                            cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).x_mi=x_mi;
-                            if grNo==1
-                                if per_ii==1
-                                    legends.pacii(pacii).evNo(evNo).p1=plot(x_mi,f_mi,'Color',[1 0 0],'LineWidth',3);
-                                else
-                                    legends.pacii(pacii).evNo(evNo).p2=plot(x_mi,f_mi,'Color',[0 0 1],'LineWidth',3);
-                                end
-                            else
-                                if per_ii==1
-                                    legends.pacii(pacii).evNo(evNo).p3=plot(x_mi,f_mi,'Color',[1 0.7 0.7],'LineWidth',3);
-                                else
-                                    legends.pacii(pacii).evNo(evNo).p4=plot(x_mi,f_mi,'Color',[0.7 0.7 1],'LineWidth',3);
-                                end
-                            end
-                            
-                            
-                            %Save data for ranksum
-                            ii_rank=ii_rank+1;
-                            mi_rank(ii_rank).mi=mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo));
-                            mi_rank(ii_rank).per_ii=per_ii;
-                            mi_rank(ii_rank).grNo=grNo;
-                            mi_rank(ii_rank).evNo=evNo;
-                            maxmi=max([maxmi max(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))]);
-                            minmi=min([minmi min(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))]);
+                            group_included(grNo)=1;
                         end
                     end
-                    
                 end
-                
-                title(evTypeLabels{evNo})
-                xlabel('MI')
-                ylabel('Probability')
             end
             
-            
-            
+            %If this is only one group plot for Justin's paper
+            if sum(group_included)==1
+                try
+                    close(pacii+figNo)
+                catch
+                end
+                hFig=figure(pacii+figNo);
+                
+                if length(eventType)>2
+                    set(hFig, 'units','normalized','position',[.1 .1 .7 .8])
+                else
+                    set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
+                end
+                hold on
+                
+                for evNo=1:length(eventType)
+                    
+                  
+                    
+                    for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                        
+                        
+                        
+                        for per_ii=1:2      %performance bins. blue = naive, red = proficient
+                            
+                            
+                            if sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
+                                
+                                [f_mi,x_mi] = drg_ecdf(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)));
+                                cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).f_mi=f_mi;
+                                cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).x_mi=x_mi;
+                                if evNo==1
+                                    if per_ii==1
+                                        legends.pacii(pacii).evNo(evNo).per_ii(per_ii).p=plot(x_mi,f_mi,'Color',[1 0 0],'LineWidth',3);
+                                    else
+                                        legends.pacii(pacii).evNo(evNo).per_ii(per_ii).p=plot(x_mi,f_mi,'Color',[0 0 1],'LineWidth',3);
+                                    end
+                                else
+                                    if per_ii==1
+                                        legends.pacii(pacii).evNo(evNo).per_ii(per_ii).p=plot(x_mi,f_mi,'Color',[1 0.7 0.7],'LineWidth',3);
+                                    else
+                                        legends.pacii(pacii).evNo(evNo).per_ii(per_ii).p=plot(x_mi,f_mi,'Color',[0.7 0.7 1],'LineWidth',3);
+                                    end
+                                end
+                                
+                                
+                                %Save data for glm and ranksum
+                                glm_mi.data(glm_ii+1:glm_ii+length(x_mi))=x_mi;
+                                glm_mi.group(glm_ii+1:glm_ii+length(x_mi))=grNo*ones(1,length(x_mi));
+                                glm_mi.perCorr(glm_ii+1:glm_ii+length(x_mi))=per_ii*ones(1,length(x_mi));
+                                glm_mi.event(glm_ii+1:glm_ii+length(x_mi))=evNo*ones(1,length(x_mi));
+                                glm_ii=glm_ii+length(x_mi);
+                                
+                                ii=ii+1;
+                                input_data(ii).data=x_mi;
+                                input_data(ii).description=[evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
+                                
+                                ii_rank=ii_rank+1;
+                                mi_rank(ii_rank).mi=mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo));
+                                mi_rank(ii_rank).per_ii=per_ii;
+                                mi_rank(ii_rank).grNo=grNo;
+                                mi_rank(ii_rank).evNo=evNo;
+                                
+                                maxmi=max([maxmi max(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))]);
+                                minmi=min([minmi min(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))]);
+                            end
+                        end
+                        
+                    end
+ 
+                    xlabel('MI')
+                    ylabel('Probability')
+                end
+                
+                
+                
+                
+                    xlim([minmi-0.1*(maxmi-minmi) maxmi+0.1*(maxmi-minmi)])
+               
+                
+                %suptitle(['Average MI for each electrode calculated per  for PAC theta/' freq_names{pacii+1}])
+                
+                %Now do the ranksums
+                
+                
+           
+                
+                %Perform the glm
+                fprintf(1, ['glm for average MI for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
+                
+                if sum(glm_mi.group==1)==length(glm_mi.group)
+                    %There is only one group here (e.g. for Justin's paper we only include
+                    %forward)
+                    fprintf(1, ['\n\nglm for MI for Theta/' freq_names{pacii+1} '\n'])
+                    tbl = table(glm_mi.data',glm_mi.perCorr',glm_mi.event',...
+                        'VariableNames',{'MI','perCorr','event'});
+                    mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
+                        ,'CategoricalVars',[2,3])
+                else
+                    
+                    fprintf(1, ['\n\nglm for MI for Theta/' freq_names{pacii+1} '\n'])
+                    tbl = table(glm_mi.data',glm_mi.group',glm_mi.perCorr',glm_mi.event',...
+                        'VariableNames',{'MI','group','perCorr','event'});
+                    mdl = fitglm(tbl,'MI~group+perCorr+event+perCorr*group*event'...
+                        ,'CategoricalVars',[2,3,4])
+                end
+                
+                %Do the ranksum/t-test
+                fprintf(1, ['\n\nRanksum or t-test p values for average MI for each electrode calculated per mouse for PAC theta' freq_names{pacii+1} '\n'])
+                [output_data] = drgMutiRanksumorTtest(input_data);
+                
+                out_mi_rank(pacii).mi_rank=mi_rank;
+            else
+                try
+                    close(pacii+figNo)
+                catch
+                end
+                hFig=figure(pacii+figNo);
+                
+                if length(eventType)>2
+                    set(hFig, 'units','normalized','position',[.1 .1 .7 .8])
+                else
+                    set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+                end
+                for evNo=1:length(eventType)
+                    
+                    subplot(ceil(length(eventType)/2),2,evNo)
+                    hold on
+                    
+                    for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                        
+                        
+                        
+                        for per_ii=1:2      %performance bins. blue = naive, red = proficient
+                            
+                            
+                            if sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
+                                
+                                [f_mi,x_mi] = drg_ecdf(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)));
+                                cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).f_mi=f_mi;
+                                cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).x_mi=x_mi;
+                                if grNo==1
+                                    if per_ii==1
+                                        legends.pacii(pacii).evNo(evNo).p1=plot(x_mi,f_mi,'Color',[1 0 0],'LineWidth',3);
+                                    else
+                                        legends.pacii(pacii).evNo(evNo).p2=plot(x_mi,f_mi,'Color',[0 0 1],'LineWidth',3);
+                                    end
+                                else
+                                    if per_ii==1
+                                        legends.pacii(pacii).evNo(evNo).p3=plot(x_mi,f_mi,'Color',[1 0.7 0.7],'LineWidth',3);
+                                    else
+                                        legends.pacii(pacii).evNo(evNo).p4=plot(x_mi,f_mi,'Color',[0.7 0.7 1],'LineWidth',3);
+                                    end
+                                end
+                                
+                                
+                                %Save data for ranksum
+                                ii_rank=ii_rank+1;
+                                mi_rank(ii_rank).mi=mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo));
+                                mi_rank(ii_rank).per_ii=per_ii;
+                                mi_rank(ii_rank).grNo=grNo;
+                                mi_rank(ii_rank).evNo=evNo;
+                                maxmi=max([maxmi max(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))]);
+                                minmi=min([minmi min(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))]);
+                            end
+                        end
+                        
+                    end
+                    
+                    title(evTypeLabels{evNo})
+                    xlabel('MI')
+                    ylabel('Probability')
+                end
+                
+                
+                
             for evNo=1:length(eventType)
                 subplot(ceil(length(eventType)/2),2,evNo)
                 xlim([minmi-0.1*(maxmi-minmi) maxmi+0.1*(maxmi-minmi)])
@@ -8992,7 +9119,7 @@ switch which_display
             [output_data] = drgMutiRanksumorTtest(input_data);
             
             out_mi_rank(pacii).mi_rank=mi_rank;
-            
+            end
 %             for ii=1:ii_rank
 %                 for jj=ii+1:ii_rank
 %                     [p, r_or_t]=drg_ranksum_or_ttest(mi_rank(ii).mi,mi_rank(jj).mi);
@@ -9089,51 +9216,89 @@ switch which_display
                                 end
                                 
                                 %Show the mean in the cumulative histos
-                                figure(pacii+figNo-3)
-                                subplot(ceil(length(eventType)/2),2,evNo)
-                                hold on
-                                
-                                
-                                for jj=1:length(each_mouse_average_MI)
-                                    this_f_mi=[];
-                                    this_f_mi=cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).f_mi;
+                                if sum(group_included)==1
                                     
-                                    this_x_mi=[];
-                                    this_x_mi=cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).x_mi;
+                                    figure(pacii+figNo-3)
+                                    hold on
                                     
-                                    xii_below=find(this_x_mi<each_mouse_average_MI(jj),1,'last');
-                                    xii_above=find(this_x_mi>each_mouse_average_MI(jj),1,'first');
                                     
-                                    slope=(this_f_mi(xii_above)-this_f_mi(xii_below))/(this_x_mi(xii_above)-this_x_mi(xii_below));
-                                    intercept=this_f_mi(xii_above)-slope*this_x_mi(xii_above);
-                                    
-                                    this_f=slope*each_mouse_average_MI(jj)+intercept;
-                                    
-                                    if grNo==1
-                                        if per_ii==1
-                                            plot(each_mouse_average_MI(jj),this_f,'o','MarkerFace',[1 0 0],'MarkerEdge',[1 0 0],'MarkerSize',10)
+                                    for jj=1:length(each_mouse_average_MI)
+                                        this_f_mi=[];
+                                        this_f_mi=cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).f_mi;
+                                        
+                                        this_x_mi=[];
+                                        this_x_mi=cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).x_mi;
+                                        
+                                        xii_below=find(this_x_mi<each_mouse_average_MI(jj),1,'last');
+                                        xii_above=find(this_x_mi>each_mouse_average_MI(jj),1,'first');
+                                        
+                                        slope=(this_f_mi(xii_above)-this_f_mi(xii_below))/(this_x_mi(xii_above)-this_x_mi(xii_below));
+                                        intercept=this_f_mi(xii_above)-slope*this_x_mi(xii_above);
+                                        
+                                        this_f=slope*each_mouse_average_MI(jj)+intercept;
+                                        
+                                        if evNo==1
+                                            if per_ii==1
+                                                plot(each_mouse_average_MI(jj),this_f,'o','MarkerFace',[1 0 0],'MarkerEdge',[1 0 0],'MarkerSize',10)
+                                            else
+                                                plot(each_mouse_average_MI(jj),this_f,'o','MarkerFace',[0 0 1],'MarkerEdge',[0 0 1],'MarkerSize',10)
+                                            end
                                         else
-                                            plot(each_mouse_average_MI(jj),this_f,'o','MarkerFace',[0 0 1],'MarkerEdge',[0 0 1],'MarkerSize',10)
+                                            if per_ii==1
+                                                plot(each_mouse_average_MI(jj),this_f,'o','MarkerFace',[1 0.7 0.7],'MarkerEdge',[1 0.7 0.7],'MarkerSize',10)
+                                            else
+                                                plot(each_mouse_average_MI(jj),this_f,'o','MarkerFace',[0.7 0.7 1],'MarkerEdge',[0.7 0.7 1],'MarkerSize',10)
+                                            end
                                         end
-                                    else
-                                        if per_ii==1
-                                            plot(each_mouse_average_MI(jj),this_f,'o','MarkerFace',[1 0.7 0.7],'MarkerEdge',[1 0.7 0.7],'MarkerSize',10)
-                                        else
-                                            plot(each_mouse_average_MI(jj),this_f,'o','MarkerFace',[0.7 0.7 1],'MarkerEdge',[0.7 0.7 1],'MarkerSize',10)
-                                        end
+                                        
                                     end
                                     
+                                else
+                                    figure(pacii+figNo-3)
+                                    subplot(ceil(length(eventType)/2),2,evNo)
+                                    hold on
+                                    
+                                    
+                                    for jj=1:length(each_mouse_average_MI)
+                                        this_f_mi=[];
+                                        this_f_mi=cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).f_mi;
+                                        
+                                        this_x_mi=[];
+                                        this_x_mi=cum_histodB.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).x_mi;
+                                        
+                                        xii_below=find(this_x_mi<each_mouse_average_MI(jj),1,'last');
+                                        xii_above=find(this_x_mi>each_mouse_average_MI(jj),1,'first');
+                                        
+                                        slope=(this_f_mi(xii_above)-this_f_mi(xii_below))/(this_x_mi(xii_above)-this_x_mi(xii_below));
+                                        intercept=this_f_mi(xii_above)-slope*this_x_mi(xii_above);
+                                        
+                                        this_f=slope*each_mouse_average_MI(jj)+intercept;
+                                        
+                                        if grNo==1
+                                            if per_ii==1
+                                                plot(each_mouse_average_MI(jj),this_f,'o','MarkerFace',[1 0 0],'MarkerEdge',[1 0 0],'MarkerSize',10)
+                                            else
+                                                plot(each_mouse_average_MI(jj),this_f,'o','MarkerFace',[0 0 1],'MarkerEdge',[0 0 1],'MarkerSize',10)
+                                            end
+                                        else
+                                            if per_ii==1
+                                                plot(each_mouse_average_MI(jj),this_f,'o','MarkerFace',[1 0.7 0.7],'MarkerEdge',[1 0.7 0.7],'MarkerSize',10)
+                                            else
+                                                plot(each_mouse_average_MI(jj),this_f,'o','MarkerFace',[0.7 0.7 1],'MarkerEdge',[0.7 0.7 1],'MarkerSize',10)
+                                            end
+                                        end
+                                        
+                                    end
                                 end
-                                
                                 
                                 figure(pacii+figNo)
                                 hold on
                                 
-                                %Save data for anovan
-                                data_MI_per_mouse=[data_MI_per_mouse mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))];
-                                prof_naive_per_mouse=[prof_naive_per_mouse per_ii*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
-                                events_per_mouse=[events_per_mouse evNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
-                                groups_per_mouse=[groups_per_mouse grNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+%                                 %Save data for anovan
+%                                 data_MI_per_mouse=[data_MI_per_mouse mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))];
+%                                 prof_naive_per_mouse=[prof_naive_per_mouse per_ii*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+%                                 events_per_mouse=[events_per_mouse evNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+%                                 groups_per_mouse=[groups_per_mouse grNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
                             end
                         end
                     end
@@ -9188,18 +9353,35 @@ switch which_display
 %             
         end
         
-        for pacii=1:no_pacii
-            for evNo=1:length(eventType)
+        
+        if sum(group_included)~=1
+            
+            for pacii=1:no_pacii
+                for evNo=1:length(eventType)
+                    figure(pacii+figNo-3)
+                     
+                    subplot(ceil(length(eventType)/2),2,evNo)
+
+                    hold on
+                    try
+                        legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
+                            [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
+                    catch
+                    end
+
+                end
+                suptitle(['Average MI for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1}])
+            end
+        else
+            for pacii=1:no_pacii
                 figure(pacii+figNo-3)
-                subplot(ceil(length(eventType)/2),2,evNo)
-                hold on
                 try
-                    legend([legends.pacii(pacii).evNo(evNo).p1 legends.pacii(pacii).evNo(evNo).p2 legends.pacii(pacii).evNo(evNo).p3 legends.pacii(pacii).evNo(evNo).p4],[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive'],...
-                        [handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'])
+                    legend([legends.pacii(pacii).evNo(1).per_ii(1).p legends.pacii(pacii).evNo(1).per_ii(2).p legends.pacii(pacii).evNo(2).per_ii(1).p legends.pacii(pacii).evNo(2).per_ii(2).p],[evTypeLabels{1} ' proficient'],[evTypeLabels{1} ' naive'],...
+                        [evTypeLabels{2} ' proficient'],[evTypeLabels{2} ' naive'])
                 catch
                 end
+                title(['Average MI for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1}])
             end
-            suptitle(['Average MI for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1}])
         end
         
         %Now do the cumulative histograms and ranksums for meanVectorLength per electrode per mouse
@@ -9558,6 +9740,7 @@ switch which_display
         %Compute the peakAngle variance average per mouse
     for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
             
+     
             
             ii_gr_included=0;
             

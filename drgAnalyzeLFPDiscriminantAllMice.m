@@ -81,7 +81,7 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
         
         for percent_correct_ii=1:2
             
-            
+             
             p_val_lick=handles_all.discriminant_PACwavepower_all_mice.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_lick;
             p_val_trough=handles_all.discriminant_PACwavepower_all_mice.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_trough;
             p_val_peak=handles_all.discriminant_PACwavepower_all_mice.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_peak;
@@ -337,10 +337,10 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             mean_trough_t_detect=mean(trough_t_detect)';
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).mean_trough_t_detect=mean_trough_t_detect;
             CItrough = bootci(1000, {@mean, trough_t_detect})';
-            p2=bar(2+bar_offset,mean_trough_t_detect,'b');
-            plot((2+bar_offset)*ones(1,length(trough_t_detect)),trough_t_detect,'ok')
-            plot([2+bar_offset 2+bar_offset],CItrough,'-k','LineWidth',2)
-            plot(2+bar_offset,t_detect_trough_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            p2=bar(3+bar_offset,mean_trough_t_detect,'b');
+            plot((3+bar_offset)*ones(1,length(trough_t_detect)),trough_t_detect,'ok')
+            plot([3+bar_offset 3+bar_offset],CItrough,'-k','LineWidth',2)
+            plot(3+bar_offset,t_detect_trough_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).t_detect_trough_all=t_detect_trough_all;
             
             glm_disct.data(glm_ii+1:glm_ii+length(trough_t_detect))=trough_t_detect;
@@ -358,10 +358,10 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             mean_peak_t_detect=mean(peak_t_detect)';
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).mean_peak_t_detect=mean_peak_t_detect;
             CIpeak = bootci(1000, {@mean, peak_t_detect})';
-            p3=bar(3+bar_offset,mean_peak_t_detect,'r');
-            plot((3+bar_offset)*ones(1,length(peak_t_detect)),peak_t_detect,'ok')
-            plot([3+bar_offset 3+bar_offset],CIpeak,'-k','LineWidth',2)
-            plot(3+bar_offset,t_detect_peak_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            p3=bar(2+bar_offset,mean_peak_t_detect,'r');
+            plot((2+bar_offset)*ones(1,length(peak_t_detect)),peak_t_detect,'ok')
+            plot([2+bar_offset 2+bar_offset],CIpeak,'-k','LineWidth',2)
+            plot(2+bar_offset,t_detect_peak_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).t_detect_peak_all=t_detect_peak_all;
             
             glm_disct.data(glm_ii+1:glm_ii+length(peak_t_detect))=peak_t_detect;
@@ -376,12 +376,12 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             p_disct_stats(ii_stats).percent_correct=percent_correct_ii;
             
             %Plot the lines between the all mouse data points
-            plot([1+bar_offset 2+bar_offset 3+bar_offset],[t_detect_licks_all t_detect_trough_all t_detect_peak_all],'-k','LineWidth',3)
+            plot([1+bar_offset 2+bar_offset 3+bar_offset],[t_detect_licks_all t_detect_peak_all t_detect_trough_all],'-k','LineWidth',3)
             
             %Plot the lines between the each mouse points
             for ii=1:length(peak_t_detect)
-                plot([1+bar_offset 2+bar_offset],[lick_t_detect(ii) trough_t_detect(ii)],'-k')
-                plot([2+bar_offset 3+bar_offset],[trough_t_detect(ii) peak_t_detect(ii)],'-k')
+                plot([1+bar_offset 2+bar_offset],[lick_t_detect(ii) peak_t_detect(ii)],'-k')
+                plot([2+bar_offset 3+bar_offset],[peak_t_detect(ii) trough_t_detect(ii)],'-k')
             end
             
             

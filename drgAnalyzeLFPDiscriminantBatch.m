@@ -46,7 +46,7 @@ figNo=0;
 
 
 %Define the windows for analysis
-window_start=[-1 0.5];
+window_start=[-1 1.5];
 window_end=[0 2.5];
 no_wins=2;
 
@@ -603,6 +603,7 @@ switch which_display
         %Plot average percent correct for the LDA for peak and trough for
         %wavelet power referenced to PAC phase
         t=handles_out.t_power;
+        handles_out2=[];
         
         for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             p_correct_stats=[];
@@ -962,11 +963,13 @@ switch which_display
             catch
             end
             
-           
+            handles_out2.PACii(PACii).glm_dim=glm_dim;
             
             pffft=1;
         end
         
+        output_name=[pname 'dim_' fname];
+        save(output_name,'handles_out2','-v7.3')
         
         
         %Plot PCA results
@@ -1440,5 +1443,6 @@ switch which_display
 
 end
 
-
+fprintf(1, ['Finished processing ' discriminant_name '\n'])
+           
 
