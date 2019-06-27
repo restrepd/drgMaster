@@ -317,9 +317,12 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).mean_lick_t_detect=mean_lick_t_detect;
             CIlicks = bootci(1000, {@mean, lick_t_detect})';
             p1=bar(1+bar_offset,mean_lick_t_detect,'EdgeColor','k','FaceColor',[0.7 0.7 0.7]);
-            plot((1+bar_offset)*ones(1,length(lick_t_detect)),lick_t_detect,'ok')
+            
+            plot((1+bar_offset+0.25)*ones(1,length(lick_t_detect)),lick_t_detect,'ok')
+            
             plot([1+bar_offset 1+bar_offset],CIlicks,'-k','LineWidth',2)
-            plot(1+bar_offset,t_detect_licks_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            plot(1+bar_offset-0.25,t_detect_licks_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).t_detect_licks_all=t_detect_licks_all;
             
             glm_disct.data(glm_ii+1:glm_ii+length(lick_t_detect))=lick_t_detect;
@@ -338,9 +341,12 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).mean_trough_t_detect=mean_trough_t_detect;
             CItrough = bootci(1000, {@mean, trough_t_detect})';
             p2=bar(3+bar_offset,mean_trough_t_detect,'b');
-            plot((3+bar_offset)*ones(1,length(trough_t_detect)),trough_t_detect,'ok')
+            
+            plot((3+bar_offset+0.25)*ones(1,length(trough_t_detect)),trough_t_detect,'ok')
+            
             plot([3+bar_offset 3+bar_offset],CItrough,'-k','LineWidth',2)
-            plot(3+bar_offset,t_detect_trough_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            plot(3+bar_offset-0.25,t_detect_trough_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).t_detect_trough_all=t_detect_trough_all;
             
             glm_disct.data(glm_ii+1:glm_ii+length(trough_t_detect))=trough_t_detect;
@@ -359,9 +365,11 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).mean_peak_t_detect=mean_peak_t_detect;
             CIpeak = bootci(1000, {@mean, peak_t_detect})';
             p3=bar(2+bar_offset,mean_peak_t_detect,'r');
-            plot((2+bar_offset)*ones(1,length(peak_t_detect)),peak_t_detect,'ok')
+            
+            plot((2+bar_offset+0.25)*ones(1,length(peak_t_detect)),peak_t_detect,'ok')
+            
             plot([2+bar_offset 2+bar_offset],CIpeak,'-k','LineWidth',2)
-            plot(2+bar_offset,t_detect_peak_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            plot(2+bar_offset-0.25,t_detect_peak_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).t_detect_peak_all=t_detect_peak_all;
             
             glm_disct.data(glm_ii+1:glm_ii+length(peak_t_detect))=peak_t_detect;
@@ -376,12 +384,12 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             p_disct_stats(ii_stats).percent_correct=percent_correct_ii;
             
             %Plot the lines between the all mouse data points
-            plot([1+bar_offset 2+bar_offset 3+bar_offset],[t_detect_licks_all t_detect_peak_all t_detect_trough_all],'-k','LineWidth',3)
+            plot([1+bar_offset-0.25 2+bar_offset-0.25 3+bar_offset-0.25],[t_detect_licks_all t_detect_peak_all t_detect_trough_all],'-k','LineWidth',3)
             
             %Plot the lines between the each mouse points
             for ii=1:length(peak_t_detect)
-                plot([1+bar_offset 2+bar_offset],[lick_t_detect(ii) peak_t_detect(ii)],'-k')
-                plot([2+bar_offset 3+bar_offset],[peak_t_detect(ii) trough_t_detect(ii)],'-k')
+                plot([1+bar_offset+0.25 2+bar_offset+0.25],[lick_t_detect(ii) peak_t_detect(ii)],'-k')
+                plot([2+bar_offset+0.25 3+bar_offset+0.25],[peak_t_detect(ii) trough_t_detect(ii)],'-k')
             end
             
             
@@ -521,9 +529,13 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).mean_trough_auc=mean_trough_auc;
             CItrough = bootci(1000, {@mean, auc_trough})';
             p1=bar(2+bar_offset,mean_trough_auc,'b');
-            plot((2+bar_offset)*ones(1,length(auc_trough)),auc_trough,'ok')
+            
+            plot((2+bar_offset+0.25)*ones(1,length(auc_trough)),auc_trough,'ok')
+            
             plot([2+bar_offset 2+bar_offset],CItrough,'-k')
-            plot(2+bar_offset,auc_trough_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            
+            plot(2+bar_offset-0.25,auc_trough_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auc_trough_all=auc_trough_all;
             
             glm_auc.data(glm_ii+1:glm_ii+length(auc_trough))=auc_trough;
@@ -544,9 +556,13 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).mean_peak_auc=mean_peak_auc;
             CIpeak = bootci(1000, {@mean, auc_peak})';
             p2=bar(3+bar_offset,mean_peak_auc,'r');
-            plot((3+bar_offset)*ones(1,length(auc_peak)),auc_peak,'ok')
+            
+            plot((3+bar_offset+0.25)*ones(1,length(auc_peak)),auc_peak,'ok')
+            
             plot([3+bar_offset 3+bar_offset],CIpeak,'-k')
-            plot(3+bar_offset,auc_peak_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            
+            plot(3+bar_offset-0.25,auc_peak_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auc_peak_all=auc_peak_all;
             
              glm_auc.data(glm_ii+1:glm_ii+length(auc_peak))=auc_peak;
@@ -564,19 +580,23 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             
             %Trough to peak
             for ii=1:length(auc_peak)
-                plot([2+bar_offset 3+bar_offset],[auc_trough(ii) auc_peak(ii)],'-k')
+                plot([2+bar_offset+0.25 3+bar_offset+0.25],[auc_trough(ii) auc_peak(ii)],'-k')
             end
             
-            plot([2+bar_offset 3+bar_offset],[auc_trough_all auc_peak_all],'-k','LineWidth',2)
+            plot([2+bar_offset-0.25 3+bar_offset-0.25],[auc_trough_all auc_peak_all],'-k','LineWidth',2)
             
             %Trough shuffled
             mean_trough_shuffled_auc=mean(auc_trough_shuffled)';
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).mean_trough_shuffled_auc=mean_trough_shuffled_auc;
             CItrough_shuffled = bootci(1000, {@mean, auc_trough_shuffled})';
             p3=bar(5+bar_offset,mean_trough_shuffled_auc,'EdgeColor',[0.7 0.7 1],'FaceColor',[0.7 0.7 1]);
-            plot(5*ones(1,length(auc_trough_shuffled)),auc_trough_shuffled,'ok')
+            
+            plot((5+0.25)*ones(1,length(auc_trough_shuffled)),auc_trough_shuffled,'ok')
+            
             plot([5+bar_offset 5+bar_offset],CItrough_shuffled,'-k')
-            plot(5+bar_offset,auc_trough_shuffled_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            
+            plot((5-0.25)+bar_offset,auc_trough_shuffled_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auc_trough_shuffled_all=auc_trough_shuffled_all;
             
             glm_auc.data(glm_ii+1:glm_ii+length(auc_trough_shuffled))=auc_trough_shuffled;
@@ -597,9 +617,13 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).mean_peak_shuffled_auc=mean_peak_shuffled_auc;
             CIpeak_shuffled = bootci(1000, {@mean, auc_peak_shuffled})';
             p4=bar(6+bar_offset,mean_peak_shuffled_auc,'EdgeColor',[1 0.7 0.7],'FaceColor',[1 0.7 0.7]);
-            plot((6+bar_offset)*ones(1,length(auc_peak_shuffled)),auc_peak_shuffled,'ok')
+            
+            plot((6+0.25+bar_offset)*ones(1,length(auc_peak_shuffled)),auc_peak_shuffled,'ok')
+            
             plot([6+bar_offset 6+bar_offset],CIpeak_shuffled,'-k')
-            plot(6+bar_offset,auc_peak_shuffled_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            
+            plot(6-0.25+bar_offset,auc_peak_shuffled_all,'ok','MarkerSize',8,'MarkerFaceColor','k','MarkerEdgeColor','k')
+            
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auc_peak_shuffled_all=auc_peak_shuffled_all;
             
             glm_auc.data(glm_ii+1:glm_ii+length(auc_peak_shuffled))=auc_peak_shuffled;
@@ -617,10 +641,10 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             
             %Trough shuffled to peak shuffled
             for ii=1:length(auc_peak_shuffled)
-                plot([5+bar_offset 6+bar_offset],[auc_trough_shuffled(ii) auc_peak_shuffled(ii)],'-k')
+                plot([5+0.25+bar_offset 6+0.25+bar_offset],[auc_trough_shuffled(ii) auc_peak_shuffled(ii)],'-k')
             end
             
-           plot([5+bar_offset 6+bar_offset],[auc_trough_shuffled_all auc_peak_shuffled_all],'-k','LineWidth',2)
+           plot([5-0.25+bar_offset 6-0.25+bar_offset],[auc_trough_shuffled_all auc_peak_shuffled_all],'-k','LineWidth',2)
             
         end
         

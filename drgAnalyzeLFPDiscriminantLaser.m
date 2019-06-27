@@ -26,7 +26,7 @@ mice_excluded=[];
 genotype_lab{1}='Halo';
 genotype_lab{2}='Control';
 
-[fname,pname,nCancel] = uigetfile({'Discriminant_*.mat'},'Select the experimental LDA batch output file ...');
+[fname,pname,nCancel] = uigetfile({'Discriminant_*.mat'},'Select the experimental laser LDA batch output file ...');
 if nCancel
     inputPath = [pname,fname];
     pnameStart = pname;
@@ -42,7 +42,7 @@ genotype=[];
 genotype(1).handles_out=handles_out;
 
 handles_out=[];
-[fname,pname,nCancel] = uigetfile({'Discriminant_*.mat'},'Select the laser LDA batch output file ...');
+[fname,pname,nCancel] = uigetfile({'Discriminant_*.mat'},'Select the control laser LDA batch output file ...');
 if nCancel
     inputPath = [pname,fname];
     pnameStart = pname;
