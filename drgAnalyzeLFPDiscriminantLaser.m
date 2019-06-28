@@ -62,16 +62,16 @@ figNo=0;
 
 
 %Define the windows for analysis
-window_start=[-1 0.5];
-window_end=[0 2.5];
-no_wins=2;
+% window_start=[-1 0.5];
+% window_end=[0 2.5];
+% no_wins=2;
 
 %This is the window for area under the curve case 3
-auc_from=0.1;
-auc_to=2.5;
+% auc_from=0.1;
+% auc_to=2.5;
 
-% auc_from=2;
-% auc_to=3;
+auc_from=0.5;
+auc_to=2.5;
 
 %This is the analysis for percent correct when trained within (before laser
 %of during laser)

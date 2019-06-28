@@ -404,7 +404,7 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
         xticklabels({'Naive','Proficient'})
         
         %Perform the glm
-        fprintf(1, ['\n\nglm for discrimination times for Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
+        fprintf(1, ['\n\nglm for discrimination times for Theta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo} '\n'])
         tbl = table(glm_disct.data',glm_disct.peak_trough',glm_disct.percent_correct',...
             'VariableNames',{'t_detect','peak_trough','proficient_naive'});
         mdl = fitglm(tbl,'t_detect~peak_trough+proficient_naive+peak_trough*proficient_naive'...
@@ -657,7 +657,7 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
         xticklabels({'Naive','Proficient'})
         
         %Perform the glm
-        fprintf(1, ['\n\nglm for auc for Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
+        fprintf(1, ['\n\nglm for auc for Theta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo} '\n'])
         tbl = table(glm_auc.data',glm_auc.peak_trough',glm_auc.shuffled',glm_auc.percent_correct',...
             'VariableNames',{'auc','peak_trough','shuffled','proficient_naive'});
         mdl = fitglm(tbl,'auc~peak_trough+shuffled+proficient_naive+peak_trough*shuffled*proficient_naive'...
