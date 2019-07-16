@@ -70,6 +70,12 @@ for trNo=firstTr:lastTr
              
             trials_attempted=trials_attempted+1;
             [LFPlow, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
+            %This excludes flat lick recordings
+            if handles.peakLFPNo==19
+               if sum(LFPlow)==0
+                   can_read1=0;
+               end
+            end
             [LFPhigh, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
             
             if (can_read1==1)&(can_read2==1)
@@ -576,8 +582,6 @@ if handles.displayData==1
     fprintf(1, ['\nPCA processed for %d out of %d trials \n\n'], no_trials,trials_attempted);
 end
 
-% pangle=pi*peakAngle/180;
-% save('cs_minus.mat','mod_indx','pangle')
 pfffft=1;
 
 

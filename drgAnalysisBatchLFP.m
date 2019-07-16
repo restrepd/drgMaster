@@ -8745,6 +8745,8 @@ switch which_display
         end
         fprintf(1, '\n\n')
         
+        fprintf(1, ['The number of mice included in the PAC analysis for this odor pair is %d\n\n\n'], sum(mouse_included))
+        
         figNo=0;
         
         %Now plot the average MI for each electrode calculated per mouse
@@ -8870,12 +8872,14 @@ switch which_display
         pvals=[];
         legends=[];
         out_mi_rank=[];
-        ii_rank=0;
+        
         for pacii=1:no_pacii
             
- 
             glm_ii=0;
             glm_mi=[];
+            glm_perm_ii=0;
+            glm_mi_perm=[];
+            ii_rank=0;
             maxmi=-200;
             minmi=200;
             input_data=[];
@@ -8884,7 +8888,7 @@ switch which_display
             prof_naive_leg{2}='Naive';
             
             %Find out which groups the user is including
-            group_included=zeros(1,max(handles_drgb.drgbchoices.group_no))
+            group_included=zeros(1,max(handles_drgb.drgbchoices.group_no));
             for evNo=1:length(eventType)
                 for grNo=1:max(handles_drgb.drgbchoices.group_no)
                     for per_ii=1:2      %performance bins. blue = naive, red = proficient
@@ -9148,6 +9152,10 @@ switch which_display
             events_per_mouse=[];
             groups_per_mouse=[];
             
+            
+            glm_perm_ii=0;
+            glm_mi_perm=[];
+            
             %Plot the average
             try
                 close(pacii+figNo)
@@ -9196,6 +9204,13 @@ switch which_display
                                 end
                             end
                             if no_mice_included>0
+                                
+                                %Save the per mouse averages
+                                glm_mi_perm.data(glm_perm_ii+1:glm_perm_ii+no_mice_included)=each_mouse_average_MI;
+                                glm_mi_perm.group(glm_perm_ii+1:glm_perm_ii+no_mice_included)=grNo;
+                                glm_mi_perm.perCorr(glm_perm_ii+1:glm_perm_ii+no_mice_included)=per_ii;
+                                glm_mi_perm.event(glm_perm_ii+1:glm_perm_ii+no_mice_included)=evNo;
+                                glm_perm_ii=glm_perm_ii+no_mice_included;
                                 
                                 include_group=1;
                                 
@@ -9294,11 +9309,11 @@ switch which_display
                                 figure(pacii+figNo)
                                 hold on
                                 
-%                                 %Save data for anovan
-%                                 data_MI_per_mouse=[data_MI_per_mouse mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))];
-%                                 prof_naive_per_mouse=[prof_naive_per_mouse per_ii*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
-%                                 events_per_mouse=[events_per_mouse evNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
-%                                 groups_per_mouse=[groups_per_mouse grNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+                                %                                 %Save data for anovan
+                                %                                 data_MI_per_mouse=[data_MI_per_mouse mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))];
+                                %                                 prof_naive_per_mouse=[prof_naive_per_mouse per_ii*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+                                %                                 events_per_mouse=[events_per_mouse evNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+                                %                                 groups_per_mouse=[groups_per_mouse grNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
                             end
                         end
                     end
@@ -9311,7 +9326,7 @@ switch which_display
                 end
             end
             
-            title(['Average MI per mouse averaged over all electrodes for PAC theta/' freq_names{pacii+1}])
+            title(['MI per mouse averaged over all electrodes for PAC theta/' freq_names{pacii+1}])
             
             
             %Annotations identifying groups
@@ -9340,18 +9355,39 @@ switch which_display
             
             ylabel('Modulation Index')
             
-%             %Calculate anovan for inteaction
-%             [p,tbl,stats]=anovan(data_MI_per_mouse,{prof_naive_per_mouse events_per_mouse, groups_per_mouse},'model','interaction','varnames',{'proficient_vs_naive','events','groups'},'display','off');
-%             fprintf(1, ['anovan MI per mouse averaged over electrodes for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-%             
-%             fprintf(1, ['anovan p value for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-%             fprintf(1, ['anovan p value for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-%             fprintf(1, ['anovan p value for groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(3));
-%             fprintf(1, ['anovan p value for naive vs proficient * events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
-%             fprintf(1, ['anovan p value for naive vs proficient * groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
-%             fprintf(1, ['anovan p value for events * groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
-%             
+            %             %Calculate anovan for inteaction
+            %             [p,tbl,stats]=anovan(data_MI_per_mouse,{prof_naive_per_mouse events_per_mouse, groups_per_mouse},'model','interaction','varnames',{'proficient_vs_naive','events','groups'},'display','off');
+            %             fprintf(1, ['anovan MI per mouse averaged over electrodes for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+            %
+            %             fprintf(1, ['anovan p value for naive vs proficient for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+            %             fprintf(1, ['anovan p value for events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
+            %             fprintf(1, ['anovan p value for groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(3));
+            %             fprintf(1, ['anovan p value for naive vs proficient * events for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(1));
+            %             fprintf(1, ['anovan p value for naive vs proficient * groups for PAC theta/' freq_names{pacii+1} '= %d \n'],  p(2));
+            %             fprintf(1, ['anovan p value for events * groups for PAC theta/' freq_names{pacii+1} '= %d \n\n'],  p(3));
+            %
+            %Perform the glm
+            fprintf(1, ['glm for average MI calculated with per mouse for PAC theta' freq_names{pacii+1} '\n'])
+            
+            if sum(glm_mi_perm.group==1)==length(glm_mi_perm.group)
+                %There is only one group here (e.g. for Justin's paper we only include
+                %forward)
+                fprintf(1, ['\n\nglm for MI calculated per mouse for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_mi_perm.data',glm_mi_perm.perCorr',glm_mi_perm.event',...
+                    'VariableNames',{'MI','perCorr','event'});
+                mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
+                    ,'CategoricalVars',[2,3])
+            else
+                
+                fprintf(1, ['\n\nglm for MI calculated per mouse for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_mi_perm.data',glm_mi_perm.group',glm_mi_perm.perCorr',glm_mi_perm.event',...
+                    'VariableNames',{'MI','group','perCorr','event'});
+                mdl = fitglm(tbl,'MI~group+perCorr+event+perCorr*group*event'...
+                    ,'CategoricalVars',[2,3,4])
+            end
         end
+        
+  
         
         
         if sum(group_included)~=1
@@ -9810,6 +9846,8 @@ switch which_display
             PAvar_rank=[];
             glm_PAvar=[];
             glm_ii=0;
+            glm_perm_ii=0;
+            glm_PAvar_perm=[];
             maxPAvar=-2000;
             minPAvar=2000;
             
@@ -9969,6 +10007,13 @@ switch which_display
                             each_mouse_average_PAvar=[];
                             each_mouse_average_PAvar=mouse_avg_PAvar.pacii(pacii).grNo(grNo).evNo(evNo).per_ii(per_ii).each_mouse_average_PAvar;
                             
+                            %Save the per mouse averages
+                            glm_PAvar_perm.data(glm_perm_ii+1:glm_perm_ii+length(each_mouse_average_PAvar))=each_mouse_average_PAvar;
+                            glm_PAvar_perm.group(glm_perm_ii+1:glm_perm_ii+length(each_mouse_average_PAvar))=grNo;
+                            glm_PAvar_perm.perCorr(glm_perm_ii+1:glm_perm_ii+length(each_mouse_average_PAvar))=per_ii;
+                            glm_PAvar_perm.event(glm_perm_ii+1:glm_perm_ii+length(each_mouse_average_PAvar))=evNo;
+                            glm_perm_ii=glm_perm_ii+length(each_mouse_average_PAvar);
+                            
                             %Show the mean in the cumulative histos
                             for jj=1:length(each_mouse_average_PAvar)
                                 this_f_PAvar=[];
@@ -10079,11 +10124,29 @@ switch which_display
             [output_data] = drgMutiRanksumorTtest(input_data);
             
             out_PAvar_rank(pacii).PAvar_rank=PAvar_rank;
-       
+            
             fprintf(1, ['\n\n'])
- 
+            
             suptitle(['Peak angle variance for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1} ])
             
+            fprintf(1, ['glm for average PA variance calculated with per mouse for PAC theta' freq_names{pacii+1} '\n'])
+            
+            if sum(glm_PAvar_perm.group==1)==length(glm_PAvar_perm.group)
+                %There is only one group here (e.g. for Justin's paper we only include
+                %forward)
+                fprintf(1, ['\n\nglm for average PA variance calculated with per mouse for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_PAvar_perm.data',glm_PAvar_perm.perCorr',glm_PAvar_perm.event',...
+                    'VariableNames',{'MI','perCorr','event'});
+                mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
+                    ,'CategoricalVars',[2,3])
+            else
+                
+                fprintf(1, ['\n\nglm for average PA variance calculated with per mouse for Theta/' freq_names{pacii+1} '\n'])
+                tbl = table(glm_PAvar_perm.data',glm_PAvar_perm.group',glm_PAvar_perm.perCorr',glm_PAvar_perm.event',...
+                    'VariableNames',{'MI','group','perCorr','event'});
+                mdl = fitglm(tbl,'MI~group+perCorr+event+perCorr*group*event'...
+                    ,'CategoricalVars',[2,3,4])
+            end
         end
         
         %Now do the cumulative histograms and ranksums for meanVectorAngle per electrode per mouse

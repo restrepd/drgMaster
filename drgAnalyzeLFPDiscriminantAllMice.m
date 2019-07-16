@@ -379,7 +379,7 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             
             ii_stats=ii_stats+1;
             p_disct_stats(ii_stats).data=peak_t_detect;
-            p_disct_stats(ii_stats).description=['Trough ' handles_out.drgbchoices.per_lab{percent_correct_ii} ];
+            p_disct_stats(ii_stats).description=['Peak ' handles_out.drgbchoices.per_lab{percent_correct_ii} ];
             p_disct_stats(ii_stats).peak_trough=3;
             p_disct_stats(ii_stats).percent_correct=percent_correct_ii;
             
@@ -508,7 +508,6 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
            
             
             %Now get the all mouse auc values
-            
             all_mouse_discriminant_correct_peak=handles_all.discriminant_PACwavepower_all_mice.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_peak;
             auc_peak_all=(mean(all_mouse_discriminant_correct_peak(1,(t>=auc_from)&(t<=auc_to)),2)-50)/50;
             all_mouse_discriminant_correct_trough=handles_all.discriminant_PACwavepower_all_mice.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_trough;
@@ -565,7 +564,11 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             
             handles_outp.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).auc_peak_all=auc_peak_all;
             
-             glm_auc.data(glm_ii+1:glm_ii+length(auc_peak))=auc_peak;
+            if (PACii==3)&(groupNo==1)
+                pffft=1;
+            end
+            
+            glm_auc.data(glm_ii+1:glm_ii+length(auc_peak))=auc_peak;
             glm_auc.peak_trough(glm_ii+1:glm_ii+length(auc_peak))=2;
             glm_auc.shuffled(glm_ii+1:glm_ii+length(auc_peak))=1;
             glm_auc.percent_correct(glm_ii+1:glm_ii+length(auc_peak))=percent_correct_ii;
@@ -607,7 +610,7 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             
             ii_stats=ii_stats+1;
             p_auc_stats(ii_stats).data=auc_trough_shuffled;
-            p_auc_stats(ii_stats).description=['Trough shuffled' handles_out.drgbchoices.per_lab{percent_correct_ii} ];
+            p_auc_stats(ii_stats).description=['Trough shuffled ' handles_out.drgbchoices.per_lab{percent_correct_ii} ];
             p_auc_stats(ii_stats).peak_trough=1;
             p_auc_stats(ii_stats).shuffled=2;
             p_auc_stats(ii_stats).percent_correct=percent_correct_ii;
@@ -634,7 +637,7 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             
             ii_stats=ii_stats+1;
             p_auc_stats(ii_stats).data=auc_peak_shuffled;
-            p_auc_stats(ii_stats).description=['Peak ' handles_out.drgbchoices.per_lab{percent_correct_ii} ];
+            p_auc_stats(ii_stats).description=['Peak shuffled ' handles_out.drgbchoices.per_lab{percent_correct_ii} ];
             p_auc_stats(ii_stats).peak_trough=2;
             p_auc_stats(ii_stats).shuffled=2;
             p_auc_stats(ii_stats).percent_correct=percent_correct_ii;
@@ -671,9 +674,7 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
         catch
         end
         
-        if (PACii==3)&(groupNo==1)
-            pffft=1;
-        end
+
     end
     
 end

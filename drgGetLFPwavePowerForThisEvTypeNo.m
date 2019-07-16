@@ -108,6 +108,7 @@ for trNo=firstTr:lastTr
                 no_trials=no_trials+1;
                 this_trialNo(no_trials)=trNo;
                 
+                
                 if handles.displayData==1
                     fprintf(1, ['drgGetLFPwavePowerForThisEvTypeNo trial No %d, event No %d, processed trial no %d\n'], trNo,evNo,no_trials);
                 end

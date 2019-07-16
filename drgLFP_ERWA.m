@@ -1,11 +1,13 @@
-function [log_P_t,which_event,freq,out_times,perCorrERP,no_events_per_trial,trials_with_wavelick,f_lick,mean_lick_phase]=drgLFP_ERWA(handles)
+function [log_P_t,which_event,freq,out_times,perCorrERP,no_events_per_trial,trials_with_wavelick,f_lick,mean_lick_phase,no_trs]=drgLFP_ERWA(handles)
 %Generates a event related wavelet power for licks
 
 odorOn=2;
 sessionNo=handles.sessionNo;
 
 %ERWA timing
+
 wing_dt=0.2;
+
 Fs=handles.drg.session(1).draq_p.ActualRate;
 dec_n=fix(Fs/1000);
 decFs=Fs/dec_n;
@@ -31,10 +33,10 @@ else
     handles.time_end=endRef+wing_dt;
 end
 
-[t_apt,freq,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo]=drgGetLFPwavePowerForThisEvTypeNo(handles);
+[t_apt,freq,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo_wav, perCorr_pertr, these_which_events]=drgGetLFPwavePowerForThisEvTypeNo(handles);
 
 %Calculate the licks (no wing nescessary)
-[lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times,no_trials,trials_included,lick_threshold]=drgGetLicks(handles);
+[lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times,no_trials,trials_included_licks,lick_threshold]=drgGetLicks(handles);
  
 %Get PAC
 handles=drgThetaAmpPhaseTrialRange(handles);
@@ -49,8 +51,8 @@ envelope_times=handles.drgb.PAC.out_times_env+handles.time_start+handles.time_pa
 
 total_no_licks=0;
 total_trNo=0;
-for trNo=1:length(this_trialNo)
-    this_lick_trNo=find(this_trialNo(trNo)==trials_included);
+for trNo=1:length(this_trialNo_wav)
+    this_lick_trNo=find(this_trialNo_wav(trNo)==trials_included_licks);
     if exist('this_lick_trNo')~=0
         %Calculate lick-referenced power within the measurement window
         licks_for_this_trial=[];
@@ -74,93 +76,67 @@ f_lick=zeros(1,total_trNo);
 first_which=0;
 %log_P_timecourse=zeros(total_trNo,length(freq),length(t_apt));
 
-for trNo=1:length(this_trialNo)
+for trNo=1:length(this_trialNo_wav)
     
-    this_lick_trNo=find(this_trialNo(trNo)==trials_included);
+    this_lick_trNo=find(this_trialNo_wav(trNo)==trials_included_licks);
     if exist('this_lick_trNo')~=0
-        
-        %Calculate lick-referenced power within the measurement window
-        licks_for_this_trial=[];
-        licks_for_this_trial=these_stamped_lick_times(this_lick_trNo,1:stamped_lick_ii(this_lick_trNo));
-        no_licks=sum((licks_for_this_trial>time_start+handles.time_pad)&(licks_for_this_trial<=time_end-handles.time_pad));
-        these_angles=zeros(1,no_licks);
-        if no_licks>0
-            %Calculate the mean phase for licks
-            jj_l=0;
-            for kk_licks=1:length(licks_for_this_trial)
-                if (licks_for_this_trial(kk_licks)>time_start+handles.time_pad)&(licks_for_this_trial(kk_licks)<=time_end-handles.time_pad)
-                   [mint this_ii_lick]=min(abs(envelope_times-licks_for_this_trial(kk_licks)));
-                   jj_l=jj_l+1;
-                   these_angles(jj_l)=handles.drgb.PAC.PACtimecourse(trNo).decanglethetaLFP(this_ii_lick);
-                end
-            end
-            mean_lick_phase(trNo)=(180/pi)*circ_axial(circ_mean(these_angles')');
-            
-            %Calculate log power
-            if handles.subtractRef==0
-                this_log_P_timecourse=zeros(length(freq),length(t_apt));
-                this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trNo,:,:));
-            else
-                this_log_P_timecourse=zeros(length(freq),length(t_apt));
-                this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trNo,:,:));
-                this_log_P_timecourse_ref=zeros(length(freq),length(t_apt));
-                this_log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref(trNo,:)),1)',1,length(t_apt));
-                this_log_P_timecourse=this_log_P_timecourse-this_log_P_timecourse_ref;
-            end
-            no_trs=no_trs+1;
-            no_events_per_trial(no_trs)=no_licks;
-            f_lick(no_trs)=no_licks/(time_end-time_start-2*handles.time_pad);
-            %log_P_timecourse(no_trs,:,:)=this_log_P_timecourse;
-            
-            these_log_P_ts=zeros(no_licks,length(freq),length(out_times));
-            jj_lick=0;
-            for ii_lick=1:length(licks_for_this_trial)
-                if (licks_for_this_trial(ii_lick)>time_start+handles.time_pad)&(licks_for_this_trial(ii_lick)<=time_end-handles.time_pad)
-                    [min_dt,min_ii]=min(abs(t_apt-licks_for_this_trial(ii_lick)));
-                    jj_lick=jj_lick+1;
-                    these_log_P_ts(jj_lick,:,:)=this_log_P_timecourse(:,min_ii(1)-wing_ii:min_ii(1)+wing_ii);
-                end
-            end
-            log_P_t(no_trs,:,:)=mean(these_log_P_ts,1);
-            
-            perCorrERP(no_trs)=perCorr(trNo);
-            trials_with_wavelick(no_trs)=trials_included(trNo);
-            
-            if isfield(handles,'drgbchoices')
-                if first_which==0
-                    which_event=zeros(length(handles.drgbchoices.evTypeNos),total_trNo);
-                    first_which=1;
-                end
-                for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
-                    switch handles.evTypeNo
-                        case 1
-                            %tstart is the reference event
-                            if handles.drgbchoices.evTypeNos(evTypeNo)==1
-                                %This is tstart
-                                if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
-                                    which_event(evTypeNo,no_trs)=1;
-                                else
-                                    which_event(evTypeNo,no_trs)=0;
-                                end
-                            else
-                                %These are not tstart, and the time
-                                %should be compared at OdorOn
-                                %This is tstart
-                                if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(2).times(evNo))>0
-                                    which_event(evTypeNo,no_trs)=1;
-                                else
-                                    which_event(evTypeNo,no_trs)=0;
-                                end
-                            end
-                        otherwise
-                            %OdorOn is the reference event
-                            if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
-                                which_event(evTypeNo,no_trs)=1;
-                            else
-                                which_event(evTypeNo,no_trs)=0;
-                            end
+        thisPACtrialNo=find(this_trialNo_wav(trNo)==handles.drgb.PAC.this_trialNo);
+        if exist('thisPACtrialNo')~=0
+            %Calculate lick-referenced power within the measurement window
+            licks_for_this_trial=[];
+            licks_for_this_trial=these_stamped_lick_times(this_lick_trNo,1:stamped_lick_ii(this_lick_trNo));
+            no_licks=sum((licks_for_this_trial>time_start+handles.time_pad)&(licks_for_this_trial<=time_end-handles.time_pad));
+            these_angles=zeros(1,no_licks);
+            if no_licks>0
+                %Calculate the mean phase for licks
+                jj_l=0;
+                for kk_licks=1:length(licks_for_this_trial)
+                    if (licks_for_this_trial(kk_licks)>time_start+handles.time_pad)&(licks_for_this_trial(kk_licks)<=time_end-handles.time_pad)
+                        [mint this_ii_lick]=min(abs(envelope_times-licks_for_this_trial(kk_licks)));
+                        jj_l=jj_l+1;
+                        these_angles(jj_l)=handles.drgb.PAC.PACtimecourse(thisPACtrialNo).decanglethetaLFP(this_ii_lick);
                     end
-                    
+                end
+                mean_lick_phase(trNo)=(180/pi)*circ_axial(circ_mean(these_angles')');
+                
+                %Calculate log power
+                if handles.subtractRef==0
+                    this_log_P_timecourse=zeros(length(freq),length(t_apt));
+                    this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trNo,:,:));
+                else
+                    this_log_P_timecourse=zeros(length(freq),length(t_apt));
+                    this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trNo,:,:));
+                    this_log_P_timecourse_ref=zeros(length(freq),length(t_apt));
+                    this_log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref(trNo,:)),1)',1,length(t_apt));
+                    this_log_P_timecourse=this_log_P_timecourse-this_log_P_timecourse_ref;
+                end
+                no_trs=no_trs+1;
+                no_events_per_trial(no_trs)=no_licks;
+                f_lick(no_trs)=no_licks/(time_end-time_start-2*handles.time_pad);
+                %log_P_timecourse(no_trs,:,:)=this_log_P_timecourse;
+                
+                these_log_P_ts=zeros(no_licks,length(freq),length(out_times));
+                jj_lick=0;
+                for ii_lick=1:length(licks_for_this_trial)
+                    if (licks_for_this_trial(ii_lick)>time_start+handles.time_pad)&(licks_for_this_trial(ii_lick)<=time_end-handles.time_pad)
+                        [min_dt,min_ii]=min(abs(t_apt-licks_for_this_trial(ii_lick)));
+                        jj_lick=jj_lick+1;
+                        these_log_P_ts(jj_lick,:,:)=this_log_P_timecourse(:,min_ii(1)-wing_ii:min_ii(1)+wing_ii);
+                    end
+                end
+                log_P_t(no_trs,:,:)=mean(these_log_P_ts,1);
+                
+                perCorrERP(no_trs)=perCorr(thisPACtrialNo);
+                trials_with_wavelick(no_trs)=trials_included_licks(this_lick_trNo);
+                
+                if isfield(handles,'drgbchoices')
+                    if first_which==0
+                        which_event=zeros(length(handles.drgbchoices.evTypeNos),total_trNo);
+                        first_which=1;
+                    end
+                    for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
+                        which_event(evTypeNo,no_trs)=these_which_events(evTypeNo,trNo);
+                    end
                 end
             end
         end
@@ -168,7 +144,7 @@ for trNo=1:length(this_trialNo)
 end
 
 
-no_trials=length(this_trialNo);
+no_trials=length(this_trialNo_wav);
 
 handles.time_start=time_start;
 handles.time_end=time_end;
@@ -176,10 +152,9 @@ handles.startRef=startRef;
 handles.endRef=endRef;
 
 if handles.displayData==1
-    if ~isempty(this_trialNo)
+    if ~isempty(this_trialNo_wav)
         
-        
-        
+
         %Lick-related spectrogram
         %Timecourse doing average after log
         try

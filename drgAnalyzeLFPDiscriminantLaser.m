@@ -102,7 +102,7 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             all_discriminant_correct_shuffled_peak=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
             all_discriminant_correct_shuffled_trough=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
              
-            for mouseNo=1:length(genotype(genotype_ii).handles_out.discriminant_per_mouse)
+            for mouseNo=1:length(genotype(genotype_ii).handles_out.discriminant_PACpower_per_mouse)
                 try
                     if genotype(genotype_ii).handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).which_analysis(which_analysis).discriminant_calculated==1
                         per_ii=genotype(genotype_ii).handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).which_analysis(which_analysis).PACii(PACii).no_trials;
@@ -464,7 +464,7 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
     glm_dim=[];
     for genotype_ii=1:2
         
-         groupNo=1
+         groupNo=1;
             
             %Gather all the data
             no_mice=0;
@@ -474,7 +474,7 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
             all_discriminant_correct_shuffled_peak=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
             all_discriminant_correct_shuffled_trough=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
             
-            for mouseNo=1:length(genotype(genotype_ii).handles_out.discriminant_per_mouse)
+            for mouseNo=1:length(genotype(genotype_ii).handles_out.discriminant_PACpower_per_mouse)
                 try
                     if genotype(genotype_ii).handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).which_analysis(which_analysis).discriminant_calculated==1
                         per_ii=genotype(genotype_ii).handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).which_analysis(which_analysis).PACii(PACii).no_trials;
