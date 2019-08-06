@@ -23,7 +23,7 @@ sessionNo=handles.sessionNo;
 LFPtheta=[];
 LFPtheta2=[];
 LFPbursts=[];
-
+ 
 try
 %     trialNo=find(handles.drg.session(sessionNo).trial_start<handles.drg.session(sessionNo).events(evTypeNo).times(evNo),1,'last');
     trialNo=drgFindTrNo(handles,evNo,sessionNo,evTypeNo);

@@ -52,6 +52,10 @@ these_colors{5}='y';
 these_colors{6}='k';
 these_colors{7}='c';
 
+PACnames{1}='Beta';
+PACnames{2}='Low gamma';
+PACnames{3}='High gamma';
+
 %Plot the summary wavelet power at peak vs power at trough
 for figNo=1:6
     try
@@ -63,34 +67,41 @@ for figNo=1:6
     hold on
 end
 
+bar_ii=0;
 
+p_AUCloc_stats=[];
+ii_AUCloc_stats=0;
 
-
-for fileNo=1:handlesdrgb.drgbchoices.no_files
+for PACii=[1 3]
+    p_correct_stats=[];
+    ii_stats=0;
+    p_dim_stats=[];
+    ii_dim_stats=0;
+    glm_ii=0;
+    glm_correct=[];
+    glm_dim_ii=0;
+    glm_dim=[];
     
-    pname=handlesdrgb.drgbchoices.PathName{fileNo};
-    fname=handlesdrgb.drgbchoices.FileName{fileNo};
+    AUCpeakloc1=[];
+    AUCpeakloc2=[];
     
-    discriminant_name=[pname fname];
-    load(discriminant_name)
-    
-    
-    
-    
-    
-    %Plot average percent correct for the LDA for peak and trough for
-    %wavelet power referenced to PAC phase
-    t=handles_out.t_power;
-    
-    for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
-        p_correct_stats=[];
-        ii_stats=0;
-        p_dim_stats=[];
-        ii_dim_stats=0;
-        glm_ii=0;
-        glm_correct=[];
-        glm_dim_ii=0;
-        glm_dim=[];
+    for fileNo=1:handlesdrgb.drgbchoices.no_files
+        
+        pname=handlesdrgb.drgbchoices.PathName{fileNo};
+        fname=handlesdrgb.drgbchoices.FileName{fileNo};
+        
+        discriminant_name=[pname fname];
+        load(discriminant_name)
+        
+        
+        
+        
+        
+        %Plot average percent correct for the LDA for peak and trough for
+        %wavelet power referenced to PAC phase
+        t=handles_out.t_power;
+        
+        
         for percent_correct_ii=1:2
             
             figure((PACii-1)*2+percent_correct_ii)
@@ -102,7 +113,7 @@ for fileNo=1:handlesdrgb.drgbchoices.no_files
             all_discriminant_correct_trough=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
             all_discriminant_correct_shuffled_peak=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
             all_discriminant_correct_shuffled_trough=zeros(max(handles_out.drgbchoices.mouse_no),length(t));
-        
+            
             
             for mouseNo=1:length(handles_out.discriminant_PACwavepower)
                 try
@@ -122,6 +133,9 @@ for fileNo=1:handlesdrgb.drgbchoices.no_files
                 end
             end
             
+            if (percent_correct_ii==1)&(PACii==1)
+                fprintf(1, ['The number of mice included in the LDA analysis for odor pair ' handlesdrgb.drgbchoices.odorpair{fileNo} ' is %d\n\n\n'], no_mice_included)
+            end
             
             no_mice_per(percent_correct_ii)=no_mice_included;
             
@@ -156,46 +170,46 @@ for fileNo=1:handlesdrgb.drgbchoices.no_files
                 data=[data (mean(all_discriminant_correct_shuffled_peak(mouseNo,(t>=auc_from)&(t<=auc_to)),2)-50)/50];
             end
             
-            ii_stats=ii_stats+1;
-            p_correct_stats(ii_stats).data=data;
-            p_correct_stats(ii_stats).description=[handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii} ' shuffled peak'];
-            p_correct_stats(ii_stats).data_ii=1;
-            p_correct_stats(ii_stats).PACii=PACii;
-            p_correct_stats(ii_stats).per_corr_ii=percent_correct_ii;
-            p_correct_stats(ii_stats).groupNo=groupNo;
-            %
-            %
-            %                 glm_correct.data(glm_ii+1:glm_ii+length(data))=data;
-            %                 glm_correct.PACii(glm_ii+1:glm_ii+length(data))=PACii;
-            %                 glm_correct.group(glm_ii+1:glm_ii+length(data))=groupNo;
-            %                 glm_correct.perCorr(glm_ii+1:glm_ii+length(data))=percent_correct_ii;
-            %                 glm_correct.shuffled(glm_ii+1:glm_ii+length(data))=1;
-            %                 glm_correct.peak(glm_ii+1:glm_ii+length(data))=1;
-            %                 glm_ii=glm_ii+length(data);
-            %
+%             ii_stats=ii_stats+1;
+%             p_correct_stats(ii_stats).data=data;
+%             p_correct_stats(ii_stats).description=[handlesdrgb.drgbchoices.odorpair{fileNo} ' ' handles_out.drgbchoices.per_lab{percent_correct_ii} ' shuffled peak location ' num2str(handlesdrgb.drgbchoices.locations(fileNo))];
+%             p_correct_stats(ii_stats).data_ii=1;
+%             p_correct_stats(ii_stats).PACii=PACii;
+%             p_correct_stats(ii_stats).per_corr_ii=percent_correct_ii;
+%             p_correct_stats(ii_stats).groupNo=groupNo;
+%             %
+%             
+%             glm_correct.data(glm_ii+1:glm_ii+length(data))=data;
+%             glm_correct.PACii(glm_ii+1:glm_ii+length(data))=PACii;
+%             glm_correct.group(glm_ii+1:glm_ii+length(data))=groupNo;
+%             glm_correct.perCorr(glm_ii+1:glm_ii+length(data))=percent_correct_ii;
+%             glm_correct.shuffled(glm_ii+1:glm_ii+length(data))=1;
+%             glm_correct.peak(glm_ii+1:glm_ii+length(data))=1;
+%             glm_correct.locations(glm_ii+1:glm_ii+length(data))=handlesdrgb.drgbchoices.locations(fileNo);
+%             glm_ii=glm_ii+length(data);
+            
             data=[];
             for mouseNo=1:no_mice_included
                 data=[data (mean(all_discriminant_correct_shuffled_trough(mouseNo,(t>=auc_from)&(t<=auc_to)),2)-50)/50];
             end
             
-            ii_stats=ii_stats+1;
-            p_correct_stats(ii_stats).data=data;
-            p_correct_stats(ii_stats).description=[handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii} ' shuffled trough'];
-            p_correct_stats(ii_stats).data_ii=2;
-            p_correct_stats(ii_stats).PACii=PACii;
-            p_correct_stats(ii_stats).per_corr_ii=percent_correct_ii;
-            p_correct_stats(ii_stats).groupNo=groupNo;
-            %
-            %                 glm_correct.data(glm_ii+1:glm_ii+length(data))=data;
-            %                 glm_correct.PACii(glm_ii+1:glm_ii+length(data))=PACii;
-            %                 glm_correct.group(glm_ii+1:glm_ii+length(data))=groupNo;
-            %                 glm_correct.perCorr(glm_ii+1:glm_ii+length(data))=percent_correct_ii;
-            %                 glm_correct.shuffled(glm_ii+1:glm_ii+length(data))=1;
-            %                 glm_correct.peak(glm_ii+1:glm_ii+length(data))=0;
-            %                 glm_ii=glm_ii+length(data);
-            %
-            %
-            %
+%             ii_stats=ii_stats+1;
+%             p_correct_stats(ii_stats).data=data;
+%             p_correct_stats(ii_stats).description=[handlesdrgb.drgbchoices.odorpair{fileNo} ' ' handles_out.drgbchoices.per_lab{percent_correct_ii} ' shuffled trough location ' num2str(handlesdrgb.drgbchoices.locations(fileNo))]; 
+%             p_correct_stats(ii_stats).data_ii=2;
+%             p_correct_stats(ii_stats).PACii=PACii;
+%             p_correct_stats(ii_stats).per_corr_ii=percent_correct_ii;
+%             p_correct_stats(ii_stats).groupNo=groupNo;
+%             
+%             glm_correct.data(glm_ii+1:glm_ii+length(data))=data;
+%             glm_correct.PACii(glm_ii+1:glm_ii+length(data))=PACii;
+%             glm_correct.group(glm_ii+1:glm_ii+length(data))=groupNo;
+%             glm_correct.perCorr(glm_ii+1:glm_ii+length(data))=percent_correct_ii;
+%             glm_correct.shuffled(glm_ii+1:glm_ii+length(data))=1;
+%             glm_correct.peak(glm_ii+1:glm_ii+length(data))=0;
+%             glm_correct.locations(glm_ii+1:glm_ii+length(data))=handlesdrgb.drgbchoices.locations(fileNo);
+%             glm_ii=glm_ii+length(data);
+            
             %Now plot the percent correct for the trough
             all_discriminant_correct_trough=all_discriminant_correct_trough(1:no_mice_included,:);
             mean_dc_trough=mean(all_discriminant_correct_trough,1)';
@@ -215,19 +229,19 @@ for fileNo=1:handlesdrgb.drgbchoices.no_files
             end
             ii_stats=ii_stats+1;
             p_correct_stats(ii_stats).data=data;
-            p_correct_stats(ii_stats).description=[handles_out.drgbchoices.group_no_names{groupNo} ' ' handles_out.drgbchoices.per_lab{percent_correct_ii} ' trough'];
-            p_correct_stats(ii_stats).data_ii=3;
+            p_correct_stats(ii_stats).description=[handlesdrgb.drgbchoices.odorpair{fileNo} ' ' handles_out.drgbchoices.per_lab{percent_correct_ii} ' trough location ' num2str(handlesdrgb.drgbchoices.locations(fileNo))];
             p_correct_stats(ii_stats).PACii=PACii;
             p_correct_stats(ii_stats).per_corr_ii=percent_correct_ii;
             p_correct_stats(ii_stats).groupNo=groupNo;
             %
-            %                 glm_correct.data(glm_ii+1:glm_ii+length(data))=data;
-            %                 glm_correct.PACii(glm_ii+1:glm_ii+length(data))=PACii;
-            %                 glm_correct.group(glm_ii+1:glm_ii+length(data))=groupNo;
-            %                 glm_correct.perCorr(glm_ii+1:glm_ii+length(data))=percent_correct_ii;
-            %                 glm_correct.shuffled(glm_ii+1:glm_ii+length(data))=0;
-            %                 glm_correct.peak(glm_ii+1:glm_ii+length(data))=0;
-            %                 glm_ii=glm_ii+length(data);
+            glm_correct.data(glm_ii+1:glm_ii+length(data))=data;
+            glm_correct.PACii(glm_ii+1:glm_ii+length(data))=PACii;
+            glm_correct.group(glm_ii+1:glm_ii+length(data))=groupNo;
+            glm_correct.perCorr(glm_ii+1:glm_ii+length(data))=percent_correct_ii;
+            glm_correct.shuffled(glm_ii+1:glm_ii+length(data))=0;
+            glm_correct.peak(glm_ii+1:glm_ii+length(data))=0;
+            glm_correct.locations(glm_ii+1:glm_ii+length(data))=handlesdrgb.drgbchoices.locations(fileNo);
+            glm_ii=glm_ii+length(data);
             
             %Now plot the percent correct for the peak
             all_discriminant_correct_peak=all_discriminant_correct_peak(1:no_mice_included,:);
@@ -248,22 +262,28 @@ for fileNo=1:handlesdrgb.drgbchoices.no_files
             end
             ii_stats=ii_stats+1;
             p_correct_stats(ii_stats).data=data;
-            p_correct_stats(ii_stats).description=[handles_out.drgbchoices.group_no_names{groupNo} ' ' ...
-                handles_out.drgbchoices.per_lab{percent_correct_ii}...
-                ' peak'];
+            p_correct_stats(ii_stats).description=[handlesdrgb.drgbchoices.odorpair{fileNo} ' ' handles_out.drgbchoices.per_lab{percent_correct_ii} ' peak location ' num2str(handlesdrgb.drgbchoices.locations(fileNo))];
             p_correct_stats(ii_stats).data_ii=4;
             p_correct_stats(ii_stats).PACii=PACii;
             p_correct_stats(ii_stats).per_corr_ii=percent_correct_ii;
             p_correct_stats(ii_stats).groupNo=groupNo;
             %
-            %                 glm_correct.data(glm_ii+1:glm_ii+length(data))=data;
-            %                 glm_correct.PACii(glm_ii+1:glm_ii+length(data))=PACii;
-            %                 glm_correct.group(glm_ii+1:glm_ii+length(data))=groupNo;
-            %                 glm_correct.perCorr(glm_ii+1:glm_ii+length(data))=percent_correct_ii;
-            %                 glm_correct.shuffled(glm_ii+1:glm_ii+length(data))=0;
-            %                 glm_correct.peak(glm_ii+1:glm_ii+length(data))=1;
-            %                 glm_ii=glm_ii+length(data);
+            glm_correct.data(glm_ii+1:glm_ii+length(data))=data;
+            glm_correct.PACii(glm_ii+1:glm_ii+length(data))=PACii;
+            glm_correct.group(glm_ii+1:glm_ii+length(data))=groupNo;
+            glm_correct.perCorr(glm_ii+1:glm_ii+length(data))=percent_correct_ii;
+            glm_correct.shuffled(glm_ii+1:glm_ii+length(data))=0;
+            glm_correct.peak(glm_ii+1:glm_ii+length(data))=1;
+            glm_correct.locations(glm_ii+1:glm_ii+length(data))=handlesdrgb.drgbchoices.locations(fileNo);
+            glm_ii=glm_ii+length(data);
             
+            if percent_correct_ii==1
+                if handlesdrgb.drgbchoices.locations(fileNo)==1
+                    AUCpeakloc1=[AUCpeakloc1 data];
+                else
+                    AUCpeakloc2=[AUCpeakloc2 data];
+                end
+            end
             %                 %Odor on markers
             %                 plot([0 0],[0 100],'-k')
             %                 odorhl=plot([0 2.5],[10 10],'-k','LineWidth',5);
@@ -284,16 +304,49 @@ for fileNo=1:handlesdrgb.drgbchoices.no_files
             %                 hFig=figure(figNo);
             
             hold on
-            
+
             plot(p_correct_stats(ii_stats-1).data,p_correct_stats(ii_stats).data,'o','MarkerEdgeColor',these_colors{fileNo},'MarkerFaceColor',these_colors{fileNo})
-            %plot(p_correct_stats(ii_stats-2).data,p_correct_stats(ii_stats-3).data,'ok')
-            
-            
+
         end
         
         
         
     end
+    
+       %Perform the glm for percent correct
+    fprintf(1, ['\n\nglm for percent correct decoding in the LDA for Theta/' PACnames{PACii} '\n'])
+    tbl = table(glm_correct.data',glm_correct.perCorr',glm_correct.peak',glm_correct.locations',...
+        'VariableNames',{'LDApcorr','proficiency','peak_trough','location'});
+    mdl = fitglm(tbl,'LDApcorr~proficiency+location+peak_trough+proficiency*peak_trough*location'...
+        ,'CategoricalVars',[2,3 4])
+    
+    %Do ranksum/t test
+    fprintf(1, ['\n\nRanksum or t-test p values for percent correct decoding in the LDA for Theta/' PACnames{PACii} '\n'])
+    try
+        [output_data] = drgMutiRanksumorTtest(p_correct_stats);
+        fprintf(1, '\n\n')
+    catch
+    end
+    
+    figure(13)
+    hold on
+    p1=bar(bar_ii,mean(AUCpeakloc1),'b');
+    CIAUCpeakloc1 = bootci(1000, {@mean, AUCpeakloc1})';
+    plot([bar_ii bar_ii],CIAUCpeakloc1,'-k')
+    
+    ii_AUCloc_stats=ii_AUCloc_stats+1;
+    p_AUCloc_stats(ii_stats).data=AUCpeakloc1;
+    p_AUCloc_stats(ii_stats).description=['Theta/' PACnames{PACii} ' location 1'];
+    
+    p2=bar(bar_ii+1,mean(AUCpeakloc2),'r');
+    CIAUCpeakloc2 = bootci(1000, {@mean, AUCpeakloc2})';
+    plot([bar_ii+1 bar_ii+1],CIAUCpeakloc2,'-k')
+    
+    ii_AUCloc_stats=ii_AUCloc_stats+1;
+    p_AUCloc_stats(ii_stats).data=AUCpeakloc1;
+    p_AUCloc_stats(ii_stats).description=['Theta/' PACnames{PACii} ' location 2'];
+    
+    bar_ii=bar_ii+3;
     
     
 end
@@ -310,6 +363,22 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
         title(['Area under the curve for Theta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii}])
     end
 end
+
+%Do ranksum/t test
+fprintf(1, ['\n\nRanksum or t-test p values for percent correct decoding in the LDA for location graph\n'])
+try
+    [output_data] = drgMutiRanksumorTtest(p_AUCloc_stats);
+    fprintf(1, '\n\n')
+catch
+end
+
+figure(13)
+legend([p1 p2],{'Location 1','Location 2'})
+xticks([0.5 3.5]) 
+xticklabels({'Theta/beta','Theta/high gamma'})
+ylabel('AUC')
+
+
 
 %Now do dimensonality
 

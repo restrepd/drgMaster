@@ -15376,6 +15376,8 @@ switch which_display
         end
         fprintf(1, '\n\n')
         
+        fprintf(1, ['The number of mice included in the PAC analysis for this odor pair is %d\n\n\n'], sum(mouse_included))
+        
         
         %Now plot the average peakPACpower for each electrode calculated per mouse
         %(including all sessions for each mouse)

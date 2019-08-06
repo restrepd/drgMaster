@@ -18,27 +18,27 @@ PACnames{1}='Beta';
 PACnames{2}='Low gamma';
 PACnames{3}='High gamma';
 
-PathName{1}='/Users/restrepd/Dropbox/SPM_manuscript_Justin_Daniel/Fig 4 wavelet peak power/Daniel Batch analysis/';
+PathName{1}='/Users/restrepd/Dropbox/SPM_manuscript_Justin_Daniel/Fig 3 wavelet peak power/Daniel Batch analysis/Final files/';
 FileName{1}='spm_LFP_wavephasepower04262019_APEB.mat';
 odorPairName{1}='APEBloc1';
 
-PathName{2}='/Users/restrepd/Dropbox/SPM_manuscript_Justin_Daniel/Fig 4 wavelet peak power/Daniel Batch analysis/';
+PathName{2}='/Users/restrepd/Dropbox/SPM_manuscript_Justin_Daniel/Fig 3 wavelet peak power/Daniel Batch analysis/Final files/';
 FileName{2}='spm_LFP_wavephasepower04262019_EAPA.mat';
 odorPairName{2}='EAPA1loc1';
 
-PathName{3}='/Users/restrepd/Dropbox/SPM_manuscript_Justin_Daniel/Fig 4 wavelet peak power/Daniel Batch analysis/';
+PathName{3}='/Users/restrepd/Dropbox/SPM_manuscript_Justin_Daniel/Fig 3 wavelet peak power/Daniel Batch analysis/Final files/';
 FileName{3}='spm_LFP_wavephasepower04262019_IAMO.mat';
 odorPairName{3}='IAMOloc1';
 
-PathName{4}='/Users/restrepd/Dropbox/SPM_manuscript_Justin_Daniel/Fig 4 wavelet peak power/Justin Batch analysis/';
+PathName{4}='/Users/restrepd/Dropbox/SPM_manuscript_Justin_Daniel/Fig 3 wavelet peak power/Justin Batch analysis/Final files/';
 FileName{4}='spm_LFP_wavephasepower04202019_EAPA.mat';
 odorPairName{4}='EAPA2loc2';
 
-PathName{5}='/Users/restrepd/Dropbox/SPM_manuscript_Justin_Daniel/Fig 4 wavelet peak power/Justin Batch analysis/';
+PathName{5}='/Users/restrepd/Dropbox/SPM_manuscript_Justin_Daniel/Fig 3 wavelet peak power/Justin Batch analysis/Final files/';
 FileName{5}='spm_LFP_wavephasepower04202019_IAAP.mat';
 odorPairName{5}='IAAPloc2';
 
-PathName{6}='/Users/restrepd/Dropbox/SPM_manuscript_Justin_Daniel/Fig 4 wavelet peak power/Justin Batch analysis/';
+PathName{6}='/Users/restrepd/Dropbox/SPM_manuscript_Justin_Daniel/Fig 3 wavelet peak power/Justin Batch analysis/Final files/';
 FileName{6}='spm_LFP_wavephasepower04202019_IAMO.mat';
 odorPairName{6}='IAMOloc2';
 

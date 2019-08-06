@@ -8,7 +8,7 @@ clear all
 
 
 
-[fname,pname,nCancel] = uigetfile({'Discriminant_*.mat'},'Select the perceptron LFP batch output file ...');
+[fname,pname,nCancel] = uigetfile({'Discriminant_*.mat'},'Select the drgLFPDiscriminantBatchAllMice output file ...');
 if nCancel
     inputPath = [pname,fname];
     pnameStart = pname;
@@ -1794,8 +1794,8 @@ for groupNo=1:max(handles.drgbchoices.group_no)
                     these_all_log_P_timecoursePACwave_peak=zeros(no_batches,length(handles.drgbchoices.which_electrodes)*sum(mouse_included),N,length(t));
                     these_all_log_P_timecoursePACwave_trough=zeros(no_batches,length(handles.drgbchoices.which_electrodes)*sum(mouse_included),N,length(t));
                     
-                    ii_splus=1;
-                    ii_sminus=1;
+                    ii_splus=0;
+                    ii_sminus=0;
                     first_electrode=1;
                     for ii_batch=1:no_batches
                         %Load the S+
@@ -1928,6 +1928,7 @@ for groupNo=1:max(handles.drgbchoices.group_no)
                         p_val_lick(ii_t)=ranksum(splus_licks,sminus_licks);
                     end
                     
+                    handles_out.discriminant_PACwavepower_all_mice.no_mice_included=no_mice_included;
                     
                     handles_out.discriminant_PACwavepower_all_mice.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).all_stamped_lick_ii=these_all_stamped_lick_ii;
                     handles_out.discriminant_PACwavepower_all_mice.group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).all_licks_per_tPACwave=these_all_licks_per_tPACwave;

@@ -58,7 +58,7 @@ for trNo=firstTr:lastTr
     %     end
     
     evNo = drgFindEvNo(handles,trNo,sessionNo);
-    
+     
     if evNo~=-1
         
         

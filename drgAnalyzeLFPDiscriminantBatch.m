@@ -645,6 +645,7 @@ switch which_display
                         end
                     end
                     
+                    fprintf(1, ['The number of mice included in the LDA analysis for this odor pair is %d\n\n\n'], no_mice_included)
                     
                     no_mice_per(percent_correct_ii)=no_mice_included;
                     
