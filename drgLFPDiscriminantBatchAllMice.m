@@ -323,6 +323,7 @@ if all_files_present==1
                                     %Enter the per LFP values
                                     par_out(LFPNo).PAC(ii).no_trials=0;
                                     par_out(LFPNo).PAC(ii).meanVectorLength=[];
+                                    par_out(LFPNo).PAC(ii).delta_t_trial=[];
                                     par_out(LFPNo).PAC(ii).meanVectorAngle=[];
                                     par_out(LFPNo).PAC(ii).peakAngle=[];
                                     par_out(LFPNo).PAC(ii).mod_indx=[];
@@ -612,6 +613,10 @@ if all_files_present==1
                                         meanVectorLength=zeros(1,sum(valid_trials));
                                         meanVectorLength(:,:)=old_meanVectorLength(1,valid_trials);
                                         
+                                        old_delta_t_trial=handlespf.drgb.PAC.delta_t_trial;
+                                        delta_t_trial=zeros(1,sum(valid_trials));
+                                        delta_t_trial(:,:)=old_delta_t_trial(1,valid_trials);
+                                        
                                         old_meanVectorAngle=handlespf.drgb.PAC.meanVectorAngle;
                                         meanVectorAngle=zeros(1,sum(valid_trials));
                                         meanVectorAngle(:,:)=old_meanVectorAngle(1,valid_trials);
@@ -694,6 +699,7 @@ if all_files_present==1
                                         %Enter the per LFP values
                                         par_out(LFPNo).PAC(PACii).no_trials=sum(valid_trials);
                                         par_out(LFPNo).PAC(PACii).meanVectorLength=meanVectorLength;
+                                        par_out(LFPNo).PAC(PACii).delta_t_trial=delta_t_trial;
                                         par_out(LFPNo).PAC(PACii).meanVectorAngle=meanVectorAngle;
                                         par_out(LFPNo).PAC(PACii).peakAngle=peakAngle;
                                         par_out(LFPNo).PAC(PACii).mod_indx=mod_indx;
@@ -918,6 +924,7 @@ if all_files_present==1
                                             par_out(LFPNo).PAC(PACii).no_trials=par_out(LFPrep).PAC(PACii).no_trials;
                                             par_out(LFPNo).PAC(PACii).this_trialNo=par_out(LFPrep).PAC(PACii).this_trialNo;
                                             par_out(LFPNo).PAC(PACii).meanVectorLength=par_out(LFPrep).PAC(PACii).meanVectorLength;
+                                            par_out(LFPNo).PAC(PACii).delta_t_trial=par_out(LFPrep).PAC(PACii).delta_t_trial;
                                             par_out(LFPNo).PAC(PACii).meanVectorAngle=par_out(LFPrep).PAC(PACii).meanVectorAngle;
                                             par_out(LFPNo).PAC(PACii).peakAngle=par_out(LFPrep).PAC(PACii).peakAngle;
                                             par_out(LFPNo).PAC(PACii).mod_indx=par_out(LFPrep).PAC(PACii).mod_indx;

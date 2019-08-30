@@ -97,6 +97,11 @@ for trNo=firstTr:lastTr
                 
                 time(no_trials)=handles.drg.session(sessionNo).trial_start(trNo);
                 handles.drgb.PAC.this_trialNo(no_trials)=trNo;
+                if trNo==1
+                    handles.drgb.PAC.delta_t_trial(no_trials)=100; %There are no trials before the first trial
+                else
+                    handles.drgb.PAC.delta_t_trial(no_trials)=handles.drg.session(sessionNo).trial_start(trNo)-handles.drg.session(sessionNo).trial_start(trNo-1);
+                end
                 perCorr_per_histo(no_trials)=50;
                
                 if handles.peakLFPNo==18

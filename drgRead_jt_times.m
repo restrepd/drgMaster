@@ -146,7 +146,12 @@ switch drg.block_choice
 end
 
 %Now redo blocks.
-drg.session(filNum).blocks=draq_d.blocks;
+try
+    drg.session(filNum).blocks=draq_d.blocks;
+catch
+    drg.session(filNum).blocks=1;
+end
+
 switch drg.block_choice
     case 1
         %Leave the blocks alone

@@ -120,7 +120,11 @@ szad=size(amplifier_data);
 data_this_trial=zeros(szad(2),22);
 
 %Enter the electrode recordings
-data_this_trial(:,1:16)=amplifier_data';
+if handles.drg.drta_p.which_protocol==6
+    data_this_trial(:,1:16)=amplifier_data(9:24,:)';
+else
+    data_this_trial(:,1:16)=amplifier_data';
+end
 
 try
     %Enter the digital input channel
