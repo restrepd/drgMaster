@@ -104,7 +104,7 @@ for PACii=1:3
                     end
                     glm_prp.peak_trough(glm_prp_ii+1:glm_prp_ii+length(these_prp))=wave_power(PACii).input_datapt(ii_rank).peak_trough*ones(1,length(these_prp));
                     glm_prp_ii=glm_prp_ii+length(these_prp);
-                    
+                     
                     ii_stats_prp=ii_stats_prp+1;
                     p_prp_stats(ii_stats_prp).data=these_prp;
                     if evNo==1

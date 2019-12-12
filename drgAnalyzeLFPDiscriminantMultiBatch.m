@@ -71,6 +71,8 @@ bar_ii=0;
 
 p_AUCloc_stats=[];
 ii_AUCloc_stats=0;
+glm_AUCloc=[];
+glm_AUC_ii=0;
 
 for PACii=[1 3]
     p_correct_stats=[];
@@ -335,16 +337,26 @@ for PACii=[1 3]
     plot([bar_ii bar_ii],CIAUCpeakloc1,'-k')
     
     ii_AUCloc_stats=ii_AUCloc_stats+1;
-    p_AUCloc_stats(ii_stats).data=AUCpeakloc1;
-    p_AUCloc_stats(ii_stats).description=['Theta/' PACnames{PACii} ' location 1'];
+    p_AUCloc_stats(ii_AUCloc_stats).data=AUCpeakloc1;
+    p_AUCloc_stats(ii_AUCloc_stats).description=['Theta/' PACnames{PACii} ' location 1'];
+    
+    glm_AUCloc.data(glm_AUC_ii+1:glm_AUC_ii+length(AUCpeakloc1))=AUCpeakloc1;
+    glm_AUCloc.PACii(glm_AUC_ii+1:glm_AUC_ii+length(AUCpeakloc1))=PACii;
+    glm_AUCloc.locations(glm_AUC_ii+1:glm_AUC_ii+length(AUCpeakloc1))=1;
+    glm_AUC_ii=glm_AUC_ii+length(AUCpeakloc1);
     
     p2=bar(bar_ii+1,mean(AUCpeakloc2),'r');
     CIAUCpeakloc2 = bootci(1000, {@mean, AUCpeakloc2})';
     plot([bar_ii+1 bar_ii+1],CIAUCpeakloc2,'-k')
     
     ii_AUCloc_stats=ii_AUCloc_stats+1;
-    p_AUCloc_stats(ii_stats).data=AUCpeakloc1;
-    p_AUCloc_stats(ii_stats).description=['Theta/' PACnames{PACii} ' location 2'];
+    p_AUCloc_stats(ii_AUCloc_stats).data=AUCpeakloc2;
+    p_AUCloc_stats(ii_AUCloc_stats).description=['Theta/' PACnames{PACii} ' location 2'];
+    
+    glm_AUCloc.data(glm_AUC_ii+1:glm_AUC_ii+length(AUCpeakloc2))=AUCpeakloc2;
+    glm_AUCloc.PACii(glm_AUC_ii+1:glm_AUC_ii+length(AUCpeakloc2))=PACii;
+    glm_AUCloc.locations(glm_AUC_ii+1:glm_AUC_ii+length(AUCpeakloc2))=2;
+    glm_AUC_ii=glm_AUC_ii+length(AUCpeakloc2);
     
     bar_ii=bar_ii+3;
     
@@ -363,6 +375,13 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
         title(['Area under the curve for Theta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii}])
     end
 end
+
+%Perform the glm for percent correct
+fprintf(1, ['\n\nglm for percent correct decoding in the LDA for location graph\n'])
+tbl = table(glm_AUCloc.data',glm_AUCloc.PACii',glm_AUCloc.locations',...
+    'VariableNames',{'LDApcorr','PACbandwidth','location'});
+mdl = fitglm(tbl,'LDApcorr~PACbandwidth+location+PACbandwidth*location'...
+    ,'CategoricalVars',[2,3])
 
 %Do ranksum/t test
 fprintf(1, ['\n\nRanksum or t-test p values for percent correct decoding in the LDA for location graph\n'])
@@ -562,10 +581,15 @@ for PACii=1:length(handles_out.drgbchoices.PACburstLowF)
         %Odor on markers
         figure(6+(PACii-1)*2+(percent_correct_ii-1)+1)
         legend([h_thpre h_throd h_pkpre h_pkod],{'Trough pre-odor','Trough odor','Peak pre-odor','Peak odor'})
-        xticks([3:8:43]) 
+        xticks([3:8:43])
         xticklabels(handlesdrgb.drgbchoices.odorpair)
         title(['Dimensionality for Theta/' handles_out.drgbchoices.PACnames{PACii} ' ' handles_out.drgbchoices.group_no_names{groupNo}  ' ' handles_out.drgbchoices.per_lab{percent_correct_ii}])
         ylabel('Dimensionality')
+        p_corr_stats=[];
+        ii_s=0;
     end
 end
+
+
+
 pffft=1;

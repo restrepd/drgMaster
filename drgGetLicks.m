@@ -1,5 +1,5 @@
 function [lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times...
-    ,no_trials,trials_included,thershold_licks]=drgGetLicks(handles)
+    ,no_trials,trials_included,thershold_licks,conv_lick_freq_per_trial,trials_included_per_trial]=drgGetLicks(handles)
 
 %Get licks for those trials that have an LFP that can be read
 firstTr=handles.trialNo;
@@ -178,12 +178,15 @@ conv_win=ones(1,no_conv_points);
 lick_freq=conv(lick_freq,conv_win,'same');
 
 ntrs=0;
+trials_included_per_trial=[];
 for trNo=1:no_trials
     if temp_stamped_lick_ii(trNo)>0
         ntrs=ntrs+1;
         conv_lick_freq_per_trial(ntrs,:)=conv(lick_freq_per_trial(trNo,:),conv_win,'same');
+        trials_included_per_trial(ntrs)=trials_included(trNo);
     end
 end
+
 
 if no_trials>2
     CIlickf = bootci(1000, @mean, conv_lick_freq_per_trial);
@@ -196,6 +199,7 @@ else
     CIlickf=[];
 end
 
+conv_lick_freq_per_trial=conv_lick_freq_per_trial/(dt_licks*no_conv_points);
 
 lick_traces=lick_traces(1:no_trials,1:ceil((handles.time_end-handles.time_start-2*handles.time_pad)*handles.drg.session(sessionNo).draq_p.ActualRate));
 lick_trace_times=([1:ceil((handles.time_end-handles.time_start-2*handles.time_pad)*handles.drg.session(sessionNo).draq_p.ActualRate)]/handles.drg.session(sessionNo).draq_p.ActualRate)+min_t+handles.time_pad;

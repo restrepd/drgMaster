@@ -7,7 +7,8 @@ function handles=drgLFPwaveTimecourse(handles)
 
 
 %Calculate the licks
-[lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times,no_trials,trials_included,lick_threshold]=drgGetLicks(handles);
+[lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times,no_trials,...
+    trials_included,lick_threshold, lick_freq_per_trial,trials_included_per_trial]=drgGetLicks(handles);
 
 %Get PAC
 handles=drgThetaAmpPhaseTrialRange(handles);
@@ -132,27 +133,50 @@ if handles.drgb.PAC.no_trials>0
         handles.drgb.PACwave.meanTroughPower(trNum)=mean(troughPower(trNum,:));
     end
     
-    %Calculate mean power
-    for trNum=1:handles.drgb.PAC.no_trials
-        for ii_t=1:length(t_pac)
-            if ii_t==1
-                meanPower(trNum,ii_t)=mean(10*log10(all_Power_timecourse(trNum,:,1)),2);
-            else
-                if ii_t==length(t_pac)
-                    meanPower(trNum,ii_t)=mean(10*log10(all_Power_timecourse(trNum,:,end)),2);
-                else
-                    meanPower(trNum,ii_t)=mean(mean(10*log10(all_Power_timecourse(trNum,:,(t_apt>=t_pac(ii_t)-(dt/2))&(t_apt<t_pac(ii_t)+(dt/2)))),2),3);
-                end
-            end
-        end
-        if handles.subtractRef==1
-            meanPower(trNum,:)=meanPower(trNum,:)-mean(meanPower(trNum,(t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
-        end
-        
-        handles.drgb.PACwave.PACtimecourse(trNum).meanPower=meanPower(trNum,:);
-        handles.drgb.PACwave.meanPower(trNum)=mean(meanPower(trNum,:));
-    end
+%     %Calculate mean power
+%     for trNum=1:handles.drgb.PAC.no_trials
+%         
+%         for ii_t=1:length(t_pac)
+%             if ii_t==1
+%                 meanPower(trNum,ii_t)=mean(10*log10(all_Power_timecourse(trNum,:,1)),2);
+%             else
+%                 if ii_t==length(t_pac)
+%                     meanPower(trNum,ii_t)=mean(10*log10(all_Power_timecourse(trNum,:,end)),2);
+%                 else
+%                     meanPower(trNum,ii_t)=mean(mean(10*log10(all_Power_timecourse(trNum,:,(t_apt>=t_pac(ii_t)-(dt/2))&(t_apt<t_pac(ii_t)+(dt/2)))),2),3);
+%                 end
+%             end
+%         end
+%         if handles.subtractRef==1
+%             meanPower(trNum,:)=meanPower(trNum,:)-mean(meanPower(trNum,(t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
+%         end
+%         
+%         handles.drgb.PACwave.PACtimecourse(trNum).meanPower=meanPower(trNum,:);
+%         handles.drgb.PACwave.meanPower(trNum)=mean(meanPower(trNum,:));
+%     end
     
+    %Place lick per trial
+    ntrs_out=0;
+    for trNum=1:length(trials_included_per_trial)
+        ii_tr=find(handles.drgb.PAC.this_trialNo==trials_included_per_trial(trNum),1);
+        if ~isempty(ii_tr)
+            ntrs_out=ntrs_out+1;
+            if handles.subtractRef==1
+                lick_freq_per_trial(trNum,:)=lick_freq_per_trial(trNum,:)-mean(lick_freq_per_trial(trNum,(t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
+            end
+            
+            handles.drgb.PACwave.no_lick_trials=ntrs_out;
+            handles.drgb.PACwave.lick_timecourse(ntrs_out).lick_f=lick_freq_per_trial(trNum,:);
+            handles.drgb.PACwave.lick_timecourse(ntrs_out).times_lick_freq=times_lick_freq;
+            handles.drgb.PACwave.mean_lick_freq(ntrs_out)=mean(lick_freq_per_trial(trNum,:));
+            
+            %Now enter peakPower and troughPower for trials that include licks
+            handles.drgb.PACwave.meanPeakPower_per_lick_trial(ntrs_out)=handles.drgb.PACwave.meanPeakPower(ii_tr);
+            handles.drgb.PACwave.meanTroughPower_per_lick_trial(ntrs_out)=handles.drgb.PACwave.meanTroughPower(ii_tr);
+            
+        end
+    end
+     
     if handles.displayData==1
         if ~isempty(this_trialNo)
             
@@ -444,6 +468,10 @@ if handles.drgb.PAC.no_trials>0
                 end
             end
             title(['Power (dB, wavelet)  ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
+            
+            if handles.autoscale==0
+                ylim([handles.minLogP handles.maxLogP])
+            end
             
             
             

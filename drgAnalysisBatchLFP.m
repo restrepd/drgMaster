@@ -12941,7 +12941,7 @@ switch which_display
         wave_logP_per_mouse=[];
         mouse_included=[];
         
-        out_times=handles_drgb.drgb.file(1).waveERWA_out_times;
+        out_times=handles_drgb.drgb.lfpevpair(1).wave_out_times;
         
         fprintf(1, ['Pairwise ERWA analysis for Justin''s paper\n\n'])
 %         p_vals=[];
@@ -13543,7 +13543,7 @@ switch which_display
                                 wave_logP_mouseNo_per_mouse((wave_logP_perii_per_mouse==per_ii)&(wave_logP_evNo_per_mouse==evNo)&(wave_logP_bwii_per_mouse==bwii)&(wave_logP_group_no_per_mouse==grNo));
                             data_for_lines(per_ii).these_bar_offsets=bar_offset;
                             
-                            
+                             
                             %Average and CI
                             plot(bar_offset,mean(wave_logPpeak_per_mouse((wave_logP_perii_per_mouse==per_ii)&(wave_logP_evNo_per_mouse==evNo)&(wave_logP_bwii_per_mouse==bwii)&(wave_logP_group_no_per_mouse==grNo))),'ok','LineWidth', 3)
                             if sum((wave_logP_perii_per_mouse==per_ii)&(wave_logP_evNo_per_mouse==evNo)&(wave_logP_bwii_per_mouse==bwii)&(wave_logP_group_no_per_mouse==grNo))>2
@@ -14039,7 +14039,7 @@ switch which_display
                             else
                                 bar(bar_offset,mean(auROC((ROCper_ii==per_ii)&(ROCbandwidth==bwii)&(ROC_between==between)&(ROCgroups==grNo)&(ROC_neighbor==2))),'b','LineWidth', 3)
                             end
-                            
+                             
                             %Individual points; in the future add lines linking the
                             %points?
                             plot((bar_offset)*ones(1,sum((ROCper_ii==per_ii)&(ROCbandwidth==bwii)&(ROC_between==between)&(ROCgroups==grNo)&(ROC_neighbor==2))),...
@@ -15911,6 +15911,7 @@ switch which_display
                 title(evTypeLabels{evNo})
                 xlabel('Trough PAC power (dB)')
                 ylabel('Probability')
+                
                 if isempty(p3)
                     legend([p1 p2],{'Proficient','Naive'})
                 else

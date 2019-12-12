@@ -1,7 +1,6 @@
-function [output_data] = drgMutiRanksumorTtest(input_data)
+function [output_data] = drgMutiVartest2(input_data)
 % This function performs pairwise t tests or ranksum for a series of data sets
 % A t test is used if the data are normal, otherwise a ranksum is used
-warning('off')
 pvals=[];
 output_data.ii_pairs=0;
 ii_for_test=length(input_data);
@@ -10,11 +9,11 @@ for ii=1:ii_for_test
         output_data.ii_pairs=output_data.ii_pairs+1;
         output_data.ii_in_pair(output_data.ii_pairs)=ii;
         output_data.jj_in_pair(output_data.ii_pairs)=jj;
-        [output_data.p(output_data.ii_pairs), output_data.r_or_t(output_data.ii_pairs)]=drg_ranksum_or_ttest(input_data(ii).data,input_data(jj).data);
+        [output_data.h(output_data.ii_pairs), output_data.p(output_data.ii_pairs)]=vartest2(input_data(ii).data,input_data(jj).data);
         pvals=[pvals output_data.p(output_data.ii_pairs)];
     end
 end
- 
+
 output_data.pFDR = drsFDRpval(pvals);
 fprintf(1, ['\n\npFDR = %d \n\n'],output_data.pFDR)
 
@@ -33,20 +32,10 @@ for jj_pair=1:output_data.ii_pairs
         is_first=0;
         fprintf(1, ['\np values below are > pFDR\n\n'])
     end
-    r_or_t=output_data.r_or_t(output_data.sorted_ii_pairs(jj_pair));
-    if r_or_t==0
-        fprintf(1, ['p value ranksum for ' input_data(ii).description ' vs ' input_data(jj).description ' =  %d\n'],p)
-    else
-        fprintf(1, ['p value t-test for ' input_data(ii).description ' vs ' input_data(jj).description ' =  %d\n'],p)
-    end
+    
+    fprintf(1, ['p value vartest2 for ' input_data(ii).description ' vs ' input_data(jj).description ' =  %d\n'],p)
 end
 
 fprintf(1, ['\n\n'])
-
-warning('on')
-
 end
-
-
-
 
