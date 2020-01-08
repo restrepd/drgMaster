@@ -1,6 +1,7 @@
 function drgLFPDiscriminantBatch
 
 %Discriminant and PCA analysis for LFP data
+%Used for Figure 5 of Losacco, Ramirez-Gordillo et al., 2020
 
 % It takes as input a choices file such as
 % drgbChoicesDiscriminantJustin_spm_perfom_LFP_20180215
@@ -27,9 +28,9 @@ function drgLFPDiscriminantBatch
 %
 %9 LDA for power calculated with the high freq Hilbert at the PAC phase
 %
-%10 LDA for wavelet power calculated at the PAC phase
+%10 LDA for wavelet power calculated at the PAC phase, used for Figure 5
 %
-%11 PCA for wavelet power calculated at the PAC phase
+%11 PCA for wavelet power calculated at the PAC phase used for Figure 5
 %
 %12 LDA for subsets of electrodes for wavelet power calculated at the PAC phase
 %

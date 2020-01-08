@@ -1,17 +1,17 @@
 function drgRunBatchLFPpar
 
-%drgRunBatchLFPpar performs batch analysis of LFP power through fourier transform and wavelet analyisis
-%and phase amplitude coupling (PAC). drgRunBatchLFPpar asks the user for a drgbChoices .m file 
+%drgRunBatchLFPpar performs batch analysis of LFP power through fourier
+%transform, phase reference power using wavelet analyisis (PRP) and
+%phase amplitude coupling (PAC). drgRunBatchLFPpar asks the user for a drgbChoices .m file 
 %that has all the information on what the user wants done, which files
 %to process, what groups they fall into, etc. The processed data are saved in a .mat file and the analysis can be
 %displayed with drgAnalysisBatchLFP
 %
-% An example of this file: drgbChoicesDanielPrelim
 %
 % handles.drgbchoices.analyses chooses the analysis performed
 %
-% 1 PAC for cases 19 (MI, angle, etc) and 23 (peak and trough power through
-% Hilbert) in drgAnalysisBatchLFP, vetted
+% 1 PAC for case 19 (MI, angle, etc) in drgAnalysisBatchLFP, vetted
+% This was used for Figure 2 of Lossaco, Ramirez-Gordillo et al eLife 2020
 %
 % 2 LFP power for case 20 in drgAnalysisBatchLFP, vetted
 %
@@ -26,8 +26,9 @@ function drgRunBatchLFPpar
 %
 % 7 phase comparison analysis
 %
-% 8 LFP wavelet power computed at the peak and through of the low frequency wave
-% phase is calculated with a Hilbert transform (PAC)
+% 8 Phase-referenced power: LFP wavelet power computed at the peak and through of the low frequency wave
+% phase is calculated with a Hilbert transform (PAC), vetted
+% This was used for Figure 3 of Lossaco, Ramirez-Gordillo et al eLife 2020
 
 tic
 

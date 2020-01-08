@@ -1010,7 +1010,7 @@ set(hObject,'String',num2str(handles.firstEvNo))
 %Now set the trial number
 trialNo=find((handles.drg.session(sessionNo).events(handles.evTypeNo).times(handles.firstEvNo)>=handles.drg.session(sessionNo).trial_start)&...
     (handles.drg.session(sessionNo).events(handles.evTypeNo).times(handles.firstEvNo)<=handles.drg.session(sessionNo).trial_start+handles.drg.session(sessionNo).sec_per_trial));
-handles.trialNo=trialNo;
+handles.trialNo=trialNo(end);
 set(handles.whichTrial,'String',num2str(handles.trialNo));
 
 % Update the handles structure
@@ -1050,7 +1050,7 @@ set(hObject,'String',num2str(handles.lastEvNo))
 %Now set the event number
 trialNo=find((handles.drg.session(sessionNo).events(handles.evTypeNo).times(handles.lastEvNo)>=handles.drg.session(sessionNo).trial_start)&...
     (handles.drg.session(sessionNo).events(handles.evTypeNo).times(handles.lastEvNo)<=handles.drg.session(sessionNo).trial_start+handles.drg.session(sessionNo).sec_per_trial));
-handles.lastTrialNo=trialNo;
+handles.lastTrialNo=trialNo(end);
 set(handles.whichLastTrial,'String',num2str(handles.lastTrialNo));
 % Update the handles structure
 guidata(hObject, handles);

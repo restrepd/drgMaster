@@ -178,6 +178,7 @@ conv_win=ones(1,no_conv_points);
 lick_freq=conv(lick_freq,conv_win,'same');
 
 ntrs=0;
+conv_lick_freq_per_trial=[];
 trials_included_per_trial=[];
 for trNo=1:no_trials
     if temp_stamped_lick_ii(trNo)>0
@@ -188,7 +189,7 @@ for trNo=1:no_trials
 end
 
 
-if no_trials>2
+if ntrs>2
     CIlickf = bootci(1000, @mean, conv_lick_freq_per_trial);
     CIlickf(1,:)=lick_freq-CIlickf(1,:);
     CIlickf(2,:)=CIlickf(2,:)-lick_freq;
@@ -199,7 +200,9 @@ else
     CIlickf=[];
 end
 
-conv_lick_freq_per_trial=conv_lick_freq_per_trial/(dt_licks*no_conv_points);
+if ~isempty(conv_lick_freq_per_trial)
+    conv_lick_freq_per_trial=conv_lick_freq_per_trial/(dt_licks*no_conv_points);
+end
 
 lick_traces=lick_traces(1:no_trials,1:ceil((handles.time_end-handles.time_start-2*handles.time_pad)*handles.drg.session(sessionNo).draq_p.ActualRate));
 lick_trace_times=([1:ceil((handles.time_end-handles.time_start-2*handles.time_pad)*handles.drg.session(sessionNo).draq_p.ActualRate)]/handles.drg.session(sessionNo).draq_p.ActualRate)+min_t+handles.time_pad;

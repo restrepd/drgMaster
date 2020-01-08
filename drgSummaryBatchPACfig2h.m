@@ -1,9 +1,5 @@
-function drgSummaryBatchPAC
-%Analyzes the linear discriminant analysis performed by drgLFPDiscriminantBatch
-%Takes as a in input the 'drgbDiscPar' file listing 'Discriminant_*.mat' output files
-%from drgLFPDiscriminantBatch
-%
-%Performs summary analises for LDA and  PAC analysis performed with case 19
+function drgSummaryBatchPACfig2h
+%Performs summary analysis for PAC analysis performed with case 19
 %of drgAnalysisBatchLFP
 
 warning('off')
