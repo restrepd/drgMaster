@@ -6,6 +6,9 @@ The code in GitHub/drgMaster was used to analyze the data in:
 Learning improves decoding of odor identity with phase-referenced oscillations in the olfactory bulb 
 Justin Losacco, Daniel Ramirez-Gordillo, Jesse Gilmer and Diego Restrepo
 published in eLife in 2020 (link will be added).
+
+The data have been deposited in the GigaScience Database, http://doi.org/10.5524/100699
+
 You should install the following MATLAB toolboxes:
 
 Wavelet
