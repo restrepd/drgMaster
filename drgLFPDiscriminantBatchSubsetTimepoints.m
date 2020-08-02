@@ -1,4 +1,4 @@
-function drgLFPDiscriminantBatch
+function drgLFPDiscriminantBatchSubsetTimepoints
 
 %Discriminant and PCA analysis for LFP data
 %Used for Figure 5 of Losacco, Ramirez-Gordillo et al., 2020
@@ -41,6 +41,13 @@ function drgLFPDiscriminantBatch
 
 close all
 clear all
+
+%To run faster the program only calculates LDA in this time window
+window_start=0.5;
+window_end=2.5;
+
+handles_out.window_start=window_start;
+handles_out.window_end=window_end;
 
 percent_correct_ii=1;
 
@@ -199,7 +206,7 @@ if all_files_present==1
                             first_file_for_this_mouse=filNum;
                         end
                         mouse_has_data=1;
-                        file_no=filNum
+                        file_no=filNum;
                         
                         this_jt=handles.drgbchoices.FileName{filNum};
                         
@@ -644,7 +651,7 @@ if all_files_present==1
                                         old_meanTroughPowerwave=handlespf.drgb.PACwave.meanTroughPower;
                                         meanTroughPowerwave=zeros(1,sum(valid_trials));
                                         meanTroughPowerwave(:,:)=old_meanTroughPowerwave(1,valid_trials);
-%                                         
+                                        
 %                                         old_meanPowerwave=handlespf.drgb.PACwave.meanPower;
 %                                         meanPowerwave=zeros(1,sum(valid_trials));
 %                                         meanPowerwave(:,:)=old_meanPowerwave(1,valid_trials);
@@ -3150,113 +3157,134 @@ if all_files_present==1
                                         dimensionality=zeros(1,length(t));
                                         per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
                                         
-                                        parfor time_point=1:length(t)
-                                            
-                                            %LFP power per trial per electrode
-                                            measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
-                                            measurements(:,:)=these_all_log_P_timecoursePACwave(:,:,time_point)';
-                                            
-                                            %Dimensionality
-                                            %Rows: trials, Columns: electrodes
-                                            Signal=measurements;
-                                            dimensionality(time_point) = nansum(eig(cov(Signal)))^2/nansum(eig(cov(Signal)).^2);
-                                            
-                                            %Enter strings labeling each event (one event for
-                                            %each trial)
-                                            events=[];
-                                            
-                                            for ii=1:N
-                                                this_event=zeros(length(handles.drgbchoices.events_to_discriminate),1);
-                                                this_event=these_all_which_events(:,ii);
+                                        time_mask=zeros(1,length(t));
+                                        time_mask((t>=window_start)&(t<=window_end))=1;
+                                        
+                                        
+                                        trimmed_time_points=zeros(1,sum(time_mask));
+                                        time_points=[1:length(t)];
+                                        trimmed_time_points(1,:)=time_points(time_mask);
+                                        
+                                        sub_test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,sum(time_mask));
+                                        sub_shuffled_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,sum(time_mask));
+                                        sub_discriminant_correct=zeros(1,sum(time_mask));
+                                        sub_discriminant_correct_shuffled=zeros(1,sum(time_mask));
+                                        sub_auROC=zeros(1,sum(time_mask));
+                                        sub_dimensionality=zeros(1,sum(time_mask));
+                                        
+                                        parfor ii_time_point=1:length(trimmed_time_points)
+                                                time_point=trimmed_time_points(1,ii_time_point);
+                                                %LFP power per trial per electrode
+                                                measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                                measurements(:,:)=these_all_log_P_timecoursePACwave(:,:,time_point)';
                                                 
-                                                events{ii,1}=handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(logical(this_event))};
+                                                %Dimensionality
+                                                %Rows: trials, Columns: electrodes
+                                                Signal=measurements;
+                                                sub_dimensionality(ii_time_point) = nansum(eig(cov(Signal)))^2/nansum(eig(cov(Signal)).^2);
                                                 
-                                            end
-                                            
-                                            tested_events=[];
-                                            shuffled_tested_events=[];
-                                            scores=[];
-                                            for ii=1:N
-                                                %Partition the data into training and test sets.
+                                                %Enter strings labeling each event (one event for
+                                                %each trial)
+                                                events=[];
                                                 
-                                                %Create input and target vectors leaving one trial out
-                                                %For per_input each column has the dF/F for one trial
-                                                %each row is a single time point for dF/F for one of the cells
-                                                %For per_target the top row is 1 if the odor is S+ and 0 if it is
-                                                %S-, and row 2 has 1 for S-
-                                                idxTrn=ones(N,1);
-                                                idxTrn(ii)=0;
-                                                idxTest=zeros(N,1);
-                                                idxTest(ii)=1;
+                                                for ii=1:N
+                                                    this_event=zeros(length(handles.drgbchoices.events_to_discriminate),1);
+                                                    this_event=these_all_which_events(:,ii);
+                                                    
+                                                    events{ii,1}=handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(logical(this_event))};
+                                                    
+                                                end
                                                 
-                                                %Store the training data in a table.
-                                                tblTrn=[];
-                                                tblTrn = array2table(measurements(logical(idxTrn),:));
-                                                tblTrn.Y = events(logical(idxTrn));
+                                                tested_events=[];
+                                                shuffled_tested_events=[];
+                                                scores=[];
+                                                for ii=1:N
+                                                    %Partition the data into training and test sets.
+                                                    
+                                                    %Create input and target vectors leaving one trial out
+                                                    %For per_input each column has the dF/F for one trial
+                                                    %each row is a single time point for dF/F for one of the cells
+                                                    %For per_target the top row is 1 if the odor is S+ and 0 if it is
+                                                    %S-, and row 2 has 1 for S-
+                                                    idxTrn=ones(N,1);
+                                                    idxTrn(ii)=0;
+                                                    idxTest=zeros(N,1);
+                                                    idxTest(ii)=1;
+                                                    
+                                                    %Store the training data in a table.
+                                                    tblTrn=[];
+                                                    tblTrn = array2table(measurements(logical(idxTrn),:));
+                                                    tblTrn.Y = events(logical(idxTrn));
+                                                    
+                                                    %Train a discriminant analysis model using the training set and default options.
+                                                    %By default this is a regularized linear discriminant analysis (LDA)
+                                                    Mdl = fitcdiscr(tblTrn,'Y');
+                                                    
+                                                    %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
+                                                    [label,score] = predict(Mdl,measurements(logical(idxTest),:));
+                                                    
+                                                    tested_events{ii,1}=label{1};
+                                                    scores(ii)=score(2);
+                                                    
+                                                    %Do LDA with shuffled trials
+                                                    shuffled_measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
+                                                    shuffled_measurements(:,:)=measurements(randperm(N),:);
+                                                    
+                                                    %Store the training data in a table.
+                                                    sh_tblTrn=[];
+                                                    sh_tblTrn = array2table(shuffled_measurements(logical(idxTrn),:));
+                                                    sh_tblTrn.Y = events(logical(idxTrn));
+                                                    
+                                                    %Train a discriminant analysis model using the training set and default options.
+                                                    %By default this is a regularized linear discriminant analysis (LDA)
+                                                    sh_Mdl = fitcdiscr(sh_tblTrn,'Y');
+                                                    
+                                                    %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
+                                                    sh_label = predict(Mdl,shuffled_measurements(logical(idxTest),:));
+                                                    
+                                                    shuffled_tested_events{ii,1}=sh_label{1};
+                                                    
+                                                end
                                                 
-                                                %Train a discriminant analysis model using the training set and default options.
-                                                %By default this is a regularized linear discriminant analysis (LDA)
-                                                Mdl = fitcdiscr(tblTrn,'Y');
+                                                %Calculate auROC
+                                                [X,Y,T,AUC] = perfcurve(events,scores',handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)});
+                                                sub_auROC(1,ii_time_point)=AUC-0.5;
+                                                %test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
                                                 
-                                                %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
-                                                [label,score] = predict(Mdl,measurements(logical(idxTest),:));
                                                 
-                                                tested_events{ii,1}=label{1};
-                                                scores(ii)=score(2);
+                                                per_targets=these_all_which_events;
                                                 
-                                                %Do LDA with shuffled trials
-                                                shuffled_measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
-                                                shuffled_measurements(:,:)=measurements(randperm(N),:);
-                                                
-                                                %Store the training data in a table.
-                                                sh_tblTrn=[];
-                                                sh_tblTrn = array2table(shuffled_measurements(logical(idxTrn),:));
-                                                sh_tblTrn.Y = events(logical(idxTrn));
-                                                
-                                                %Train a discriminant analysis model using the training set and default options.
-                                                %By default this is a regularized linear discriminant analysis (LDA)
-                                                sh_Mdl = fitcdiscr(sh_tblTrn,'Y');
-                                                
-                                                %Predict labels for the test set. You trained Mdl using a table of data, but you can predict labels using a matrix.
-                                                sh_label = predict(Mdl,shuffled_measurements(logical(idxTest),:));
-                                                
-                                                shuffled_tested_events{ii,1}=sh_label{1};
-                                                
-                                            end
-                                            
-                                            %Calculate auROC
-                                            [X,Y,T,AUC] = perfcurve(events,scores',handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(2)});
-                                            auROC(1,time_point)=AUC-0.5;
-                                            %test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t));
-                                            
-                                            
-                                            per_targets=these_all_which_events;
-                                            
-                                            test_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
-                                            shuffled_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
-                                            for ii=1:N
-                                                for jj=1:length(handles.drgbchoices.events_to_discriminate)
-                                                    if strcmp(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(jj)},tested_events{ii})
-                                                        test_out(jj,ii)=1;
-                                                    else
-                                                        test_out(jj,ii)=0;
-                                                    end
-                                                    if strcmp(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(jj)},shuffled_tested_events{ii})
-                                                        shuffled_out(jj,ii)=1;
-                                                    else
-                                                        shuffled_out(jj,ii)=0;
+                                                test_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                                shuffled_out=zeros(length(handles.drgbchoices.events_to_discriminate),N);
+                                                for ii=1:N
+                                                    for jj=1:length(handles.drgbchoices.events_to_discriminate)
+                                                        if strcmp(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(jj)},tested_events{ii})
+                                                            test_out(jj,ii)=1;
+                                                        else
+                                                            test_out(jj,ii)=0;
+                                                        end
+                                                        if strcmp(handles.drg.draq_d.eventlabels{handles.drgbchoices.events_to_discriminate(jj)},shuffled_tested_events{ii})
+                                                            shuffled_out(jj,ii)=1;
+                                                        else
+                                                            shuffled_out(jj,ii)=0;
+                                                        end
                                                     end
                                                 end
-                                            end
-                                            
-                                            test_out_per_timepoint(:,:,time_point)=test_out;
-                                            shuffled_out_per_timepoint(:,:,time_point)=shuffled_out;
-                                            discriminant_correct(1,time_point)=100*sum(sum(test_out.*per_targets))/N;
-                                            discriminant_correct_shuffled(1,time_point)=100*sum(sum(shuffled_out.*per_targets))/N;
-                                            fprintf(1, 'LDA for peak PAC wavelet power percent correct classification %d (for timepoint %d out of %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/N,time_point,length(t));
-                                            
+                                                
+                                                sub_test_out_per_timepoint(:,:,ii_time_point)=test_out;
+                                                sub_shuffled_out_per_timepoint(:,:,ii_time_point)=shuffled_out;
+                                                sub_discriminant_correct(1,ii_time_point)=100*sum(sum(test_out.*per_targets))/N;
+                                                sub_discriminant_correct_shuffled(1,ii_time_point)=100*sum(sum(shuffled_out.*per_targets))/N;
+                                                fprintf(1, 'LDA for peak PAC wavelet power percent correct classification %d (for timepoint %d out of %d)\n',100*sum(per_targets(1,:)==test_out(1,:))/N,time_point,length(t));
+                                           
                                         end
                                         
+                                        dimensionality(time_mask)=sub_dimensionality;
+                                        test_out_per_timepoint(:,:,time_mask)=sub_test_out_per_timepoint;
+                                        shuffled_out_per_timepoint(:,:,time_mask)=sub_shuffled_out_per_timepoint;
+                                        discriminant_correct(1,time_mask)=sub_discriminant_correct;
+                                        discriminant_correct_shuffled(1,time_mask)=sub_discriminant_correct_shuffled;
+                                        auROC(1,time_mask)=sub_auROC;
                                         
                                         if PACii==3
                                             figNo=figNo+1;

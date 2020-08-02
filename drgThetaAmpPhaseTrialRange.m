@@ -355,6 +355,7 @@ if ~isempty(spm)
         
         
         mean_peakPower=mean(peakPower,1)';
+           
         if no_trials>2
             CI_peakPower = bootci(1000, {@mean, peakPower})';
             CI_peakPower(:,1)=mean_peakPower-CI_peakPower(:,1);
@@ -362,12 +363,15 @@ if ~isempty(spm)
         end
         
         
+        
         mean_troughPower=mean(troughPower,1)';
+        
         if no_trials>2
             CI_troughPower = bootci(1000, {@mean, troughPower})';
             CI_troughPower(:,1)=mean_troughPower-CI_troughPower(:,1);
             CI_troughPower(:,2)=CI_troughPower(:,2)-mean_troughPower;
         end
+        
         
         try
             close 7

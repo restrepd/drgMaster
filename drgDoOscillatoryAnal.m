@@ -42,4 +42,6 @@ switch handles.analysisNoOsc
         drgLFPspectrogramPerTrialPower(handles);
     case 20
         drgLFPspectPerceptron(handles);
+    case 21
+       drgThetaAmpPhaseTrialRangeConc(handles); 
 end

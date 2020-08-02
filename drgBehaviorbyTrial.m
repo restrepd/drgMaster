@@ -19,8 +19,14 @@ trials=1:length(perCorr);
 %Plot in different colors
 plot(trials,perCorr,'o','MarkerEdgeColor',[0.7 0.7 0.7],'MarkerFaceColor',[0.7 0.7 0.7])
 hold on
-plot(trials(encoding_trials),perCorr(encoding_trials),'ob')
-plot(trials(retrieval_trials),perCorr(retrieval_trials),'or')
+
+if sum(encoding_trials)>0
+    plot(trials(encoding_trials),perCorr(encoding_trials),'ob')
+end
+
+if sum(retrieval_trials)>0
+    plot(trials(retrieval_trials),perCorr(retrieval_trials),'or')
+end
 
 %Plot black
 % plot(trials,perCorr,'ok','MarkerEdgeColor','k','MarkerFaceColor','k','MarkerSize',7)

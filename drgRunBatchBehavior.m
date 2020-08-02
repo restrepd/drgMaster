@@ -41,7 +41,7 @@ if which_file==1
     choiceFileName=handles.drgbchoices.FileName;
     
     %Do batch processing for each file
-    for filNum=1:length(handles.drgbchoices.FileName)
+    for filNum=1:handles.drgbchoices.no_files
         
         file_no=filNum
         
@@ -49,9 +49,15 @@ if which_file==1
         
         if strcmp(this_file(1:3),'jt_')
             %read the jt_times files
-            handles.jtfullName=[handles.drgbchoices.PathName{filNum},handles.drgbchoices.FileName{filNum}];
-            handles.jtFileName=handles.drgbchoices.FileName{filNum};
-            handles.jtPathName=handles.drgbchoices.PathName{filNum};
+            if iscell(handles.drgbchoices.PathName)
+                handles.jtfullName=[handles.drgbchoices.PathName{filNum},handles.drgbchoices.FileName{filNum}];
+                handles.jtFileName=handles.drgbchoices.FileName{filNum};
+                handles.jtPathName=handles.drgbchoices.PathName{filNum};
+            else
+                handles.jtfullName=[handles.drgbchoices.PathName,handles.drgbchoices.FileName{filNum}];
+                handles.jtFileName=handles.drgbchoices.FileName{filNum};
+                handles.jtPathName=handles.drgbchoices.PathName;
+            end
             
             
             drgRead_jt_times(handles.jtPathName,handles.jtFileName);
@@ -155,8 +161,11 @@ for filNum=1:length(handles.drgbchoices.FileName)
     plot(trials(handles.drgb.file(filNum).retrieval_trials),handles.drgb.file(filNum).perCorr(handles.drgb.file(filNum).retrieval_trials),'or')
     
     ylim([0 110]);
-    title([handles.drgbchoices.group_no_names{handles.drgbchoices.group_no(filNum)} ':' handles.drgbchoices.epoch_names{handles.drgbchoices.epoch(filNum)}])
-    
+    try
+        title([handles.drgbchoices.group_no_names{handles.drgbchoices.group_no(filNum)} ':' handles.drgbchoices.epoch_names{handles.drgbchoices.epoch(filNum)}])
+    catch
+        title([handles.drgbchoices.group_no_names{handles.drgbchoices.group_no(filNum)}])
+    end
     remainder = rem((max_session*(handles.drgbchoices.mouse_no(filNum)-1)+handles.drgbchoices.session_no(filNum))-1,max_session);
     if  remainder==0
         ylabel(handles.drgbchoices.MouseName(handles.drgbchoices.mouse_no(filNum)))

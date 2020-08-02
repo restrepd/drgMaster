@@ -11,7 +11,7 @@ max_percent_low_beh=65;
 sessionNo=handles.drg.unit(handles.unitNo).sessionNo;
 
 switch handles.drg.drta_p.which_c_program
-    case {2,10}
+    case {2,10,14}
         %These are spm, etc
         odorOn=2;
         splus=5;
