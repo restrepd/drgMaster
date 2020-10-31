@@ -1,8 +1,10 @@
 function handles=drgThetaAmpPhaseTrialRangeConc(handles)
 
 %Generates a per trial phase histogram for the concentration experimens of
-%Justin
+%Justin for Figures 2A-D
 %Note: handles.evTypeNo is 16 for HiOd1 and 21 for LowOd6 forward
+%This code is hard wired for sessions where the three highest odorant
+%concentrations are S+
 
 odorOn=2;
 splus=5;
@@ -357,7 +359,7 @@ if ~isempty(spm)
         all_out_time_PAChisto=all_out_time_PAChisto/no_trials;
         mean_MI_enc=mean(MI_enc);
         
-          conc_labels{16}='10';
+        conc_labels{16}='10';
         conc_labels{17}='3.2';
         conc_labels{18}='1';
         conc_labels{19}='0.32';
@@ -480,6 +482,13 @@ if ~isempty(spm)
         ii=0;
         input_data=[];
         
+        concs(16)=log10(10);
+        concs(17)=log10(3.2);
+        concs(18)=log10(1);
+        concs(19)=log10(0.32);
+        concs(20)=log10(0.1);
+        concs(21)=log10(0.032);
+        
     
         
         for conc_evTyNo=last_conc_evNo:-1:first_conc_evNo
@@ -490,7 +499,7 @@ if ~isempty(spm)
             else
                 glm_mi.spm(glm_ii+1:glm_ii+sum((conc_evTyNoPerTr==conc_evTyNo)))=ones(1,sum((conc_evTyNoPerTr==conc_evTyNo)));
             end
-            glm_mi.conc(glm_ii+1:glm_ii+sum((conc_evTyNoPerTr==conc_evTyNo)))=conc_evTyNo*ones(1,sum((conc_evTyNoPerTr==conc_evTyNo)));
+            glm_mi.conc(glm_ii+1:glm_ii+sum((conc_evTyNoPerTr==conc_evTyNo)))=concs(conc_evTyNo)*ones(1,sum((conc_evTyNoPerTr==conc_evTyNo)));
             glm_ii=glm_ii+sum((conc_evTyNoPerTr==conc_evTyNo));
             
             ii=ii+1;
@@ -508,7 +517,7 @@ if ~isempty(spm)
         tbl = table(glm_mi.data',glm_mi.spm',glm_mi.conc',...
             'VariableNames',{'MI','spm','conc'});
         mdl = fitglm(tbl,'MI~spm+conc'...
-            ,'CategoricalVars',[2,3])
+            ,'CategoricalVars',[2])
         
         
         %Do the ranksum/t-test

@@ -965,7 +965,7 @@ switch which_display
             end
             
             handles_out2.PACii(PACii).glm_dim=glm_dim;
-            
+             
             pffft=1;
         end
         

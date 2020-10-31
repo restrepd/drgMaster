@@ -2,7 +2,15 @@ function handles=drgThetaAmpPhaseTrialRange(handles)
 
 %Generates a trial per trial phase histogram
 odorOn=2;
-splus=5;
+
+%Note that if event 5 exists the phase is referenced to event 5 (splus
+%or non-match). Ohterwise phase is referenced to itself
+if length(handles.drg.session(1).events)>=5
+    splus=5;
+else
+    splus=handles.evTypeNo;
+end
+
 sessionNo=handles.sessionNo;
 Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
 lowF1=handles.peakLowF;
@@ -77,7 +85,7 @@ for trNo=firstTr:lastTr
                end
             end
             [LFPhigh, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
-            
+             
             if (can_read1==1)&(can_read2==1)
                 
                 no_trials=no_trials+1;

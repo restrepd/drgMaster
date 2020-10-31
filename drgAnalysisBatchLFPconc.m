@@ -208,7 +208,7 @@ if isfield(handles_pars,'groupNo')
 end
 
 fprintf(1, ['\ndrgAnalysisBatchLFPconc run for ' handles.drgb.outFileName '\nwhich_display= %d\n\n'],which_display);
-
+ 
 switch which_display
     
     case {1,6,7,8,11,13}
@@ -8513,6 +8513,9 @@ switch which_display
         % 19 PAC MI analysis for events (concentrations or S+/S-) for naive and proficient
         % Analyzed per mouse for groups defined by the user
         
+        group_names{1}='S+ high';
+        group_names{2}='S+ low';
+        
         mean_MI_No_per_mouse=0;
         
         mean_MI_No=0;
@@ -8525,6 +8528,9 @@ switch which_display
         mean_VL=[];
         mean_VA=[];
         mean_PA=[];
+        
+        prof_naive_leg{1}='Proficient';
+        prof_naive_leg{2}='Naive';
         
         
         fprintf(1, ['PAC analysis for Justin''s paper\n\n'])
@@ -8770,12 +8776,8 @@ switch which_display
         %(including all sessions for each mouse)
         for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
             
-            data_MI=[];
-            prof_naive=[];
-            events=[];
-            groups=[];
-            mice=[];
-            
+     
+           
             %Plot the average
             try
                 close(figNo+pacii)
@@ -8789,6 +8791,15 @@ switch which_display
             bar_lab_loc=[];
             no_ev_labels=0;
             ii_gr_included=0;
+            
+            edges=[0:0.001:0.03];
+            rand_offset=0.8;
+            
+            ii_mi=0;
+            mi_data=[];
+            glm_mi=[];
+            glm_mi_ii=0;
+            
             
             for grNo=1:max(handles_drgb.drgbchoices.group_no)
                 
@@ -8811,29 +8822,48 @@ switch which_display
                             include_group=1;
                             
                             if per_ii==1
-                                bar(bar_offset,mean(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),'r','LineWidth', 3,'EdgeColor','none')
+                                bar(bar_offset,mean(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),'LineWidth',3,'FaceColor',[204/255,121/255,167/255],'EdgeColor','none')
                             else
-                                bar(bar_offset,mean(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),'b','LineWidth', 3,'EdgeColor','none')
+                                bar(bar_offset,mean(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),'LineWidth', 3,'FaceColor',[0/255,158/255,115/255],'EdgeColor','none')
                             end
                             
                             
-                            plot(bar_offset,mean(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),'ok','LineWidth', 3)
-                            plot((bar_offset)*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),...
-                                mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)),'o',...
-                                'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
                             
-                            if sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>=2
-                                CI = bootci(1000, {@mean, mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))},'type','cper');
-                                plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                            end
+                            %Violin plot
+                            [mean_out, CIout]=drgViolinPoint(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'...
+                                ,edges,bar_offset,rand_offset,'k','k',2);
                             
-                            %Save data for anovan
-                            data_MI=[data_MI mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))];
-                            prof_naive=[prof_naive per_ii*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
-                            events=[events evNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
-                            groups=[groups grNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
-                            mice=[mice mean_MI_mouseNo_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))];
                             
+                            %Enter data for glm for peak only
+                            these_data=mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))';
+                            glm_mi.data(glm_mi_ii+1:glm_mi_ii+length(these_data))=these_data;
+                            glm_mi.group(glm_mi_ii+1:glm_mi_ii+length(these_data))=grNo;
+                            glm_mi.perCorr(glm_mi_ii+1:glm_mi_ii+length(these_data))=per_ii;
+                            glm_mi.event(glm_mi_ii+1:glm_mi_ii+length(these_data))=evNo;
+                            glm_mi_ii=glm_mi_ii+length(these_data);
+                            
+                            %Enter the data for t-test/ranksum
+                            ii_mi=ii_mi+1;
+                            mi_data(ii_mi).data=these_data;
+                            mi_data(ii_mi).description=[group_names{grNo} ' ' num2str(concs(evNo)) ' ' prof_naive_leg{per_ii}];
+                            
+                            %                             plot(bar_offset,mean(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),'ok','LineWidth', 3)
+                            %                             plot((bar_offset)*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),...
+                            %                                 mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)),'o',...
+                            %                                 'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+                            %
+                            %                             if sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>=2
+                            %                                 CI = bootci(1000, {@mean, mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))},'type','cper');
+                            %                                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                            %                             end
+                            %
+                            %                             %Save data for anovan
+                            %                             data_MI=[data_MI mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))];
+                            %                             prof_naive=[prof_naive per_ii*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+                            %                             events=[events evNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+                            %                             groups=[groups grNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+                            %                             mice=[mice mean_MI_mouseNo_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))];
+                            %
                         end
                     end
                     if include_group==1
@@ -8880,8 +8910,18 @@ switch which_display
             end
             
             ylabel('Modulation Index')
-           
             
+             %Do glm for peak/trough
+            fprintf(1, ['\n\nglm for mi for Theta/' freq_names{pacii+1} '\n'])
+            tbl = table(glm_mi.data',glm_mi.group',glm_mi.perCorr',glm_mi.event',...
+                'VariableNames',{'mi','group','perCorr','concentration'});
+            mdl = fitglm(tbl,'mi~group+perCorr+concentration+group*perCorr*concentration'...
+                ,'CategoricalVars',[2,3])
+            
+            
+            fprintf(1, ['\n\nRanksum or t-test for mi for theta ' freq_names{pacii+1} '\n'])
+            %Now do the ranksums
+            output_data = drgMutiRanksumorTtest(mi_data);
         end
         
         %Now do the cumulative histograms and ranksums for MI for each electrode calculated with all sessons per mouse
@@ -10164,6 +10204,161 @@ switch which_display
                 mdl = fitglm(tbl,'MI~group+perCorr+event+perCorr*group*event'...
                     ,'CategoricalVars',[2,3,4])
             end
+        end
+        
+        %Now do a bar graph for PA variance
+        
+        %Now plot the average MI for each electrode calculated per mouse
+        %(including all sessions for each mouse)
+        figNo=figNo+3;
+        for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
+            
+          
+            
+            %Plot the average
+            try
+                close(figNo+pacii)
+            catch
+            end
+            hFig=figure(figNo+pacii);
+            
+            set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+            hold on
+            
+            bar_lab_loc=[];
+            no_ev_labels=0;
+            ii_gr_included=0;
+            
+            edges=[0:100:3500];
+            rand_offset=0.8;
+            
+            ii_PA=0;
+            PA_data=[];
+            glm_PA=[];
+            glm_PA_ii=0;
+            
+            
+            for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                
+                include_group=0;
+                
+                for evNo=1:length(eventType)
+                    
+                    for per_ii=1:2
+                        
+                        if sum(eventType==3)>0
+                            bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(2-evNo);
+                        else
+                            bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(length(eventType)-evNo);
+                        end
+                        
+                        these_offsets(per_ii)=bar_offset;
+                        
+                        if sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>1
+                            
+                            include_group=1;
+                            
+                            if per_ii==1
+                                bar(bar_offset,mean(mean_peakAngleVar_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),'LineWidth',3,'FaceColor',[204/255,121/255,167/255],'EdgeColor','none')
+                            else
+                                bar(bar_offset,mean(mean_peakAngleVar_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),'LineWidth', 3,'FaceColor',[0/255,158/255,115/255],'EdgeColor','none')
+                            end
+                            
+                            
+                             
+                            %Violin plot
+                            [mean_out, CIout]=drgViolinPoint(mean_peakAngleVar_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))'...
+                                ,edges,bar_offset,rand_offset,'k','k',2);
+                         
+                            
+                            %Enter data for glm for peak only
+                            these_data=mean_peakAngleVar_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))';
+                            glm_PA.data(glm_PA_ii+1:glm_PA_ii+length(these_data))=these_data;
+                            glm_PA.group(glm_PA_ii+1:glm_PA_ii+length(these_data))=grNo;
+                            glm_PA.perCorr(glm_PA_ii+1:glm_PA_ii+length(these_data))=per_ii;
+                            glm_PA.event(glm_PA_ii+1:glm_PA_ii+length(these_data))=evNo;
+                            glm_PA_ii=glm_PA_ii+length(these_data);
+                            
+                            %Enter the data for t-test/ranksum
+                            ii_PA=ii_PA+1;
+                            PA_data(ii_PA).data=these_data;
+                            PA_data(ii_PA).description=[group_names{grNo} ' ' num2str(concs(evNo)) ' ' prof_naive_leg{per_ii}];
+                            
+                            %                             plot(bar_offset,mean(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),'ok','LineWidth', 3)
+                            %                             plot((bar_offset)*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))),...
+                            %                                 mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)),'o',...
+                            %                                 'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+                            %
+                            %                             if sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))>=2
+                            %                                 CI = bootci(1000, {@mean, mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))},'type','cper');
+                            %                                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                            %                             end
+                            %
+                            %                             %Save data for anovan
+                            %                             data_MI=[data_MI mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))];
+                            %                             prof_naive=[prof_naive per_ii*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+                            %                             events=[events evNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+                            %                             groups=[groups grNo*ones(1,sum((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)))];
+                            %                             mice=[mice mean_MI_mouseNo_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))];
+                            %
+                        end
+                    end
+                    if include_group==1
+                        bar_lab_loc=[bar_lab_loc mean(these_offsets)];
+                        no_ev_labels=no_ev_labels+1;
+                        if sum(eventType==3)>0
+                            bar_labels{no_ev_labels}=evTypeLabels{evNo};
+                        else
+                            bar_labels{no_ev_labels}=num2str(concs(evNo));
+                        end
+                    end
+                end
+                if include_group==1
+                    ii_gr_included=ii_gr_included+1;
+                    groups_included(ii_gr_included)=grNo;
+                end
+            end
+            
+            title(['Average PA variance for each electrode calculated per mouse for PAC theta/' freq_names{pacii+1}])
+            
+            
+            %Annotations identifying groups
+            x_interval=0.8/ii_gr_included;
+            for ii=1:ii_gr_included
+                annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
+            end
+            
+            %Proficient/Naive annotations
+            annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
+            annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
+            
+            %x labels
+            to_sort=[bar_lab_loc' [1:length(bar_lab_loc)]'];
+            sorted_A=sortrows(to_sort);
+            sorted_bar_lab_loc=sorted_A(:,1);
+            for ii=1:length(bar_lab_loc)
+                sorted_bar_labels{ii}=bar_labels{sorted_A(ii,2)};
+            end
+            xticks(sorted_bar_lab_loc)
+            xticklabels(sorted_bar_labels)
+            
+            if sum(eventType==3)==0
+                xlabel('Concentration (%)')
+            end
+            
+            ylabel('PA variance')
+            
+             %Do glm for peak/trough
+            fprintf(1, ['\n\nglm for PA variance for Theta/' freq_names{pacii+1} '\n'])
+            tbl = table(glm_PA.data',glm_PA.group',glm_PA.perCorr',glm_PA.event',...
+                'VariableNames',{'PA','group','perCorr','concentration'});
+            mdl = fitglm(tbl,'PA~group+perCorr+concentration+group*perCorr*concentration'...
+                ,'CategoricalVars',[2,3])
+            
+            
+            fprintf(1, ['\n\nRanksum or t-test for PA variance for theta ' freq_names{pacii+1} '\n'])
+            %Now do the ranksums
+            output_data = drgMutiRanksumorTtest(PA_data);
         end
         
         %Now do the cumulative histograms and ranksums for meanVectorAngle per electrode per mouse
@@ -15770,6 +15965,9 @@ switch which_display
         mean_VA=[];
         mean_PA=[];
         
+        group_names{1}='S+ high';
+        group_names{2}='S+ low';
+        
         
         prof_naive_leg{1}='Naive';
         prof_naive_leg{2}='Proficient';
@@ -16106,7 +16304,7 @@ switch which_display
         
         fprintf(1, ['The number of mice included in the PAC analysis for this odor pair is %d\n\n\n'], sum(mouse_included))
         
-        
+       
         %Now plot the average peakPACpower for each electrode calculated per mouse
         %(including all sessions for each mouse)
         edges=[-25:0.5:15];
@@ -16203,7 +16401,7 @@ switch which_display
                             %Enter the data for t-test/ranksum
                             ii_rank=ii_rank+1;
                             input_data(ii_rank).data=these_data;
-                            input_data(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii} ' peak'];
+                            input_data(ii_rank).description=[group_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii} ' peak'];
                            
                             
                             %Enter data for glm for peak only
@@ -16229,7 +16427,7 @@ switch which_display
                             %Enter the data for t-test/ranksum
                             ii_rankp=ii_rankp+1;
                             input_datap(ii_rankp).data=these_data;
-                            input_datap(ii_rankp).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
+                            input_datap(ii_rankp).description=[group_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
                            
                             %
                             %
@@ -16384,7 +16582,7 @@ switch which_display
                             %Enter the data for t-test/ranksum
                             ii_rank=ii_rank+1;
                             input_data(ii_rank).data=these_data;
-                            input_data(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii} ' trough'];
+                            input_data(ii_rank).description=[group_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii} ' trough'];
 
                             
                             %Enter data for glm for trough only
@@ -16411,7 +16609,7 @@ switch which_display
                             %Enter the data for t-test/ranksum
                             ii_rankt=ii_rankt+1;
                             input_datat(ii_rankt).data=these_data;
-                            input_datat(ii_rankt).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
+                            input_datat(ii_rankt).description=[group_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
 
                             
                             
@@ -17274,7 +17472,7 @@ switch which_display
                                 %Enter the data for t-test/ranksum
                                 ii_rocpk=ii_rocpk+1;
                                 rocpk_data(ii_rocpk).data=these_data;
-                                rocpk_data(ii_rocpk).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' betweeen ' prof_naive_leg{per_ii}];
+                                rocpk_data(ii_rocpk).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' between ' prof_naive_leg{per_ii}];
                                 
                                 
                                 %Enter data for glm for peak and trough only
@@ -17288,7 +17486,7 @@ switch which_display
                                 %Enter the data for t-test/ranksum
                                 ii_roc=ii_roc+1;
                                 roc_data(ii_roc).data=these_data;
-                                roc_data(ii_roc).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' betweeen ' prof_naive_leg{per_ii} ' peak'];
+                                roc_data(ii_roc).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' between ' prof_naive_leg{per_ii} ' peak'];
                                 
                             end
                             
@@ -17315,7 +17513,7 @@ switch which_display
                                     ,edges,bar_offset,rand_offset,'k','k',2);
                                 
                                 %Enter data for glm for peak only
-                                these_data=auROCpeak((ROCper_ii==per_ii)&(ROCpacii==pacii)&(ROC_between==between)&(ROCgroups==grNo))';
+                                these_data=auROCpeak((ROCper_ii==per_ii)&(ROCpacii==pacii)&(ROC_between==between)&(ROCgroups==grNo)&(ROCEvNo1<4))';
                                 glm_rocpk.data(glm_rocpk_ii+1:glm_rocpk_ii+length(these_data))=these_data;
                                 glm_rocpk.group(glm_rocpk_ii+1:glm_rocpk_ii+length(these_data))=grNo;
                                 glm_rocpk.perCorr(glm_rocpk_ii+1:glm_rocpk_ii+length(these_data))=per_ii;
@@ -17339,7 +17537,7 @@ switch which_display
                                 %Enter the data for t-test/ranksum
                                 ii_roc=ii_roc+1;
                                 roc_data(ii_roc).data=these_data;
-                                roc_data(ii_roc).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' betweeen ' prof_naive_leg{per_ii} ' peak'];
+                                roc_data(ii_roc).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' within low ' prof_naive_leg{per_ii} ' peak'];
                                 
                             end
                             
@@ -17368,7 +17566,7 @@ switch which_display
                                 
                                 
                                 %Enter data for glm for peak only
-                                these_data=auROCpeak((ROCper_ii==per_ii)&(ROCpacii==pacii)&(ROC_between==between)&(ROCgroups==grNo))';
+                                these_data=auROCpeak((ROCper_ii==per_ii)&(ROCpacii==pacii)&(ROC_between==between)&(ROCgroups==grNo)&(ROCEvNo1>=4))';
                                 glm_rocpk.data(glm_rocpk_ii+1:glm_rocpk_ii+length(these_data))=these_data;
                                 glm_rocpk.group(glm_rocpk_ii+1:glm_rocpk_ii+length(these_data))=grNo;
                                 glm_rocpk.perCorr(glm_rocpk_ii+1:glm_rocpk_ii+length(these_data))=per_ii;
@@ -17378,7 +17576,7 @@ switch which_display
                                 %Enter the data for t-test/ranksum
                                 ii_rocpk=ii_rocpk+1;
                                 rocpk_data(ii_rocpk).data=these_data;
-                                rocpk_data(ii_rocpk).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' betweeen ' prof_naive_leg{per_ii}];
+                                rocpk_data(ii_rocpk).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' within high ' prof_naive_leg{per_ii}];
                                 
                                 
                                 %Enter data for glm for peak and trough only
@@ -17527,7 +17725,7 @@ switch which_display
                                 %Enter the data for t-test/ranksum
                                 ii_roctr=ii_roctr+1;
                                 roctr_data(ii_roctr).data=these_data;
-                                roctr_data(ii_roctr).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' betweeen ' prof_naive_leg{per_ii}];
+                                roctr_data(ii_roctr).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' between ' prof_naive_leg{per_ii}];
                                 
                                 
                                 %Enter data for glm for peak and trough only
@@ -17541,7 +17739,7 @@ switch which_display
                                 %Enter the data for t-test/ranksum
                                 ii_roc=ii_roc+1;
                                 roc_data(ii_roc).data=these_data;
-                                roc_data(ii_roc).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' betweeen ' prof_naive_leg{per_ii} ' trough'];
+                                roc_data(ii_roc).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' between ' prof_naive_leg{per_ii} ' trough'];
                                 
                                 
                             end
@@ -17569,7 +17767,7 @@ switch which_display
                                     ,edges,bar_offset,rand_offset,'k','k',2);
                                 
                                 %Enter data for glm for trough only
-                                these_data=auROCtrough((ROCper_ii==per_ii)&(ROCpacii==pacii)&(ROC_between==between)&(ROCgroups==grNo))';
+                                these_data=auROCtrough((ROCper_ii==per_ii)&(ROCpacii==pacii)&(ROC_between==between)&(ROCgroups==grNo)&(ROCEvNo1<4))';
                                 glm_roctr.data(glm_roctr_ii+1:glm_roctr_ii+length(these_data))=these_data;
                                 glm_roctr.group(glm_roctr_ii+1:glm_roctr_ii+length(these_data))=grNo;
                                 glm_roctr.perCorr(glm_roctr_ii+1:glm_roctr_ii+length(these_data))=per_ii;
@@ -17621,7 +17819,7 @@ switch which_display
                                 
                                 
                                 %Enter data for glm for trough only
-                                these_data=auROCtrough((ROCper_ii==per_ii)&(ROCpacii==pacii)&(ROC_between==between)&(ROCgroups==grNo))';
+                                these_data=auROCtrough((ROCper_ii==per_ii)&(ROCpacii==pacii)&(ROC_between==between)&(ROCgroups==grNo)&(ROCEvNo1>=4))';
                                 glm_roctr.data(glm_roctr_ii+1:glm_roctr_ii+length(these_data))=these_data;
                                 glm_roctr.group(glm_roctr_ii+1:glm_roctr_ii+length(these_data))=grNo;
                                 glm_roctr.perCorr(glm_roctr_ii+1:glm_roctr_ii+length(these_data))=per_ii;
@@ -17631,7 +17829,7 @@ switch which_display
                                 %Enter the data for t-test/ranksum
                                 ii_roctr=ii_roctr+1;
                                 roctr_data(ii_roctr).data=these_data;
-                                roctr_data(ii_roctr).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' whith high ' prof_naive_leg{per_ii}];
+                                roctr_data(ii_roctr).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' within high ' prof_naive_leg{per_ii}];
                                 
                                 
                                 %Enter data for glm for peak and trough only

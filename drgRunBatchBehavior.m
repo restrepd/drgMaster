@@ -7,7 +7,6 @@ function drgRunBatchBehavior
 % An example of this file: drgbChoicesDanielPrelim
 %
 %
-pffft = 1;
 
 close all
 clear all
@@ -24,7 +23,7 @@ clear all
 % which_display=2 is used to show behavior for per and post laser for Fig.
 % 6 of Daniel's paper
 % drgbChoicesDanielAPEBexperimentalBeh02012018
-which_display=1;
+which_display=3;
 trial_window=20;
 
 which_file=1; %1=.m   2=.mat
@@ -155,10 +154,10 @@ for filNum=1:length(handles.drgbchoices.FileName)
     trials=1:length(handles.drgb.file(filNum).perCorr);
     
     %Plot in different colors
-    plot(trials,handles.drgb.file(filNum).perCorr,'o','MarkerEdgeColor',[0.7 0.7 0.7],'MarkerFaceColor',[0.7 0.7 0.7])
+    plot(trials,handles.drgb.file(filNum).perCorr,'o','MarkerEdgeColor',[0.7 0.7 0.7],'MarkerFaceColor',[0.7 0.7 0.7],'MarkerSize',2)
     hold on
-    plot(trials(handles.drgb.file(filNum).encoding_trials),handles.drgb.file(filNum).perCorr(handles.drgb.file(filNum).encoding_trials),'ob')
-    plot(trials(handles.drgb.file(filNum).retrieval_trials),handles.drgb.file(filNum).perCorr(handles.drgb.file(filNum).retrieval_trials),'or')
+    plot(trials(handles.drgb.file(filNum).encoding_trials),handles.drgb.file(filNum).perCorr(handles.drgb.file(filNum).encoding_trials),'o','MarkerEdgeColor',[0/255 158/255 115/255],'MarkerFaceColor',[0/255 158/255 115/255],'MarkerSize',2)
+    plot(trials(handles.drgb.file(filNum).retrieval_trials),handles.drgb.file(filNum).perCorr(handles.drgb.file(filNum).retrieval_trials),'o','MarkerEdgeColor',[204/255 121/255 167/255],'MarkerFaceColor',[204/255 121/255 167/255],'MarkerSize',2)
     
     ylim([0 110]);
     try
@@ -310,6 +309,6 @@ switch which_display
 end
 
 
-
+pfft=1;
 
 
