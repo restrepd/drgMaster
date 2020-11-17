@@ -10,6 +10,7 @@ catch
 end
 
 hFig1 = figure(1);
+% set(hFig1, 'units','normalized','position',[.25 .25 .23 .65])
 
 %Plot the percent correct
 % subplot(3,1,1)
@@ -20,14 +21,12 @@ plot(trials,perCorr,'o','MarkerEdgeColor',[0.7 0.7 0.7],'MarkerFaceColor',[0.7 0
 hold on
 
 if sum(encoding_trials)>0
-    plot(trials(encoding_trials),perCorr(encoding_trials),'o','MarkerFaceColor', [0.7 0.7 0.7], 'MarkerEdgeColor', [0 114/255 178/255] )
+    plot(trials(encoding_trials),perCorr(encoding_trials),'ob')
 end
 
 if sum(retrieval_trials)>0
-    plot(trials(retrieval_trials),perCorr(retrieval_trials),'o','MarkerFaceColor', [0.7 0.7 0.7], 'MarkerEdgeColor', [158/255 31/255 99/255] )
+    plot(trials(retrieval_trials),perCorr(retrieval_trials),'or')
 end
-
-set(gca, 'box', 'off')
 
 %Plot black
 % plot(trials,perCorr,'ok','MarkerEdgeColor','k','MarkerFaceColor','k','MarkerSize',7)

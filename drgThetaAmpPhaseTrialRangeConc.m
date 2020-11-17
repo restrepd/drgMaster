@@ -6,8 +6,6 @@ function handles=drgThetaAmpPhaseTrialRangeConc(handles)
 %This code is hard wired for sessions where the three highest odorant
 %concentrations are S+
 
-Splus_high=0; %Note: Set to 1 of the high concentration range is the S+
-
 odorOn=2;
 splus=5;
 first_conc_evNo=16;
@@ -361,21 +359,12 @@ if ~isempty(spm)
         all_out_time_PAChisto=all_out_time_PAChisto/no_trials;
         mean_MI_enc=mean(MI_enc);
         
-        if Splus_high==1
-            conc_labels{16}='10';
-            conc_labels{17}='3.2';
-            conc_labels{18}='1';
-            conc_labels{19}='0.32';
-            conc_labels{20}='0.1';
-            conc_labels{21}='0.032';
-        else
-            conc_labels{16}='0.032';
-            conc_labels{17}='0.1';
-            conc_labels{18}='0.32';
-            conc_labels{19}='1';
-            conc_labels{20}='3.2';
-            conc_labels{21}='10';
-        end
+        conc_labels{16}='10';
+        conc_labels{17}='3.2';
+        conc_labels{18}='1';
+        conc_labels{19}='0.32';
+        conc_labels{20}='0.1';
+        conc_labels{21}='0.032';
         
         %Plot the PAC per trial for S+
         try
@@ -471,32 +460,13 @@ if ~isempty(spm)
         
         hold on
         
-        if Splus_high==1
-            position=0;
-        else
-           position=7; 
-        end
+        
+        position=0;
         
         for conc_evTyNo=last_conc_evNo:-1:first_conc_evNo
-            if Splus_high==1
-                position=position+1;
-            else
-               position=position-1; 
-            end
+            position=position+1;
             mean_MI=mean(mod_indx((conc_evTyNoPerTr==conc_evTyNo)));
-            if Splus_high==1
-                if position<=3
-                    bar(position,mean_MI,'FaceColor',[0 114/255 178/255])
-                else
-                    bar(position,mean_MI,'FaceColor',[230/255 159/255 0/255])
-                end
-            else
-                if position<=3
-                    bar(position,mean_MI,'FaceColor',[230/255 159/255 0/255])
-                else
-                    bar(position,mean_MI,'FaceColor',[0 114/255 178/255])
-                end
-            end
+            bar(position,mean_MI,'FaceColor',[0.7 0.7 1])
             CI_MI = bootci(1000, {@mean, mod_indx((conc_evTyNoPerTr==conc_evTyNo))})';
             plot([position position],CI_MI,'-k','LineWidth',3)
             plot(position*ones(1,sum(conc_evTyNoPerTr==conc_evTyNo)),mod_indx((conc_evTyNoPerTr==conc_evTyNo)),'ok')
@@ -505,30 +475,21 @@ if ~isempty(spm)
         ylabel('MI')
         xticks([1:6])
         xticklabels({'0.032','0.1','0.32','1','3.2','10'})
-        xlabel('Percent dilution')
+        xlabel('Percent isoamyl acetate')
         
         glm_ii=0;
         glm_mi=[];
         ii=0;
         input_data=[];
         
-        if Splus_high==1
-            concs(16)=log10(10);
-            concs(17)=log10(3.2);
-            concs(18)=log10(1);
-            concs(19)=log10(0.32);
-            concs(20)=log10(0.1);
-            concs(21)=log10(0.032);
-        else
-            concs(16)=log10(0.032);
-            concs(17)=log10(0.1);
-            concs(18)=log10(0.32);
-            concs(19)=log10(1);
-            concs(20)=log10(3.2);
-            concs(21)=log10(10);
-        end
+        concs(16)=log10(10);
+        concs(17)=log10(3.2);
+        concs(18)=log10(1);
+        concs(19)=log10(0.32);
+        concs(20)=log10(0.1);
+        concs(21)=log10(0.032);
         
-        
+    
         
         for conc_evTyNo=last_conc_evNo:-1:first_conc_evNo
             %Save data for glm and ranksum
