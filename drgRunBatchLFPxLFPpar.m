@@ -264,7 +264,7 @@ if all_files_present==1
         if (sum(handles.drgbchoices.analyses==2)>0)||(sum(handles.drgbchoices.analyses==1)>0)||(sum(handles.drgbchoices.analyses==4)>0)
             handles.drgb.freq_for_LFPpower=lfp_per_file(filNum).f;
         end
-        l
+        
         handles.drgb.file(filNum).eventlabels=lfp_per_file(filNum).eventlabels;
         
         for ii=1:lfp_per_file(filNum).lfpevpair_no

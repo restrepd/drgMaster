@@ -1,5 +1,5 @@
 function [meanVectorLength, meanVectorAngle, peakAngle, MI_Tort, phase, phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env]=drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins,method)
-%Generates the phase histogram for the emvelope and pac
+%Generates the phase histogram for the envelope and pac
 %function [pac_value, mod_indx, phase, phase_histo, theta_wave]=drgGetThetaAmpPhase(LFP,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins)
  
 

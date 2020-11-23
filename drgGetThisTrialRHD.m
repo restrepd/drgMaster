@@ -63,7 +63,7 @@ num_board_dig_in_channels=handles.drg.session(sessionNo).draq_d.num_board_dig_in
 %Now read the data
 for i=handles.drg.session(sessionNo).draq_d.start_blockNo(trialNo):handles.drg.session(sessionNo).draq_d.end_blockNo(trialNo)
     % In version 1.2, we moved from saving timestamps as unsigned
-    % integeters to signed integers to accomidate negative (adjusted)
+    % integeters to signed integers to accomodate negative (adjusted)
     % timestamps for pretrigger data.
     
     %Read amplifier channels

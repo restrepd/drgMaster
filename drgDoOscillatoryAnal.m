@@ -44,4 +44,6 @@ switch handles.analysisNoOsc
         drgLFPspectPerceptron(handles);
     case 21
        drgThetaAmpPhaseTrialRangeConc(handles); 
+    case 22
+        drgLFPwaveTimecourseCont(handles)
 end
