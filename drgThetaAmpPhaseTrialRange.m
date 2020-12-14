@@ -223,6 +223,8 @@ if ~isempty(spm)
                 set(handles.set_troughAngle,'String',num2str(phase(min_ii)));
             end
         else
+            handles.peakAngle_for_power=str2num(get(handles.set_peakAngle,'String'));
+            handles.troughAngle_for_power=str2num(get(handles.set_troughAngle,'String'));
             meanPeakAngle=(handles.peakAngle_for_power*(pi/180))-pi;
             handles.drgb.PAC.peakAngleForPower=handles.peakAngle_for_power;
             meanTroughAngle=(handles.troughAngle_for_power*(pi/180))-pi;
@@ -426,7 +428,8 @@ if ~isempty(spm)
         
         %pcolor(repmat(phase,length(trials),1),repmat(trials',1,length(phase)),all_phase_histo)
         drg_pcolor(repmat(out_times,length(phase(1:end-1)),1),repmat(phase(1:end-1)',1,length(out_times)),all_out_time_PAChisto')
-        colormap jet
+%         colormap jet
+        colormap fire
         shading flat
         % min_prob=0.0113;
         % max_prob=0.0314;
@@ -549,7 +552,8 @@ if ~isempty(spm)
             trials=1:no_trials;
             %pcolor(repmat(phase,length(trials),1),repmat(trials',1,length(phase)),all_phase_histo)
             drg_pcolor(repmat(phase,length(trials),1),repmat(trials',1,length(phase)),all_phase_histo)
-            colormap jet
+%             colormap jet
+            colormap fire
             shading flat
             % min_prob=0.0113;
             % max_prob=0.0314;
@@ -570,7 +574,8 @@ if ~isempty(spm)
             
             prain=[min_prob:(max_prob-min_prob)/99:max_prob];
             pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
-            colormap jet
+%             colormap jet
+            colormap fire
             shading interp
             ax=gca;
             set(ax,'XTickLabel','')

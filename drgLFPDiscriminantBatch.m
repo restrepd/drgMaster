@@ -80,22 +80,22 @@ if exist([handles.drgb.outPathName 'Discriminant_' handles.drgb.outFileName])==2
 end
 
 %Uncomment to find out which files were processed
-for mouseNo=1:max(handles.drgbchoices.mouse_no)
-    for groupNo=1:max(handles.drgbchoices.group_no)
-        
-        %Find out whether this mouse/group was processed
-        if (sum(handles.drgbchoices.which_discriminant==10)>0)
-            try
-                dcalc=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo);
-                process_data_for_mouse=0;
-                fprintf(1, ['Mouse no %d ' handles.drgbchoices.group_no_names{groupNo} ' was processed\n\n'],mouseNo);
-            catch
-                process_data_for_mouse=1;
-                fprintf(1, ['Mouse no %d ' handles.drgbchoices.group_no_names{groupNo} ' was not processed\n\n'],mouseNo);
-            end
-        end
-    end
-end
+% for mouseNo=1:max(handles.drgbchoices.mouse_no)
+%     for groupNo=1:max(handles.drgbchoices.group_no)
+%         
+%         %Find out whether this mouse/group was processed
+%         if (sum(handles.drgbchoices.which_discriminant==10)>0)
+%             try
+%                 dcalc=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo);
+%                 process_data_for_mouse=0;
+%                 fprintf(1, ['Mouse no %d ' handles.drgbchoices.group_no_names{groupNo} ' was processed\n\n'],mouseNo);
+%             catch
+%                 process_data_for_mouse=1;
+%                 fprintf(1, ['Mouse no %d ' handles.drgbchoices.group_no_names{groupNo} ' was not processed\n\n'],mouseNo);
+%             end
+%         end
+%     end
+% end
 
 %Did the user specify keep_phase?
 if ~isfield(handles.drgbchoices,'keep_phase')
@@ -352,8 +352,8 @@ if all_files_present==1
                                 %e.g in M4_spmc_170518_095813 only 83 of 119 are OK
                                 these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),length(this_trialNo));
                                 for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                    kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                    these_all_which_events(ii,:)= which_event(kk,:);
+%                                     kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                    these_all_which_events(ii,:)= which_event(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),:);
                                 end
                                 
                                 valid_trials=logical(sum(these_all_which_events,1));
@@ -442,8 +442,8 @@ if all_files_present==1
                                     which_event=handlespf.drgb.PAC.which_event;
                                     these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),length(this_trialNo));
                                     for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                        kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                        these_all_which_events(ii,:)= which_event(kk,:);
+%                                         kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                        these_all_which_events(ii,:)= which_event(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),:);
                                     end
                                     
                                     valid_trials=logical(sum(these_all_which_events,1));
@@ -571,8 +571,8 @@ if all_files_present==1
                                         which_event=handlespf.drgb.PAC.which_event;
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),length(this_trialNo));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= which_event(kk,:);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= which_event(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),:);
                                         end
                                         
                                         valid_trials=logical(sum(these_all_which_events,1));
@@ -1330,8 +1330,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_events(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_events(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         
@@ -1475,8 +1475,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_events(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_events(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         fprintf(1, ['LDA processed for LFP power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
@@ -1848,8 +1848,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_events(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_events(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         
@@ -2037,8 +2037,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPAC(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPAC(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         
@@ -2273,8 +2273,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPAC(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPAC(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         
@@ -2502,8 +2502,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPAC(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPAC(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         fprintf(1, ['PCA processed for peak PAC power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
@@ -2659,8 +2659,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPAC(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPAC(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         fprintf(1, ['PCA processed for trough PAC power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
@@ -2818,8 +2818,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPAC(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPAC(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         fprintf(1, ['LDA processed for PAC power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
@@ -3127,8 +3127,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPACwave(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         
@@ -3391,8 +3391,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPACwave(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         
@@ -3647,8 +3647,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPACwave(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         fprintf(1, ['PCA processed for peak PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
@@ -3804,8 +3804,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPACwave(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         fprintf(1, ['PCA processed for trough PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
@@ -3964,8 +3964,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPACwave(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         fprintf(1, ['LDA processed for PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
@@ -4239,8 +4239,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPACwave(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         fprintf(1, ['LDA processed for PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
@@ -4542,8 +4542,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPAC(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPAC(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t_pac));
@@ -4758,8 +4758,8 @@ if all_files_present==1
                                         
                                         these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(these_per_corr));
                                         for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                            kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                            these_all_which_events(ii,:)= all_which_eventsPAC(kk,these_per_corr);
+%                                             kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                            these_all_which_events(ii,:)= all_which_eventsPAC(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),these_per_corr);
                                         end
                                         
                                         test_out_per_timepoint=zeros(length(handles.drgbchoices.events_to_discriminate),N,length(t_pac));
@@ -4973,8 +4973,8 @@ if all_files_present==1
                                 
                                 these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(trials_for_this_group));
                                 for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                    kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                    these_all_which_events(ii,:)= all_which_eventsPACwave(kk,trials_for_this_group);
+%                                     kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                    these_all_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),trials_for_this_group);
                                 end
                                 
                                 
@@ -5240,8 +5240,8 @@ if all_files_present==1
                                 
                                 these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(trials_for_this_group));
                                 for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                    kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                    these_all_which_events(ii,:)= all_which_eventsPACwave(kk,trials_for_this_group);
+%                                     kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                    these_all_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),trials_for_this_group);
                                 end
                                 
                                 
@@ -5501,8 +5501,8 @@ if all_files_present==1
                                 
                                 these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(trials_for_this_group));
                                 for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                    kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                    these_all_which_events(ii,:)= all_which_eventsPACwave(kk,trials_for_this_group);
+%                                     kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                    these_all_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),trials_for_this_group);
                                 end
                                 
                                 fprintf(1, ['PCA processed for peak PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{which_analysis_ii} ' with %d trials\n'],mouseNo,N);
@@ -5659,7 +5659,7 @@ if all_files_present==1
                                 these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(trials_for_this_group));
                                 for ii=1:length(handles.drgbchoices.events_to_discriminate)
                                     kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                    these_all_which_events(ii,:)= all_which_eventsPACwave(kk,trials_for_this_group);
+                                    these_all_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),trials_for_this_group);
                                 end
                                 
                                 fprintf(1, ['PCA processed for trough PAC wavelet power for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{which_analysis_ii} ' with %d trials\n'],mouseNo,N);
@@ -5858,8 +5858,8 @@ if all_files_present==1
                             
                             these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(trials_for_this_group));
                             for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                these_all_which_events(ii,:)= all_which_eventsPACwave(kk,trials_for_this_group);
+%                                 kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                these_all_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),trials_for_this_group);
                             end
                             
                             
@@ -5869,8 +5869,8 @@ if all_files_present==1
                             
                             these_all_test_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(trials_for_this_test_group));
                             for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                these_all_test_which_events(ii,:)= all_which_eventsPACwave(kk,trials_for_this_test_group);
+%                                 kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                these_all_test_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),trials_for_this_test_group);
                             end
                             
                             
@@ -6121,8 +6121,8 @@ if all_files_present==1
                             
                             these_all_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(trials_for_this_group));
                             for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                these_all_which_events(ii,:)= all_which_eventsPACwave(kk,trials_for_this_group);
+%                                 kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                these_all_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),trials_for_this_group);
                             end
                             
                             these_all_test_log_P_timecoursePACwave=zeros(length(handles.drgbchoices.which_electrodes),sum(trials_for_this_test_group),length(t));
@@ -6131,8 +6131,8 @@ if all_files_present==1
                             
                             these_all_test_which_events=zeros(length(handles.drgbchoices.events_to_discriminate),sum(trials_for_this_test_group));
                             for ii=1:length(handles.drgbchoices.events_to_discriminate)
-                                kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
-                                these_all_test_which_events(ii,:)= all_which_eventsPACwave(kk,trials_for_this_test_group);
+%                                 kk=find(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii));
+                                these_all_test_which_events(ii,:)= all_which_eventsPACwave(handles.drgbchoices.evTypeNos==handles.drgbchoices.events_to_discriminate(ii),trials_for_this_test_group);
                             end
                             
                             

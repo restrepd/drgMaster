@@ -83,6 +83,7 @@ for trNo=firstTr:lastTr
     end %for evNo
 end
 
+
 % %Now plot the encoding log10P
 try
     close 1
@@ -90,7 +91,7 @@ catch
 end
 
 hFig1 = figure(1);
-set(hFig1, 'units','normalized','position',[.25 .25 .23 .65])
+set(hFig1, 'units','normalized','position',[.02 .05 .5 .5])
 
 if handles.subtractRef==0
     shadedErrorBar(freq,mean(log_all_Power,1),std(log_all_Power,0,1)/sqrt(no_trials),'-b')
@@ -132,13 +133,16 @@ if maxlp-minlp>10
     minlp=maxlp-10;
 end
 
+ylim([10 55])
+
+
 try
     close 2
 catch
 end
  
 hFig2 = figure(2);
-set(hFig2, 'units','normalized','position',[.01 .1 .23 .8])
+set(hFig2, 'units','normalized','position',[.02 .4 .5 .5])
 
 trials=1:no_trials;
 if handles.subtractRef==0
@@ -153,13 +157,14 @@ xlabel('Frequency (Hz)')
 ylabel('Trial No');
 title(['log10(Power) per trial ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
 
+
 try
     close 3
 catch
 end
 
 hFig3 = figure(3);
-set(hFig3, 'units','normalized','position',[.49 .1 .05 .3])
+set(hFig3, 'units','normalized','position',[.6 .1 .05 .3])
 
 prain=[minlp:(maxlp-minlp)/99:maxlp];
 drg_pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
@@ -167,6 +172,8 @@ colormap jet
 shading interp
 ax=gca;
 set(ax,'XTickLabel','')
+
+figure(1)
 
 pffft=1
 

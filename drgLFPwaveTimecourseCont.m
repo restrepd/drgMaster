@@ -1,6 +1,9 @@
 function handles=drgLFPwaveTimecourseCont(handles)
 %Generates a timecourse of the LFP power in decibels 10*log10(Power)
 
+%The electrodes are displayed in this order
+display_order=[1:4 13:16 5:12];
+
 peakLFPNo=handles.peakLFPNo;
 burstLFPNo=handles.burstLFPNo;
 
@@ -10,7 +13,7 @@ catch
 end
 
 hFig16 = figure(16);
-set(hFig16, 'units','normalized','position',[.15 .6 .7 .46])
+set(hFig16, 'units','normalized','position',[.15 .3 .7 .46])
 hold on
 
 try
@@ -19,14 +22,17 @@ catch
 end
 
 hFig17 = figure(17);
-set(hFig17, 'units','normalized','position',[.15 .6 .7 .46])
+set(hFig17, 'units','normalized','position',[.15 .3 .7 .46])
 hold on
 
 var_peak=[];
 var_trough=[];
 
-for elec=1:16
+ii_elec=0;
+
+for elec=display_order
     
+    ii_elec=ii_elec+1;
     handles.peakLFPNo=elec;
     handles.burstLFPNo=elec;
     
@@ -176,47 +182,31 @@ for elec=1:16
             handles.drgb.PACwave.meanTroughPower(trNum)=mean(troughPower(trNum,:));
         end
         
-        %     %Calculate mean power
-        %     for trNum=1:handles.drgb.PAC.no_trials
-        %
-        %         for ii_t=1:length(t_pac)
-        %             if ii_t==1
-        %                 meanPower(trNum,ii_t)=mean(10*log10(all_Power_timecourse(trNum,:,1)),2);
-        %             else
-        %                 if ii_t==length(t_pac)
-        %                     meanPower(trNum,ii_t)=mean(10*log10(all_Power_timecourse(trNum,:,end)),2);
-        %                 else
-        %                     meanPower(trNum,ii_t)=mean(mean(10*log10(all_Power_timecourse(trNum,:,(t_apt>=t_pac(ii_t)-(dt/2))&(t_apt<t_pac(ii_t)+(dt/2)))),2),3);
-        %                 end
-        %             end
-        %         end
-        %         if handles.subtractRef==1
-        %             meanPower(trNum,:)=meanPower(trNum,:)-mean(meanPower(trNum,(t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
-        %         end
-        %
-        %         handles.drgb.PACwave.PACtimecourse(trNum).meanPower=meanPower(trNum,:);
-        %         handles.drgb.PACwave.meanPower(trNum)=mean(meanPower(trNum,:));
-        %     end
-        
+
         %Place lick per trial
-        ntrs_out=0;
-        for trNum=1:length(trials_included_per_trial)
-            ii_tr=find(handles.drgb.PAC.this_trialNo==trials_included_per_trial(trNum),1);
-            if ~isempty(ii_tr)
-                ntrs_out=ntrs_out+1;
-                if handles.subtractRef==1
-                    lick_freq_per_trial(trNum,:)=lick_freq_per_trial(trNum,:)-mean(lick_freq_per_trial(trNum,(t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
+        if ii_elec==1
+            cont_lick_times=[];
+            ntrs_out=0;
+            for trNum=1:length(trials_included_per_trial)
+                ii_tr=find(handles.drgb.PAC.this_trialNo==trials_included_per_trial(trNum),1);
+                if ~isempty(ii_tr)
+                    ntrs_out=ntrs_out+1;
+                    if handles.subtractRef==1
+                        lick_freq_per_trial(trNum,:)=lick_freq_per_trial(trNum,:)-mean(lick_freq_per_trial(trNum,(t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
+                    end
+                    
+                    handles.drgb.PACwave.no_lick_trials=ntrs_out;
+                    handles.drgb.PACwave.lick_timecourse(ntrs_out).lick_f=lick_freq_per_trial(trNum,:);
+                    handles.drgb.PACwave.lick_timecourse(ntrs_out).times_lick_freq=times_lick_freq;
+                    handles.drgb.PACwave.mean_lick_freq(ntrs_out)=mean(lick_freq_per_trial(trNum,:));
+                    
+                    %Now enter peakPower and troughPower for trials that include licks
+                    handles.drgb.PACwave.meanPeakPower_per_lick_trial(ntrs_out)=handles.drgb.PACwave.meanPeakPower(ii_tr);
+                    handles.drgb.PACwave.meanTroughPower_per_lick_trial(ntrs_out)=handles.drgb.PACwave.meanTroughPower(ii_tr);
+                    
+                    %Enter the lick times
+                    cont_lick_times=[cont_lick_times these_stamped_lick_times(trNum,1:stamped_lick_ii(trNum))+handles.drg.draq_d.t_trial(trials_included(trNum))];
                 end
-                
-                handles.drgb.PACwave.no_lick_trials=ntrs_out;
-                handles.drgb.PACwave.lick_timecourse(ntrs_out).lick_f=lick_freq_per_trial(trNum,:);
-                handles.drgb.PACwave.lick_timecourse(ntrs_out).times_lick_freq=times_lick_freq;
-                handles.drgb.PACwave.mean_lick_freq(ntrs_out)=mean(lick_freq_per_trial(trNum,:));
-                
-                %Now enter peakPower and troughPower for trials that include licks
-                handles.drgb.PACwave.meanPeakPower_per_lick_trial(ntrs_out)=handles.drgb.PACwave.meanPeakPower(ii_tr);
-                handles.drgb.PACwave.meanTroughPower_per_lick_trial(ntrs_out)=handles.drgb.PACwave.meanTroughPower(ii_tr);
-                
             end
         end
         
@@ -521,17 +511,40 @@ for elec=1:16
                 %
                 
                 
+                if ii_elec==1
+                    delta_PRP=prctile([cont_troughPower cont_peakPower],95)-prctile([cont_troughPower cont_peakPower],5);
+                end
+
                 %Plot the timecourse for the peak
-                
-                
                 figure(16)
-                plot(t_cont_troughPower,cont_troughPower+40*(elec-1),'-b')
+                plot(t_cont_troughPower,cont_troughPower+2*delta_PRP*(ii_elec-1),'-k')
                 
+                %Plot the timecourse for the trough
                 figure(17)
-                plot(t_cont_peakPower,cont_peakPower+40*(elec-1),'-r')
+                plot(t_cont_peakPower,cont_peakPower+2*delta_PRP*(ii_elec-1),'-k')
+                
+                if ii_elec==1
+                    %Plot the licks for the peak
+                    figure(16)
+                    mean_cont_peakPower=mean(cont_peakPower);
+                    pfrom=mean_cont_peakPower-2*delta_PRP;
+                    pto=mean_cont_peakPower-1.5*delta_PRP;
+                    for kk=1:length(cont_lick_times)
+                        plot([cont_lick_times(kk) cont_lick_times(kk)],[pfrom pto],'-b')
+                    end
+                    
+                    %Plot the licks for the trough
+                    figure(17)
+                      mean_cont_troughPower=mean(cont_troughPower);
+                    pfrom=mean_cont_troughPower-2*delta_PRP;
+                    pto=mean_cont_troughPower-1.5*delta_PRP;
+                    for kk=1:length(cont_lick_times)
+                        plot([cont_lick_times(kk) cont_lick_times(kk)],[pfrom pto],'-b')
+                    end
+                end
                 
                 var_peak(elec)=var(cont_peakPower);
-                var_trouhg(elec)=var(cont_troughPower);
+                var_trough(elec)=var(cont_troughPower);
                 
             end
         end
@@ -541,6 +554,60 @@ end
 handles.peakLFPNo=peakLFPNo;
 handles.burstLFPNo=burstLFPNo;
 
+figure(16)
+title('Trough tPRP')
+xlabel('Time (s)')
+
+figure(17)
+title('Peak tPRP')
+xlabel('Time (s)')
+
+%Now plot the variance of tPRP
+try
+    close 18
+catch
+end
+
+hFig18 = figure(18);
+set(hFig18, 'units','normalized','position',[.15 .6 .7 .3])
+hold on
+
+%electrodes 5-12 are open and 1-4; 13-16 are occluded
+
+%peak
+mean_peakPowervar=mean([var_peak(1:4) var_peak(13:16)]);
+CI_peakPowervar = bootci(1000, {@mean, [var_peak(1:4) var_peak(13:16)]})';
+
+bar(1,mean_peakPowervar,'r')
+plot([1 1],CI_peakPowervar,'-k')
+plot(ones(8,1),[var_peak(1:4) var_peak(13:16)],'ok')
+
+mean_peakPowervar=mean(var_peak(5:12));
+CI_peakPowervar = bootci(1000, {@mean, var_peak(5:12)})';
+
+bar(2,mean_peakPowervar,'r')
+plot([2 2],CI_peakPowervar,'-k')
+plot(2*ones(8,1),var_peak(5:12),'ok')
+
+
+%trough
+mean_troughPowervar=mean([var_trough(1:4) var_trough(13:16)]);
+CI_troughPowervar = bootci(1000, {@mean, [var_trough(1:4) var_trough(13:16)]})';
+
+bar(4,mean_troughPowervar,'b')
+plot([4 4 ],CI_troughPowervar,'-k')
+plot(4*ones(8,1),[var_trough(1:4) var_trough(13:16)],'ok')
+
+mean_troughPowervar=mean(var_trough(5:12));
+CI_troughPowervar = bootci(1000, {@mean, var_trough(5:12)})';
+
+bar(5,mean_troughPowervar,'b')
+plot([5 5],CI_troughPowervar,'-k')
+plot(5*ones(8,1),var_trough(5:12),'ok')
+
+xticks([1 2 4 5])
+xticklabels({'Occ peak','Cl peak','Occ tr','Cl tr'})
+ylabel('tPRP variance')
 pffft=1;
 
 

@@ -658,6 +658,8 @@ switch which_display
                     end
                     hFig=figure(figNo);
                     
+                    set(hFig, 'units','normalized','position',[.61 .4 .38 .38])
+                    
                     hold on
                     
                     %Note that I merge the shuffled for both peak and
@@ -807,6 +809,8 @@ switch which_display
                     end
                     hFig=figure(figNo);
                     
+                    set(hFig, 'units','normalized','position',[.61 .4 .38 .38])
+                    
                     hold on
                     
                     plot(p_correct_stats(ii_stats-1).data,p_correct_stats(ii_stats).data,'or')
@@ -834,6 +838,8 @@ switch which_display
                     catch
                     end
                     hFig=figure(figNo);
+                    
+                    set(hFig, 'units','normalized','position',[.61 .4 .38 .38])
                     
                     hold on
                     
@@ -986,6 +992,8 @@ switch which_display
                     catch
                     end
                     hFig=figure(figNo);
+                    
+                    set(hFig, 'units','normalized','position',[.61 .4 .38 .38])
                     
                     
                     %                     set(hFig, 'units','normalized','position',[.2 .2 .7 .7])
@@ -1234,6 +1242,8 @@ switch which_display
                     end
                     hFig=figure(figNo);
                     
+                    set(hFig, 'units','normalized','position',[.61 .4 .38 .38])
+                    
                     hold on
                     
                     all_discriminant_p_val_lick=all_discriminant_p_val_lick(1:no_mice_included,:);
@@ -1416,6 +1426,9 @@ switch which_display
                     catch
                     end
                     hFig=figure(figNo);
+                    
+                    set(hFig, 'units','normalized','position',[.61 .4 .38 .38])
+                    
                     hold on
                     
                     plot(lick_t_detect,peak_t_detect,'or')

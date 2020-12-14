@@ -2,7 +2,7 @@ function [meanVectorLength, meanVectorAngle, peakAngle, MI_Tort, phase, phase_hi
 %Generates the phase histogram for the envelope and pac
 %function [pac_value, mod_indx, phase, phase_histo, theta_wave]=drgGetThetaAmpPhase(LFP,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins)
  
-
+ 
 %Time pad is used to exclude filter artifacts at the end
 Fs=floor(Fs);
  
@@ -256,21 +256,37 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % plot(timeAngle,(180/pi)*(trimmed_anglethetaLFP+pi),'-b')
 % xlim([-2 5])
 % 
-
-% Plots for Daniel's Fig. 1
+% 
+% % Plots for Daniel's Fig. 1
 % % Raw data
+% % set(gcf,'renderer','zbuffer')
+% set(gcf,'renderer','painters');
 % 
 % try
-%     close(18)
+%     close(17)
 % catch
 % end
-% hFig=figure(18);
+% hFig=figure(17);
 % set(hFig, 'units','normalized','position',[.02 .05 .5 .2])
 % time=[1:length(LFPhigh(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
-% plot(time,LFPhigh(time_pad*Fs+1:end-time_pad*Fs),'-b')
+% plot(time,LFPhigh(time_pad*Fs+1:end-time_pad*Fs),'-b','LineWidth',0.2)
 % xlabel('Time (sec)')
-% ylim([-10000 10000])
+% ylim([-5000 5000])
 % ylabel('uv')
+% 
+% 
+% % try
+% %     close(18)
+% % catch
+% % end
+% % hFig=figure(18);
+% % set(hFig, 'units','normalized','position',[.02 .05 .5 .2])
+% % time=[1:length(LFPhigh(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% % plot(time,LFPhigh(time_pad*Fs+1:end-time_pad*Fs),'-b','LineWidth',0.2)
+% % xlabel('Time (sec)')
+% % ylim([-5000 5000])
+% % xlim([3 4])
+% % ylabel('uv')
 % 
 % %Theta
 % try
@@ -286,6 +302,8 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % ylim([-7000 7000])
 % xlim([3 4])
 % 
+% 
+% 
 % %Theta phase
 % try
 %     close(20)
@@ -296,7 +314,7 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % time=[1:length(anglethetaLFP(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
 % plot(time,anglethetaLFP(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-b')
 % xlabel('Time (sec)')
-% ylabel('uv')
+% ylabel('degrees')
 % ylim([-200 200])
 % xlim([3 4])
 % 
@@ -310,12 +328,23 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % set(hFig, 'units','normalized','position',[.02 .65 .5 .2])
 % hold on
 % time=[1:length(LFPgenv(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
-% plot(time,filtLFPgamma(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-b')
-% plot(time,LFPgenv(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-r')
-% plot(time,-LFPgenv(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-r')
+% plot(time,filtLFPgamma(time_pad*Fs+1:end-time_pad*Fs),'-b')
+% plot(time,LFPgenv(time_pad*Fs+1:end-time_pad*Fs),'-r')
+% plot(time,-LFPgenv(time_pad*Fs+1:end-time_pad*Fs),'-r')
 % xlabel('Time (sec)')
+% ylabel('uv')
 % xlim([3 4])
-      
+% ylim([-500 500])
+%       
+% %Uncomment if you want to save the theta LFP to test with closed loop
+% try
+%     load('C:\Users\Diego Restrepo\Desktop\theta.mat')
+%     theta_out=[theta_out thfiltLFP];
+% catch
+%     theta_out=thfiltLFP;
+% end
+% save('C:\Users\Diego Restrepo\Desktop\theta.mat','theta_out')
+
 pffft=1;
 
 

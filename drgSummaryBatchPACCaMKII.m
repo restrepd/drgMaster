@@ -27,17 +27,28 @@ evTypeLabels{1}='S+';
 evTypeLabels{2}='S-';
 
 %Location of files
-PathName='/Users/restrepd/OneDrive - The University of Colorado Denver/CaMKII Paper/PAC Summary/';
+PathName='D:\CaMKIIpaper\datos sumarry\';
 
 %Hippocampus
 hippFileName{1}='CaMKIIacetoLFPPACall121319_hippoPAC6figures.mat';
 hippFileName{2}='CaMKIIethylbenLFPPACal222019_hippoPAC6figuresonly.mat';
-hippFileName{3}='CaMKIIpointzero1ethylacepropylaceLFPPACall122019_hippoPAConlyfigures.mat';
+hippFileName{3}='CaMKIIethylaceLFPPACall12219_hippoPAC6figuresonly.mat';
+hippFileName{4}='CaMKIIpropylaceLFPPACall1220_hippoPAConlyfigures.mat';
+hippFileName{5}='CaMKIIpointzero1ethylacepropylaceLFPPACall122019_hippoPAConlyfigures.mat';
+hippFileName{6}='CaMKIIpointzero1propylaceLFPPACall11620_hippoPAConlyfigures.mat';
+hippFileName{7}='CaMKIIpzz1ethylaceLFPPACall121119_hippoPAConlyfigures.mat';
+hippFileName{8}='CaMKIIpzz1propylaceLFPPACall121919_hippoPAConly6figures.mat';
 
 %Prefrontal
 preFileName{1}='CaMKIIacetoLFPPACall121319_prefrontPAC6figures.mat';
 preFileName{2}='CaMKIIethylbenLFPPACal222019_prefrontPAC6figuresonly.mat';
-preFileName{3}='CaMKIIpointzero1ethylacepropylaceLFPPACall122019_prefrontPAConlyfigures.mat';
+preFileName{3}='CaMKIIethylaceLFPPACall12219_prefrontPAC6figuresonly.mat';
+preFileName{4}='CaMKIIpropylaceLFPPACall1220_prfrontPAConlyfigures.mat';
+preFileName{5}='CaMKIIpointzero1ethylacepropylaceLFPPACall122019_prefrontPAConlyfigures.mat';
+preFileName{6}='CaMKIIpointzero1propylaceLFPPACall11620_prefrontPAConlyfigures.mat';
+preFileName{7}='CaMKIIpzz1ethylaceLFPPACall121119_prefrontPAConlyfigures.mat';
+preFileName{8}='CaMKIIpzz1propylaceLFPPACall121919_prefrontPAConly6figures.mat';
+
 
 
 %Now process the hippocampus

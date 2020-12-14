@@ -23,9 +23,13 @@ The data will be provided upon user request.
 
 You should install the following MATLAB toolboxes:
 
-Wavelet
-Statistics and Machine Learning
 Bioinformatics toolbox (for the “suptitle” command)
+
+Curve Fitting
+Wavelet
+Signal Processing
+Statistics and Machine Learning
+Wavelet
 
 In addition, you will need the following downloads:
 

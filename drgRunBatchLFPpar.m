@@ -338,8 +338,24 @@ if all_files_present==1
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).mean_lick_freq=handlespf.drgb.PACwave.mean_lick_freq;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).meanPeakPower_per_lick_trial=handlespf.drgb.PACwave.meanPeakPower_per_lick_trial;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).meanTroughPower_per_lick_trial=handlespf.drgb.PACwave.meanTroughPower_per_lick_trial;
-                                
-                   
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).trNo_lick_and_PRP=handlespf.drgb.PACwave.trNo_lick_and_PRP;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).trialNos_PRP=handlespf.drgb.PACwave.trialNos_PRP;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).times_lick_freq=handlespf.drgb.PACwave.times_lick_freq;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).lick_trials_included=handlespf.drgb.PACwave.lick_trials_included;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).lick_freq_per_trial=handlespf.drgb.PACwave.lick_freq_per_trial;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).lick_freq_per_trial=handlespf.drgb.PACwave.lick_freq_per_trial;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).stamped_lick_ii=handlespf.drgb.PACwave.stamped_lick_ii;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).stamped_lick_ii=handlespf.drgb.PACwave.stamped_lick_ii;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).stamped_lick_times=handlespf.drgb.PACwave.these_stamped_lick_times;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).meanLickPower=handlespf.drgb.PACwave.meanLickPower;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).lick_triggered_wpower=handlespf.drgb.PACwave.lick_triggered_wpower;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).lick_triggered_wpower_t=handlespf.drgb.PACwave.lick_triggered_wpower_t;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).lick_triggered_wpower_no=handlespf.drgb.PACwave.lick_triggered_wpower_no;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).lick_timecourse=handlespf.drgb.PACwave.lick_timecourse;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).no_lickPower_trials=handlespf.drgb.PACwave.no_lickPower_trials;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).lickPower_trials=handlespf.drgb.PACwave.lickPower_trials;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).peakPowerSpectrum=handlespf.drgb.PACwave.peakPowerSpectrum;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).troughPowerSpectrum=handlespf.drgb.PACwave.troughPowerSpectrum;
                             end
                         end
                         
@@ -516,19 +532,19 @@ if all_files_present==1
                                 handlespf.burstLowF=low_freq(freq_ii);
                                 handlespf.burstHighF=high_freq(freq_ii);
                                 
-                                elec1=handles.drgbchoices.refPhase;
-                                elec2=lfpNo;
+                                elect1=handles.drgbchoices.refPhase;
+                                elect2=lfpNo;
                                 
-                                handlespf.peakLFPNo=elec1;
-                                handlespf.burstLFPNo=elec2;
+                                handlespf.peakLFPNo=elect1;
+                                handlespf.burstLFPNo=elect2;
                                 
                                 [rho,which_event,no_trials,angleLFPexp,filtLFPexp,filtLFPref]=drgComparePhases(handlespf);
-                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).no_trials=no_trials;
-                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).which_event=which_event;
-                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).rho=rho;
-                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).angleLFPexp=angleLFPexp;
-                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).filtLFPexp=filtLFPexp;
-                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elec1,elec2).filtLFPref=filtLFPref;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elect1,elect2).no_trials=no_trials;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elect1,elect2).which_event=which_event;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elect1,elect2).rho=rho;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elect1,elect2).angleLFPexp=angleLFPexp;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elect1,elect2).filtLFPexp=filtLFPexp;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no,freq_ii,elect1,elect2).filtLFPref=filtLFPref;
                                 
                             end
                             
