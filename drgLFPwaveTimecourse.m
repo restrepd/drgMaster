@@ -1,6 +1,7 @@
 function handles=drgLFPwaveTimecourse(handles)
 %Generates a timecourse of the LFP power in decibels 10*log10(Power)
 
+handles.drgb.PACwave=[];
 
 [t_apt,freq,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo]=drgGetLFPwavePowerForThisEvTypeNo(handles);
 
@@ -20,6 +21,8 @@ handles.drgb.PACwave.these_stamped_lick_times=these_stamped_lick_times;
 
 %Get PAC
 handles=drgThetaAmpPhaseTrialRange(handles);
+
+handles.drgb.PACwave.trialNos_PAC=handles.drgb.PAC.this_trialNo;
 
 %If there was a problem with signal saturation for this LFP the number of
 %trials is zero, and we should skip further analysis
@@ -526,7 +529,7 @@ if handles.drgb.PAC.no_trials>0
             %Uncomment if you want to save power spectra
             peakPowerSpectrum=handles.drgb.PACwave.peakPowerSpectrum;
             troughPowerSpectrum=handles.drgb.PACwave.troughPowerSpectrum;
-            save('F:\Datos summary CaMKII111720\Figure 3 PRP\elec1_splus_proficient.mat','peakPowerSpectrum',...
+            save('C:\Users\Diego Restrepo\OneDrive - The University of Colorado Denver\CaMKII Paper\Figure 3 PRP\elec5_splus_proficient.mat','peakPowerSpectrum',...
                 'troughPowerSpectrum','freq')
             
             figNo=figNo+1;
@@ -692,14 +695,13 @@ if handles.drgb.PAC.no_trials>0
             end
             
             if no_trials>2
-                
-                [hllick, hplick]=boundedline(t_pac,mean_lickPower, CI_lickPower, 'g');
+%                 [hllick, hplick]=boundedline(t_pac,mean_lickPower, CI_lickPower, 'g');
                 
                 [hltrough, hptrough]=boundedline(t_pac,mean_troughPower, CI_troughPower, 'b');
                 [hlpeak, hppeak]=boundedline(t_pac,mean_peakPower, CI_peakPower, 'r');
             else
                 
-                plot(t_pac,mean_lickPower, 'g');
+%                 plot(t_pac,mean_lickPower, 'g');
                 
                 plot(t_pac,mean_troughPower,  'b');
                 plot(t_pac,mean_peakPower,  'r');
@@ -708,9 +710,9 @@ if handles.drgb.PAC.no_trials>0
             ylabel('Wavelet power (dB)')
             
             if no_trials>2
-                legend([hltrough hlpeak hllick],{'Trough','Peak','Lick'})
+                legend([hltrough hlpeak],{'Trough','Peak'})
             else
-                legend('Mean','Trough','Lick')
+                legend('Mean','Trough')
             end
             
             title(['Power (dB, wavelet)  ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])

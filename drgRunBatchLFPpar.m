@@ -340,6 +340,7 @@ if all_files_present==1
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).meanTroughPower_per_lick_trial=handlespf.drgb.PACwave.meanTroughPower_per_lick_trial;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).trNo_lick_and_PRP=handlespf.drgb.PACwave.trNo_lick_and_PRP;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).trialNos_PRP=handlespf.drgb.PACwave.trialNos_PRP;
+                                lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).trialNos_PAC=handlespf.drgb.PACwave.trialNos_PAC;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).times_lick_freq=handlespf.drgb.PACwave.times_lick_freq;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).lick_trials_included=handlespf.drgb.PACwave.lick_trials_included;
                                 lfp_per_file(filNum).lfpevpair(lfp_per_file(filNum).lfpevpair_no).PACwave(ii).lick_freq_per_trial=handlespf.drgb.PACwave.lick_freq_per_trial;

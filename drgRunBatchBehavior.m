@@ -127,7 +127,7 @@ if which_file==1
     end
     
     %Save the data
-    save([handles.choiceBatchPathName handles.choiceFileName(1:end-2) '.mat'],'handles')
+    save([handles.drgb.outPathName handles.drgb.outFileName(1:end-4) 'beh.mat'],'handles')
     
 else
     [matFileName,matBatchPathName] = uigetfile({'drgbChoices*.mat'},'Select the .mat file with all the choices for analysis');
