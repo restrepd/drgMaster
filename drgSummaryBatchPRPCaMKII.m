@@ -30,19 +30,29 @@ peak_label{1}='Trough';
 peak_label{2}='Peak';
 
 %Location of files
-hippPathName='/Users/restrepd/OneDrive - The University of Colorado Denver/CaMKII Paper/PRP Summary/Hippo/';
+hippPathName='F:\Datos summary CaMKII111720\PRP drgAnalysisBatchLFPCaMKII case 24 output for summary\';
 
 %Hippocampus
 hippFileName{1}='spm_LFP_acetowavephasepower32620_hippoPRPnew.mat';
 hippFileName{2}='spm_LFP_acetowavephasepower32620_hippoPRPnewpropyl.mat';
 hippFileName{3}='spm_LFP_ethylbenwavephasepower41420_hippoPRPnew.mat';
+hippFileName{4}='spm_LFP_ethylwavephasepower3520_hippoPRPnew.mat';
+hippFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_hippoPRPnew.mat';
+hippFileName{6}='spm_LFP_pz1propylwavephasepower013020_hippoPRPnew.mat';
+hippFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_hippoPRPnew.mat';
+hippFileName{8}='spm_LFP_pzz1propylwavephasepower071220_hippoPRPnew.mat';
 
-prePathName='/Users/restrepd/OneDrive - The University of Colorado Denver/CaMKII Paper/PRP Summary/prefront/';
+prePathName='F:\Datos summary CaMKII111720\PRP drgAnalysisBatchLFPCaMKII case 24 output for summary\';
 
 %Prefrontal
 preFileName{1}='spm_LFP_acetowavephasepower32620_prefrontPRPnew.mat';
 preFileName{2}='spm_LFP_acetowavephasepower32620_prefrontPRPnewpropyl.mat';
 preFileName{3}='spm_LFP_ethylbenwavephasepower41420_prefrontPRPnew.mat';
+preFileName{4}='spm_LFP_ethylwavephasepower3520_prefrontPRPnew.mat';
+preFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_prefrontPRPnew.mat';
+preFileName{6}='spm_LFP_pz1propylwavephasepower013020_prefrontPRPnew.mat';
+preFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_prefrontPRPnew.mat';
+preFileName{8}='spm_LFP_pzz1propylwavephasepower071220_prefrontPRPnew.mat';
 
 
 %Now process the hippocampus

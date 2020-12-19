@@ -16885,7 +16885,7 @@ switch which_display
                                                     trials_in_event_Ev=(handles_drgb.drgb.lfpevpair(lfpodNo).PAC(1).which_eventPAC(eventType(evNo),:)==1)&percent_mask;
                                                     
                                                     if (sum(trials_in_event_Ev)>=1)
-                                                        
+                                                          
                                                         %Do per bandwidth analysis
                                                         for pacii=1:no_pacii
                                                             

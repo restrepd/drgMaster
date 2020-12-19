@@ -27,7 +27,7 @@ evTypeLabels{1}='S+';
 evTypeLabels{2}='S-';
 
 %Location of files
-PathName='F:\Datos summary CaMKII111720\LFPPAC\';
+PathName='F:\Datos summary CaMKII111720\LFPPAC drgAnalysisBatchLFPCaMKII case 19 output\';
 
 %Hippocampus
 hippFileName{1}='CaMKIIacetoLFPPACall121319_hippoPAC6figures.mat';
@@ -755,14 +755,14 @@ for pacii=1:3    %for amplitude bandwidths (beta, low gamma, high gamma)
     [output_data] = drgMutiRanksumorTtest(input_data);
     
     
-    %Perform the glm mi for both brain regions
+    %Perform the glm mi for prefrontal
     fprintf(1, ['glm for average MI for each electrode calculated per mouse for PAC theta' PACnames{pacii} ' prefrontal and hippocampus\n'])
     
     fprintf(1, ['\n\nglm for MI for Theta/' PACnames{pacii} '\n'])
-    tbl = table(glm_mi_both.data',glm_mi_both.brain_region',glm_mi_both.perCorr',glm_mi_both.event',...
-        'VariableNames',{'MI','brain_region','perCorr','event'});
-    mdl = fitglm(tbl,'MI~perCorr+brain_region+event+perCorr*event*brain_region'...
-        ,'CategoricalVars',[2,3,4])
+    tbl = table(glm_mi_pre.data',glm_mi_pre.perCorr',glm_mi_pre.event',...
+        'VariableNames',{'MI','perCorr','event'});
+    mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
+        ,'CategoricalVars',[2,3])
     
     %Perform the glm PA for both brain regions
     fprintf(1, ['glm for average PA variance for each electrode calculated per mouse for PAC theta' PACnames{pacii} ' prefrontal and hippocampus\n'])

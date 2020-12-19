@@ -503,13 +503,17 @@ if handles.drgb.PAC.no_trials>0
             this_mean_dbWB=zeros(1,length(freq));
             this_mean_dbWB(1,:)=mean(handles.drgb.PACwave.troughPowerSpectrum,1);
             
-            CI=[];
-            CI = bootci(1000, {@mean, handles.drgb.PACwave.troughPowerSpectrum})';
-            CI(:,1)= this_mean_dbWB'-CI(:,1);
-            CI(:,2)=CI(:,2)- this_mean_dbWB';
-            
-            
-            [hlCR, hpCR] = boundedline(freq',this_mean_dbWB', CI, 'b');
+            try
+                CI=[];
+                CI = bootci(1000, {@mean, handles.drgb.PACwave.troughPowerSpectrum})';
+                CI(:,1)= this_mean_dbWB'-CI(:,1);
+                CI(:,2)=CI(:,2)- this_mean_dbWB';
+                
+                
+                [hlCR, hpCR] = boundedline(freq',this_mean_dbWB', CI, 'b');
+            catch
+                plot(freq',this_mean_dbWB', 'b');
+            end
             
             this_mean_dbWB=zeros(1,length(freq));
             this_mean_dbWB(1,:)=mean(handles.drgb.PACwave.peakPowerSpectrum,1);
