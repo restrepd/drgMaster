@@ -31,13 +31,18 @@ peak_label{1}='Trough';
 peak_label{2}='Peak';
 
 %Location of files
-hippPathName='/Users/restrepd/OneDrive - The University of Colorado Denver/CaMKII Paper/Coherence Summary/';
+% hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
+hippPathName='F:\Datos summary CaMKII111720\Coherence summary\';
 
 %Files
 FileName{1}='CaMKIIacetocoh122119_coherenew.mat';
-FileName{2}='CaMKIIethylacepropylacecohe1272019_cohereethyacenew.mat';
-FileName{3}='CaMKIIethylbencohe1292019_coherenew.mat';
-FileName{4}='CaMKIIpropylacecohe12302019_coherenew.mat';
+FileName{2}='CaMKIIethylbencohe1292019_coherenew.mat';
+FileName{3}='CaMKIIpropylacecohe12302019_coherenew.mat';
+FileName{4}='CaMKIIethylacepropylacecohe1272019_coherenew.mat';
+FileName{5}='CaMKIIpointzero1ethylacepropylacecohe12282019_coherenew.mat';
+FileName{6}='CaMKIIpzpropylacecohe1132020_coherenew.mat';
+FileName{7}='CaMKIIpzz1ethylacepropylacecohe10212019_coherenew.mat';
+FileName{8}='CaMKIIpzz1propylacecohe12262019_coherenew.mat';
 
 
 %Load data

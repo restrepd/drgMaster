@@ -77,7 +77,7 @@ for trNo=firstTr:lastTr
                 
                 
                 this_event_time=handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo);
-                
+                 
                 %Get the spikes
                 ii_spikes=find((handles.drg.unit(handles.unitNo).spike_times>=this_event_time+handles.time_start+handles.time_pad)&...
                     (handles.drg.unit(handles.unitNo).spike_times<=this_event_time+handles.time_end-handles.time_pad));

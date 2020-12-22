@@ -13574,6 +13574,7 @@ switch which_display
                                 handles_out.dcoh_values(handles_out.dcoh_ii).per_ii=per_ii;
                                 handles_out.dcoh_values(handles_out.dcoh_ii).groupNo=grNo;
                                 handles_out.dcoh_values(handles_out.dcoh_ii).dcoh=mean(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
+                                handles_out.dcoh_values(handles_out.dcoh_ii).all_dcoh=deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
                                 
                                 %Violin plot
                                 
@@ -13593,39 +13594,6 @@ switch which_display
                                 input_data(ii_rank).data=these_data;
                                 input_data(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
                                 
-                                
-                                %                             %I added this to make the bars smaller
-                                %                             all_bar = [all_bar mean(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)))];
-                                %
-                                %Individual points; in the future add lines linking the
-                                %points?
-                                
-                                %                             ylim([0 1.2*max(all_bar)])
-                                %                             plot((bar_offset)*ones(1,sum((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))),...
-                                %                                 deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)),'o',...
-                                %                                 'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-                                %                             data_for_lines(per_ii).these_dB_per_e(1:length(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))))=...
-                                %                                 deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
-                                %                             data_for_lines(per_ii).these_mice(1:length(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))))=...
-                                %                                 deltaCxy_mouseNo_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
-                                %                             data_for_lines(per_ii).these_bar_offsets=bar_offset;
-                                %
-                                %
-                                %                             %Average and CI
-                                %                             plot(bar_offset,mean(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))),'ok','LineWidth', 3)
-                                %                             if sum((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))>2
-                                %                                 CI = bootci(1000, {@mean, deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))},'type','cper');
-                                %                                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                                %                             end
-                                
-                                %                             %Save data for anovan
-                                %                             data_delta_dB=[data_delta_dB deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))];
-                                %                             prof_naive=[prof_naive per_ii*ones(1,sum((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)))];
-                                %                             events=[events evNo*ones(1,sum((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)))];
-                                %                             mice=[mice deltaCxy_mouseNo_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))];
-                                %                             electrodes=[electrodes deltaCxy_elec_pair_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))];
-                                %                             groups=[groups deltaCxy_group_no_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))];
-                                %
                             end
                         end
                         bar_offset = bar_offset + 2;
@@ -16793,6 +16761,7 @@ switch which_display
         %24 Oscillatory wavelet power at the peak and trough of the PAC
         
         mean_PACpower_No_per_mouse=0;
+        mean_deltaLickFreq_No_per_mouse=0;
         
         mean_PACpower_No=0;
         mean_peakPACpower=[];
@@ -16808,6 +16777,7 @@ switch which_display
         
         handles_out=[];
         handles_out.PRP_ii=0;
+        handles_out.LickF_ii=0;
         handles_out.AUC_ii=0;
         
         prof_naive_leg{1}='Proficient';
@@ -16896,6 +16866,10 @@ switch which_display
                                                             this_peakPACpower_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PACwave(pacii).meanPeakPower(trials_in_event_Ev)-handles_drgb.drgb.lfpevpair(lfpodRefNo).PACwave(pacii).meanPeakPower(trials_in_event_Ev);
                                                             this_troughPACpower_Ev=zeros(sum(trials_in_event_Ev),1);
                                                             this_troughPACpower_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PACwave(pacii).meanTroughPower(trials_in_event_Ev)-handles_drgb.drgb.lfpevpair(lfpodRefNo).PACwave(pacii).meanTroughPower(trials_in_event_Ev);
+%                                                             if (elec==which_electrodes(1))&(pacii==1)
+%                                                                 this_deltaLickFreq_Ev=zeros(sum(trials_in_event_Ev),1);
+%                                                                 this_deltaLickFreq_Ev=handles_drgb.drgb.lfpevpair(lfpodNo).PACwave(pacii).mean_lick_freq(trials_in_event_Ev)-handles_drgb.drgb.lfpevpair(lfpodRefNo).PACwave(pacii).mean_lick_freq(trials_in_event_Ev);
+%                                                             end
                                                             
                                                             theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_peakPACpower_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1 ...
                                                                 :theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_peakPACpower_Ev;
@@ -16903,6 +16877,10 @@ switch which_display
                                                                 :theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_troughPACpower_Ev;
                                                             theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).whichMouse(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1:theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=mouseNo*ones(1,length(this_peakPACpower_Ev));
                                                             theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev);
+%                                                             if (elec==which_electrodes(1))&(pacii==1)
+%                                                                  theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_deltaLickFreq_Ev(theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+1 ...
+%                                                                 :theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).noEv+sum(trials_in_event_Ev))=this_deltaLickFreq_Ev;
+%                                                             end
                                                             
                                                             %Save per session value for peak power
                                                             mean_PACpower_No=mean_PACpower_No+1;
@@ -16982,6 +16960,23 @@ switch which_display
                                         mean_PACpower_mouseNo_per_mouse(mean_PACpower_No_per_mouse)=mouseNo;
                                         mean_PACpower_electNo_per_mouse(mean_PACpower_No_per_mouse)=elec;
                                         mean_PACpower_group_no_per_mouse(mean_PACpower_No_per_mouse)=group_no;
+                                        
+%                                         if (elec==which_electrodes(1))&(pacii==1)
+%                                             mean_deltaLickFreq_No_per_mouse=mean_deltaLickFreq_No_per_mouse+1;
+%                                             this_mouse_deltaLickFreq=[];
+%                                             this_mouse_deltaLickFreq=theseEvNos_thisMouse_thisElec(evNo,pacii,group_no).this_deltaLickFreq_Ev;
+%                                             if ~isempty(this_mouse_deltaLickFreq)
+%                                                 mean_deltaLickFreq_per_mouse(mean_deltaLickFreq_No_per_mouse)=mean(this_mouse_deltaLickFreq);
+%                                             else
+%                                                 mean_deltaLickFreq_per_mouse(mean_deltaLickFreq_No_per_mouse)=NaN;
+%                                             end
+%                                             mean_deltaLickFreq_perii_per_mouse(mean_deltaLickFreq_No_per_mouse)=per_ii;
+%                                             mean_deltaLickFreq_evNo_per_mouse(mean_deltaLickFreq_No_per_mouse)=evNo;
+%                                             mean_deltaLickFreq_pacii_per_mouse(mean_deltaLickFreq_No_per_mouse)=pacii;
+%                                             mean_deltaLickFreq_mouseNo_per_mouse(mean_deltaLickFreq_No_per_mouse)=mouseNo;
+%                                             mean_deltaLickFreq_electNo_per_mouse(mean_deltaLickFreq_No_per_mouse)=elec;
+%                                             mean_deltaLickFreq_group_no_per_mouse(mean_deltaLickFreq_No_per_mouse)=group_no;
+%                                         end
                                         
                                     end
                                 end
@@ -17271,6 +17266,150 @@ switch which_display
             
             
         end
+        
+%         %Now plot the average delta lick frequency calculated per mouse
+%         %(including all sessions for each mouse)
+%      
+%         
+%         data_PACpower=[];
+%         prof_naive=[];
+%         events=[];
+%         groups=[];
+%         mice=[];
+%         
+%         %Plot the average
+%         figureNo = figureNo + 1;
+%         try
+%             close(figureNo)
+%         catch
+%         end
+%         hFig=figure(figureNo);
+%         
+%         set(hFig, 'units','normalized','position',[.1 .2 .7 .7])
+%         %             subplot(2,1,1)
+%         
+%         hold on
+%         
+%         bar_lab_loc=[];
+%         no_ev_labels=0;
+%         ii_gr_included=0;
+%         bar_offset = 0;
+%         
+%         %             for grNo=1:max(handles_drgb.drgbchoices.group_no)
+%         
+%         include_group=0;
+%         
+%         for evNo=1:length(eventType)
+%             
+%             for per_ii=2:-1:1
+%                 
+%                 for grNo=1:max(handles_drgb.drgbchoices.group_no)
+%                     bar_offset = bar_offset +1;
+%                     %                         if sum(eventType==3)>0
+%                     %                             bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(2-evNo);
+%                     %                         else
+%                     %                             bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(length(eventType)-evNo);
+%                     %                         end
+%                     
+%                     %                         these_offsets(per_ii)=bar_offset;
+%                     bar_offset = bar_offset + 1;
+%                     
+%                     if sum((~isnan(mean_deltaLickFreq_per_mouse))&(mean_deltaLickFreq_perii_per_mouse==per_ii)&(mean_deltaLickFreq_pacii_per_mouse==pacii)&(mean_deltaLickFreq_evNo_per_mouse==evNo)&(mean_deltaLickFreq_group_no_per_mouse==grNo))>1
+%                         
+%                         include_group=1;
+%                         
+%                         switch grNo
+%                             case 1
+%                                 bar(bar_offset,mean(mean_deltaLickFreq_per_mouse((~isnan(mean_deltaLickFreq_per_mouse))&(mean_deltaLickFreq_perii_per_mouse==per_ii)&(mean_deltaLickFreq_pacii_per_mouse==pacii)&(mean_deltaLickFreq_evNo_per_mouse==evNo)&(mean_deltaLickFreq_group_no_per_mouse==grNo))),'g','LineWidth', 3,'EdgeColor','none')
+%                             case 2
+%                                 bar(bar_offset,mean(mean_deltaLickFreq_per_mouse((~isnan(mean_deltaLickFreq_per_mouse))&(mean_deltaLickFreq_perii_per_mouse==per_ii)&(mean_deltaLickFreq_pacii_per_mouse==pacii)&(mean_deltaLickFreq_evNo_per_mouse==evNo)&(mean_deltaLickFreq_group_no_per_mouse==grNo))),'b','LineWidth', 3,'EdgeColor','none')
+%                             case 3
+%                                 bar(bar_offset,mean(mean_deltaLickFreq_per_mouse((~isnan(mean_deltaLickFreq_per_mouse))&(mean_deltaLickFreq_perii_per_mouse==per_ii)&(mean_deltaLickFreq_pacii_per_mouse==pacii)&(mean_deltaLickFreq_evNo_per_mouse==evNo)&(mean_deltaLickFreq_group_no_per_mouse==grNo))),'y','LineWidth', 3,'EdgeColor','none')
+%                         end
+%                         
+%                         %Save data
+%                         handles_out.LickF_ii=handles_out.LickF_ii+1;
+%                         handles_out.LickF_values(handles_out.LickF_ii).pacii=pacii;
+%                         handles_out.LickF_values(handles_out.LickF_ii).evNo=evNo;
+%                         handles_out.LickF_values(handles_out.LickF_ii).groupNo=grNo;
+%                         handles_out.LickF_values(handles_out.LickF_ii).deltaLickF=mean(mean_deltaLickFreq_per_mouse((~isnan(mean_deltaLickFreq_per_mouse))&(mean_deltaLickFreq_perii_per_mouse==per_ii)&(mean_deltaLickFreq_pacii_per_mouse==pacii)&(mean_deltaLickFreq_evNo_per_mouse==evNo)&(mean_deltaLickFreq_group_no_per_mouse==grNo)));
+%                         
+%                         %Violin plot
+%                         [mean_out, CIout]=drgViolinPoint(mean_deltaLickFreq_per_mouse((~isnan(mean_deltaLickFreq_per_mouse))&(mean_deltaLickFreq_perii_per_mouse==per_ii)&(mean_deltaLickFreq_pacii_per_mouse==pacii)&(mean_deltaLickFreq_evNo_per_mouse==evNo)&(mean_deltaLickFreq_group_no_per_mouse==grNo))...
+%                             ,edges,bar_offset,rand_offset,'k','k',1);
+%                         
+%                         %                             plot(bar_offset,mean(mean_deltaLickFreq_per_mouse((~isnan(mean_deltaLickFreq_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))),'ok','LineWidth', 3)
+%                         %                             plot((bar_offset)*ones(1,sum((~isnan(mean_deltaLickFreq_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))),...
+%                         %                                 mean_deltaLickFreq_per_mouse((~isnan(mean_deltaLickFreq_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)),'o',...
+%                         %                                 'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
+%                         %
+%                         %                             if sum((~isnan(mean_deltaLickFreq_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))>=2
+%                         %                                 CI = bootci(1000, {@mean, mean_deltaLickFreq_per_mouse((~isnan(mean_deltaLickFreq_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))},'type','cper');
+%                         %                                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%                         %                             end
+%                         
+%                         % %Save data for anovan
+%                         % data_PACpower=[data_PACpower mean_deltaLickFreq_per_mouse((~isnan(mean_deltaLickFreq_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))];
+%                         % prof_naive=[prof_naive per_ii*ones(1,sum((~isnan(mean_deltaLickFreq_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)))];
+%                         % events=[events evNo*ones(1,sum((~isnan(mean_deltaLickFreq_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)))];
+%                         % groups=[groups grNo*ones(1,sum((~isnan(mean_deltaLickFreq_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)))];
+%                         % mice=[mice mean_PACpower_mouseNo_per_mouse((~isnan(mean_deltaLickFreq_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))];
+%                         
+%                     end
+%                 end
+%                 bar_offset = bar_offset + 2;
+%                 %                     if include_group==1
+%                 %                         bar_lab_loc=[bar_lab_loc mean(these_offsets)];
+%                 %                         no_ev_labels=no_ev_labels+1;
+%                 %                         if sum(eventType==3)>0
+%                 %                             bar_labels{no_ev_labels}=evTypeLabels{evNo};
+%                 %                         else
+%                 %                             bar_labels{no_ev_labels}=num2str(concs(evNo));
+%                 %                         end
+%                 %                     end
+%             end
+%             bar_offset = bar_offset + 3;
+%             
+%             %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%aqui
+%             %                 if include_group==1
+%             %                     ii_gr_included=ii_gr_included+1;
+%             %                     groups_included(ii_gr_included)=grNo;
+%             %                 end
+%             
+%         end
+%         
+%         title(['Delta lick frequency'])
+%         
+%         
+%         %Annotations identifying groups
+%         x_interval=0.8/ii_gr_included;
+%         for ii=1:ii_gr_included
+%             annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
+%         end
+%         
+%         %Proficient/Naive annotations
+%         annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
+%         annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
+%         
+%         %             %x labels
+%         %             to_sort=[bar_lab_loc' [1:length(bar_lab_loc)]'];
+%         %             sorted_A=sortrows(to_sort);
+%         %             sorted_bar_lab_loc=sorted_A(:,1);
+%         %             for ii=1:length(bar_lab_loc)
+%         %                 sorted_bar_labels{ii}=bar_labels{sorted_A(ii,2)};
+%         %             end
+%         xticks([2 4 6 10 12 14 21 23 25 29 31 33])
+%         xticklabels({'nwtS+', 'nHETS+', 'nKOS+', 'pwtS+', 'pHETS+', 'pKOS+', 'nwtS-', 'nHETS-', 'nKOS-', 'pwtS-', 'pHETS-', 'pKOS-'})
+%         
+%         if sum(eventType==3)==0
+%             xlabel('Concentration (%)')
+%         end
+%         
+%         ylabel('Hz')
+%         
+        
+        
+        
         
         
         

@@ -560,6 +560,7 @@ if all_files_present==1
                                     %Please note this is the same function called by
                                     %drgMaster when the user chooses Phase Amplitude
                                     %Coupling
+                                    handlespf.calculate_lick=0;
                                     handlespf=drgLFPwaveTimecourse(handlespf);
                                     
                                     if handlespf.drgb.PAC.no_trials>0

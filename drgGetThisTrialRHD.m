@@ -21,7 +21,7 @@ function data_this_trial=drgGetThisTrialRHD(handles,trialNo)
 
 sessionNo=1;
 
-tic;
+% tic;
 fid = fopen(handles.drg.drta_p.fullName, 'r');
 
  
