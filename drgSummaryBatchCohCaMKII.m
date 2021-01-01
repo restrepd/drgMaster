@@ -32,7 +32,7 @@ peak_label{2}='Peak';
 
 %Location of files
 % hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
-hippPathName='F:\Datos summary CaMKII111720\Coherence summary\';
+hippPathName='/Users/restrepd/Documents/Projects/CaMKII analysis/Coherence summary/';
 
 %Files
 FileName{1}='CaMKIIacetocoh122119_coherenew.mat';

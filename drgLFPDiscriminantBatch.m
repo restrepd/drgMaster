@@ -961,7 +961,7 @@ if all_files_present==1
                                 
                                 
                             end
-                            fprintf(1, 'dt in 963 = %d',toc-start_toc)
+                            fprintf(1, 'dt in 963 = %d\n',toc-start_toc)
                         end
                         
                         %Calculate licks
@@ -974,7 +974,7 @@ if all_files_present==1
                         
                         [lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii...
                             ,these_stamped_lick_times,no_trials_l,trials_included_l, lick_threshold]=drgGetLicks(handles);
-                        fprintf(1, 'dt in drgGetLicks = %d',toc-start_toc)
+                        fprintf(1, 'dt in drgGetLicks = %d\n',toc-start_toc)
                         
                         %Extract the data for powerLFP
                         if (sum(handles.drgbchoices.which_discriminant==1)>0)||(sum(handles.drgbchoices.which_discriminant==2)>0)...
@@ -1185,7 +1185,7 @@ if all_files_present==1
                             end
                             
                             no_trialsPACwave=no_trialsPACwave+par_out(1).PAC(1).no_trials;
-                            fprintf(1, 'dt in 1187 = %d',toc-start_toc)
+                            fprintf(1, 'dt in 1187 = %d\n',toc-start_toc)
                         end
                         
                         
@@ -1261,7 +1261,7 @@ if all_files_present==1
                                             
                                             per_input=zeros(length(handles.drgbchoices.which_electrodes),N);
                                             per_input(:,:)=these_all_log_P_timecourse(:,:,time_point);
-                                            fprintf(1, '\nTime point %d: ',time_point);
+                                            fprintf(1, '\nTime point %d: \n',time_point);
                                             
                                             %Perceptron
                                             %leave one out
@@ -4168,7 +4168,7 @@ if all_files_present==1
                                                     
                                                 end
                                             end
-                                            fprintf(1, 'dt 4171 = %d',toc-start_toc)
+                                            fprintf(1, 'dt 4171 = %d\n',toc-start_toc)
                                         end
                                         
                                         if PACii==3
@@ -4529,7 +4529,7 @@ if all_files_present==1
                                 end
                             end
                         end
-                        fprintf(1, 'dt in 4523 = %d',toc-start_toc)
+                        fprintf(1, 'dt in 4523 = %d\n',toc-start_toc)
                     end
                     
                     

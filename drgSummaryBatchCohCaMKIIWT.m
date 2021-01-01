@@ -32,7 +32,7 @@ peak_label{2}='Peak';
 
 %Location of files
 % hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
-hippPathName='F:\Datos summary CaMKII111720\Coherence summary\';
+hippPathName='/Users/restrepd/Documents/Projects/CaMKII analysis/Coherence summary/';
 
 %Files
 FileName{1}='CaMKIIacetocoh122119_coherenew.mat';
@@ -133,7 +133,7 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
                     %S+ Proficient
                     bar(bar_offset,mean(these_coh),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
                 else
-                    %S- Naive
+                    %S+ Naive
                     bar(bar_offset,mean(these_coh),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
                 end
             else

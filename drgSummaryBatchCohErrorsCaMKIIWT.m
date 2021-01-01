@@ -34,7 +34,7 @@ peak_label{2}='Peak';
 
 %Location of files
 % hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
-hippPathName='F:\Datos summary CaMKII111720\Coherence drgAnalysisBatchLFPCaMKII case 21 error output\';
+hippPathName='/Users/restrepd/Documents/Projects/CaMKII analysis/Coherence drgAnalysisBatchLFPCaMKII case 21 error output/';
 
 %Files
 FileName{1}='CaMKIIacetocoh122119coh_errors.mat';
@@ -172,13 +172,14 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
             input_data(id_ii).description=[ evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
             
         
-        bar_offset = bar_offset + 1;
+%         bar_offset = bar_offset + 1;
         
     end
     
     title(['Average coherence for each electrode calculated per mouse for ' bandwidth_names{bwii}])
     
-    
+    ylim([-0.2 0.2])
+    xlim([0.2 4.8])
     %     %Annotations identifying groups
     %     x_interval=0.8/ii_gr_included;
     %     for ii=1:ii_gr_included
@@ -190,8 +191,8 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
     %     annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
     
     
-    xticks([1 2 4 5])
-    xticklabels({'nS+', 'pS+','nS-', 'pS-'})
+    xticks([1 2 3 4])
+    xticklabels({'Hit', 'Miss','CR', 'FA'})
     
     ylabel('delta Coherence')
     

@@ -1,6 +1,10 @@
 function handles=drgLFPwaveTimecourse(handles)
 %Generates a timecourse of the LFP power in decibels 10*log10(Power)
 
+% tic
+
+% first_toc=toc;
+
 handles.drgb.PACwave=[];
 
 if isfield(handles,'calculate_lick')
@@ -10,15 +14,18 @@ else
     calculate_lick=1;
 end
 
+% start_toc=toc;
 [t_apt,freq,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo]=drgGetLFPwavePowerForThisEvTypeNo(handles);
+% fprintf(1, 'dt for drgGetLFPwavePowerForThisEvTypeNo = %d\n',toc-start_toc)
 
 handles.drgb.PACwave.trialNos_PRP=this_trialNo;
 
 %Calculate the licks
 if calculate_lick==1
+%     start_toc=toc;
     [lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii,these_stamped_lick_times,no_trials,...
         trials_included,lick_threshold, lick_freq_per_trial,trials_included_per_trial]=drgGetLicks(handles);
-    
+%     fprintf(1, 'dt for drgGetLicks = %d\n',toc-start_toc)
     
     handles.drgb.PACwave.times_lick_freq=times_lick_freq;
     handles.drgb.PACwave.lick_trials_included=trials_included;
@@ -30,9 +37,11 @@ if calculate_lick==1
 end
 
 %Get PAC
+% start_toc=toc;
 handles=drgThetaAmpPhaseTrialRange(handles);
+% fprintf(1, 'drgThetaAmpPhaseTrialRange = %d\n',toc-start_toc)
 
-
+% start_toc=toc;
 handles.drgb.PACwave.trialNos_PAC=handles.drgb.PAC.this_trialNo;
 
 %If there was a problem with signal saturation for this LFP the number of
@@ -278,6 +287,8 @@ if handles.drgb.PAC.no_trials>0
         end
         
     end
+    
+%     fprintf(1, 'The rest of the code = %d\n',toc-start_toc)
     
     if handles.displayData==1
         if ~isempty(this_trialNo)

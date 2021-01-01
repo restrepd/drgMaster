@@ -32,7 +32,7 @@ set(hFig1, 'units','normalized','position',[.07 .1 .75 .3])
 drg_pcolor(repmat(t',length(freq),1)',repmat(f,length(t),1),Cxy_timecourse')
 
 
-colormap jet
+colormap fire
 shading interp
 caxis([minCxy maxCxy]);
 xlabel('Time (sec)')
@@ -49,7 +49,7 @@ set(hFig2, 'units','normalized','position',[.83 .1 .05 .3])
 
 prain=[minCxy:(maxCxy-minCxy)/99:maxCxy];
 drg_pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
-colormap jet
+colormap fire
 shading interp
 ax=gca;
 set(ax,'XTickLabel','')
