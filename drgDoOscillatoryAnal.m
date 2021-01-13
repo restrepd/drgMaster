@@ -45,5 +45,7 @@ switch handles.analysisNoOsc
     case 21
        drgThetaAmpPhaseTrialRangeConc(handles); 
     case 22
-        drgLFPwaveTimecourseCont(handles)
+        drgLFPwaveTimecourseCont(handles);
+    case 23
+        drgLFPCorrTrialRange(handles);
 end

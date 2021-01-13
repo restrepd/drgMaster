@@ -6,5 +6,7 @@ switch handles.analysisNoOsc
     case 2
         handles=drgSpikePhase(handles);
     case 3
-        drgSpikeShape(handles)
+        handles=drgShiftedSpikePhase(handles);
+    case 4
+        drgSpikeShape(handles);
 end

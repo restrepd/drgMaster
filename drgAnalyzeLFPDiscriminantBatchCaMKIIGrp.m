@@ -42,15 +42,15 @@ window_end=[0 2.5];
 no_wins=2;
 
 %This is the window for area under the curve case 3
-auc_from=2;
-auc_to=2.5;
+auc_from=2.7;
+auc_to=3.2;
 
 
 
 %Plot average percent correct for the LDA for peak and trough for
 %wavelet power referenced to PAC phase
 t=handles_out.t_power;
-handles_out2=[];
+pcorr_out=[];
 
 if length(handles_out.drgbchoices.PACnames)==3
     these_PACii=[1 3];
@@ -74,7 +74,7 @@ for PACii=these_PACii
     glm_pcorr_dt_trough=[];
     glm_ii_pcdt_t=0;
     
-    pcorr_out=[];
+   
     
     for percent_correct_ii=1:2
         
@@ -192,7 +192,7 @@ for PACii=these_PACii
                 data=[data mean(all_discriminant_correct_trough(mouseNo,(t>=auc_from)&(t<=auc_to)),2)];
             end
             
-            pcorr_out.trough.pcorr(percent_correct_ii).group(groupNo).data=data;
+            pcorr_out.PACii(PACii).trough.pcorr(percent_correct_ii).group(groupNo).data=data;
             
             ii_stats=ii_stats+1;
             p_correct_stats(ii_stats).data=data;
@@ -237,7 +237,7 @@ for PACii=these_PACii
                 data=[data mean(all_discriminant_correct_peak(mouseNo,(t>=auc_from)&(t<=auc_to)),2)];
             end
             
-            pcorr_out.peaks.pcorr(percent_correct_ii).group(groupNo).data=data;
+            pcorr_out.PACii(PACii).peaks.pcorr(percent_correct_ii).group(groupNo).data=data;
             
             ii_stats=ii_stats+1;
             p_correct_stats(ii_stats).data=data;
@@ -309,17 +309,17 @@ for PACii=these_PACii
             
             switch grNo
                 case 1
-                    bar(bar_offset,mean(pcorr_out.peaks.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
                 case 2
-                    bar(bar_offset,mean(pcorr_out.peaks.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
                 case 3
-                    bar(bar_offset,mean(pcorr_out.peaks.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
             end
             
             
-            CI = bootci(1000, {@mean, pcorr_out.peaks.pcorr(per_ii).group(grNo).data},'type','cper');
+            CI = bootci(1000, {@mean, pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(pcorr_out.peaks.pcorr(per_ii).group(grNo).data)),pcorr_out.peaks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            plot(bar_offset*ones(1,length(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data)),pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
             
             
         end
@@ -363,17 +363,17 @@ for PACii=these_PACii
             
             switch grNo
                 case 1
-                    bar(bar_offset,mean(pcorr_out.trough.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
                 case 2
-                    bar(bar_offset,mean(pcorr_out.trough.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
                 case 3
-                    bar(bar_offset,mean(pcorr_out.trough.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
             end
             
             
-            CI = bootci(1000, {@mean, pcorr_out.trough.pcorr(per_ii).group(grNo).data},'type','cper');
+            CI = bootci(1000, {@mean, pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).data},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(pcorr_out.trough.pcorr(per_ii).group(grNo).data)),pcorr_out.trough.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            plot(bar_offset*ones(1,length(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).data)),pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
             
             
         end
@@ -443,8 +443,8 @@ for PACii=these_PACii
     
 end
 
-output_name=[pname 'dim_' fname];
-save(output_name,'handles_out2','-v7.3')
+output_name=[pname 'pcorr_' fname];
+save(output_name,'pcorr_out','-v7.3')
 
 
 %Now plot log(p) and find decision times
