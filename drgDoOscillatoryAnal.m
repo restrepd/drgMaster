@@ -48,4 +48,6 @@ switch handles.analysisNoOsc
         drgLFPwaveTimecourseCont(handles);
     case 23
         drgLFPCorrTrialRange(handles);
+    case 24
+        drgLFPCorrAllPairs(handles);
 end
