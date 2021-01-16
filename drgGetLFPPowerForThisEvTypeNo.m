@@ -137,7 +137,7 @@ for trNo=firstTr:lastTr
     end %for evNo
     
 end
-
+ 
 %This is here to remove a trial with zeros that appeared in one of Daniel's
 %files
 

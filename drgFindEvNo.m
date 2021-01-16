@@ -15,11 +15,11 @@ end
 % else
 %     evNo=evNos(1);
 % end
-
+ 
 if handles.drg.draq_p.sec_before_trigger==6
     %This is the code that was used for Justin's paper, it does not work when
     %longer trials are read out by drta
-     
+      
     [this_min,evNo]=min(abs(handles.drg.session(sessionNo).events(evTypeNo).times-handles.drg.session(sessionNo).trial_start(trNo)));
     if this_min>handles.drg.session(sessionNo).draq_p.sec_before_trigger
         evNo=-1;

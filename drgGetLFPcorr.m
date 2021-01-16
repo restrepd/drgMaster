@@ -2,6 +2,8 @@ function [rho, t_lag]=drgGetLFPcorr(LFP1,LFPshifted,Fs,F1,F2,time_pad)
 %Generates the phase histogram for the envelope and pac
 %function [pac_value, mod_indx, phase, phase_histo, theta_wave]=drgGetThetaAmpPhase(LFP,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins)
  
+%See Adhikari et al J. Neurosci Meth. 191:191 and Adhikari et al Neuron
+%65:257, 2010
  
 %Time pad is used to exclude filter artifacts at the end
 Fs=floor(Fs);
@@ -18,17 +20,19 @@ bpFilt = designfilt('bandpassiir','FilterOrder',20, ...
 filtLFP1=filtfilt(bpFilt,LFP1);
 LFP1env = abs(hilbert(filtLFP1)); % envelope
 powerLFP1filt=LFP1env.^2;
+powerLFP1filt=powerLFP1filt-mean(powerLFP1filt);
 angleLFP1 = angle(hilbert(filtLFP1)); % phase modulation of amplitude
 
 filtLFPshifted=filtfilt(bpFilt,LFPshifted);
 LFPshiftedenv = abs(hilbert(filtLFPshifted)); % envelope
 powerLFPshiftedfilt=LFPshiftedenv.^2;
+powerLFPshiftedfilt=powerLFPshiftedfilt-mean(powerLFPshiftedfilt);
 angleLFPshifted = angle(hilbert(filtLFPshifted)); % phase modulation of amplitude
 
-max_t_shift=(1/mean([F1,F2]))/2;
+max_t_shift=(1/mean([F1,F2]));
 max_ii_shift=max_t_shift*Fs;
 
-n_bins=41;
+n_bins=81;
 t_lag=[];
 rho=[];
 for ii_shift=1:n_bins
@@ -41,10 +45,19 @@ for ii_shift=1:n_bins
         powerLFPshiftedshifted=powerLFPshiftedfilt(1:end-ii);
         powerLFP1shifted=powerLFP1filt(ii+1:end);
     end
-    if ii_shift==13
-       pffft=1; 
+
+
+    if length(powerLFP1shifted)==length(powerLFPshiftedshifted)
+        rho(ii_shift)=corr(powerLFP1shifted',powerLFPshiftedshifted');
+    else
+        if length(powerLFP1shifted)>length(powerLFPshiftedshifted)
+            rho(ii_shift)=corr(powerLFP1shifted(1:length(powerLFPshiftedshifted))',powerLFPshiftedshifted');
+        else
+            rho(ii_shift)=corr(powerLFP1shifted',powerLFPshiftedshifted(1:length(powerLFP1shifted))');
+        end
     end
-    rho(ii_shift)=corr(powerLFP1shifted',powerLFPshiftedshifted');
+    
+
 end
 
 pffft=1;
