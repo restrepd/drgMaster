@@ -49,5 +49,8 @@ switch handles.analysisNoOsc
     case 23
         drgLFPCorrTrialRange(handles);
     case 24
-        drgLFPCorrAllPairs(handles);
+%         drgLFPCorrAllPairs(handles);
+        drgLFPCorrTimecourseAllTets(handles);
+    case 25
+        drgLFPCorrTimecourse(handles);
 end

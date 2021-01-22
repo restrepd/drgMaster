@@ -64,7 +64,7 @@ trials_attempted=0;
 for trNo=firstTr:lastTr
      
     evNo = drgFindEvNo(handles,trNo,sessionNo);
-    
+     
     if evNo~=-1
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
          
@@ -119,6 +119,7 @@ for trNo=firstTr:lastTr
                 handles.drgb.LFPcorr.rho(no_trials,1:length(t_lag))=rho;
                 handles.drgb.LFPcorr.weighted_mean_t_lag(no_trials)=weighted_mean_t_lag;
                 handles.drgb.LFPcorr.max_rho_t_lag(no_trials)=max_rho_t_lag;
+                handles.drgb.LFPcorr.max_rho(no_trials)=max_rho;
                 handles.drgb.LFPcorr.t_lag=t_lag;
                 
                 
@@ -148,11 +149,10 @@ end %for evNo
 %Calculate correlation for shuffled trials
 perm_trNo = randperm(length(handles.drgb.LFPcorr.trialNo));
 no_sh_trials=0;
+ii_perm=0;
 for trNo=firstTr:lastTr
     
     evNo = drgFindEvNo(handles,trNo,sessionNo);
-    
-    
     
     if evNo~=-1
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
@@ -160,7 +160,7 @@ for trNo=firstTr:lastTr
         if excludeTrial==0
             
             
-            if sum(perm_trNo==trNo)>0
+            if sum(handles.drgb.LFPcorr.trialNo(perm_trNo)==trNo)>0
                 
                 [LFP1, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
                 %This excludes flat lick recordings
@@ -170,7 +170,8 @@ for trNo=firstTr:lastTr
                     end
                 end
                 
-                evNo_sh = drgFindEvNo(handles,perm_trNo(trNo),sessionNo);
+                ii_perm=ii_perm+1;
+                evNo_sh = drgFindEvNo(handles,handles.drgb.LFPcorr.trialNo(perm_trNo(ii_perm)),sessionNo);
                 [LFP2, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo_sh, handles.evTypeNo, handles.time_start, handles.time_end);
                 
                 if (can_read1==1)&(can_read2==1)
@@ -181,23 +182,6 @@ for trNo=firstTr:lastTr
                     if handles.displayData==1
                         fprintf(1, ['Trial No %d, event No %d, processed trial no %d\n'], trNo,evNo,no_sh_trials);
                     end
-                    
-                    %                 %If this is being used for batch processing find out whether
-                    %                 %this is an S+
-                    %                 eventNo = drgFindEvNo(handles,trNo,sessionNo,splus);
-                    %                 if eventNo~=-1
-                    %                     spm(no_sh_trials)=1;
-                    %                 else
-                    %                     spm(no_sh_trials)=0;
-                    %                 end
-                    
-                    %                     time(no_sh_trials)=handles.drg.session(sessionNo).trial_start(trNo);
-                    %                     handles.drgb.LFPcorr.this_trialNo(no_sh_trials)=trNo;
-                    %                     if trNo==1
-                    %                         handles.drgb.LFPcorr.delta_t_trial(no_sh_trials)=100; %There are no trials before the first trial
-                    %                     else
-                    %                         handles.drgb.LFPcorr.delta_t_trial(no_sh_trials)=handles.drg.session(sessionNo).trial_start(trNo)-handles.drg.session(sessionNo).trial_start(trNo-1);
-                    %                     end
                     
                     
                     [rho_sh, t_lag_sh]=drgGetLFPcorr(LFP1,LFP2,Fs,lowF1,lowF2,pad_time);
@@ -212,6 +196,7 @@ for trNo=firstTr:lastTr
                     handles.drgb.LFPcorr.rho_sh(no_sh_trials,1:length(t_lag_sh))=rho_sh;
                     handles.drgb.LFPcorr.weighted_mean_t_lag_sh(no_sh_trials)=weighted_mean_t_lag_sh;
                     handles.drgb.LFPcorr.max_rho_t_lag_sh(no_sh_trials)=max_rho_t_lag_sh;
+                    handles.drgb.LFPcorr.max_rho_sh(no_sh_trials)=max_rho_sh;
                     handles.drgb.LFPcorr.t_lag_sh=t_lag_sh;
                     
                     
@@ -288,16 +273,17 @@ if handles.displayData==1
     ax=gca;
     set(ax,'XTickLabel','')
     
-
+    %Plot lag time histogram
     try
         close 3
     catch
     end
     
     hFig3 = figure(3);
-    set(hFig3, 'units','normalized','position',[.27 .12 .27 .27])
+    set(hFig3, 'units','normalized','position',[.27 .12 .25 .5])
     
-
+    subplot(2,1,1)
+    
     max_rho_t_lag=handles.drgb.LFPcorr.max_rho_t_lag;
      
     edges=[-0.0525:0.005:0.0525];
@@ -308,18 +294,12 @@ if handles.displayData==1
     hold on
     plot([mean(max_rho_t_lag) mean(max_rho_t_lag)],[0 this_ylim(2)],'-r')
     
-    text(-0.05,this_ylim(1)+0.8*(this_ylim(2)-this_ylim(1)),['Mean rho (ms) = ' num2str(mean(max_rho_t_lag)*1000)])
+    text(-0.05,this_ylim(1)+0.8*(this_ylim(2)-this_ylim(1)),['Mean max rho lag (ms) = ' num2str(mean(max_rho_t_lag)*1000)])
     title('max rho lag time')
     xlabel('lag time (sec)')
     ylabel('Counts')
     
-       try
-        close 4
-    catch
-    end
-    
-    hFig4 = figure(4);
-    set(hFig4, 'units','normalized','position',[.27 .12 .27 .27])
+    subplot(2,1,2)
     
 
     max_rho_t_lag_sh=handles.drgb.LFPcorr.max_rho_t_lag_sh;
@@ -332,12 +312,58 @@ if handles.displayData==1
     hold on
     plot([mean(max_rho_t_lag_sh) mean(max_rho_t_lag_sh)],[0 this_ylim(2)],'-r')
     
-    text(-0.05,this_ylim(1)+0.8*(this_ylim(2)-this_ylim(1)),['Mean rho (ms) = ' num2str(mean(max_rho_t_lag)*1000)])
+    text(-0.05,this_ylim(1)+0.8*(this_ylim(2)-this_ylim(1)),['Mean max rho lag (ms) = ' num2str(mean(max_rho_t_lag_sh)*1000)])
     title('max rho lag time, shifted trials')
     xlabel('lag time (sec)')
     ylabel('Counts')
     
     p=ranksum(max_rho_t_lag,max_rho_t_lag_sh)
+    
+    %Plot max rho histogram
+    try
+        close 4
+    catch
+    end
+    
+    hFig4 = figure(4);
+    set(hFig4, 'units','normalized','position',[.27 .12 .25 .5])
+    
+    subplot(2,1,1)
+    
+    max_rho=handles.drgb.LFPcorr.max_rho;
+     
+    edges=[0:0.05:1];
+    histogram(max_rho,edges)
+    
+    %Show mean rho
+    this_ylim=ylim;
+    hold on
+    plot([mean(max_rho) mean(max_rho)],[0 this_ylim(2)],'-r')
+    
+    text(-0.05,this_ylim(1)+0.8*(this_ylim(2)-this_ylim(1)),['Mean max rho = ' num2str(mean(max_rho))])
+    title('max rho')
+    xlabel('lag time (sec)')
+    ylabel('Counts')
+    
+    subplot(2,1,2)
+    
+
+    max_rho_sh=handles.drgb.LFPcorr.max_rho_sh;
+     
+   
+    histogram(max_rho_sh,edges)
+    
+    %Show mean rho
+    this_ylim=ylim;
+    hold on
+    plot([mean(max_rho_sh) mean(max_rho_sh)],[0 this_ylim(2)],'-r')
+    
+    text(-0.05,this_ylim(1)+0.8*(this_ylim(2)-this_ylim(1)),['Mean max rho = ' num2str(mean(max_rho_sh))])
+    title('max rho, shifted trials')
+    xlabel('lag time (sec)')
+    ylabel('Counts')
+    
+    p=ranksum(max_rho,max_rho_sh)
     
 end
 
