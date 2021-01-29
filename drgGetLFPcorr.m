@@ -23,14 +23,14 @@ LFP1env = abs(hilbert(filtLFP1)); % envelope
 % powerLFP1filt=LFP1env.^2;
 % powerLFP1filt=LFP1env;
 LFP1env=LFP1env-mean(LFP1env);
-angleLFP1 = angle(hilbert(filtLFP1)); % phase modulation of amplitude
+% angleLFP1 = angle(hilbert(filtLFP1)); % phase modulation of amplitude
 
 filtLFPshifted=filtfilt(bpFilt,LFPshifted);
 LFPshiftedenv = abs(hilbert(filtLFPshifted)); % envelope
 % powerLFPshiftedfilt=LFPshiftedenv.^2;
 % powerLFPshiftedfilt=LFPshiftedenv;
 LFPshiftedenv=LFPshiftedenv-mean(LFPshiftedenv);
-angleLFPshifted = angle(hilbert(filtLFPshifted)); % phase modulation of amplitude
+% angleLFPshifted = angle(hilbert(filtLFPshifted)); % phase modulation of amplitude
 
 max_t_shift=(1/mean([F1,F2]));
 max_ii_shift=ceil(max_t_shift*Fs);

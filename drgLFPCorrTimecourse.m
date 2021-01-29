@@ -1,19 +1,11 @@
 function handles=drgLFPCorrTimecourse(handles)
 
-if ~isfield(handles,'flipLFP')
-    handles.flipLFP=0;
+if ~isfield(handles,'randpermLFP')
+    handles.randpermLFP=0;
 end
 
 %Generates a trial per trial phase histogram
 odorOn=2;
- 
-%Note that if event 5 exists the phase is referenced to event 5 (splus
-%or non-match). Ohterwise phase is referenced to itself
-if length(handles.drg.session(1).events)>=5
-    splus=5;
-else
-    splus=handles.evTypeNo;
-end
  
 sessionNo=handles.sessionNo;
 Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
@@ -23,106 +15,40 @@ highF1=handles.burstLowF;
 highF2=handles.burstHighF;
 pad_time=handles.time_pad;
 n_phase_bins=handles.n_phase_bins;
+decimation_factor=40;
 
 %Empty vectors
-handles.drgb.LFPcorr.no_trials=0;
-handles.drgb.LFPcorr.rho=[];
-handles.drgb.LFPcorr.t_lag=[];
-handles.drgb.LFPcorr.trialNo=[];
+handles.drgb.LFPcorr=[];
 
 %Enter trials
 firstTr=handles.trialNo;
 lastTr=handles.lastTrialNo;
 
-
 [perCorr, encoding_trials, retrieval_trials, encoding_this_evTypeNo,retrieval_this_evTypeNo]=drgFindEncRetr(handles);
 
- 
 no_trials=0;
 trials_attempted=0;
 
+vetted_trNos=[];
+vetted_evNos=[];
+ii_vet=0;
 for trNo=firstTr:lastTr
-     
     evNo = drgFindEvNo(handles,trNo,sessionNo);
-    
     if evNo~=-1
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
-         
+        
         if excludeTrial==0
-             
-            
-            trials_attempted=trials_attempted+1;
             [LFP1, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
-            %This excludes flat lick recordings
-            if handles.peakLFPNo==19
-                if sum(LFP1)==0
-                    can_read1=0;
-                end
-            end
+            
             [LFP2, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
             
+            LFP1=[];
+            LFP2=[];
+            
             if (can_read1==1)&(can_read2==1)
-                
-                no_trials=no_trials+1;
-                handles.drgb.LFPcorr.trial(no_trials).trialNo=trNo;
-                
-                 if handles.displayData==1
-                    fprintf(1, ['Trial No %d, event No %d, processed trial no %d\n'], trNo,evNo,no_trials);
-                end
-                
-                %Now parse the LFP timecourse
-                dt=0.05;
-                dt_window=2; %2 sec works much better than 1.5 sec
-                time_start=handles.time_start;
-                time_end=handles.time_end;
-                no_steps=0;
-                while handles.time_start+dt_window+2*handles.time_pad<time_end
-                    
-                    handles.time_end=handles.time_start+dt_window+2*handles.time_pad;
-                    [LFP1, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
-                    
-                    %This excludes flat lick recordings
-                    if handles.peakLFPNo==19
-                        if sum(LFP1)==0
-                            can_read1=0;
-                        end
-                    end
-                    
-                    [LFP2, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
-                    
-                    if handles.flipLFP==1
-                        LFP2=LFP2(end:-1:1);
-                    end
-                    
-                    if (can_read1==1)&(can_read2==1)
-                        no_steps=no_steps+1;
-                        time(no_steps)=handles.time_start+handles.time_pad+(dt_window/2);
-                        
-                        [rho, t_lag]=drgGetLFPcorr(LFP1,LFP2,Fs,lowF1,lowF2,pad_time);
-                        
-                        weighted_mean_t_lag=sum(t_lag.*rho)/sum(rho);
-                        [max_rho, max_ii]=max(rho);
-                        max_rho_t_lag=t_lag(max_ii);
-                        
-                         
-                        %Save the output
-                        handles.drgb.LFPcorr.trial(no_trials).no_steps=no_steps;
-                        handles.drgb.LFPcorr.trial(no_trials).time=time;
-                        
-                        handles.drgb.LFPcorr.trial(no_trials).rho(no_steps,1:length(t_lag))=rho;
-                        handles.drgb.LFPcorr.trial(no_trials).weighted_mean_t_lag(no_steps)=weighted_mean_t_lag;
-                        handles.drgb.LFPcorr.trial(no_trials).max_rho_t_lag(no_steps)=max_rho_t_lag;
-                        handles.drgb.LFPcorr.trial(no_trials).max_rho(no_steps)=max_rho;
-                        handles.drgb.LFPcorr.trial(no_trials).t_lag=t_lag;
-                        
-                        
-                    end
-                    
-                    handles.time_start=handles.time_start+dt;
-                    
-                end
-                handles.time_start=time_start;
-                handles.time_end=time_end;
+                ii_vet=ii_vet+1;
+                vetted_trNos(ii_vet)=trNo;
+                vetted_evNos(ii_vet)=evNo;
             else
                 if handles.displayData==1
                     fprintf(1, ['Trial No %d, event No %d, LFP could not be read\n'], trNo,evNo);
@@ -141,7 +67,85 @@ for trNo=firstTr:lastTr
     %end
     %end %if eventstamps...
 end %for evNo
-       
+
+if handles.randpermLFP==1
+    perm_ii_vet = randperm(length(vetted_trNos));
+end
+
+for ii_vet=1:length(vetted_trNos)
+    
+    trNo=vetted_trNos(ii_vet);
+    evNo=vetted_evNos(ii_vet);
+    
+    no_trials=no_trials+1;
+    
+    handles.drgb.LFPcorr.no_trials=no_trials;
+    handles.drgb.LFPcorr.perCorr(no_trials)=perCorr(drgFindEvNo(handles,trNo,sessionNo,odorOn));
+    handles.drgb.LFPcorr.trial(no_trials).trialNo=trNo;
+    if handles.save_drgb==1
+        for evTypeNo=1:length(handles.drgbchoices.evTypeNos)
+            if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
+                handles.drgb.LFPcorr.which_event(evTypeNo,no_trials)=1;
+            else
+                handles.drgb.LFPcorr.which_event(evTypeNo,no_trials)=0;
+            end
+        end
+    end
+    
+    if handles.displayData==1
+        fprintf(1, ['Trial No %d, event No %d, processed trial no %d\n'], trNo,evNo,no_trials);
+    end
+    
+    %Now parse the LFP timecourse
+    dt=0.1;
+    dt_window=2; %2 sec works much better than 1.5 sec
+    time_start=handles.time_start;
+    time_end=handles.time_end;
+    no_steps=0;
+    while handles.time_start+dt_window+2*handles.time_pad<time_end
+        
+        handles.time_end=handles.time_start+dt_window+2*handles.time_pad;
+        [LFP1, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
+        
+        if handles.randpermLFP==1
+            evNo_LFP2=vetted_evNos(perm_ii_vet(ii_vet));
+        else
+            evNo_LFP2=evNo;
+        end
+        
+        [LFP2, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo_LFP2, handles.evTypeNo, handles.time_start, handles.time_end);
+        
+        LFP1=decimate(LFP1,decimation_factor);
+        LFP2=decimate(LFP2,decimation_factor);
+        no_steps=no_steps+1;
+        time(no_steps)=handles.time_start+handles.time_pad+(dt_window/2);
+        
+        [rho, t_lag]=drgGetLFPcorr(LFP1,LFP2,Fs/decimation_factor,lowF1,lowF2,pad_time);
+        
+        weighted_mean_t_lag=sum(t_lag.*rho)/sum(rho);
+        [max_rho, max_ii]=max(rho);
+        max_rho_t_lag=t_lag(max_ii);
+        
+        
+        %Save the output
+        handles.drgb.LFPcorr.trial(no_trials).no_steps=no_steps;
+        handles.drgb.LFPcorr.trial(no_trials).time=time;
+        
+        %handles.drgb.LFPcorr.trial(no_trials).rho(no_steps,1:length(t_lag))=rho;
+        %I am not saving rho to save memory
+        handles.drgb.LFPcorr.trial(no_trials).weighted_mean_t_lag(no_steps)=weighted_mean_t_lag;
+        handles.drgb.LFPcorr.trial(no_trials).max_rho_t_lag(no_steps)=max_rho_t_lag;
+        handles.drgb.LFPcorr.trial(no_trials).max_rho(no_steps)=max_rho;
+        handles.drgb.LFPcorr.trial(no_trials).t_lag=t_lag;
+        
+        handles.time_start=handles.time_start+dt;
+        
+    end
+    handles.time_start=time_start;
+    handles.time_end=time_end; 
+    
+end %for ii_vet
+
 handles.drgb.LFPcorr.time=time;
 
 %Calculate the weigted mean t_lag
