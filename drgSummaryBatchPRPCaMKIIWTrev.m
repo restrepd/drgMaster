@@ -35,7 +35,7 @@ peak_label{2}='Peak';
 
 %Location of files
 % hippPathName='F:\Datos summary CaMKII111720\PRP drgAnalysisBatchLFPCaMKII case 24 output for summary\';
-hippPathName='/Users/restrepd/Documents/Projects/CaMKII analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for summary/';
+hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for summary/';
 fwd_rev_hippo=[1 2 2 1 1 2 1 2]; %1=forward, 2=reverse
     
 %Hippocampus
@@ -49,7 +49,7 @@ hippFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_hippoPRPnew.mat';
 hippFileName{8}='spm_LFP_pzz1propylwavephasepower071220_hippoPRPnew.mat';
 
 % prePathName='F:\Datos summary CaMKII111720\PRP drgAnalysisBatchLFPCaMKII case 24 output for summary\';
-prePathName='/Users/restrepd/Documents/Projects/CaMKII analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for summary/';
+prePathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for summary/';
 fwd_rev_pre=[1 2 2 1 1 2 1 2]; %1=forward, 2=reverse
 
 %Prefrontal

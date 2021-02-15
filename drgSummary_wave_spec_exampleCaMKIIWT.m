@@ -31,10 +31,15 @@ evTypeLabels{1}='S+';
 evTypeLabels{2}='S-';
 
 %Location of files
-PathName='C:\Users\Diego Restrepo\OneDrive - The University of Colorado Denver\CaMKII Paper\Figure 3 PRP\';
+% PathName='C:\Users\Diego Restrepo\OneDrive - The University of Colorado Denver\CaMKII Paper\Figure 3 PRP\';
+PathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Figure_3_PRP/';
 
 % handles_pars.which_electrodes=[5:12]; %Hippocampus
 % handles_pars.which_electrodes=[1:4,13:16]; %Prefrontal
+
+%The numbers above are incorrect, here is take 2
+% handles.drgbchoices.which_electrodes=[1:8]; %Hippocampus 2
+% handles.drgbchoices.which_electrodes=[9:16]; %Prefrontal 2
 
 
 
@@ -85,21 +90,21 @@ for peak=1:2
                 if evNo==1
                     if per_ii==1
                         %S+ proficient
-                        load([PathName 'elec5_splus_proficient.mat'])
+                        load([PathName '6251853931_elec5_splus_proficient.mat'])
                         these_dBWB=peakPowerSpectrum;
                     else
                         %S+ naive
-                        load([PathName 'elec5_splus_naive.mat'])
+                        load([PathName '6151853931_elec5_splus_naive.mat'])
                         these_dBWB=peakPowerSpectrum;
                     end
                 else
                      if per_ii==1
                         %S- proficient
-                        load([PathName 'elec5_sminus_proficient.mat'])
+                        load([PathName '6251853931_elec5_sminus_proficient.mat'])
                         these_dBWB=peakPowerSpectrum;
                     else
                         %S- naive
-                        load([PathName 'elec5_sminus_naive.mat'])
+                        load([PathName '6151853931_elec5_sminus_naive.mat'])
                         these_dBWB=peakPowerSpectrum;
                     end
                 end
@@ -107,21 +112,21 @@ for peak=1:2
                 if evNo==1
                     if per_ii==1
                         %S+ proficient
-                        load([PathName 'elec5_splus_proficient.mat'])
+                        load([PathName '6251853931_elec5_splus_proficient.mat'])
                         these_dBWB=troughPowerSpectrum;
                     else
                         %S+ naive
-                        load([PathName 'elec5_splus_naive.mat'])
+                        load([PathName '6151853931_elec5_splus_naive.mat'])
                         these_dBWB=troughPowerSpectrum;
                     end
                 else
                      if per_ii==1
                         %S- proficient
-                        load([PathName 'elec5_sminus_proficient.mat'])
+                        load([PathName '6251853931_elec5_sminus_proficient.mat'])
                         these_dBWB=troughPowerSpectrum;
                     else
                         %S- naive
-                        load([PathName 'elec5_sminus_naive.mat'])
+                        load([PathName '6151853931_elec5_sminus_naive.mat'])
                         these_dBWB=troughPowerSpectrum;
                     end
                 end
@@ -225,21 +230,21 @@ for peak=1:2
                 if evNo==1
                     if per_ii==1
                         %S+ proficient
-                        load([PathName 'elec1_splus_proficient.mat'])
+                        load([PathName '6251853931_elec12_splus_proficient.mat'])
                         these_dBWB=peakPowerSpectrum;
                     else
                         %S+ naive
-                        load([PathName 'elec1_splus_naive.mat'])
+                        load([PathName '6151853931_elec12_splus_naive.mat'])
                         these_dBWB=peakPowerSpectrum;
                     end
                 else
                      if per_ii==1
                         %S- proficient
-                        load([PathName 'elec1_sminus_proficient.mat'])
+                        load([PathName '6251853931_elec12_sminus_proficient.mat'])
                         these_dBWB=peakPowerSpectrum;
                     else
                         %S- naive
-                        load([PathName 'elec1_sminus_naive.mat'])
+                        load([PathName '6151853931_elec12_sminus_naive.mat'])
                         these_dBWB=peakPowerSpectrum;
                     end
                 end
@@ -247,21 +252,21 @@ for peak=1:2
                 if evNo==1
                     if per_ii==1
                         %S+ proficient
-                        load([PathName 'elec1_splus_proficient.mat'])
+                        load([PathName '6251853931_elec12_splus_proficient.mat'])
                         these_dBWB=troughPowerSpectrum;
                     else
                         %S+ naive
-                        load([PathName 'elec1_splus_naive.mat'])
+                        load([PathName '6151853931_elec12_splus_naive.mat'])
                         these_dBWB=troughPowerSpectrum;
                     end
                 else
                      if per_ii==1
                         %S- proficient
-                        load([PathName 'elec1_sminus_proficient.mat'])
+                        load([PathName '6251853931_elec12_sminus_proficient.mat'])
                         these_dBWB=troughPowerSpectrum;
                     else
                         %S- naive
-                        load([PathName 'elec1_sminus_naive.mat'])
+                        load([PathName '6151853931_elec12_sminus_naive.mat'])
                         these_dBWB=troughPowerSpectrum;
                     end
                 end

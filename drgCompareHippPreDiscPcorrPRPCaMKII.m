@@ -1,5 +1,5 @@
 function drgCompareHippPreDiscPcorrPRPCaMKII
-%Analyzes the linear discriminant analysis performed by drgLFPDiscriminantBatch
+%Analyzes the linear discriminant analysis performed by drgAnalyzeLFPDiscriminantBatchCaMKIIGrp
 %Takes as a in input the 'drgbDiscPar' file listing 'Discriminant_*.mat' output files
 %from drgLFPDiscriminantBatch
 %
@@ -40,13 +40,13 @@ peak_label{2}='Peak';
 hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Discriminant/';
 
 %Hippocampus
-hippFileName='pcorr_Discriminant_CaMKIIpzz1ethylace_disc_PRPhipp12272020.mat';
+hippFileName='pcorr_Discriminant_CaMKIIpzz1paea_disc_01302021_hippo2.mat';
 
 % prePathName='F:\Datos summary CaMKII111720\PRP drgAnalysisBatchLFPCaMKII case 24 output for summary\';
 prePathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Discriminant/';
 
 %Prefrontal
-preFileName='pcorr_Discriminant_CaMKIIpzz1ethylace_disc_PRPpre12302020.mat';
+preFileName='pcorr_Discriminant_CaMKIIpzz1paea_disc_02012021_pref2.mat';
 
 
 %Now process the hippocampus

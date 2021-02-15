@@ -36,21 +36,30 @@ figNo=0;
 
 
 
-%Define the windows for analysis
-window_start=[-1 1.5];
-window_end=[0 2.5];
-no_wins=2;
+% %Define the windows for analysis
+% window_start=[-1 1.5];
+% window_end=[0 2.5];
+% no_wins=2;
 
-%This is the window for area under the curve case 3
-auc_from=2.7;
-auc_to=3.2;
+%This is the window for odor
+odor_from=2.2;
+odor_to=2.8;
 
+
+%This is the window for reinforcement
+reinf_from=4.4;
+reinf_to=5;
+
+%This is the window for the AUC
+AUC_from=0.5;
+AUC_to=2.5;
 
 
 %Plot average percent correct for the LDA for peak and trough for
 %wavelet power referenced to PAC phase
 t=handles_out.t_power;
 pcorr_out=[];
+lick_out=[];
 
 if length(handles_out.drgbchoices.PACnames)==3
     these_PACii=[1 3];
@@ -141,11 +150,16 @@ for PACii=these_PACii
             
             data=[];
             for mouseNo=1:no_mice_included
-                data=[data mean(all_discriminant_correct_shuffled_peak(mouseNo,(t>=auc_from)&(t<=auc_to)),2)];
+                data=[data mean(all_discriminant_correct_shuffled_peak(mouseNo,(t>=odor_from)&(t<=odor_to)),2)];
             end
             
+            dataAUC=[];
+            for mouseNo=1:no_mice_included
+                dataAUC=[dataAUC (mean(all_discriminant_correct_shuffled_peak(mouseNo,(t>=AUC_from)&(t<=AUC_to)),2)-50)/50];
+            end
      
             glm_pcorr_dt.data(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=data;
+            glm_pcorr_dt.dataAUC(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=dataAUC;
             glm_pcorr_dt.group(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=groupNo;
             glm_pcorr_dt.perCorr(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=percent_correct_ii;
             %             glm_pcorr_dt.shuffled(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=1;
@@ -156,8 +170,14 @@ for PACii=these_PACii
             
             %             data=[];
             for mouseNo=1:no_mice_included
-                data=[data mean(all_discriminant_correct_shuffled_trough(mouseNo,(t>=auc_from)&(t<=auc_to)),2)];
+                data=[data mean(all_discriminant_correct_shuffled_trough(mouseNo,(t>=odor_from)&(t<=odor_to)),2)];
             end
+            
+            for mouseNo=1:no_mice_included
+                dataAUC=[dataAUC (mean(all_discriminant_correct_shuffled_trough(mouseNo,(t>=AUC_from)&(t<=AUC_to)),2)-50)/50];
+            end
+            
+            pcorr_out.PACii(PACii).shuffled.pcorr(percent_correct_ii).group(groupNo).odor_data=data;
             
             ii_stats=ii_stats+1;
             p_correct_stats(ii_stats).data=data;
@@ -165,6 +185,7 @@ for PACii=these_PACii
             
             
             glm_pcorr_dt.data(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=data;
+            glm_pcorr_dt.dataAUC(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=dataAUC;
             glm_pcorr_dt.group(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=groupNo;
             glm_pcorr_dt.perCorr(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=percent_correct_ii;
             %             glm_pcorr_dt.shuffled(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=1;
@@ -189,10 +210,16 @@ for PACii=these_PACii
             
             data=[];
             for mouseNo=1:no_mice_included
-                data=[data mean(all_discriminant_correct_trough(mouseNo,(t>=auc_from)&(t<=auc_to)),2)];
+                data=[data mean(all_discriminant_correct_trough(mouseNo,(t>=odor_from)&(t<=odor_to)),2)];
             end
             
-            pcorr_out.PACii(PACii).trough.pcorr(percent_correct_ii).group(groupNo).data=data;
+             dataAUC=[];
+            for mouseNo=1:no_mice_included
+                dataAUC=[dataAUC (mean(all_discriminant_correct_trough(mouseNo,(t>=AUC_from)&(t<=AUC_to)),2)-50)/50];
+            end
+            
+            pcorr_out.PACii(PACii).trough.pcorr(percent_correct_ii).group(groupNo).odor_data=data;
+            pcorr_out.PACii(PACii).trough.pcorr(percent_correct_ii).group(groupNo).odor_dataAUC=dataAUC;
             
             ii_stats=ii_stats+1;
             p_correct_stats(ii_stats).data=data;
@@ -200,6 +227,7 @@ for PACii=these_PACii
             
             
             glm_pcorr_dt.data(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=data;
+            glm_pcorr_dt.dataAUC(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=dataAUC;
             glm_pcorr_dt.group(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=groupNo;
             glm_pcorr_dt.perCorr(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=percent_correct_ii;
             %             glm_pcorr_dt.shuffled(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=0;
@@ -209,6 +237,7 @@ for PACii=these_PACii
 
             
             glm_pcorr_dt_trough.data(glm_ii_pcdt_t+1:glm_ii_pcdt_t+length(data))=data;
+            glm_pcorr_dt_trough.dataAUC(glm_ii_pcdt_t+1:glm_ii_pcdt_t+length(data))=dataAUC;
             glm_pcorr_dt_trough.group(glm_ii_pcdt_t+1:glm_ii_pcdt_t+length(data))=groupNo;
             glm_pcorr_dt_trough.perCorr(glm_ii_pcdt_t+1:glm_ii_pcdt_t+length(data))=percent_correct_ii;
             glm_ii_pcdt_t=glm_ii_pcdt_t+length(data);
@@ -217,6 +246,15 @@ for PACii=these_PACii
             p_corr_dt_trough_stats(ii_t_stats).data=data;
             p_corr_dt_trough_stats(ii_t_stats).description=[handles_out.drgbchoices.group_no_names{groupNo} ' ' ...
                 handles_out.drgbchoices.per_lab{percent_correct_ii}];
+            
+            
+            data=[];
+            for mouseNo=1:no_mice_included
+                data=[data mean(all_discriminant_correct_trough(mouseNo,(t>=reinf_from)&(t<=reinf_to)),2)];
+            end
+            
+            pcorr_out.PACii(PACii).trough.pcorr(percent_correct_ii).group(groupNo).reinf_data=data;
+
             
             
             %Now plot the percent correct for the peak
@@ -234,10 +272,16 @@ for PACii=these_PACii
             
             data=[];
             for mouseNo=1:no_mice_included
-                data=[data mean(all_discriminant_correct_peak(mouseNo,(t>=auc_from)&(t<=auc_to)),2)];
+                data=[data mean(all_discriminant_correct_peak(mouseNo,(t>=odor_from)&(t<=odor_to)),2)];
             end
             
-            pcorr_out.PACii(PACii).peaks.pcorr(percent_correct_ii).group(groupNo).data=data;
+            dataAUC=[];
+            for mouseNo=1:no_mice_included
+                dataAUC=[dataAUC (mean(all_discriminant_correct_peak(mouseNo,(t>=AUC_from)&(t<=AUC_to)),2)-50)/50];
+            end
+            
+            pcorr_out.PACii(PACii).peaks.pcorr(percent_correct_ii).group(groupNo).odor_data=data;
+            pcorr_out.PACii(PACii).peaks.pcorr(percent_correct_ii).group(groupNo).odor_dataAUC=dataAUC;
             
             ii_stats=ii_stats+1;
             p_correct_stats(ii_stats).data=data;
@@ -247,6 +291,7 @@ for PACii=these_PACii
             
             
             glm_pcorr_dt.data(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=data;
+            glm_pcorr_dt.dataAUC(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=dataAUC;
             glm_pcorr_dt.PACii(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=PACii;
             glm_pcorr_dt.group(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=groupNo;
             glm_pcorr_dt.perCorr(glm_ii_pcdt+1:glm_ii_pcdt+length(data))=percent_correct_ii;
@@ -257,6 +302,7 @@ for PACii=these_PACii
 
             
             glm_pcorr_dt_peak.data(glm_ii_pcdt_p+1:glm_ii_pcdt_p+length(data))=data;
+            glm_pcorr_dt_peak.dataAUC(glm_ii_pcdt_p+1:glm_ii_pcdt_p+length(data))=dataAUC;
             glm_pcorr_dt_peak.group(glm_ii_pcdt_p+1:glm_ii_pcdt_p+length(data))=groupNo;
             glm_pcorr_dt_peak.perCorr(glm_ii_pcdt_p+1:glm_ii_pcdt_p+length(data))=percent_correct_ii;
             glm_ii_pcdt_p=glm_ii_pcdt_p+length(data);
@@ -266,7 +312,12 @@ for PACii=these_PACii
             p_corr_dt_peak_stats(ii_p_stats).description=[handles_out.drgbchoices.group_no_names{groupNo} ' ' ...
                 handles_out.drgbchoices.per_lab{percent_correct_ii}];
             
+            data=[];
+            for mouseNo=1:no_mice_included
+                data=[data mean(all_discriminant_correct_peak(mouseNo,(t>=reinf_from)&(t<=reinf_to)),2)];
+            end
             
+            pcorr_out.PACii(PACii).peaks.pcorr(percent_correct_ii).group(groupNo).reinf_data=data;
             
             %Odor on markers
             plot([0 0],[0 100],'-k')
@@ -279,12 +330,16 @@ for PACii=these_PACii
             ylabel(['% correct '  handles_out.drgbchoices.per_lab{percent_correct_ii}])
             legend('Shuffled','Trough','Peak')
             
+%             if figNo==13
+%                pfft=0; 
+%             end
+            
         end
         
         
     end
     
-    %Bar graph plot for peak percent correct
+    %Bar graph plot for odor for peak percent correct
     %Plot the average
     figNo = figNo +1;
     
@@ -309,17 +364,17 @@ for PACii=these_PACii
             
             switch grNo
                 case 1
-                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data),'g','LineWidth', 3,'EdgeColor','none')
                 case 2
-                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data),'b','LineWidth', 3,'EdgeColor','none')
                 case 3
-                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data),'y','LineWidth', 3,'EdgeColor','none')
             end
             
             
-            CI = bootci(1000, {@mean, pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data},'type','cper');
+            CI = bootci(1000, {@mean, pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data)),pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            plot(bar_offset*ones(1,length(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data)),pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
             
             
         end
@@ -329,7 +384,7 @@ for PACii=these_PACii
     
     ylim([45 100])
     
-    title(['LDA percent correct for peak theta/' handles_out.drgbchoices.PACnames{PACii} ])
+    title(['LDA percent correct for odor for peak theta/' handles_out.drgbchoices.PACnames{PACii} ])
     
     
     xticks([1 2 3 5 6 7])
@@ -338,7 +393,7 @@ for PACii=these_PACii
     
     ylabel('Percent correct')
     
-    %Bar graph plot for trough percent correct
+    %Bar graph plot for odor for peak percent correct AUC
     %Plot the average
     figNo = figNo +1;
     
@@ -363,17 +418,71 @@ for PACii=these_PACii
             
             switch grNo
                 case 1
-                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_dataAUC),'g','LineWidth', 3,'EdgeColor','none')
                 case 2
-                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_dataAUC),'b','LineWidth', 3,'EdgeColor','none')
                 case 3
-                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_dataAUC),'y','LineWidth', 3,'EdgeColor','none')
             end
             
             
-            CI = bootci(1000, {@mean, pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).data},'type','cper');
+            CI = bootci(1000, {@mean, pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_dataAUC},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).data)),pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            plot(bar_offset*ones(1,length(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_dataAUC)),pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_dataAUC,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            
+            
+        end
+        bar_offset = bar_offset + 2;
+        
+    end
+    
+    ylim([0 0.9])
+    
+    title(['LDA AUC percent correct for odor for peak theta/' handles_out.drgbchoices.PACnames{PACii} ])
+    
+    
+    xticks([1 2 3 5 6 7])
+    xticklabels({'nwt', 'nH', 'nKO', 'pwt', 'pH', 'pKO'})
+    
+    
+    ylabel('Percent correct')
+    
+    %Bar graph plot for reinforcement for peak percent correct
+    %Plot the average
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+    hold on
+    
+    
+    bar_offset = 0;
+    
+    for per_ii=2:-1:1
+        
+        for grNo=1:max(handles_out.drgbchoices.group_no)
+            bar_offset = bar_offset +1;
+            
+            
+            switch grNo
+                case 1
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).reinf_data),'g','LineWidth', 3,'EdgeColor','none')
+                case 2
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).reinf_data),'b','LineWidth', 3,'EdgeColor','none')
+                case 3
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).reinf_data),'y','LineWidth', 3,'EdgeColor','none')
+            end
+            
+            
+            CI = bootci(1000, {@mean, pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).reinf_data},'type','cper');
+            plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+            plot(bar_offset*ones(1,length(pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).reinf_data)),pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).reinf_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
             
             
         end
@@ -383,7 +492,169 @@ for PACii=these_PACii
     
     ylim([45 100])
     
-    title(['LDA percent correct for trough theta/' handles_out.drgbchoices.PACnames{PACii} ])
+    title(['LDA percent correct for reinforcement for peak theta/' handles_out.drgbchoices.PACnames{PACii} ])
+    
+    
+    xticks([1 2 3 5 6 7])
+    xticklabels({'nwt', 'nH', 'nKO', 'pwt', 'pH', 'pKO'})
+    
+    
+    ylabel('Percent correct')
+    
+    %Bar graph plot for odor for trough percent correct
+    %Plot the average
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+    hold on
+    
+    
+    bar_offset = 0;
+    
+    for per_ii=2:-1:1
+        
+        for grNo=1:max(handles_out.drgbchoices.group_no)
+            bar_offset = bar_offset +1;
+            
+            
+            switch grNo
+                case 1
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data),'g','LineWidth', 3,'EdgeColor','none')
+                case 2
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data),'b','LineWidth', 3,'EdgeColor','none')
+                case 3
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data),'y','LineWidth', 3,'EdgeColor','none')
+            end
+            
+            
+            CI = bootci(1000, {@mean, pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+            plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+            plot(bar_offset*ones(1,length(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data)),pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            
+            
+        end
+        bar_offset = bar_offset + 2;
+        
+    end
+    
+    ylim([45 100])
+    
+    title(['LDA percent correct for odor for trough theta/' handles_out.drgbchoices.PACnames{PACii} ])
+    
+    
+    xticks([1 2 3 5 6 7])
+    xticklabels({'nwt', 'nH', 'nKO', 'pwt', 'pH', 'pKO'})
+    
+    
+    ylabel('Percent correct')
+    
+    %Bar graph plot for odor for trough percent correct AUC
+    %Plot the average
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+    hold on
+    
+    
+    bar_offset = 0;
+    
+    for per_ii=2:-1:1
+        
+        for grNo=1:max(handles_out.drgbchoices.group_no)
+            bar_offset = bar_offset +1;
+            
+            
+            switch grNo
+                case 1
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_dataAUC),'g','LineWidth', 3,'EdgeColor','none')
+                case 2
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_dataAUC),'b','LineWidth', 3,'EdgeColor','none')
+                case 3
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_dataAUC),'y','LineWidth', 3,'EdgeColor','none')
+            end
+            
+            
+            CI = bootci(1000, {@mean, pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_dataAUC},'type','cper');
+            plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+            plot(bar_offset*ones(1,length(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_dataAUC)),pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_dataAUC,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            
+            
+        end
+        bar_offset = bar_offset + 2;
+        
+    end
+    
+    ylim([0 0.9])
+    
+    title(['LDA AUC percent correct for odor for trough theta/' handles_out.drgbchoices.PACnames{PACii} ])
+    
+    
+    xticks([1 2 3 5 6 7])
+    xticklabels({'nwt', 'nH', 'nKO', 'pwt', 'pH', 'pKO'})
+    
+    
+    ylabel('Percent correct')
+    
+     %Bar graph plot for reinforcment for trough percent correct
+    %Plot the average
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+    hold on
+    
+    
+    bar_offset = 0;
+    
+    for per_ii=2:-1:1
+        
+        for grNo=1:max(handles_out.drgbchoices.group_no)
+            bar_offset = bar_offset +1;
+            
+            
+            switch grNo
+                case 1
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).reinf_data),'g','LineWidth', 3,'EdgeColor','none')
+                case 2
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).reinf_data),'b','LineWidth', 3,'EdgeColor','none')
+                case 3
+                    bar(bar_offset,mean(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).reinf_data),'y','LineWidth', 3,'EdgeColor','none')
+            end
+            
+            
+            CI = bootci(1000, {@mean, pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).reinf_data},'type','cper');
+            plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+            plot(bar_offset*ones(1,length(pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).reinf_data)),pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).reinf_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            
+            
+        end
+        bar_offset = bar_offset + 2;
+        
+    end
+    
+    ylim([0 0.9])
+    
+    title(['LDA percent correct for reinforcement for trough theta/' handles_out.drgbchoices.PACnames{PACii} ])
     
     
     xticks([1 2 3 5 6 7])
@@ -393,12 +664,12 @@ for PACii=these_PACii
     ylabel('Percent correct')
     
     
-%     %Perform the glm
-%     fprintf(1, ['\n\nglm for mean percent correct peak Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
-%     tbl = table(glm_pcorr_dt_peak.data',glm_pcorr_dt_peak.group',glm_pcorr_dt_peak.perCorr',...
-%         'VariableNames',{'mean_pc','group','naive_proficient'});
-%     mdl = fitglm(tbl,'mean_pc~group+naive_proficient+group*naive_proficient'...
-%         ,'CategoricalVars',[2,3])
+    %Perform the glm
+    fprintf(1, ['\n\nglm for mean percent correct peak Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
+    tbl = table(glm_pcorr_dt_peak.data',glm_pcorr_dt_peak.group',glm_pcorr_dt_peak.perCorr',...
+        'VariableNames',{'mean_pc','group','naive_proficient'});
+    mdl = fitglm(tbl,'mean_pc~group+naive_proficient+group*naive_proficient'...
+        ,'CategoricalVars',[2,3])
     
     %Do ranksum/t test
     fprintf(1, ['\n\nRanksum or t-test p values for mean percent correct peak Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
@@ -408,12 +679,12 @@ for PACii=these_PACii
     catch
     end
     
-%     %Perform the glm
-%     fprintf(1, ['\n\nglm for mean percent correct trough Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
-%     tbl = table(glm_pcorr_dt_trough.data',glm_pcorr_dt_trough.group',glm_pcorr_dt_trough.perCorr',...
-%         'VariableNames',{'mean_pc','group','naive_proficient'});
-%     mdl = fitglm(tbl,'mean_pc~group+naive_proficient+group*naive_proficient'...
-%         ,'CategoricalVars',[2,3])
+    %Perform the glm
+    fprintf(1, ['\n\nglm for mean percent correct trough Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
+    tbl = table(glm_pcorr_dt_trough.data',glm_pcorr_dt_trough.group',glm_pcorr_dt_trough.perCorr',...
+        'VariableNames',{'mean_pc','group','naive_proficient'});
+    mdl = fitglm(tbl,'mean_pc~group+naive_proficient+group*naive_proficient'...
+        ,'CategoricalVars',[2,3])
     
     %Do ranksum/t test
     fprintf(1, ['\n\nRanksum or t-test p values for mean percent correct trough Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
@@ -438,13 +709,16 @@ for PACii=these_PACii
     catch
     end
     
-   
+     %Perform the glm
+    fprintf(1, ['\n\nglm for mean AUC percent correct for Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])
+    tbl = table(glm_pcorr_dt.dataAUC',glm_pcorr_dt.group',glm_pcorr_dt.perCorr',glm_pcorr_dt.pts',...
+        'VariableNames',{'mean_pc','group','perCorr','peak_trough_shuffled'});
+    mdl = fitglm(tbl,'mean_pc~group+perCorr+peak_trough_shuffled+group*peak_trough_shuffled*perCorr'...
+        ,'CategoricalVars',[2,3,4])
+    
     
     
 end
-
-output_name=[pname 'pcorr_' fname];
-save(output_name,'pcorr_out','-v7.3')
 
 
 %Now plot log(p) and find decision times
@@ -801,6 +1075,7 @@ for PACii=these_PACii
         
     end
     
+    
     ylim([0 4.5])
     
     title(['LDA decision time for peak theta/' handles_out.drgbchoices.PACnames{PACii} ])
@@ -880,6 +1155,8 @@ for PACii=these_PACii
         fprintf(1, '\n\n')
     catch
     end
+    
+    lick_out.PACii(PACii).disc_time=disc_time;
     
     pffft=1;
 end
@@ -986,8 +1263,9 @@ for percent_correct_ii=1:2
 end
 
     
-
-
+output_name=[pname 'pcorr_' fname];
+save(output_name,'pcorr_out','lick_out','-v7.3')
+ 
 fprintf(1, ['Finished processing ' discriminant_name '\n'])
            
 

@@ -122,7 +122,7 @@ szad=size(amplifier_data);
 data_this_trial=zeros(szad(2),22);
 
 %Enter the electrode recordings
-if handles.drg.drta_p.which_protocol==6
+if size(amplifier_data,1)==32
     data_this_trial(:,1:16)=amplifier_data(9:24,:)';
 else
     data_this_trial(:,1:16)=amplifier_data';

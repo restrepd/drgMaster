@@ -451,11 +451,11 @@ if handles.drgb.PAC.no_trials>0
             xlabel('Frequency (Hz)')
             ylabel('dB')
             
-            %             %Uncomment if you want to save power spectra
-            %             peakPowerSpectrum=handles.drgb.PACwave.peakPowerSpectrum;
-            %             troughPowerSpectrum=handles.drgb.PACwave.troughPowerSpectrum;
-            %             save('C:\Users\Diego Restrepo\OneDrive - The University of Colorado Denver\CaMKII Paper\Figure 3 PRP\elec5_splus_proficient.mat','peakPowerSpectrum',...
-            %                 'troughPowerSpectrum','freq')
+            %Uncomment if you want to save power spectra
+            peakPowerSpectrum=handles.drgb.PACwave.peakPowerSpectrum;
+            troughPowerSpectrum=handles.drgb.PACwave.troughPowerSpectrum;
+            save('/Users/restrepd/Documents/Projects/CaMKII_analysis/Figure_3_PRP/6151853931_elec12_splus_naive.mat','peakPowerSpectrum',...
+                'troughPowerSpectrum','freq')
             %
             figNo=figNo+1;
             try

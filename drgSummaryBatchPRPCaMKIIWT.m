@@ -31,31 +31,52 @@ peak_label{2}='Peak';
 
 %Location of files
 % hippPathName='F:\Datos summary CaMKII111720\PRP drgAnalysisBatchLFPCaMKII case 24 output for summary\';
-hippPathName='/Users/restrepd/Documents/Projects/CaMKII analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for summary/';
-fwd_rev_hippo=[
+hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output/';
+% fwd_rev_hippo=[
     
+% %Hippocampus
+% hippFileName{1}='spm_LFP_acetowavephasepower32620_hippoPRPnew.mat';
+% hippFileName{2}='spm_LFP_acetowavephasepower32620_hippoPRPnewpropyl.mat';
+% hippFileName{3}='spm_LFP_ethylbenwavephasepower41420_hippoPRPnew.mat';
+% hippFileName{4}='spm_LFP_ethylwavephasepower3520_hippoPRPnew.mat';
+% hippFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_hippoPRPnew.mat';
+% hippFileName{6}='spm_LFP_pz1propylwavephasepower013020_hippoPRPnew.mat';
+% hippFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_hippoPRPnew.mat';
+% hippFileName{8}='spm_LFP_pzz1propylwavephasepower071220_hippoPRPnew.mat';
+
 %Hippocampus
-hippFileName{1}='spm_LFP_acetowavephasepower32620_hippoPRPnew.mat';
-hippFileName{2}='spm_LFP_acetowavephasepower32620_hippoPRPnewpropyl.mat';
-hippFileName{3}='spm_LFP_ethylbenwavephasepower41420_hippoPRPnew.mat';
-hippFileName{4}='spm_LFP_ethylwavephasepower3520_hippoPRPnew.mat';
-hippFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_hippoPRPnew.mat';
-hippFileName{6}='spm_LFP_pz1propylwavephasepower013020_hippoPRPnew.mat';
-hippFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_hippoPRPnew.mat';
-hippFileName{8}='spm_LFP_pzz1propylwavephasepower071220_hippoPRPnew.mat';
+hippFileName{1}='spm_LFP_acetowavephasepower32620_hippocampusLFP2.mat';
+hippFileName{2}='spm_LFP_ethylbenwavephasepower41420_hippocampusLFP2.mat';
+hippFileName{3}='spm_LFP_ethylwavephasepower3520_hippocampusLFP2.mat';
+hippFileName{4}='spm_LFP_acetowavephasepower32620 2_hippocampusLFP2.mat';
+hippFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_hippocampusLFP2.mat';
+hippFileName{6}='spm_LFP_pz1propylwavephasepower013020_hippocampusLFP2.mat';
+hippFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_hippocampusLFP2.mat';
+hippFileName{8}='spm_LFP_pzz1propylwavephasepower071220_hippocampusLFP2.mat';
 
 % prePathName='F:\Datos summary CaMKII111720\PRP drgAnalysisBatchLFPCaMKII case 24 output for summary\';
-prePathName='/Users/restrepd/Documents/Projects/CaMKII analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for summary/';
+prePathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output/';
+
+% %Prefrontal
+% preFileName{1}='spm_LFP_acetowavephasepower32620_prefrontPRPnew.mat';
+% preFileName{2}='spm_LFP_acetowavephasepower32620_prefrontPRPnewpropyl.mat';
+% preFileName{3}='spm_LFP_ethylbenwavephasepower41420_prefrontPRPnew.mat';
+% preFileName{4}='spm_LFP_ethylwavephasepower3520_prefrontPRPnew.mat';
+% preFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_prefrontPRPnew.mat';
+% preFileName{6}='spm_LFP_pz1propylwavephasepower013020_prefrontPRPnew.mat';
+% preFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_prefrontPRPnew.mat';
+% preFileName{8}='spm_LFP_pzz1propylwavephasepower071220_prefrontPRPnew.mat';
 
 %Prefrontal
-preFileName{1}='spm_LFP_acetowavephasepower32620_prefrontPRPnew.mat';
-preFileName{2}='spm_LFP_acetowavephasepower32620_prefrontPRPnewpropyl.mat';
-preFileName{3}='spm_LFP_ethylbenwavephasepower41420_prefrontPRPnew.mat';
-preFileName{4}='spm_LFP_ethylwavephasepower3520_prefrontPRPnew.mat';
-preFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_prefrontPRPnew.mat';
-preFileName{6}='spm_LFP_pz1propylwavephasepower013020_prefrontPRPnew.mat';
-preFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_prefrontPRPnew.mat';
-preFileName{8}='spm_LFP_pzz1propylwavephasepower071220_prefrontPRPnew.mat';
+preFileName{1}='spm_LFP_acetowavephasepower32620_prefrontalLFP2.mat';
+preFileName{2}='spm_LFP_ethylbenwavephasepower41420_prefrontalLFP2.mat';
+preFileName{3}='spm_LFP_ethylwavephasepower3520_prefrontalLFP2.mat';
+preFileName{4}='spm_LFP_acetowavephasepower32620 2_prefrontalLFP2.mat';
+preFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_prefrontalLFP2.mat';
+preFileName{6}='spm_LFP_pz1propylwavephasepower013020_prefrontalLFP2.mat';
+preFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_prefrontalLFP2.mat';
+preFileName{8}='spm_LFP_pzz1propylwavephasepower071220_prefrontalLFP2.mat';
+
 
 
 %Now process the hippocampus

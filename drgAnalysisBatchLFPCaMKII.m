@@ -16858,7 +16858,7 @@ switch which_display
                                                           
                                                         %Do per bandwidth analysis
                                                         for pacii=1:no_pacii
-                                                            
+                                                             
                                                             group_no=handles_drgb.drgbchoices.group_no(fileNo);
                                                             
                                                             %Enter the PACpower

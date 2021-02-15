@@ -27,7 +27,7 @@ evTypeLabels{1}='S+';
 evTypeLabels{2}='S-';
 
 %Location of files
-PathName='D:\CaMKIIpaper\datos sumarry\';
+PathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/LFPPAC drgAnalysisBatchLFPCaMKII case 19 output/'
 
 %Hippocampus
 hippFileName{1}='CaMKIIacetoLFPPACall121319_hippoPAC6figures.mat';
@@ -48,6 +48,29 @@ preFileName{5}='CaMKIIpointzero1ethylacepropylaceLFPPACall122019_prefrontPAConly
 preFileName{6}='CaMKIIpointzero1propylaceLFPPACall11620_prefrontPAConlyfigures.mat';
 preFileName{7}='CaMKIIpzz1ethylaceLFPPACall121119_prefrontPAConlyfigures.mat';
 preFileName{8}='CaMKIIpzz1propylaceLFPPACall121919_prefrontPAConly6figures.mat';
+
+
+% PathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/LFPPAC drgAnalysisBatchLFPCaMKII case 19 output take 2/';
+% 
+% %Hippocampus
+% hippFileName{1}='CaMKIIacetoLFPPACall121319_hippocampusLFP2.mat';
+% hippFileName{2}='CaMKIIethylbenLFPPACal222019_hippocampusLFP2.mat';
+% hippFileName{3}='CaMKIIethylaceLFPPACall12219_hippocampusLFP2.mat';
+% hippFileName{4}='CaMKIIpropylaceLFPPACall1220_hippocampusLFP2.mat';
+% hippFileName{5}='CaMKIIpointzero1ethylacepropylaceLFPPACall122019_hippocampusLFP2.mat';
+% hippFileName{6}='CaMKIIpointzero1propylaceLFPPACall11620_hippocampusLFP2.mat';
+% hippFileName{7}='CaMKIIpzz1ethylaceLFPPACall10719_hippocampusLFP2.mat';
+% hippFileName{8}='CaMKIIpzz1propylaceLFPPACall121919_hippocampusLFP2.mat';
+% 
+% %Prefrontal
+% preFileName{1}='CaMKIIacetoLFPPACall121319_prefrontalLFP2.mat';
+% preFileName{2}='CaMKIIethylbenLFPPACal222019_prefrontalLFP2.mat';
+% preFileName{3}='CaMKIIethylaceLFPPACall12219_prefrontalLFP2.mat';
+% preFileName{4}='CaMKIIpropylaceLFPPACall1220_prefrontalLFP2.mat';
+% preFileName{5}='CaMKIIpointzero1ethylacepropylaceLFPPACall122019_prefrontalLFP2.mat';
+% preFileName{6}='CaMKIIpointzero1propylaceLFPPACall11620_prefrontalLFP2.mat';
+% preFileName{7}='CaMKIIpzz1ethylaceLFPPACall10719_prefrontalLFP2.mat';
+% preFileName{8}='CaMKIIpzz1propylaceLFPPACall121919_prefrontalLFP2.mat';
 
 
 
