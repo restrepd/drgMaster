@@ -53,4 +53,8 @@ switch handles.analysisNoOsc
         drgLFPCorrTimecourseAllTets(handles);
     case 25
         drgLFPCorrTimecourse(handles);
+    case 26
+        drgPLVTimecourse(handles);
+    case 27
+        drgPLVTimecourseAllElecs(handles);
 end

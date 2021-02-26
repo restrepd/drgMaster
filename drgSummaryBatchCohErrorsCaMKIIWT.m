@@ -31,27 +31,49 @@ evTypeLabels{4}='FA';
 
 peak_label{1}='Trough';
 peak_label{2}='Peak';
+% 
+% %Location of files
+% % hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
+% hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Coherence drgAnalysisBatchLFPCaMKII case 21 error output/';
+% 
+% %Files
+% FileName{1}='CaMKIIacetocoh122119coh_errors.mat';
+% fwd_rev(1)=1;
+% FileName{2}='CaMKIIethylbencohe1292019coh_errors.mat';
+% fwd_rev(2)=2;
+% FileName{3}='CaMKIIpropylacecohe12302019coh_errors.mat';
+% fwd_rev(3)=2;
+% FileName{4}='CaMKIIethylacepropylacecohe1272019coh_errors.mat';
+% fwd_rev(4)=1;
+% FileName{5}='CaMKIIpointzero1ethylacepropylacecohe12282019coh_errors.mat';
+% fwd_rev(5)=1;
+% FileName{6}='CaMKIIpzpropylacecohe1132020coh_errors.mat';
+% fwd_rev(6)=2;
+% FileName{7}='CaMKIIpzz1ethylacepropylacecohe10212019coh_errors.mat';
+% fwd_rev(7)=1;
+% FileName{8}='CaMKIIpzz1propylacecohe12262019coh_errors.mat';
+% fwd_rev(8)=2;
 
 %Location of files
 % hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
-hippPathName='/Users/restrepd/Documents/Projects/CaMKII analysis/Coherence drgAnalysisBatchLFPCaMKII case 21 error output/';
+hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Coherence new/';
 
 %Files
-FileName{1}='CaMKIIacetocoh122119coh_errors.mat';
+FileName{1}='CaMKIIacetocohe02012021_error_out.mat';
 fwd_rev(1)=1;
-FileName{2}='CaMKIIethylbencohe1292019coh_errors.mat';
+FileName{2}='CaMKIIethylbenacetocohe2262021_error_out.mat';
 fwd_rev(2)=2;
-FileName{3}='CaMKIIpropylacecohe12302019coh_errors.mat';
+FileName{3}='CaMKIIPAEAcohe02082021_error_out.mat';
 fwd_rev(3)=2;
-FileName{4}='CaMKIIethylacepropylacecohe1272019coh_errors.mat';
+FileName{4}='CaMKIIEAPAcohe2262021_error_out.mat';
 fwd_rev(4)=1;
-FileName{5}='CaMKIIpointzero1ethylacepropylacecohe12282019coh_errors.mat';
+FileName{5}='CaMKIIpz1EAcohe02142021_error_out.mat';
 fwd_rev(5)=1;
-FileName{6}='CaMKIIpzpropylacecohe1132020coh_errors.mat';
+FileName{6}='CaMKIIPZ1PAEAcohe202102021_error_out.mat';
 fwd_rev(6)=2;
-FileName{7}='CaMKIIpzz1ethylacepropylacecohe10212019coh_errors.mat';
+FileName{7}='CaMKIIpzz1EAPAcohe02112021_error_out.mat';
 fwd_rev(7)=1;
-FileName{8}='CaMKIIpzz1propylacecohe12262019coh_errors.mat';
+FileName{8}='CaMKIIpzz1propylacecohe02092021_error_out.mat';
 fwd_rev(8)=2;
 
 %Load data

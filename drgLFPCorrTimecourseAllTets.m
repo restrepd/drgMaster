@@ -417,7 +417,7 @@ no_trials=length(handles_corr_out.between.LFPcorr(ii_between_pairs).LFPcorr.tria
 drg_pcolor(repmat(time,no_trials,1),repmat(trials',1,length(time)),mean_max_rho_t_lag)
 %         colormap jet
 colormap fire
-shading interp
+shading flat
 % min_prob=0.0113;
 % max_prob=0.0314;
 caxis([min_prob    max_prob])
