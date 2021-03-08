@@ -365,12 +365,23 @@ for grNo=1:3
                             end
                         end
                         
-                        mean_plv=mean(these_PLVs_dec);
+%                         mean_plv=mean(these_PLVs_dec);
+                        
+%                         if eventNo_ii==2
+%                             plot(time_dec,mean_plv, 'b');
+%                         else
+%                             plot(time_dec,mean_plv, 'r');
+%                         end
+                        
+                        CI = bootci(1000, {@mean, these_PLVs_dec})';
+                        CI(:,1)=mean(these_PLVs_dec)'-CI(:,1);
+                        CI(:,2)=CI(:,2)-mean(these_PLVs_dec)';
+                        
                         
                         if eventNo_ii==2
-                            plot(time_dec,mean_plv, 'b');
+                            [hlCR, hpCR] = boundedline(time_dec,mean(these_PLVs_dec), CI, 'b');
                         else
-                            plot(time_dec,mean_plv, 'r');
+                            [hlCR, hpCR] = boundedline(time_dec,mean(these_PLVs_dec), CI, 'r');
                         end
                         
                         %Get PLS

@@ -138,23 +138,26 @@ if all_files_present==1
                                 
                                 
                                 for trNo=firstTr:lastTr
-                                    pCorr=perCorr(drgFindEvNo(handlespf,trNo,sessionNo,odorOn));
-                                    if (pCorr>=handlespf.drgbchoices.percent_windows(per_ii,1))&(pCorr<=handlespf.drgbchoices.percent_windows(per_ii,2))
-                                        evNo = drgFindEvNo(handlespf,trNo,sessionNo);
-                                        if evNo~=-1
+                                    
+                                    evNo = drgFindEvNo(handlespf,trNo,sessionNo);
+                                    if evNo~=-1
+                                        pCorr=perCorr(drgFindEvNo(handlespf,trNo,sessionNo,odorOn));
+                                        if (pCorr>=handlespf.drgbchoices.percent_windows(per_ii,1))&(pCorr<=handlespf.drgbchoices.percent_windows(per_ii,2))
+                                            
                                             excludeTrial=drgExcludeTrialLFP(handlespf.drg,handlespf.peakLFPNo,handlespf.drg.session(sessionNo).events(handlespf.evTypeNo).times(evNo),sessionNo);
                                             
                                             if excludeTrial==0
                                                 
                                                 ii_elect=0;
                                                 all_can_read=1;
+                                                this_trial_LFPs=[];
                                                 while (all_can_read==1)&(ii_elect<handlespf.drgbchoices.no_electrodes)
                                                     handlespf.peakLFPNo=ii_elect+1;
                                                     [LFP, trialNo, can_read] = drgGetTrialLFPData(handlespf, handlespf.peakLFPNo, evNo, handlespf.evTypeNo, handlespf.time_start, handlespf.time_end);
                                                     if (can_read==1)
                                                         ii_elect=ii_elect+1;
                                                         LFP=decimate(LFP,decimation_factor);
-                                                        these_LFPs(ii_elect,1:length(LFP),ii_vet+1)=LFP;
+                                                        this_trial_LFPs(ii_elect,1:length(LFP))=LFP;
                                                     else
                                                         all_can_read=0;
                                                     end
@@ -172,6 +175,7 @@ if all_files_present==1
                                                     end
                                                     
                                                     ii_vet=ii_vet+1;
+                                                    these_LFPs(:,:,ii_vet)=this_trial_LFPs(:,:);
                                                     PLV_per_mouse.PLV(ii_PLV).no_trials=ii_vet;
                                                     PLV_per_mouse.PLV(ii_PLV).perCorr(ii_vet)=perCorr(drgFindEvNo(handlespf,trNo,sessionNo,odorOn));
                                                     PLV_per_mouse.PLV(ii_PLV).trial(ii_vet).trialNo=trNo;
@@ -255,10 +259,30 @@ if all_files_present==1
         end
     end
     
-    handles_out.drg=handles.drg;
-    save([handles.drgb.outPathName handles.drgb.outFileName],'handles_out','-v7.3')
     
-
+    filNum=1;
+    this_jt=handles.drgbchoices.FileName{filNum};
+    
+    
+    %Othrwise read the jt_times and do processing
+    %read the jt_times file
+    jtFileName=handles.drgbchoices.FileName{filNum};
+    if iscell(handles.drgbchoices.PathName)
+        jtPathName=handles.drgbchoices.PathName{filNum};
+    else
+        jtPathName=handles.drgbchoices.PathName;
+    end
+    
+    drgRead_jt_times(jtPathName,jtFileName);
+    FileName=[jtFileName(10:end-4) '_drg.mat'];
+    fullName=[jtPathName,FileName];
+    my_drg={'drg'};
+    S=load(fullName,my_drg{:});
+    handles.drg=S.drg;
+    handles_out.drg=handles.drg;
+    
+    
+    save([handles.drgb.outPathName handles.drgb.outFileName],'handles_out','-v7.3')
     
 end
 
