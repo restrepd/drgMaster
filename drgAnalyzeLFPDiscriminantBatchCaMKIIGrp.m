@@ -42,8 +42,9 @@ figNo=0;
 % no_wins=2;
 
 %This is the window for odor
-odor_from=2.2;
-odor_to=2.8;
+%
+odor_from=1.5;
+odor_to=2.5;
 
 
 %This is the window for reinforcement
@@ -104,6 +105,7 @@ for PACii=these_PACii
                         no_mice=no_mice+1;
                         if (per_ii>=20)&(sum(no_mice==mice_excluded)==0)
                             no_mice_included=no_mice_included+1;
+                            pcorr_out.PACii(PACii).pcorr(percent_correct_ii).group(groupNo).mouseNos(no_mice_included)=mouseNo;
                             all_discriminant_correct_peak(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_peak;
                             all_discriminant_correct_trough(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_trough;
                             all_discriminant_correct_shuffled_peak(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).discriminant_correct_shuffled_peak;
@@ -598,7 +600,7 @@ for PACii=these_PACii
         
     end
     
-    ylim([0 0.9])
+    ylim([45 100])
     
     title(['LDA AUC percent correct for odor for trough theta/' handles_out.drgbchoices.PACnames{PACii} ])
     
@@ -652,7 +654,7 @@ for PACii=these_PACii
         
     end
     
-    ylim([0 0.9])
+    ylim([45 100])
     
     title(['LDA percent correct for reinforcement for trough theta/' handles_out.drgbchoices.PACnames{PACii} ])
     
@@ -722,10 +724,10 @@ end
 
 
 %Now plot log(p) and find decision times
-
+disc_time=[];
 for PACii=these_PACii
     
-    disc_time=[];
+    
     glm_d_time=[];
     glm_d_t_ii=0;
     t_det_stats=[];
@@ -751,6 +753,8 @@ for PACii=these_PACii
                         no_mice=no_mice+1;
                         if (per_ii>=20)&(sum(no_mice==mice_excluded)==0)
                             no_mice_included=no_mice_included+1;
+                            pval_out.PACii(PACii).pcorr(percent_correct_ii).group(groupNo).mouseNos(no_mice_included)=mouseNo;
+                            disc_time.PACii(PACii).pcorr(percent_correct_ii).group(groupNo).mouseNos(no_mice_included)=mouseNo;
                             all_discriminant_p_val_lick(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_lick;
                             all_discriminant_p_val_peak(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_peak;
                             all_discriminant_p_val_trough(no_mice_included,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).p_val_trough;
@@ -790,6 +794,12 @@ for PACii=these_PACii
                 plot(t,mean_p_val_licks,'-k')
             end
             
+            data=[];
+            for mouseNo=1:no_mice_included
+                data=[data mean(all_discriminant_p_val_lick(mouseNo,(t>=odor_from)&(t<=odor_to)),2)];
+            end
+            
+            pval_out.PACii(PACii).lick.pcorr(percent_correct_ii).group(groupNo).odor_data=data;
             
             wing=1;
             t_detect=zeros(1,no_mice_included);
@@ -836,7 +846,7 @@ for PACii=these_PACii
             glm_d_time.ptl(glm_d_t_ii+1:glm_d_t_ii+length(t_detect))=1;
             glm_d_t_ii=glm_d_t_ii+length(t_detect);
             
-            disc_time.licks.pcorr(percent_correct_ii).group(groupNo).data=t_detect;
+            disc_time.PACii(PACii).licks.pcorr(percent_correct_ii).group(groupNo).data=t_detect;
             
             mean_p_val_troughs=nanmean(all_discriminant_p_val_trough,1)';
             if size(all_discriminant_p_val_trough,1)>2
@@ -848,7 +858,12 @@ for PACii=these_PACii
                 plot(t,mean_p_val_troughs,'-b')
             end
             
+            data=[];
+            for mouseNo=1:no_mice_included
+                data=[data mean(all_discriminant_p_val_trough(mouseNo,(t>=odor_from)&(t<=odor_to)),2)];
+            end
             
+            pval_out.PACii(PACii).trough.pcorr(percent_correct_ii).group(groupNo).odor_data=data;
             
             t_detect=zeros(1,no_mice_included);
             jj_start=find(t>=t_odor_arrival,1,'first');
@@ -887,7 +902,7 @@ for PACii=these_PACii
                 handles_out.drgbchoices.per_lab{percent_correct_ii}...
                 ' troughs'];
             
-            disc_time.troughs.pcorr(percent_correct_ii).group(groupNo).data=t_detect;
+            disc_time.PACii(PACii).trough.pcorr(percent_correct_ii).group(groupNo).data=t_detect;
             
             glm_d_time.data(glm_d_t_ii+1:glm_d_t_ii+length(t_detect))=t_detect;
             glm_d_time.group(glm_d_t_ii+1:glm_d_t_ii+length(t_detect))=groupNo;
@@ -906,7 +921,12 @@ for PACii=these_PACii
                 plot(t,mean_p_val_peaks,'-r')
             end
             
+            data=[];
+            for mouseNo=1:no_mice_included
+                data=[data mean(all_discriminant_p_val_peak(mouseNo,(t>=odor_from)&(t<=odor_to)),2)];
+            end
             
+            pval_out.PACii(PACii).peaks.pcorr(percent_correct_ii).group(groupNo).odor_data=data;
             
             t_detect=zeros(1,no_mice_included);
             jj_start=find(t>=t_odor_arrival,1,'first');
@@ -944,7 +964,7 @@ for PACii=these_PACii
             t_det_stats(ii_stats).description=[handles_out.drgbchoices.group_no_names{groupNo} ' ' ...
                 handles_out.drgbchoices.per_lab{percent_correct_ii}...
                 ' peaks'];
-            disc_time.peaks.pcorr(percent_correct_ii).group(groupNo).data=t_detect;
+            disc_time.PACii(PACii).peaks.pcorr(percent_correct_ii).group(groupNo).data=t_detect;
             
             glm_d_time.data(glm_d_t_ii+1:glm_d_t_ii+length(t_detect))=t_detect;
             glm_d_time.group(glm_d_t_ii+1:glm_d_t_ii+length(t_detect))=groupNo;
@@ -1002,17 +1022,17 @@ for PACii=these_PACii
                 
                 switch grNo
                     case 1
-                        bar(bar_offset,mean(disc_time.licks.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
                     case 2
-                        bar(bar_offset,mean(disc_time.licks.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
                     case 3
-                        bar(bar_offset,mean(disc_time.licks.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
                 end
                 
                 
-                CI = bootci(1000, {@mean, disc_time.licks.pcorr(per_ii).group(grNo).data},'type','cper');
+                CI = bootci(1000, {@mean, disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data},'type','cper');
                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                plot(bar_offset*ones(1,length(disc_time.licks.pcorr(per_ii).group(grNo).data)),disc_time.licks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                plot(bar_offset*ones(1,length(disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data)),disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
                 
                 
             end
@@ -1057,17 +1077,17 @@ for PACii=these_PACii
             
             switch grNo
                 case 1
-                    bar(bar_offset,mean(disc_time.peaks.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
                 case 2
-                    bar(bar_offset,mean(disc_time.peaks.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
                 case 3
-                    bar(bar_offset,mean(disc_time.peaks.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
             end
             
             
-            CI = bootci(1000, {@mean, disc_time.peaks.pcorr(per_ii).group(grNo).data},'type','cper');
+            CI = bootci(1000, {@mean, disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(disc_time.peaks.pcorr(per_ii).group(grNo).data)),disc_time.peaks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            plot(bar_offset*ones(1,length(disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data)),disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
             
             
         end
@@ -1112,17 +1132,17 @@ for PACii=these_PACii
             
             switch grNo
                 case 1
-                    bar(bar_offset,mean(disc_time.troughs.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
                 case 2
-                    bar(bar_offset,mean(disc_time.troughs.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
                 case 3
-                    bar(bar_offset,mean(disc_time.troughs.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
+                    bar(bar_offset,mean(disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
             end
             
             
-            CI = bootci(1000, {@mean, disc_time.troughs.pcorr(per_ii).group(grNo).data},'type','cper');
+            CI = bootci(1000, {@mean, disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(disc_time.troughs.pcorr(per_ii).group(grNo).data)),disc_time.troughs.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            plot(bar_offset*ones(1,length(disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data)),disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
             
             
         end
@@ -1156,7 +1176,7 @@ for PACii=these_PACii
     catch
     end
     
-    lick_out.PACii(PACii).disc_time=disc_time;
+    lick_out.PACii(PACii).disc_time.PACii(PACii)=disc_time.PACii(PACii);
     
     pffft=1;
 end
@@ -1184,6 +1204,7 @@ for percent_correct_ii=1:2
                     no_mice=no_mice+1;
                     if (per_ii>=20)&(sum(no_mice==mice_excluded)==0)
                         no_mice_included=no_mice_included+1;
+                        flick_out.PACii(PACii).pcorr(percent_correct_ii).group(groupNo).mouseNos(no_mice_included)=mouseNo;
                         sp_trials=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).which_events(2,:);
                         these_sp_lickf=zeros(sum(sp_trials),length(t));
                         these_sp_lickf(:,:)=handles_out.discriminant_PACwavepower(mouseNo).group(groupNo).percent_correct(percent_correct_ii).PACii(PACii).all_licks_per_tPACwave(logical(sp_trials),:);
@@ -1228,8 +1249,15 @@ for percent_correct_ii=1:2
                 [hlick, hpCR] = boundedline(t,mean_sminus_lickf, CIlickf, 'cmap',[80/255 194/255 255/255]);
             end
         else
-            plot(t,mean_splus_lickf,'-k')
+            plot(t,mean_sminus_lickf,'-k')
         end
+        
+        data=[];
+        for mouseNo=1:no_mice_included
+            data=[data mean(all_discriminant_sminus_lickf(mouseNo,(t>=odor_from)&(t<=odor_to)),2)];
+        end
+        
+        lickf_out.PACii(PACii).lick.pcorr(percent_correct_ii).group(groupNo).sminus_data=data;
         
         %Then plot Splus
         mean_splus_lickf=nanmean(all_discriminant_splus_lickf,1)';
@@ -1246,7 +1274,12 @@ for percent_correct_ii=1:2
             plot(t,mean_splus_lickf,'-k')
         end
         
+        data=[];
+        for mouseNo=1:no_mice_included
+            data=[data mean(all_discriminant_splus_lickf(mouseNo,(t>=odor_from)&(t<=odor_to)),2)];
+        end
         
+        lickf_out.PACii(PACii).lick.pcorr(percent_correct_ii).group(groupNo).splus_data=data;
         
         %Odor on markers
         
@@ -1264,8 +1297,11 @@ end
 
     
 output_name=[pname 'pcorr_' fname];
-save(output_name,'pcorr_out','lick_out','-v7.3')
+save(output_name,'pcorr_out','lick_out','lickf_out','pval_out','disc_time','-v7.3')
  
 fprintf(1, ['Finished processing ' discriminant_name '\n'])
+
+pffft=1;
+
            
 

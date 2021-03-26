@@ -1,5 +1,5 @@
 function [output_data] = drgMutiRanksumorTtest(input_data)
-% This function performs pairwise t tests or ranksum for a series of data sets
+% This function performs t tests or ranksum for a series of data sets
 % A t test is used if the data are normal, otherwise a ranksum is used
 warning('off')
 pvals=[];

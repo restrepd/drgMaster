@@ -1,4 +1,4 @@
-function drgSummaryDiscPcorrPRPCaMKII
+function drgSummaryDiscDetectTimeCaMKII
 %Analyzes the linear discriminant analysis performed by drgAnalyzeLFPDiscriminantBatchCaMKIIGrp
 
 %
@@ -10,7 +10,7 @@ warning('off')
 close all
 clear all
 
-
+ 
 figNo=0;
 
 PACnames{1}='Beta';
@@ -134,12 +134,12 @@ for PACii=1:2
     per_ii=1;  %We only do proficient
     
     all_ps=[];
-    
+     
     for fileNo=1:8
         
         if ~isempty(hippFileName{fileNo})
             load([hippPathName hippFileName{fileNo}])
-            hippo_pcorr_out=pcorr_out;
+            hippo_disc_time=disc_time;
             
             p_corr_dt_peak_stats=[];
             ii_p_stats=0;
@@ -151,20 +151,20 @@ for PACii=1:2
                 
                 switch grNo
                     case 1
-                        bar(bar_offset,mean(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data),'g','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
                     case 2
-                        bar(bar_offset,mean(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data),'b','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
                     case 3
-                        bar(bar_offset,mean(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data),'y','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
                 end
                 
                 
-                CI = bootci(1000, {@mean, hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+                CI = bootci(1000, {@mean, hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data},'type','cper');
                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                plot(bar_offset*ones(1,length(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data)),hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                plot(bar_offset*ones(1,length(hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data)),hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
                 
                 ii_p_stats=ii_p_stats+1;
-                p_corr_dt_peak_stats(ii_p_stats).data=hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
+                p_corr_dt_peak_stats(ii_p_stats).data=hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data;
                 p_corr_dt_peak_stats(ii_p_stats).description=[file_legend{fileNo} ' ' group_legend{grNo} ' ' ...
                     'Hippocampus'];
             end
@@ -183,14 +183,14 @@ for PACii=1:2
     pFDR=drsFDRpval(all_ps);
     fprintf(1, ['\n\npFDR = %d \n\n'],pFDR)
     
-    ylim([50 100])
+    ylim([0 5])
     
-    title(['LDA percent correct for hippocampus for peak theta/' PACnames{PACii} ])
-    
-    
+    title(['LDA decision time for hippocampus for peak theta/' PACnames{PACii} ])
     
     
-    ylabel('Percent correct')
+    
+    
+    ylabel('log(p)')
 end
 
 
@@ -230,7 +230,7 @@ for PACii=1:2
         
         if ~isempty(hippFileName{fileNo})
             load([hippPathName hippFileName{fileNo}])
-            hippo_pcorr_out=pcorr_out;
+            hippo_disc_time=disc_time;
             
             p_corr_dt_trough_stats=[];
             ii_p_stats=0;
@@ -242,20 +242,20 @@ for PACii=1:2
                 
                 switch grNo
                     case 1
-                        bar(bar_offset,mean(hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data),'g','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
                     case 2
-                        bar(bar_offset,mean(hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data),'b','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
                     case 3
-                        bar(bar_offset,mean(hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data),'y','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
                 end
                 
                 
-                CI = bootci(1000, {@mean, hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+                CI = bootci(1000, {@mean, hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data},'type','cper');
                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                plot(bar_offset*ones(1,length(hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data)),hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                plot(bar_offset*ones(1,length(hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data)),hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
                 
                 ii_p_stats=ii_p_stats+1;
-                p_corr_dt_trough_stats(ii_p_stats).data=hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
+                p_corr_dt_trough_stats(ii_p_stats).data=hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data;
                 p_corr_dt_trough_stats(ii_p_stats).description=[file_legend{fileNo} ' ' group_legend{grNo} ' ' ...
                     'Hippocampus'];
             end
@@ -274,14 +274,14 @@ for PACii=1:2
     pFDR=drsFDRpval(all_ps);
     fprintf(1, ['\n\npFDR = %d \n\n'],pFDR)
     
-    ylim([50 100])
+    ylim([0 5])
     
-    title(['LDA percent correct for hippocampus for trough theta/' PACnames{PACii} ])
-    
-    
+    title(['LDA decision time for hippocampus for trough theta/' PACnames{PACii} ])
     
     
-    ylabel('Percent correct')
+    
+    
+    ylabel('log(p)')
 end
 
 
@@ -319,7 +319,7 @@ for PACii=1:2
         
         if ~isempty(preFileName{fileNo})
             load([prePathName preFileName{fileNo}])
-            pref_pcorr_out=pcorr_out;
+            pref_disc_time=disc_time;
             
             p_corr_dt_peak_stats=[];
             ii_p_stats=0;
@@ -331,20 +331,20 @@ for PACii=1:2
                 
                 switch grNo
                     case 1
-                        bar(bar_offset,mean(pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data),'g','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
                     case 2
-                        bar(bar_offset,mean(pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data),'b','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
                     case 3
-                        bar(bar_offset,mean(pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data),'y','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
                 end
                 
                 
-                CI = bootci(1000, {@mean, pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+                CI = bootci(1000, {@mean, pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data},'type','cper');
                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                plot(bar_offset*ones(1,length(pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data)),pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                plot(bar_offset*ones(1,length(pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data)),pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
                 
                 ii_p_stats=ii_p_stats+1;
-                p_corr_dt_peak_stats(ii_p_stats).data=pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
+                p_corr_dt_peak_stats(ii_p_stats).data=pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data;
                 p_corr_dt_peak_stats(ii_p_stats).description=[file_legend{fileNo} ' ' group_legend{grNo} ' ' ...
                     'Hippocampus'];
             end
@@ -363,17 +363,17 @@ for PACii=1:2
     pFDR=drsFDRpval(all_ps);
     fprintf(1, ['\n\npFDR = %d \n\n'],pFDR)
     
-    ylim([50 100])
+    ylim([0 5])
     
     xticks([2 6 10 14 18 22 26 30])
     xticklabels({file_legend{1}, file_legend{2},file_legend{3}, file_legend{4},file_legend{5}, file_legend{6},file_legend{7}, file_legend{8}})
     
-    title(['LDA percent correct for prefrontal for peak theta/' PACnames{PACii} ])
+    title(['LDA log p value for prefrontal for peak theta/' PACnames{PACii} ])
     
     
     
     
-    ylabel('Percent correct')
+    ylabel('log(P)')
 end
 
 
@@ -413,7 +413,7 @@ for PACii=1:2
         
         if ~isempty(preFileName{fileNo})
             load([prePathName preFileName{fileNo}])
-            pref_pcorr_out=pcorr_out;
+            pref_disc_time=disc_time;
             
             p_corr_dt_trough_stats=[];
             ii_p_stats=0;
@@ -425,20 +425,20 @@ for PACii=1:2
                 
                 switch grNo
                     case 1
-                        bar(bar_offset,mean(pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data),'g','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'g','LineWidth', 3,'EdgeColor','none')
                     case 2
-                        bar(bar_offset,mean(pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data),'b','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'b','LineWidth', 3,'EdgeColor','none')
                     case 3
-                        bar(bar_offset,mean(pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data),'y','LineWidth', 3,'EdgeColor','none')
+                        bar(bar_offset,mean(pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'y','LineWidth', 3,'EdgeColor','none')
                 end
                 
                 
-                CI = bootci(1000, {@mean, pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+                CI = bootci(1000, {@mean, pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data},'type','cper');
                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                plot(bar_offset*ones(1,length(pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data)),pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                plot(bar_offset*ones(1,length(pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data)),pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
                 
                 ii_p_stats=ii_p_stats+1;
-                p_corr_dt_trough_stats(ii_p_stats).data=pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
+                p_corr_dt_trough_stats(ii_p_stats).data=pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data;
                 p_corr_dt_trough_stats(ii_p_stats).description=[file_legend{fileNo} ' ' group_legend{grNo} ' ' ...
                     'Hippocampus'];
             end
@@ -457,17 +457,17 @@ for PACii=1:2
     pFDR=drsFDRpval(all_ps);
     fprintf(1, ['\n\npFDR = %d \n\n'],pFDR)
     
-    ylim([50 100])
+    ylim([0 5])
     
     xticks([2 6 10 14 18 22 26 30])
     xticklabels({file_legend{1}, file_legend{2},file_legend{3}, file_legend{4},file_legend{5}, file_legend{6},file_legend{7}, file_legend{8}})
     
-    title(['LDA percent correct for prefrontal for trough theta/' PACnames{PACii} ])
+    title(['LDA log p value for prefrontal for trough theta/' PACnames{PACii} ])
     
     
     
     
-    ylabel('Percent correct')
+    ylabel('log(P)')
 end
 
 %Do a GLM to compare groups/brain regions for each odor pair trough
@@ -492,32 +492,32 @@ for PACii=1:2
         if ~isempty(hippFileName{fileNo})
             
             load([prePathName preFileName{fileNo}])
-            pref_pcorr_out=pcorr_out;
+            pref_disc_time=disc_time;
             
             load([hippPathName hippFileName{fileNo}])
-            hippo_pcorr_out=pcorr_out;
+            hippo_disc_time=disc_time;
             
             
             for grNo=1:3
                 
                 %Hippocampus
-                glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data))=hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
-                glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data))=grNo*ones(1,length(hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data));
-                glm_disc.brain_area(glm_ii_disc+1:glm_ii_disc+length(hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data))=zeros(1,length(hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data));
-                glm_ii_disc=glm_ii_disc+length(hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data);
+                glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data))=hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data;
+                glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data))=grNo*ones(1,length(hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data));
+                glm_disc.brain_area(glm_ii_disc+1:glm_ii_disc+length(hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data))=zeros(1,length(hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data));
+                glm_ii_disc=glm_ii_disc+length(hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data);
                 
                 %Prefrontal
-                glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data))=pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
-                glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data))=grNo*ones(1,length(pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data));
-                glm_disc.brain_area(glm_ii_disc+1:glm_ii_disc+length(pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data))=ones(1,length(pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data));
-                glm_ii_disc=glm_ii_disc+length(pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data);
+                glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data))=pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data;
+                glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data))=grNo*ones(1,length(pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data));
+                glm_disc.brain_area(glm_ii_disc+1:glm_ii_disc+length(pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data))=ones(1,length(pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data));
+                glm_ii_disc=glm_ii_disc+length(pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data);
                 
                 
             end
             
             
             %Perform the glm
-            fprintf(1, ['glm for performance for trough theta/' PACnames{PACii} '\n'])
+            fprintf(1, ['glm for decision time for trough theta/' PACnames{PACii} '\n'])
             tbl = table(glm_disc.data',glm_disc.group',glm_disc.brain_area',...
                 'VariableNames',{'performance','group','brain_area'});
             mdl = fitglm(tbl,'performance~group+brain_area+group*brain_area'...
@@ -556,32 +556,32 @@ for PACii=1:2
         if ~isempty(hippFileName{fileNo})
             
             load([prePathName preFileName{fileNo}])
-            pref_pcorr_out=pcorr_out;
+            pref_disc_time=disc_time;
             
             load([hippPathName hippFileName{fileNo}])
-            hippo_pcorr_out=pcorr_out;
+            hippo_disc_time=disc_time;
             
             
             for grNo=1:3
                 
                 %Hippocampus
-                glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data))=hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
-                glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data))=grNo*ones(1,length(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data));
-                glm_disc.brain_area(glm_ii_disc+1:glm_ii_disc+length(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data))=zeros(1,length(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data));
-                glm_ii_disc=glm_ii_disc+length(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data);
+                glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data))=hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data;
+                glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data))=grNo*ones(1,length(hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data));
+                glm_disc.brain_area(glm_ii_disc+1:glm_ii_disc+length(hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data))=zeros(1,length(hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data));
+                glm_ii_disc=glm_ii_disc+length(hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data);
                 
                 %Prefrontal
-                glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data))=pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
-                glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data))=grNo*ones(1,length(pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data));
-                glm_disc.brain_area(glm_ii_disc+1:glm_ii_disc+length(pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data))=ones(1,length(pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data));
-                glm_ii_disc=glm_ii_disc+length(pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data);
+                glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data))=pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data;
+                glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data))=grNo*ones(1,length(pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data));
+                glm_disc.brain_area(glm_ii_disc+1:glm_ii_disc+length(pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data))=ones(1,length(pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data));
+                glm_ii_disc=glm_ii_disc+length(pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data);
                 
                 
             end
             
             
             %Perform the glm
-            fprintf(1, ['glm for performance for peak theta/' PACnames{PACii} '\n'])
+            fprintf(1, ['glm for p value for peak theta/' PACnames{PACii} '\n'])
             tbl = table(glm_disc.data',glm_disc.group',glm_disc.brain_area',...
                 'VariableNames',{'performance','group','brain_area'});
             mdl = fitglm(tbl,'performance~group+brain_area+group*brain_area'...
@@ -640,17 +640,17 @@ for PACii=1:2
         %Prefrontal
         if ~isempty(preFileName{fileNo})
             load([prePathName preFileName{fileNo}])
-            pref_pcorr_out=pcorr_out;
+            pref_disc_time=disc_time;
             
             bar_offset = bar_offset +1;
-            bar(bar_offset,mean(pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
+            bar(bar_offset,mean(pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
             
-            CI = bootci(1000, {@mean, pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+            CI = bootci(1000, {@mean, pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data)),pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            plot(bar_offset*ones(1,length(pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data)),pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
             
             ii_p_stats=ii_p_stats+1;
-            p_corr_dt_peak_stats(ii_p_stats).data=pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
+            p_corr_dt_peak_stats(ii_p_stats).data=pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data;
             p_corr_dt_peak_stats(ii_p_stats).description=[file_legend{fileNo} ' ' ...
                 'Prefrontal'];
             
@@ -662,17 +662,17 @@ for PACii=1:2
         %Hippocampus
         if ~isempty(hippFileName{fileNo})
             load([hippPathName hippFileName{fileNo}])
-            hippo_pcorr_out=pcorr_out;
+            hippo_disc_time=disc_time;
             
             bar_offset = bar_offset +1;
-            bar(bar_offset,mean(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data),'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
+            bar(bar_offset,mean(hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data),'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
             
-            CI = bootci(1000, {@mean, hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+            CI = bootci(1000, {@mean, hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data)),hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            plot(bar_offset*ones(1,length(hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data)),hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
             
             ii_p_stats=ii_p_stats+1;
-            p_corr_dt_peak_stats(ii_p_stats).data=hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
+            p_corr_dt_peak_stats(ii_p_stats).data=hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data;
             p_corr_dt_peak_stats(ii_p_stats).description=[file_legend{fileNo} ' ' ...
                 'Prefrontal'];
             
@@ -689,7 +689,7 @@ for PACii=1:2
     all_ps=[all_ps output_data.p];
     
     
-    ylim([50 100])
+    ylim([0 5])
     
     xticks([2 6 10 14 18 22 26 30])
     xticklabels({file_legend{1}, file_legend{2},file_legend{3}, file_legend{4},file_legend{5}, file_legend{6},file_legend{7}, file_legend{8}})
@@ -697,9 +697,9 @@ for PACii=1:2
     text(0,98,'Hippocampus','Color',[0 114/255 178/255])
     text(0,96,'Prefrontal','Color',[158/255 31/255 99/255])
     
-    title(['LDA percent correct for peak theta/' PACnames{PACii} ])
+    title(['LDA log p value for peak theta/' PACnames{PACii} ])
     
-    ylabel('Percent correct')
+    ylabel('decision time (sec)')
 end
 
 
@@ -746,17 +746,17 @@ for PACii=1:2
         %Prefrontal
         if ~isempty(preFileName{fileNo})
             load([prePathName preFileName{fileNo}])
-            pref_pcorr_out=pcorr_out;
+            pref_disc_time=disc_time;
             
             bar_offset = bar_offset +1;
-            bar(bar_offset,mean(pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
+            bar(bar_offset,mean(pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
             
-            CI = bootci(1000, {@mean, pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+            CI = bootci(1000, {@mean, pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data)),pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            plot(bar_offset*ones(1,length(pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data)),pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
             
             ii_p_stats=ii_p_stats+1;
-            p_corr_dt_trough_stats(ii_p_stats).data=pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
+            p_corr_dt_trough_stats(ii_p_stats).data=pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data;
             p_corr_dt_trough_stats(ii_p_stats).description=[file_legend{fileNo} ' ' ...
                 'Prefrontal'];
             
@@ -768,17 +768,17 @@ for PACii=1:2
         %Hippocampus
         if ~isempty(hippFileName{fileNo})
             load([hippPathName hippFileName{fileNo}])
-            hippo_pcorr_out=pcorr_out;
+            hippo_disc_time=disc_time;
             
             bar_offset = bar_offset +1;
-            bar(bar_offset,mean(hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data),'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
+            bar(bar_offset,mean(hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data),'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
             
-            CI = bootci(1000, {@mean, hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+            CI = bootci(1000, {@mean, hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data)),hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            plot(bar_offset*ones(1,length(hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data)),hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
             
             ii_p_stats=ii_p_stats+1;
-            p_corr_dt_trough_stats(ii_p_stats).data=hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
+            p_corr_dt_trough_stats(ii_p_stats).data=hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data;
             p_corr_dt_trough_stats(ii_p_stats).description=[file_legend{fileNo} ' ' ...
                 'Prefrontal'];
             
@@ -795,7 +795,7 @@ for PACii=1:2
     all_ps=[all_ps output_data.p];
     
     
-    ylim([50 100])
+    ylim([0 5])
     
     xticks([2 6 10 14 18 22 26 30])
     xticklabels({file_legend{1}, file_legend{2},file_legend{3}, file_legend{4},file_legend{5}, file_legend{6},file_legend{7}, file_legend{8}})
@@ -803,9 +803,9 @@ for PACii=1:2
     text(0,98,'Hippocampus','Color',[0 114/255 178/255])
     text(0,96,'Prefrontal','Color',[158/255 31/255 99/255])
     
-    title(['LDA percent correct for trough theta/' PACnames{PACii} ])
+    title(['LDA log p value for trough theta/' PACnames{PACii} ])
     
-    ylabel('Percent correct')
+    ylabel('decision time (sec)')
 end
 
 %Now do the wild type analysis per odor pair
@@ -855,42 +855,42 @@ for PACii=1:2
         
         if ~isempty(hippFileName{fileNo})
             load([hippPathName hippFileName{fileNo}])
-            hippo_pcorr_out=pcorr_out;
+            hippo_disc_time=disc_time;
             
             
             grNo=1;
             
             
             
-            %Shuffled
-            bar_offset = bar_offset +1;
-            per_ii=1;
-            these_pcorr=hippo_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
-            per_ii=2;
-            these_pcorr=hippo_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
-            
-            bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
-            
-            
-            CI = bootci(1000, {@mean, these_pcorr},'type','cper');
-            plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-            
-            glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
-            glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=1*ones(1,length(these_pcorr));
-            glm_disc.odor_pair(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=fileNo*ones(1,length(these_pcorr));
-            glm_ii_disc=glm_ii_disc+length(these_pcorr);
-            
-            
-            ii_stats=ii_stats+1;
-            p_corr_stats(ii_stats).data=these_pcorr;
-            p_corr_stats(ii_stats).description=[file_legend{fileNo} ' ' ...
-                'Shuffled'];
+%             %Shuffled
+%             bar_offset = bar_offset +1;
+%             per_ii=1;
+%             these_pcorr=hippo_disc_time.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).data;
+%             per_ii=2;
+%             these_pcorr=hippo_disc_time.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).data;
+%             
+%             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
+%             
+%             
+%             CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%             plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%             
+%             glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+%             glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=1*ones(1,length(these_pcorr));
+%             glm_disc.odor_pair(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=fileNo*ones(1,length(these_pcorr));
+%             glm_ii_disc=glm_ii_disc+length(these_pcorr);
+%             
+%             
+%             ii_stats=ii_stats+1;
+%             p_corr_stats(ii_stats).data=these_pcorr;
+%             p_corr_stats(ii_stats).description=[file_legend{fileNo} ' ' ...
+%                 'Shuffled'];
             
             %Naive
             bar_offset = bar_offset +1;
             per_ii=2;
-            these_pcorr=hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
+            these_pcorr=hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data;
             mean_hippo_peak_naive(fileNo)=mean(these_pcorr);
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
@@ -915,7 +915,7 @@ for PACii=1:2
             %Proficient
             bar_offset = bar_offset +1;
             per_ii=1;
-            these_pcorr=hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
+            these_pcorr=hippo_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data;
             mean_hippo_peak_proficient(fileNo)=mean(these_pcorr);
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
@@ -961,7 +961,7 @@ for PACii=1:2
     ylabel('Percent correct')
     
     %Perform the glm
-    fprintf(1, ['glm for performance for hippocampus peak theta/' PACnames{PACii} '\n'])
+    fprintf(1, ['glm for p value for hippocampus peak theta/' PACnames{PACii} '\n'])
     tbl = table(glm_disc.data',glm_disc.group',glm_disc.odor_pair',...
         'VariableNames',{'performance','group','odor_pair'});
     mdl = fitglm(tbl,'performance~group+odor_pair+group*odor_pair'...
@@ -1012,42 +1012,42 @@ for PACii=1:2
         
         if ~isempty(hippFileName{fileNo})
             load([hippPathName hippFileName{fileNo}])
-            hippo_pcorr_out=pcorr_out;
+            hippo_disc_time=disc_time;
             
             
             grNo=1;
             
             
             
-            %Shuffled
-            bar_offset = bar_offset +1;
-            per_ii=1;
-            these_pcorr=hippo_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
-            per_ii=2;
-            these_pcorr=hippo_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
-            
-            bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
-            
-            
-            CI = bootci(1000, {@mean, these_pcorr},'type','cper');
-            plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-            
-            glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
-            glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=1*ones(1,length(these_pcorr));
-            glm_disc.odor_pair(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=fileNo*ones(1,length(these_pcorr));
-            glm_ii_disc=glm_ii_disc+length(these_pcorr);
-            
-            
-            ii_stats=ii_stats+1;
-            p_corr_stats(ii_stats).data=these_pcorr;
-            p_corr_stats(ii_stats).description=[file_legend{fileNo} ' ' ...
-                'Shuffled'];
+%             %Shuffled
+%             bar_offset = bar_offset +1;
+%             per_ii=1;
+%             these_pcorr=hippo_disc_time.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).data;
+%             per_ii=2;
+%             these_pcorr=hippo_disc_time.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).data;
+%             
+%             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
+%             
+%             
+%             CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%             plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%             
+%             glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+%             glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=1*ones(1,length(these_pcorr));
+%             glm_disc.odor_pair(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=fileNo*ones(1,length(these_pcorr));
+%             glm_ii_disc=glm_ii_disc+length(these_pcorr);
+%             
+%             
+%             ii_stats=ii_stats+1;
+%             p_corr_stats(ii_stats).data=these_pcorr;
+%             p_corr_stats(ii_stats).description=[file_legend{fileNo} ' ' ...
+%                 'Shuffled'];
             
             %Naive
             bar_offset = bar_offset +1;
             per_ii=2;
-            these_pcorr=hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
+            these_pcorr=hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data;
             mean_hippo_trough_naive(fileNo)=mean(these_pcorr);
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
@@ -1072,7 +1072,7 @@ for PACii=1:2
             %Proficient
             bar_offset = bar_offset +1;
             per_ii=1;
-            these_pcorr=hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
+            these_pcorr=hippo_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data;
             mean_hippo_trough_proficient(fileNo)=mean(these_pcorr);
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
@@ -1105,7 +1105,7 @@ for PACii=1:2
     
     plot([0 32],[50 50],'-k')
     
-    ylim([40 100])
+    ylim([0 5])
     
     xticks([2 6 10 14 18 22 26 30])
     xticklabels({file_legend{1}, file_legend{2},file_legend{3}, file_legend{4},file_legend{5}, file_legend{6},file_legend{7}, file_legend{8}})
@@ -1114,11 +1114,11 @@ for PACii=1:2
     text(0,96,'Naive','Color',[238/255 111/255 179/255])
     text(0,96,'Proficient','Color',[158/255 31/255 99/255])
     
-    title(['LDA percent correct for hippocampus for trough theta/' PACnames{PACii} ])
-    ylabel('Percent correct')
+    title(['LDA log p value for hippocampus for trough theta/' PACnames{PACii} ])
+    ylabel('decision time (sec)')
     
     %Perform the glm
-    fprintf(1, ['glm for performance for hippocampus trough theta/' PACnames{PACii} '\n'])
+    fprintf(1, ['glm for log p value for hippocampus trough theta/' PACnames{PACii} '\n'])
     tbl = table(glm_disc.data',glm_disc.group',glm_disc.odor_pair',...
         'VariableNames',{'performance','group','odor_pair'});
     mdl = fitglm(tbl,'performance~group+odor_pair+group*odor_pair'...
@@ -1168,42 +1168,42 @@ for PACii=1:2
         
         if ~isempty(preFileName{fileNo})
             load([prePathName preFileName{fileNo}])
-            pref_pcorr_out=pcorr_out;
+            pref_disc_time=disc_time;
             
             
             grNo=1;
             
             
             
-            %Shuffled
-            bar_offset = bar_offset +1;
-            per_ii=1;
-            these_pcorr=pref_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
-            per_ii=2;
-            these_pcorr=pref_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
-            
-            bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
-            
-            
-            CI = bootci(1000, {@mean, these_pcorr},'type','cper');
-            plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-            
-            glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
-            glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=1*ones(1,length(these_pcorr));
-            glm_disc.odor_pair(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=fileNo*ones(1,length(these_pcorr));
-            glm_ii_disc=glm_ii_disc+length(these_pcorr);
-            
-            
-            ii_stats=ii_stats+1;
-            p_corr_stats(ii_stats).data=these_pcorr;
-            p_corr_stats(ii_stats).description=[file_legend{fileNo} ' ' ...
-                'Shuffled'];
+%             %Shuffled
+%             bar_offset = bar_offset +1;
+%             per_ii=1;
+%             these_pcorr=pref_disc_time.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).data;
+%             per_ii=2;
+%             these_pcorr=pref_disc_time.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).data;
+%             
+%             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
+%             
+%             
+%             CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%             plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%             
+%             glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+%             glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=1*ones(1,length(these_pcorr));
+%             glm_disc.odor_pair(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=fileNo*ones(1,length(these_pcorr));
+%             glm_ii_disc=glm_ii_disc+length(these_pcorr);
+%             
+%             
+%             ii_stats=ii_stats+1;
+%             p_corr_stats(ii_stats).data=these_pcorr;
+%             p_corr_stats(ii_stats).description=[file_legend{fileNo} ' ' ...
+%                 'Shuffled'];
             
             %Naive
             bar_offset = bar_offset +1;
             per_ii=2;
-            these_pcorr=pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
+            these_pcorr=pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data;
             mean_pref_peak_naive(fileNo)=mean(these_pcorr);
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
@@ -1228,7 +1228,7 @@ for PACii=1:2
             %Proficient
             bar_offset = bar_offset +1;
             per_ii=1;
-            these_pcorr=pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
+            these_pcorr=pref_disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data;
             mean_pref_peak_proficient(fileNo)=mean(these_pcorr);
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
@@ -1261,7 +1261,7 @@ for PACii=1:2
     
     plot([0 32],[50 50],'-k')
     
-    ylim([40 100])
+    ylim([0 5])
     
     xticks([2 6 10 14 18 22 26 30])
     xticklabels({file_legend{1}, file_legend{2},file_legend{3}, file_legend{4},file_legend{5}, file_legend{6},file_legend{7}, file_legend{8}})
@@ -1270,11 +1270,11 @@ for PACii=1:2
     text(0,96,'Naive','Color',[238/255 111/255 179/255])
     text(0,96,'Proficient','Color',[158/255 31/255 99/255])
     
-    title(['LDA percent correct for prefrontal for peak theta/' PACnames{PACii} ])
-    ylabel('Percent correct')
+    title(['LDA log p value for prefrontal for peak theta/' PACnames{PACii} ])
+    ylabel('decision time (sec)')
     
     %Perform the glm
-    fprintf(1, ['glm for performance for prefrontal peak theta/' PACnames{PACii} '\n'])
+    fprintf(1, ['glm for log p value for prefrontal peak theta/' PACnames{PACii} '\n'])
     tbl = table(glm_disc.data',glm_disc.group',glm_disc.odor_pair',...
         'VariableNames',{'performance','group','odor_pair'});
     mdl = fitglm(tbl,'performance~group+odor_pair+group*odor_pair'...
@@ -1325,42 +1325,42 @@ for PACii=1:2
         
         if ~isempty(preFileName{fileNo})
             load([prePathName preFileName{fileNo}])
-            pref_pcorr_out=pcorr_out;
+            pref_disc_time=disc_time;
             
             
             grNo=1;
             
             
-            
-            %Shuffled
-            bar_offset = bar_offset +1;
-            per_ii=1;
-            these_pcorr=pref_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
-            per_ii=2;
-            these_pcorr=pref_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
-            
-            bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
-            
-            
-            CI = bootci(1000, {@mean, these_pcorr},'type','cper');
-            plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-            
-            glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
-            glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=1*ones(1,length(these_pcorr));
-            glm_disc.odor_pair(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=fileNo*ones(1,length(these_pcorr));
-            glm_ii_disc=glm_ii_disc+length(these_pcorr);
-            
-            
-            ii_stats=ii_stats+1;
-            p_corr_stats(ii_stats).data=these_pcorr;
-            p_corr_stats(ii_stats).description=[file_legend{fileNo} ' ' ...
-                'Shuffled'];
+%             
+%             %Shuffled
+%             bar_offset = bar_offset +1;
+%             per_ii=1;
+%             these_pcorr=pref_disc_time.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).data;
+%             per_ii=2;
+%             these_pcorr=pref_disc_time.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).data;
+%             
+%             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
+%             
+%             
+%             CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%             plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%             
+%             glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+%             glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=1*ones(1,length(these_pcorr));
+%             glm_disc.odor_pair(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=fileNo*ones(1,length(these_pcorr));
+%             glm_ii_disc=glm_ii_disc+length(these_pcorr);
+%             
+%             
+%             ii_stats=ii_stats+1;
+%             p_corr_stats(ii_stats).data=these_pcorr;
+%             p_corr_stats(ii_stats).description=[file_legend{fileNo} ' ' ...
+%                 'Shuffled'];
             
             %Naive
             bar_offset = bar_offset +1;
             per_ii=2;
-            these_pcorr=pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
+            these_pcorr=pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data;
             mean_pref_trough_naive(fileNo)=mean(these_pcorr);
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
@@ -1385,7 +1385,7 @@ for PACii=1:2
             %Proficient
             bar_offset = bar_offset +1;
             per_ii=1;
-            these_pcorr=pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
+            these_pcorr=pref_disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data;
             mean_pref_trough_proficient(fileNo)=mean(these_pcorr);
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
@@ -1418,7 +1418,7 @@ for PACii=1:2
     
     plot([0 32],[50 50],'-k')
     
-    ylim([40 100])
+    ylim([0 5])
     
     xticks([2 6 10 14 18 22 26 30])
     xticklabels({file_legend{1}, file_legend{2},file_legend{3}, file_legend{4},file_legend{5}, file_legend{6},file_legend{7}, file_legend{8}})
@@ -1427,11 +1427,11 @@ for PACii=1:2
     text(0,96,'Naive','Color',[238/255 111/255 179/255])
     text(0,96,'Proficient','Color',[158/255 31/255 99/255])
     
-    title(['LDA percent correct for prefrontal for trough theta/' PACnames{PACii} ])
-    ylabel('Percent correct')
+    title(['LDA log p value for prefrontal for trough theta/' PACnames{PACii} ])
+    ylabel('decision time (sec)')
     
     %Perform the glm
-    fprintf(1, ['glm for performance for prefrontal trough theta/' PACnames{PACii} '\n'])
+    fprintf(1, ['glm for p value for prefrontal trough theta/' PACnames{PACii} '\n'])
     tbl = table(glm_disc.data',glm_disc.group',glm_disc.odor_pair',...
         'VariableNames',{'performance','group','odor_pair'});
     mdl = fitglm(tbl,'performance~group+odor_pair+group*odor_pair'...
@@ -1516,14 +1516,14 @@ for PACii=1:2
     
     plot([0 3],[50 50],'-k')
     
-    ylim([40 100])
+    ylim([0 5])
     xlim([0.3 2.8])
     
     xticks([1 2])
     xticklabels({'Naive', 'Proficient'})
     
-    title(['LDA mean percent correct for hippocampus for peak theta/' PACnames{PACii} ])
-    ylabel('Percent correct')
+    title(['LDA mean log p value for hippocampus for peak theta/' PACnames{PACii} ])
+    ylabel('Log(P)')
     
     %Hippocampus trough
     figNo = figNo +1;
@@ -1592,14 +1592,14 @@ for PACii=1:2
     
     plot([0 3],[50 50],'-k')
     
-    ylim([40 100])
+    ylim([0 5])
     xlim([0.3 2.8])
     
     xticks([1 2])
     xticklabels({'Naive', 'Proficient'})
     
-    title(['LDA mean percent correct for hippocampus for trough theta/' PACnames{PACii} ])
-    ylabel('Percent correct')
+    title(['LDA mean log p value for hippocampus for trough theta/' PACnames{PACii} ])
+    ylabel('decision time (sec)')
     
     %Prefrontal peak
     figNo = figNo +1;
@@ -1668,14 +1668,14 @@ for PACii=1:2
     
     plot([0 3],[50 50],'-k')
     
-    ylim([40 100])
+    ylim([0 5])
     xlim([0.3 2.8])
     
     xticks([1 2])
     xticklabels({'Naive', 'Proficient'})
     
-    title(['LDA mean percent correct for prefrontal for peak theta/' PACnames{PACii} ])
-    ylabel('Percent correct')
+    title(['LDA mean p value for prefrontal for peak theta/' PACnames{PACii} ])
+    ylabel('decision time (sec)')
     
     %Prefrontal trough
     figNo = figNo +1;
@@ -1744,18 +1744,18 @@ for PACii=1:2
     
     plot([0 3],[50 50],'-k')
     
-    ylim([40 100])
+    ylim([0 5])
     xlim([0.3 2.8])
     
     xticks([1 2])
     xticklabels({'Naive', 'Proficient'})
     
-    title(['LDA mean percent correct for prefrontal for trough theta/' PACnames{PACii} ])
-    ylabel('Percent correct')
+    title(['LDA mean log p value for prefrontal for trough theta/' PACnames{PACii} ])
+    ylabel('Log(P)')
     
     
     %Perform the glm
-    fprintf(1, ['glm for mean performance for theta/' PACnames{PACii} '\n'])
+    fprintf(1, ['glm for mean log p value for theta/' PACnames{PACii} '\n'])
     tbl = table(glm_disc.data',glm_disc.peak',glm_disc.proficient',glm_disc.brain_region',...
         'VariableNames',{'performance','peak','proficient','brain_region'});
     mdl = fitglm(tbl,'performance~peak+proficient+brain_region+peak*proficient*brain_region'...

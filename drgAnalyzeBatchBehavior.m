@@ -11,6 +11,8 @@ function drgAnalyzeBatchBehavior
 close all
 clear all
 
+proficient_pCorr=85;
+naive_pCorr=[45 65];
 [matFileName,matBatchPathName] = uigetfile({'*.mat'},'Select the .mat file with all the choices for analysis');
 load([matBatchPathName matFileName])
 
@@ -63,6 +65,7 @@ end
 %Calculate the percent correct for the retreival trials
 
 per_corr_per_mouse=zeros(max(handles.drgbchoices.mouse_no),4000);
+itis_per_mouse=zeros(max(handles.drgbchoices.mouse_no),4000);
 no_trials_per_mouse=zeros(1,max(handles.drgbchoices.mouse_no));
 group_no_per_mouse=zeros(1,max(handles.drgbchoices.mouse_no));
 per_corr_distribution_per_mouse=zeros(max(handles.drgbchoices.mouse_no),length([0:5:100]));
@@ -74,7 +77,7 @@ group_legend{3}='KO';
 per_corr_per_group=zeros(3,20000);
 no_trials_per_group=zeros(1,3);
 
-
+ 
 
 for filNum=1:length(handles.drgbchoices.FileName)
     
@@ -88,6 +91,12 @@ for filNum=1:length(handles.drgbchoices.FileName)
     
     per_corr_per_mouse(handles.drgbchoices.mouse_no(filNum),no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+1:no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))...
         +length(handles.drgb.file(filNum).perCorr))=handles.drgb.file(filNum).perCorr;
+    
+    these_itis=handles.drgb.file(filNum).times(2:end)-handles.drgb.file(filNum).perCorr(1:end-1);
+    %Note that the first iti is the same as the second
+    these_itis=[these_itis(1) these_itis];
+    itis_per_mouse(handles.drgbchoices.mouse_no(filNum),no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+1:no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))...
+        +length(handles.drgb.file(filNum).perCorr))=these_itis;
     
     no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))=no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+length(handles.drgb.file(filNum).perCorr);
     group_no_per_mouse(handles.drgbchoices.mouse_no(filNum))=handles.drgbchoices.group_no(filNum);
@@ -110,11 +119,18 @@ glm_ii=0;
 
 for ii=1:max(handles.drgbchoices.mouse_no)
     mean_per_corr_per_mouse(ii)=mean(per_corr_per_mouse(ii,1:no_trials_per_mouse(ii)));
+    this_mouse_per_corr=per_corr_per_mouse(ii,1:no_trials_per_mouse(ii));
+    mean_per_corr_per_mouse_prof(ii)=mean(this_mouse_per_corr(this_mouse_per_corr>=proficient_pCorr));
+    fraction_per_corr_per_mouse_prof(ii)=sum(this_mouse_per_corr>=proficient_pCorr)/length(this_mouse_per_corr);
+    ratio_per_corr_per_mouse_prof(ii)=sum(this_mouse_per_corr>=proficient_pCorr)/sum((this_mouse_per_corr<=naive_pCorr(2))&(this_mouse_per_corr>=naive_pCorr(1)));
     per_corr_distribution_per_mouse(ii,:)=per_corr_distribution_per_mouse(ii,:)/sum(per_corr_distribution_per_mouse(ii,:));
     glm_pcorr.data(glm_ii+1:glm_ii+length([0:5:100]))=per_corr_distribution_per_mouse(ii,:)/sum(per_corr_distribution_per_mouse(ii,:));
     glm_pcorr.per_ii(glm_ii+1:glm_ii+length([0:5:100]))=[0:5:100];
     glm_pcorr.grNo(glm_ii+1:glm_ii+length([0:5:100]))=group_no_per_mouse(ii);
     glm_ii=glm_ii+length([0:5:100]);
+    mean_iti_per_mouse(ii)=mean(itis_per_mouse(ii,1:no_trials_per_mouse(ii)));
+    this_mouse_itis=itis_per_mouse(ii,1:no_trials_per_mouse(ii));
+    mean_iti_per_mouse_proficient(ii)=mean(this_mouse_itis(this_mouse_per_corr>=proficient_pCorr));
 end
 
 mean_per_corr_distribution_per_group=zeros(max(handles.drgbchoices.group_no),length([0:5:100]));
@@ -122,6 +138,7 @@ for grNo=1:max(handles.drgbchoices.group_no)
     mean_per_corr_distribution_per_group(grNo,:)=mean(per_corr_distribution_per_mouse(group_no_per_mouse==grNo,:),1);
 end
 
+%Generate mean percent correct per mouse bar graph
 figNo = figNo +1;
 
 try
@@ -135,7 +152,7 @@ hold on
 
 
 bar_offset = 0;
-edges=[80:1:100];
+edges=[proficient_pCorr:1:100];
 rand_offset=0.8;
 id_ii=0;
 input_data=[];
@@ -189,6 +206,147 @@ ylabel('Percent correct')
 fprintf(1, ['\n\nRanksum or t-test p values for percent correct\n'])
 [output_data] = drgMutiRanksumorTtest(input_data);
 
+%Generate mean proficient iti per mouse bar graph
+id_ii=0;
+input_data=[];
+
+figNo = figNo +1;
+
+try
+    close(figNo)
+catch
+end
+hFig=figure(figNo);
+
+set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+hold on
+
+
+bar_offset = 0;
+edges=[proficient_pCorr:1:100];
+rand_offset=0.8;
+id_ii=0;
+input_data=[];
+
+for grNo=1:max(group_no_per_mouse)
+    
+    switch grNo
+        case 1
+            bar(bar_offset,mean(mean_iti_per_mouse_proficient(group_no_per_mouse==grNo)),'g','LineWidth', 3,'EdgeColor','none')
+        case 2
+            bar(bar_offset,mean(mean_iti_per_mouse_proficient(group_no_per_mouse==grNo)),'b','LineWidth', 3,'EdgeColor','none')
+        case 3
+            bar(bar_offset,mean(mean_iti_per_mouse_proficient(group_no_per_mouse==grNo)),'y','LineWidth', 3,'EdgeColor','none')
+    end
+    
+     
+    %Violin plot
+    
+    [mean_out, CIout]=drgViolinPoint(mean_iti_per_mouse_proficient(group_no_per_mouse==grNo)...
+        ,edges,bar_offset,rand_offset,'k','k',1);
+    
+    %                                 %Save data for  ranksum
+    
+    id_ii=id_ii+1;
+    input_data(id_ii).data=mean_iti_per_mouse_proficient(group_no_per_mouse==grNo);
+    input_data(id_ii).description=group_legend{grNo};
+    
+    
+    
+    
+    bar_offset = bar_offset + 1;
+    
+    
+    
+    
+    
+end
+
+title(['Mean ITI proficient per mouse'])
+
+
+xticks([1 2 3])
+xticklabels({'WT', 'Het', 'KO'})
+
+
+ylabel('ITI (sec)')
+
+
+
+%Do the ranksum/t-test
+fprintf(1, ['\n\nRanksum or t-test p values for proficient ITI\n'])
+[output_data] = drgMutiRanksumorTtest(input_data);
+
+%Generate mean iti per mouse bar graph
+id_ii=0;
+input_data=[];
+
+figNo = figNo +1;
+
+try
+    close(figNo)
+catch
+end
+hFig=figure(figNo);
+
+set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+hold on
+
+
+bar_offset = 0;
+edges=[proficient_pCorr:1:100];
+rand_offset=0.8;
+id_ii=0;
+input_data=[];
+
+for grNo=1:max(group_no_per_mouse)
+    
+    switch grNo
+        case 1
+            bar(bar_offset,mean(mean_iti_per_mouse(group_no_per_mouse==grNo)),'g','LineWidth', 3,'EdgeColor','none')
+        case 2
+            bar(bar_offset,mean(mean_iti_per_mouse(group_no_per_mouse==grNo)),'b','LineWidth', 3,'EdgeColor','none')
+        case 3
+            bar(bar_offset,mean(mean_iti_per_mouse(group_no_per_mouse==grNo)),'y','LineWidth', 3,'EdgeColor','none')
+    end
+    
+     
+    %Violin plot
+    
+    [mean_out, CIout]=drgViolinPoint(mean_iti_per_mouse(group_no_per_mouse==grNo)...
+        ,edges,bar_offset,rand_offset,'k','k',1);
+    
+    %                                 %Save data for  ranksum
+    
+    id_ii=id_ii+1;
+    input_data(id_ii).data=mean_iti_per_mouse(group_no_per_mouse==grNo);
+    input_data(id_ii).description=group_legend{grNo};
+    
+    
+    
+    
+    bar_offset = bar_offset + 1;
+    
+    
+    
+    
+    
+end
+
+title(['Mean ITI per mouse'])
+
+
+xticks([1 2 3])
+xticklabels({'WT', 'Het', 'KO'})
+
+
+ylabel('ITI (sec)')
+
+
+
+%Do the ranksum/t-test
+fprintf(1, ['\n\nRanksum or t-test p values for  ITI\n'])
+[output_data] = drgMutiRanksumorTtest(input_data);
 
 
 figNo = figNo +1;
@@ -211,25 +369,27 @@ input_data=[];
 
 for grNo=1:max(group_no_per_mouse)
     
+    these_mean_corr=per_corr_per_group(grNo,1:no_trials_per_group(grNo))';
+    
     switch grNo
         case 1
-            bar(bar_offset,mean(per_corr_per_group(grNo,1:no_trials_per_group(grNo))),'b','LineWidth', 3,'EdgeColor','none')
+            bar(bar_offset,mean(these_mean_corr),'b','LineWidth', 3,'EdgeColor','none')
         case 2
-            bar(bar_offset,mean(per_corr_per_group(grNo,1:no_trials_per_group(grNo))),'g','LineWidth', 3,'EdgeColor','none')
+            bar(bar_offset,mean(these_mean_corr),'g','LineWidth', 3,'EdgeColor','none')
         case 3
-            bar(bar_offset,mean(per_corr_per_group(grNo,1:no_trials_per_group(grNo))),'y','LineWidth', 3,'EdgeColor','none')
+            bar(bar_offset,mean(these_mean_corr),'y','LineWidth', 3,'EdgeColor','none')
     end
     
      
     %Violin plot
     
-    [mean_out, CIout]=drgViolinPoint(per_corr_per_group(grNo,1:no_trials_per_group(grNo))'...
+    [mean_out, CIout]=drgViolinPoint(these_mean_corr...
         ,edges,bar_offset,rand_offset,'k','k',1);
     
     %                                 %Save data for  ranksum
     
     id_ii=id_ii+1;
-    input_data(id_ii).data=per_corr_per_group(grNo,1:no_trials_per_group(grNo));
+    input_data(id_ii).data=these_mean_corr;
     input_data(id_ii).description=group_legend{grNo};
     
     
@@ -286,12 +446,15 @@ for grNo=max(group_no_per_mouse):-1:1
     
     switch grNo
         case 1
-            [hlCR, hpCR] = boundedline([0:5:100],this_mean_per_corr_distribution', CI, 'b');
+%             [hlCR, hpCR] = boundedline([0:5:100],this_mean_per_corr_distribution', CI, 'b');
+            plot([0:5:100],this_mean_per_corr_distribution', 'b')
             %             plot([0:5:100], mean_per_corr_distribution_per_group(grNo,:), '-g','LineWidth', 3)
         case 2
-            [hlCR, hpCR] = boundedline([0:5:100],this_mean_per_corr_distribution', CI, 'g');
+%             [hlCR, hpCR] = boundedline([0:5:100],this_mean_per_corr_distribution', CI, 'g');
+            plot([0:5:100],this_mean_per_corr_distribution', 'g')
         case 3
-            [hlCR, hpCR] = boundedline([0:5:100],this_mean_per_corr_distribution', CI, 'y');
+%             [hlCR, hpCR] = boundedline([0:5:100],this_mean_per_corr_distribution', CI, 'y');
+            plot([0:5:100],this_mean_per_corr_distribution', 'y')
     end
 end
                           
@@ -301,6 +464,277 @@ tbl = table(glm_pcorr.data',glm_pcorr.per_ii',glm_pcorr.grNo',...
     'VariableNames',{'fraction','pcorr','grNo'});
 mdl = fitglm(tbl,'fraction~pcorr+grNo+pcorr*grNo','CategoricalVars',[3])
 
-pfft=1;
+
+id_ii=0;
+input_data=[];
+
+figNo = figNo +1;
+
+try
+    close(figNo)
+catch
+end
+hFig=figure(figNo);
+
+set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+hold on
 
 
+bar_offset = 0;
+edges=[proficient_pCorr:1:100];
+rand_offset=0.8;
+id_ii=0;
+input_data=[];
+
+for grNo=1:max(group_no_per_mouse)
+    
+    these_mean_corr1=per_corr_per_group(grNo,1:no_trials_per_group(grNo))';
+    
+    switch grNo
+        case 1
+            bar(bar_offset,mean(these_mean_corr1(these_mean_corr1>=proficient_pCorr)),'g','LineWidth', 3,'EdgeColor','none')
+        case 2
+            bar(bar_offset,mean(these_mean_corr1(these_mean_corr1>=proficient_pCorr)),'b','LineWidth', 3,'EdgeColor','none')
+        case 3
+            bar(bar_offset,mean(these_mean_corr1(these_mean_corr1>=proficient_pCorr)),'y','LineWidth', 3,'EdgeColor','none')
+    end
+    
+     
+    %Violin plot
+    these_mean_corr1=these_mean_corr1(these_mean_corr1>=proficient_pCorr);
+    [mean_out, CIout]=drgViolinPoint(these_mean_corr1'...
+        ,edges,bar_offset,rand_offset,'k','k',1);
+    
+    %                                 %Save data for  ranksum
+    
+    id_ii=id_ii+1;
+    input_data(id_ii).data=these_mean_corr1;
+    input_data(id_ii).description=group_legend{grNo};
+    
+    
+    
+    
+    bar_offset = bar_offset + 1;
+    
+    
+    
+    
+    
+end
+
+title(['Percent correct for retreival (pCorr>' num2str(proficient_pCorr)])
+
+
+xticks([1 2 3])
+xticklabels({'WT', 'Het', 'KO'})
+
+
+ylabel('Percent correct')
+
+ylim([80 100])
+
+
+%Do the ranksum/t-test
+fprintf(1, ['\n\nRanksum or t-test p values for percent correct (pCorr>=' num2str(proficient_pCorr) ')\n'])
+[output_data] = drgMutiRanksumorTtest(input_data);
+
+id_ii=0;
+input_data=[];
+
+%Now plot the proficient mean percent calculated per mouse
+figNo = figNo +1;
+
+try
+    close(figNo)
+catch
+end
+hFig=figure(figNo);
+
+set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+hold on
+
+
+bar_offset = 0;
+edges=[proficient_pCorr:1:100];
+rand_offset=0.8;
+id_ii=0;
+input_data=[];
+
+for grNo=1:max(group_no_per_mouse)
+    
+    these_mean_per_corr_per_mouse_prof=mean_per_corr_per_mouse_prof(group_no_per_mouse==grNo);
+    these_mean_per_corr_per_mouse_prof=these_mean_per_corr_per_mouse_prof(~isnan(these_mean_per_corr_per_mouse_prof));
+    switch grNo
+        case 1
+            bar(bar_offset,mean(these_mean_per_corr_per_mouse_prof),'g','LineWidth', 3,'EdgeColor','none')
+        case 2
+            bar(bar_offset,mean(these_mean_per_corr_per_mouse_prof),'b','LineWidth', 3,'EdgeColor','none')
+        case 3
+            bar(bar_offset,mean(these_mean_per_corr_per_mouse_prof),'y','LineWidth', 3,'EdgeColor','none')
+    end
+    
+     
+    %Violin plot
+    
+    [mean_out, CIout]=drgViolinPoint(these_mean_per_corr_per_mouse_prof...
+        ,edges,bar_offset,rand_offset,'k','k',3);
+    
+    %                                 %Save data for  ranksum
+    
+    id_ii=id_ii+1;
+    input_data(id_ii).data=these_mean_per_corr_per_mouse_prof;
+    input_data(id_ii).description=group_legend{grNo};
+
+    bar_offset = bar_offset + 1;
+    
+
+end
+
+title(['Percent correct for retreival (pCorr>=' num2str(proficient_pCorr) ') per mouse'])
+
+
+xticks([1 2 3])
+xticklabels({'WT', 'Het', 'KO'})
+
+
+ylabel('Percent correct')
+
+ylim([proficient_pCorr 100])
+
+%Do the ranksum/t-test
+fprintf(1, ['\n\nRanksum or t-test p values for percent correct (pCorr>=' num2str(proficient_pCorr) ') per mouse\n'])
+[output_data] = drgMutiRanksumorTtest(input_data);
+
+
+id_ii=0;
+input_data=[];
+
+%Now plot the fraction of trials at or above proficient
+figNo = figNo +1;
+
+try
+    close(figNo)
+catch
+end
+hFig=figure(figNo);
+
+set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+hold on
+
+
+bar_offset = 0;
+edges=[proficient_pCorr:1:100];
+rand_offset=0.8;
+id_ii=0;
+input_data=[];
+
+for grNo=1:max(group_no_per_mouse)
+    
+    these_fractions=100*fraction_per_corr_per_mouse_prof(group_no_per_mouse==grNo);
+    these_fractions=these_fractions(~isnan(these_fractions));
+    switch grNo
+        case 1
+            bar(bar_offset,mean(these_fractions),'g','LineWidth', 3,'EdgeColor','none')
+        case 2
+            bar(bar_offset,mean(these_fractions),'b','LineWidth', 3,'EdgeColor','none')
+        case 3
+            bar(bar_offset,mean(these_fractions),'y','LineWidth', 3,'EdgeColor','none')
+    end
+    
+     
+    %Violin plot
+    
+    [mean_out, CIout]=drgViolinPoint(these_fractions...
+        ,edges,bar_offset,rand_offset,'k','k',3);
+    
+    %                                 %Save data for  ranksum
+    
+    id_ii=id_ii+1;
+    input_data(id_ii).data=these_fractions;
+    input_data(id_ii).description=group_legend{grNo};
+
+    bar_offset = bar_offset + 1;
+    
+
+end
+
+title(['Percent correct for retreival (pCorr>=' num2str(proficient_pCorr) ') per mouse'])
+
+
+xticks([1 2 3])
+xticklabels({'WT', 'Het', 'KO'})
+
+
+ylabel('Fraction proficient')
+
+ylim([20 100])
+
+%Do the ranksum/t-test
+fprintf(1, ['\n\nRanksum or t-test p values for percent correct (pCorr>=' num2str(proficient_pCorr) ') per mouse\n'])
+[output_data] = drgMutiRanksumorTtest(input_data);
+
+%Now plot the ratio of fraction of proficient divide by fraction of <65% 
+figNo = figNo +1;
+
+try
+    close(figNo)
+catch
+end
+hFig=figure(figNo);
+
+set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+hold on
+
+
+bar_offset = 0;
+edges=[0:0.05:3];
+rand_offset=0.8;
+id_ii=0;
+input_data=[];
+
+for grNo=1:max(group_no_per_mouse)
+    
+    these_ratio_per_corr_per_mouse_prof=ratio_per_corr_per_mouse_prof(group_no_per_mouse==grNo);
+    these_ratio_per_corr_per_mouse_prof=these_ratio_per_corr_per_mouse_prof((~isnan(these_ratio_per_corr_per_mouse_prof))&(~isinf(these_ratio_per_corr_per_mouse_prof)));
+    switch grNo
+        case 1
+            bar(bar_offset,mean(these_ratio_per_corr_per_mouse_prof),'g','LineWidth', 3,'EdgeColor','none')
+        case 2
+            bar(bar_offset,mean(these_ratio_per_corr_per_mouse_prof),'b','LineWidth', 3,'EdgeColor','none')
+        case 3
+            bar(bar_offset,mean(these_ratio_per_corr_per_mouse_prof),'y','LineWidth', 3,'EdgeColor','none')
+    end
+    
+     
+    %Violin plot
+    
+    [mean_out, CIout]=drgViolinPoint(these_ratio_per_corr_per_mouse_prof...
+        ,edges,bar_offset,rand_offset,'k','k',3);
+    
+    %                                 %Save data for  ranksum
+    
+    id_ii=id_ii+1;
+    input_data(id_ii).data=these_ratio_per_corr_per_mouse_prof;
+    input_data(id_ii).description=group_legend{grNo};
+
+    bar_offset = bar_offset + 1;
+    
+
+end
+
+title(['Ratio proficient divided by naive per mouse'])
+
+
+xticks([1 2 3])
+xticklabels({'WT', 'Het', 'KO'})
+
+
+ylabel('Percent correct')
+
+
+%Do the ranksum/t-test
+fprintf(1, ['\n\nRanksum or t-test p values for Ratio proficient divided by naive per mouse\n'])
+[output_data] = drgMutiRanksumorTtest(input_data);
+
+save([matBatchPathName matFileName(1:end-4) '_' num2str(proficient_pCorr) '_out.mat'],'mean_per_corr_per_mouse_prof','group_no_per_mouse','per_corr_per_group','no_trials_per_group','ratio_per_corr_per_mouse_prof')
+pffft=1;
