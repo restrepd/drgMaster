@@ -11,6 +11,9 @@ warning('off')
 close all
 clear all
 
+%If you want statistics to be done with the value for each odor pair for
+%each mouse make this variable 1
+mouse_op=1;
 
 bandwidth_names{1}='Theta';
 bandwidth_names{2}='Beta';
@@ -33,16 +36,27 @@ peak_label{2}='Peak';
 %Location of files
 % hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
 hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Coherence new/';
+% 
+% %Files
+% FileName{1}='CaMKIIacetocohe02012021_out.mat';
+% FileName{2}='CaMKIIethylbenacetocohe2262021_out.mat';
+% FileName{3}='CaMKIIPAEAcohe02082021_out.mat';
+% FileName{4}='CaMKIIEAPAcohe2262021_out.mat';
+% FileName{5}='CaMKIIpz1EAcohe02142021_out.mat';
+% FileName{6}='CaMKIIPZ1PAEAcohe202102021_out.mat';
+% FileName{7}='CaMKIIpzz1EAPAcohe02112021_out.mat';
+% FileName{8}='CaMKIIpzz1propylacecohe02092021_out.mat';
 
-%Files
-FileName{1}='CaMKIIacetocohe02012021_out.mat';
-FileName{2}='CaMKIIethylbenacetocohe2262021_out.mat';
-FileName{3}='CaMKIIPAEAcohe02082021_out.mat';
-FileName{4}='CaMKIIEAPAcohe2262021_out.mat';
-FileName{5}='CaMKIIpz1EAcohe02142021_out.mat';
-FileName{6}='CaMKIIPZ1PAEAcohe202102021_out.mat';
-FileName{7}='CaMKIIpzz1EAPAcohe02112021_out.mat';
-FileName{8}='CaMKIIpzz1propylacecohe02092021_out.mat';
+%Note: For the correlation calculation it is very important to list 
+%the odor pairs in the same order in the drgSummarizeCaMKIIbehavior
+FileName{1}='CaMKIIacetocohe02012021_out80.mat';
+FileName{2}='CaMKIIEAPAcohe2262021_out80.mat';
+FileName{3}='CaMKIIethylbenacetocohe2262021_out80.mat';
+FileName{4}='CaMKIIPAEAcohe02082021_out80.mat';
+FileName{5}='CaMKIIpz1EAcohe02142021_out80.mat';
+FileName{6}='CaMKIIPZ1PAEAcohe202102021_out80.mat';
+FileName{7}='CaMKIIpzz1EAPAcohe02112021_out80.mat';
+FileName{8}='CaMKIIpzz1propylacecohe02092021_out80.mat';
 
 
 %Load data
@@ -53,12 +67,14 @@ for ii=1:length(FileName)
     all_files(ii).handles_out=handles_out;
 end
 
+handles_out=[];
+
 figNo=0;
 
 %Now plot the average PRP for each electrode calculated per mouse
 %(including all sessions for each mouse)
-edges=[0:0.001:0.02];
-rand_offset=0.8;
+edges=[-0.3:0.02:0.3];
+rand_offset=0.5;
 
 
 for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -130,8 +146,13 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
                         end
                     end
                     if ~isempty(this_jj)
-                        ii_coh=ii_coh+1;
-                        these_coh(ii_coh)=all_files(ii).handles_out.dcoh_values(this_jj).dcoh;
+                        if mouse_op==1
+                            these_coh(ii_coh+1:ii_coh+length(all_files(ii).handles_out.dcoh_values(this_jj).dcoh_per_mouse))=all_files(ii).handles_out.dcoh_values(this_jj).dcoh_per_mouse;
+                            ii_coh=ii_coh+length(all_files(ii).handles_out.dcoh_values(this_jj).dcoh_per_mouse);
+                        else
+                            ii_coh=ii_coh+1;
+                            these_coh(ii_coh)=all_files(ii).handles_out.dcoh_values(this_jj).dcoh;
+                        end
                     end
                 end
                 
@@ -147,11 +168,11 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
                 
                 %Violin plot
                 
-                %[mean_out, CIout]=drgViolinPoint(these_coh,edges,bar_offset,rand_offset,'k','k',1);
-                CI = bootci(1000, {@mean, these_coh},'type','cper');
-                plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                plot(bar_offset*ones(1,length(these_coh)),these_coh,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-                
+                [mean_out, CIout]=drgViolinPoint(these_coh,edges,bar_offset,rand_offset,'k','k',3);
+%                 CI = bootci(1000, {@mean, these_coh},'type','cper');
+%                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%                 plot(bar_offset*ones(1,length(these_coh)),these_coh,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%                 
                 
                 %                                 %Save data for glm and ranksum
                 
@@ -174,7 +195,7 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
         
     end
     
-    title(['Average coherence for each electrode calculated per mouse for ' bandwidth_names{bwii}])
+    title(['Average coherence per odor pair per mouse for ' bandwidth_names{bwii}])
     
     
     %Annotations identifying groups
@@ -195,7 +216,7 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     
     %Perform the glm
-    fprintf(1, ['glm for average coherence for each electrode calculated per mouse for '  bandwidth_names{bwii} '\n'])
+    fprintf(1, ['glm for average coherence per odor pair per mouse for '  bandwidth_names{bwii} '\n'])
     
     fprintf(1, ['\n\nglm for PRP for' bandwidth_names{bwii} '\n'])
     tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.event',...
@@ -205,7 +226,7 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for average PRP for each electrode calculated per mouse for ' bandwidth_names{bwii} ' hippocampus\n'])
+    fprintf(1, ['\n\nRanksum or t-test p values per odor pair per mouse for ' bandwidth_names{bwii} ' hippocampus\n'])
     [output_data] = drgMutiRanksumorTtest(input_data);
     
     
@@ -213,13 +234,18 @@ end
 
 
 
-%Now plot the average AUC variance for each electrode calculated per mouse
+%Now plot the  AUC and save the data for the correlation code
 %(including all sessions for each mouse)
-edges=[0:100:3500];
-rand_offset=0.8;
+edges=[-0.1:0.02:0.5];
+rand_offset=0.5;
 
 
 for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
+    
+    handles_out.bwii(bwii).auROC=[];
+    handles_out.bwii(bwii).mouseNo=[];
+    handles_out.bwii(bwii).odor_pairNo=[];
+    handles_out.bwii(bwii).groupNo=[];
     
     glm_AUC=[];
     glm_ii=0;
@@ -284,8 +310,19 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
                     
                 end
                 if ~isempty(this_jj)
-                    ii_AUC=ii_AUC+1;
-                    these_AUC(ii_AUC)=all_files(ii).handles_out.auc_values(this_jj).auc_coh;
+                    if mouse_op==1
+                        these_AUC(ii_AUC+1:ii_AUC+length(all_files(ii).handles_out.auc_values(this_jj).auROC_per_mouse))=all_files(ii).handles_out.auc_values(this_jj).auROC_per_mouse;
+                        if per_ii==1
+                            handles_out.bwii(bwii).auROC=[handles_out.bwii(bwii).auROC all_files(ii).handles_out.auc_values(this_jj).auROC_per_mouse];
+                            handles_out.bwii(bwii).mouseNo=[handles_out.bwii(bwii).mouseNo all_files(ii).handles_out.auc_values(this_jj).mouseNo];
+                            handles_out.bwii(bwii).odor_pairNo=[handles_out.bwii(bwii).odor_pairNo ii*ones(1, length(all_files(ii).handles_out.auc_values(this_jj).mouseNo))];
+                            handles_out.bwii(bwii).groupNo=[handles_out.bwii(bwii).groupNo grNo*ones(1, length(all_files(ii).handles_out.auc_values(this_jj).mouseNo))];
+                        end
+                        ii_AUC=ii_AUC+length(all_files(ii).handles_out.auc_values(this_jj).auROC_per_mouse);
+                    else
+                        ii_AUC=ii_AUC+1;
+                        these_AUC(ii_AUC)=all_files(ii).handles_out.auc_values(this_jj).auc_coh;
+                    end
                 end
             end
             
@@ -301,11 +338,11 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             %Violin plot
             
-            %                 [mean_out, CIout]=drgViolinPoint(these_AUC,edges,bar_offset,rand_offset,'k','k',1);
-            CI = bootci(1000, {@mean, these_AUC},'type','cper');
-            plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            plot(bar_offset*ones(1,length(these_AUC)),these_AUC,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-            
+            [mean_out, CIout]=drgViolinPoint(these_AUC,edges,bar_offset,rand_offset,'k','k',3);
+            %             CI = bootci(1000, {@mean, these_AUC},'type','cper');
+            %             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+            %             plot(bar_offset*ones(1,length(these_AUC)),these_AUC,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            %
             %                                 %Save data for glm and ranksum
             
             glm_AUC.data(glm_ii+1:glm_ii+length(these_AUC))=these_AUC;
@@ -398,20 +435,23 @@ for evNo=1:2
             for ii=1:length(FileName)
                 this_jj=[];
                 for jj=1:all_files(ii).handles_out.dcohaf_ii
-                    
-                    if all_files(ii).handles_out.dcohaf_values(jj).bwii==bwii
-                        if all_files(ii).handles_out.dcohaf_values(jj).evNo==evNo
-                            if all_files(ii).handles_out.dcohaf_values(jj).per_ii==per_ii
-                                if all_files(ii).handles_out.dcohaf_values(jj).groupNo==grNo
-                                    this_jj=jj;
-                                end
+                    if all_files(ii).handles_out.dcohaf_values(jj).evNo==evNo
+                        if all_files(ii).handles_out.dcohaf_values(jj).per_ii==per_ii
+                            if all_files(ii).handles_out.dcohaf_values(jj).groupNo==grNo
+                                this_jj=jj;
                             end
                         end
                     end
                 end
-                if (~isempty(this_jj))&(~isempty(all_files(ii).handles_out.dcohaf_values(this_jj).dcohaf))
-                    ii_coh=ii_coh+1;
-                    these_deltaCxy_af(ii_coh,:)=all_files(ii).handles_out.dcohaf_values(this_jj).dcohaf;
+                if (~isempty(this_jj))&(~isempty(all_files(ii).handles_out.dcohaf_values(this_jj).dcoh_per_mouse))
+                    if mouse_op==1
+                        sz_dcoh=size(all_files(ii).handles_out.dcohaf_values(this_jj).dcoh_per_mouse);
+                        these_deltaCxy_af(ii_coh+1:ii_coh+sz_dcoh(1),1:sz_dcoh(2))=all_files(ii).handles_out.dcohaf_values(this_jj).dcoh_per_mouse;
+                        ii_coh=ii_coh+length(all_files(ii).handles_out.dcohaf_values(this_jj).dcoh_per_mouse);
+                    else
+                        ii_coh=ii_coh+1;
+                        these_deltaCxy_af(ii_coh,:)=all_files(ii).handles_out.dcohaf_values(this_jj).dcohaf;
+                    end
                 end
             end
             
@@ -442,7 +482,7 @@ for evNo=1:2
             end
         end
         
-        title(['delta coherence per mouse, per electrode during odor ' prof_naive_leg{per_ii} ' ' evTypeLabels{evNo}])
+        title(['delta coherence per odor pair per mouse ' prof_naive_leg{per_ii} ' ' evTypeLabels{evNo}])
         xlabel('Frequency (Hz')
         ylabel('delta coherence')
     end
@@ -463,6 +503,6 @@ for evNo=1:2
 end
 
 
-
+save([hippPathName 'drgSummaryBatchCohCaMKII_out.mat'],'handles_out')
 
 pffft=1;

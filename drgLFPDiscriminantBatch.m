@@ -42,8 +42,6 @@ function drgLFPDiscriminantBatch
 close all
 clear all
 
-tic
-
 percent_correct_ii=1;
 
 first_file=1;
@@ -116,12 +114,12 @@ for filNum=first_file:handles.drgbchoices.no_files
         jtPathName=handles.drgbchoices.PathName;
     end
     if exist([jtPathName jtFileName])==0
-        fprintf(1, ['Program will be terminated because file No %d, ' jtPathName jtFileName ' does not exist\n'],filNum);
+        fprintf(1, ['Program will be terminated because file No %d, ' jtFileName ' does not exist\n'],filNum);
         all_files_present=0;
     end
     
     if (exist( [jtPathName jtFileName(10:end-4) '.dg'])==0)&(exist( [jtPathName jtFileName(10:end-4) '.rhd'])==0)
-        fprintf(1, ['Program will be terminated because neither dg or rhd files for file No %d, ' [jtPathName jtFileName(10:end-4)] ' does not exist\n'],filNum);
+        fprintf(1, ['Program will be terminated because neither dg or rhd files for file No %d, ' [jtFileName(10:end-4)] ' does not exist\n'],filNum);
         all_files_present=0;
     end
     
@@ -331,8 +329,7 @@ if all_files_present==1
                         
 
                         parfor LFPNo=1:no_elect
-                            %                         for LFPNo=1:no_elect
-                            tic
+%                                                      for LFPNo=1:no_elect
                             handlespf=struct();
                             handlespf=handles;
                             
@@ -537,7 +534,6 @@ if all_files_present==1
                             if (sum(handlespf.drgbchoices.which_discriminant==10)>0)||(sum(handlespf.drgbchoices.which_discriminant==11)>0)...
                                     ||(sum(handlespf.drgbchoices.which_discriminant==12)>0)||(sum(handles.drgbchoices.which_discriminant==13)>0)...
                                     ||(sum(handles.drgbchoices.which_discriminant==14)>0)
-                                start_toc=toc;
                                 for PACii=1:handlespf.drgbchoices.no_PACpeaks
                                     this_peakLFPNo=handlespf.drgbchoices.which_electrodes(LFPNo);
                                     handlespf.peakLFPNo=this_peakLFPNo;
@@ -692,8 +688,7 @@ if all_files_present==1
                                     end
                                     
                                 end
-                                fprintf(1, 'For file no %d, LFP no %d number of trials = %d (out of %d), dt = %d\n',...
-                                    filNum,this_peakLFPNo,par_out(LFPNo).PAC(PACii).no_trials,handlespf.lastTrialNo, toc-start_toc);
+                                fprintf(1, 'For file no %d, LFP no %d the number of trials included in PAC is %d (out of %d)\n',filNum,this_peakLFPNo,par_out(LFPNo).PAC(PACii).no_trials,handlespf.lastTrialNo);
                                 
                             end
                             
@@ -829,7 +824,7 @@ if all_files_present==1
                         if (sum(handles.drgbchoices.which_discriminant==10)>0)||(sum(handles.drgbchoices.which_discriminant==11)>0)||...
                                 (sum(handles.drgbchoices.which_discriminant==12)>0)||(sum(handles.drgbchoices.which_discriminant==13)>0)...
                                 ||(sum(handles.drgbchoices.which_discriminant==14)>0)
-                            start_toc=toc;
+                            
                             %Save the peak and trough phase
                             for LFPNo=1:length(handles.drgbchoices.which_electrodes)
                                 for PACii=1:length(handles.drgbchoices.PACburstLowF)
@@ -961,11 +956,9 @@ if all_files_present==1
                                 
                                 
                             end
-                            fprintf(1, 'dt in 963 = %d\n',toc-start_toc)
                         end
                         
                         %Calculate licks
-                        start_toc=toc;
                         stamped_lick_ii=[];
                         these_stamped_lick_times=[];
                         no_trials_l=[];
@@ -974,7 +967,6 @@ if all_files_present==1
                         
                         [lick_freq,times_lick_freq,lick_traces,CIlickf,lick_trace_times,stamped_lick_ii...
                             ,these_stamped_lick_times,no_trials_l,trials_included_l, lick_threshold]=drgGetLicks(handles);
-                        fprintf(1, 'dt in drgGetLicks = %d\n',toc-start_toc)
                         
                         %Extract the data for powerLFP
                         if (sum(handles.drgbchoices.which_discriminant==1)>0)||(sum(handles.drgbchoices.which_discriminant==2)>0)...
@@ -1092,7 +1084,6 @@ if all_files_present==1
                         if (sum(handles.drgbchoices.which_discriminant==10)>0)||(sum(handles.drgbchoices.which_discriminant==11)>0)||...
                                 (sum(handles.drgbchoices.which_discriminant==12)>0)||(sum(handles.drgbchoices.which_discriminant==13)>0)...
                                 ||(sum(handles.drgbchoices.which_discriminant==14)>0)
-                            start_toc=toc;
                             t=t_pac;
                             
                             if (trials_match==0)||(par_out(1).PAC(1).no_trials~=length(stamped_lick_ii))
@@ -1185,7 +1176,6 @@ if all_files_present==1
                             end
                             
                             no_trialsPACwave=no_trialsPACwave+par_out(1).PAC(1).no_trials;
-                            fprintf(1, 'dt in 1187 = %d\n',toc-start_toc)
                         end
                         
                         
@@ -1256,12 +1246,11 @@ if all_files_present==1
                                         fprintf(1, ['Perceptron processed for mouse No %d ' handles.drgbchoices.group_no_names{groupNo} ' ' handles.drgbchoices.per_lab{percent_correct_ii} ' with %d trials\n'],mouseNo,N);
                                         
                                         parfor time_point=1:length(t)
-                                            tic
                                             %         for time_point=1:length(t)
                                             
                                             per_input=zeros(length(handles.drgbchoices.which_electrodes),N);
                                             per_input(:,:)=these_all_log_P_timecourse(:,:,time_point);
-                                            fprintf(1, '\nTime point %d: \n',time_point);
+                                            fprintf(1, '\nTime point %d: ',time_point);
                                             
                                             %Perceptron
                                             %leave one out
@@ -1366,7 +1355,6 @@ if all_files_present==1
                                         per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
                                         
                                         parfor time_point=1:length(t)
-                                            tic
                                             
                                             %LFP power per trial per electrode
                                             measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
@@ -1516,7 +1504,6 @@ if all_files_present==1
                                         
                                         %parfor no_elect=1:length(handles.drgbchoices.which_electrodes)
                                         parfor no_elect=1:length(handles.drgbchoices.which_electrodes)
-                                            tic
                                             
                                             par_out(no_elect).no_elect=length(handles.drgbchoices.which_electrodes);
                                             par_out(no_elect).no_timepoints=length(subt);
@@ -2075,7 +2062,6 @@ if all_files_present==1
                                         per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
                                         
                                         parfor time_point=1:length(t)
-                                            tic
                                             
                                             %LFP power per trial per electrode
                                             measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
@@ -2312,7 +2298,6 @@ if all_files_present==1
                                         per_targets=zeros(length(handles.drgbchoices.events_to_discriminate),N);
                                         
                                         parfor time_point=1:length(t)
-                                            tic
                                             
                                             %LFP power per trial per electrode
                                             measurements=zeros(N,length(handles.drgbchoices.which_electrodes));
@@ -2862,7 +2847,6 @@ if all_files_present==1
                                         
                                         %parfor no_elect=1:length(handles.drgbchoices.which_electrodes)
                                         parfor no_elect=1:length(handles.drgbchoices.which_electrodes)
-                                            tic
                                             
                                             par_out(no_elect).no_elect=length(handles.drgbchoices.which_electrodes);
                                             par_out(no_elect).no_timepoints=length(subt);
@@ -3110,7 +3094,6 @@ if all_files_present==1
                     %Calculate discriminant analysis for wavelet power calculated at different PAC phases
                     if (sum(handles.drgbchoices.which_discriminant==10)>0)||(sum(handles.drgbchoices.which_discriminant==11)>0)...
                             ||(sum(handles.drgbchoices.which_discriminant==12)>0)
-                        start_toc=toc;
                         t=t_pac;
                         for PACii=1:length(handles.drgbchoices.PACburstLowF)
                             
@@ -4010,8 +3993,7 @@ if all_files_present==1
                                         
                                         %parfor no_elect=1:length(handles.drgbchoices.which_electrodes)
                                         parfor no_elect=1:length(handles.drgbchoices.which_electrodes)
-                                            tic
-                                            start_toc=toc;
+                                            
                                             par_out(no_elect).no_elect=length(handles.drgbchoices.which_electrodes);
                                             par_out(no_elect).no_timepoints=length(subt);
                                             %Choose electrode combinations
@@ -4168,7 +4150,6 @@ if all_files_present==1
                                                     
                                                 end
                                             end
-                                            fprintf(1, 'dt 4171 = %d\n',toc-start_toc)
                                         end
                                         
                                         if PACii==3
@@ -4529,7 +4510,6 @@ if all_files_present==1
                                 end
                             end
                         end
-                        fprintf(1, 'dt in 4523 = %d\n',toc-start_toc)
                     end
                     
                     

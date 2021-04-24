@@ -11,8 +11,9 @@ function drgAnalyzeBatchBehavior
 close all
 clear all
 
-proficient_pCorr=85;
+proficient_pCorr=80;
 naive_pCorr=[45 65];
+proficient_window=40;
 [matFileName,matBatchPathName] = uigetfile({'*.mat'},'Select the .mat file with all the choices for analysis');
 load([matBatchPathName matFileName])
 
@@ -42,7 +43,7 @@ for filNum=1:length(handles.drgbchoices.FileName)
     hold on
     plot(trials(handles.drgb.file(filNum).encoding_trials),handles.drgb.file(filNum).perCorr(handles.drgb.file(filNum).encoding_trials),'o','MarkerEdgeColor',[0/255 158/255 115/255],'MarkerFaceColor',[0/255 158/255 115/255],'MarkerSize',2)
     plot(trials(handles.drgb.file(filNum).retrieval_trials),handles.drgb.file(filNum).perCorr(handles.drgb.file(filNum).retrieval_trials),'o','MarkerEdgeColor',[204/255 121/255 167/255],'MarkerFaceColor',[204/255 121/255 167/255],'MarkerSize',2)
-     
+    
     ylim([0 110]);
     try
         title([handles.drgbchoices.group_no_names{handles.drgbchoices.group_no(filNum)} ':' handles.drgbchoices.epoch_names{handles.drgbchoices.epoch(filNum)}])
@@ -77,39 +78,61 @@ group_legend{3}='KO';
 per_corr_per_group=zeros(3,20000);
 no_trials_per_group=zeros(1,3);
 
- 
+no_sessions_to_proficient_per_mouse=zeros(1,max(handles.drgbchoices.mouse_no));
+no_sessions_to_proficient_per_mouse_found=zeros(1,max(handles.drgbchoices.mouse_no));
 
 for filNum=1:length(handles.drgbchoices.FileName)
     
-    trials=1:length(handles.drgb.file(filNum).perCorr);
-    
-    %     per_corr_per_mouse(handles.drgbchoices.mouse_no(filNum),no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+1:no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))...
-    %         +sum(handles.drgb.file(filNum).retrieval_trials))=handles.drgb.file(filNum).perCorr(handles.drgb.file(filNum).retrieval_trials);
-    %
-    %     no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))=no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+sum(handles.drgb.file(filNum).retrieval_trials);
-    %     group_no_per_mouse(handles.drgbchoices.mouse_no(filNum))=handles.drgbchoices.group_no_per_mouse(filNum);
-    
-    per_corr_per_mouse(handles.drgbchoices.mouse_no(filNum),no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+1:no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))...
-        +length(handles.drgb.file(filNum).perCorr))=handles.drgb.file(filNum).perCorr;
-    
-    these_itis=handles.drgb.file(filNum).times(2:end)-handles.drgb.file(filNum).perCorr(1:end-1);
-    %Note that the first iti is the same as the second
-    these_itis=[these_itis(1) these_itis];
-    itis_per_mouse(handles.drgbchoices.mouse_no(filNum),no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+1:no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))...
-        +length(handles.drgb.file(filNum).perCorr))=these_itis;
-    
-    no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))=no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+length(handles.drgb.file(filNum).perCorr);
-    group_no_per_mouse(handles.drgbchoices.mouse_no(filNum))=handles.drgbchoices.group_no(filNum);
-
-    for pcc=0:length([0:5:100])-1 
-        per_corr_distribution_per_mouse(handles.drgbchoices.mouse_no(filNum),pcc+1)=per_corr_distribution_per_mouse(handles.drgbchoices.mouse_no(filNum),pcc+1)+sum(handles.drgb.file(filNum).perCorr==5*pcc);
+    if length(handles.drgb.file(filNum).perCorr)>1
+        %One of EAPA files has only one trial, exclude it
+        trials=1:length(handles.drgb.file(filNum).perCorr);
+        
+        %     per_corr_per_mouse(handles.drgbchoices.mouse_no(filNum),no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+1:no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))...
+        %         +sum(handles.drgb.file(filNum).retrieval_trials))=handles.drgb.file(filNum).perCorr(handles.drgb.file(filNum).retrieval_trials);
+        %
+        %     no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))=no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+sum(handles.drgb.file(filNum).retrieval_trials);
+        %     group_no_per_mouse(handles.drgbchoices.mouse_no(filNum))=handles.drgbchoices.group_no_per_mouse(filNum);
+        
+        per_corr_per_mouse(handles.drgbchoices.mouse_no(filNum),no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+1:no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))...
+            +length(handles.drgb.file(filNum).perCorr))=handles.drgb.file(filNum).perCorr;
+        
+        if (length(handles.drgb.file(filNum).perCorr)>=proficient_window)&(no_sessions_to_proficient_per_mouse_found(1,handles.drgbchoices.mouse_no(filNum))==0)
+            found_prof=0;
+            ii=0;
+            while (ii<length(handles.drgb.file(filNum).perCorr)-proficient_window)&(found_prof==0)
+                ii=ii+1;
+                if sum(handles.drgb.file(filNum).perCorr(ii:ii+proficient_window-1)>=proficient_pCorr)==proficient_window
+                    found_prof=1;
+                end
+            end
+            if found_prof==1
+                no_sessions_to_proficient_per_mouse(1,handles.drgbchoices.mouse_no(filNum))=no_sessions_to_proficient_per_mouse(1,handles.drgbchoices.mouse_no(filNum))+(ii/length(handles.drgb.file(filNum).perCorr));
+                no_sessions_to_proficient_per_mouse_found(1,handles.drgbchoices.mouse_no(filNum))=1;
+            else
+                no_sessions_to_proficient_per_mouse(1,handles.drgbchoices.mouse_no(filNum))=no_sessions_to_proficient_per_mouse(1,handles.drgbchoices.mouse_no(filNum))+1;
+            end
+        end
+        
+        
+        these_itis=handles.drgb.file(filNum).times(2:end)-handles.drgb.file(filNum).times(1:end-1);
+        %Note that the first iti is the same as the second
+        these_itis=[these_itis(1) these_itis];
+        itis_per_mouse(handles.drgbchoices.mouse_no(filNum),no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+1:no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))...
+            +length(handles.drgb.file(filNum).perCorr))=these_itis;
+        
+        
+        no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))=no_trials_per_mouse(handles.drgbchoices.mouse_no(filNum))+length(handles.drgb.file(filNum).perCorr);
+        group_no_per_mouse(handles.drgbchoices.mouse_no(filNum))=handles.drgbchoices.group_no(filNum);
+        
+        for pcc=0:length([0:5:100])-1
+            per_corr_distribution_per_mouse(handles.drgbchoices.mouse_no(filNum),pcc+1)=per_corr_distribution_per_mouse(handles.drgbchoices.mouse_no(filNum),pcc+1)+sum(handles.drgb.file(filNum).perCorr==5*pcc);
+        end
+        
+        per_corr_per_group(handles.drgbchoices.group_no(filNum),no_trials_per_group(handles.drgbchoices.group_no(filNum))+1:no_trials_per_group(handles.drgbchoices.group_no(filNum))...
+            +length(handles.drgb.file(filNum).perCorr))=handles.drgb.file(filNum).perCorr;
+        
+        no_trials_per_group(handles.drgbchoices.group_no(filNum))=no_trials_per_group(handles.drgbchoices.group_no(filNum))+length(handles.drgb.file(filNum).perCorr);
     end
-    
-    per_corr_per_group(handles.drgbchoices.group_no(filNum),no_trials_per_group(handles.drgbchoices.group_no(filNum))+1:no_trials_per_group(handles.drgbchoices.group_no(filNum))...
-        +length(handles.drgb.file(filNum).perCorr))=handles.drgb.file(filNum).perCorr;
-    
-    no_trials_per_group(handles.drgbchoices.group_no(filNum))=no_trials_per_group(handles.drgbchoices.group_no(filNum))+length(handles.drgb.file(filNum).perCorr);
-    
 end
 
 per_corr_per_mouse_per_mouse=zeros(1,max(handles.drgbchoices.mouse_no));
@@ -194,7 +217,7 @@ end
 title(['Percent correct for retreival'])
 
 
-xticks([1 2 3])
+xticks([0 1 2])
 xticklabels({'WT', 'Het', 'KO'})
 
 
@@ -223,7 +246,7 @@ hold on
 
 
 bar_offset = 0;
-edges=[proficient_pCorr:1:100];
+edges=[0:2:50];
 rand_offset=0.8;
 id_ii=0;
 input_data=[];
@@ -232,23 +255,23 @@ for grNo=1:max(group_no_per_mouse)
     
     switch grNo
         case 1
-            bar(bar_offset,mean(mean_iti_per_mouse_proficient(group_no_per_mouse==grNo)),'g','LineWidth', 3,'EdgeColor','none')
+            bar(bar_offset,mean(mean_iti_per_mouse_proficient((group_no_per_mouse==grNo)&(~isnan(mean_iti_per_mouse_proficient)))),'g','LineWidth', 3,'EdgeColor','none')
         case 2
-            bar(bar_offset,mean(mean_iti_per_mouse_proficient(group_no_per_mouse==grNo)),'b','LineWidth', 3,'EdgeColor','none')
+            bar(bar_offset,mean(mean_iti_per_mouse_proficient((group_no_per_mouse==grNo)&(~isnan(mean_iti_per_mouse_proficient)))),'b','LineWidth', 3,'EdgeColor','none')
         case 3
-            bar(bar_offset,mean(mean_iti_per_mouse_proficient(group_no_per_mouse==grNo)),'y','LineWidth', 3,'EdgeColor','none')
+            bar(bar_offset,mean(mean_iti_per_mouse_proficient((group_no_per_mouse==grNo)&(~isnan(mean_iti_per_mouse_proficient)))),'y','LineWidth', 3,'EdgeColor','none')
     end
     
      
     %Violin plot
     
-    [mean_out, CIout]=drgViolinPoint(mean_iti_per_mouse_proficient(group_no_per_mouse==grNo)...
+    [mean_out, CIout]=drgViolinPoint(mean_iti_per_mouse_proficient((group_no_per_mouse==grNo)&(~isnan(mean_iti_per_mouse_proficient)))...
         ,edges,bar_offset,rand_offset,'k','k',1);
     
     %                                 %Save data for  ranksum
     
     id_ii=id_ii+1;
-    input_data(id_ii).data=mean_iti_per_mouse_proficient(group_no_per_mouse==grNo);
+    input_data(id_ii).data=mean_iti_per_mouse_proficient((group_no_per_mouse==grNo)&(~isnan(mean_iti_per_mouse_proficient)));
     input_data(id_ii).description=group_legend{grNo};
     
     
@@ -265,7 +288,7 @@ end
 title(['Mean ITI proficient per mouse'])
 
 
-xticks([1 2 3])
+xticks([0 1 2])
 xticklabels({'WT', 'Het', 'KO'})
 
 
@@ -294,7 +317,7 @@ hold on
 
 
 bar_offset = 0;
-edges=[proficient_pCorr:1:100];
+edges=[0:2:50];
 rand_offset=0.8;
 id_ii=0;
 input_data=[];
@@ -336,7 +359,7 @@ end
 title(['Mean ITI per mouse'])
 
 
-xticks([1 2 3])
+xticks([0 1 2])
 xticklabels({'WT', 'Het', 'KO'})
 
 
@@ -525,7 +548,7 @@ end
 title(['Percent correct for retreival (pCorr>' num2str(proficient_pCorr)])
 
 
-xticks([1 2 3])
+xticks([0 1 2])
 xticklabels({'WT', 'Het', 'KO'})
 
 
@@ -593,7 +616,7 @@ end
 title(['Percent correct for retreival (pCorr>=' num2str(proficient_pCorr) ') per mouse'])
 
 
-xticks([1 2 3])
+xticks([0 1 2])
 xticklabels({'WT', 'Het', 'KO'})
 
 
@@ -661,7 +684,7 @@ end
 title(['Percent correct for retreival (pCorr>=' num2str(proficient_pCorr) ') per mouse'])
 
 
-xticks([1 2 3])
+xticks([0 1 2])
 xticklabels({'WT', 'Het', 'KO'})
 
 
@@ -725,7 +748,7 @@ end
 title(['Ratio proficient divided by naive per mouse'])
 
 
-xticks([1 2 3])
+xticks([0 1 2])
 xticklabels({'WT', 'Het', 'KO'})
 
 
@@ -736,5 +759,69 @@ ylabel('Percent correct')
 fprintf(1, ['\n\nRanksum or t-test p values for Ratio proficient divided by naive per mouse\n'])
 [output_data] = drgMutiRanksumorTtest(input_data);
 
-save([matBatchPathName matFileName(1:end-4) '_' num2str(proficient_pCorr) '_out.mat'],'mean_per_corr_per_mouse_prof','group_no_per_mouse','per_corr_per_group','no_trials_per_group','ratio_per_corr_per_mouse_prof')
+%Now plot the number of sessions to proficient 
+figNo = figNo +1;
+
+try
+    close(figNo)
+catch
+end
+hFig=figure(figNo);
+
+set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+hold on
+
+
+bar_offset = 0;
+edges=[0:0.05:4];
+rand_offset=0.8;
+id_ii=0;
+input_data=[];
+
+for grNo=1:max(group_no_per_mouse)
+    
+    these_sessions_to_proficient=no_sessions_to_proficient_per_mouse((group_no_per_mouse==grNo)&(no_sessions_to_proficient_per_mouse_found==1));
+    
+    switch grNo
+        case 1
+            bar(bar_offset,mean(these_sessions_to_proficient),'g','LineWidth', 3,'EdgeColor','none')
+        case 2
+            bar(bar_offset,mean(these_sessions_to_proficient),'b','LineWidth', 3,'EdgeColor','none')
+        case 3
+            bar(bar_offset,mean(these_sessions_to_proficient),'y','LineWidth', 3,'EdgeColor','none')
+    end
+    
+     
+    %Violin plot
+    
+    [mean_out, CIout]=drgViolinPoint(these_sessions_to_proficient...
+        ,edges,bar_offset,rand_offset,'k','k',3);
+    
+    %                                 %Save data for  ranksum
+    
+    id_ii=id_ii+1;
+    input_data(id_ii).data=these_sessions_to_proficient;
+    input_data(id_ii).description=group_legend{grNo};
+
+    bar_offset = bar_offset + 1;
+    
+
+end
+
+title(['Number of sessions to proficient'])
+
+
+xticks([0 1 2])
+xticklabels({'WT', 'Het', 'KO'})
+
+
+ylabel('Sessions')
+
+
+%Do the ranksum/t-test
+fprintf(1, ['\n\nRanksum or t-test p values for sessions to proficient\n'])
+[output_data] = drgMutiRanksumorTtest(input_data);
+
+save([matBatchPathName matFileName(1:end-4) '_' num2str(proficient_pCorr) '_out.mat'],'mean_per_corr_per_mouse_prof','group_no_per_mouse','per_corr_per_group','no_trials_per_group','ratio_per_corr_per_mouse_prof',...
+    'no_sessions_to_proficient_per_mouse','no_sessions_to_proficient_per_mouse_found','mean_iti_per_mouse','mean_iti_per_mouse_proficient')
 pffft=1;

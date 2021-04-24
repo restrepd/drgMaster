@@ -8841,8 +8841,18 @@ switch which_display
                             handles_out.mi_values(handles_out.mi_ii).groupNo=grNo;
                             handles_out.mi_values(handles_out.mi_ii).MI=mean(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)));
                             
-                            %Violin plot
+                            %Save the mean per mouse
+                            these_mice=mean_MI_mouseNo_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo));
+                            handles_out.mi_values(handles_out.mi_ii).noMice=0;
+                            for iiMice=min(these_mice):max(these_mice)
+                                if sum(these_mice==iiMice)>0
+                                    handles_out.mi_values(handles_out.mi_ii).noMice=handles_out.mi_values(handles_out.mi_ii).noMice+1;
+                                    handles_out.mi_values(handles_out.mi_ii).mouseNo(handles_out.mi_values(handles_out.mi_ii).noMice)=iiMice;
+                                    handles_out.mi_values(handles_out.mi_ii).MI_per_mouse(handles_out.mi_values(handles_out.mi_ii).noMice)=mean(mean_MI_per_mouse((mean_MI_mouseNo_per_mouse==iiMice)&(~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)));
+                                end
+                            end
                             
+                            %Violin plot
                             [mean_out, CIout]=drgViolinPoint(mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo))...
                                 ,edges,bar_offset,rand_offset,'k','k',1);
                             
@@ -10530,7 +10540,18 @@ switch which_display
                             handles_out.PA_values(handles_out.PA_ii).evNo=evNo;
                             handles_out.PA_values(handles_out.PA_ii).per_ii=per_ii;
                             handles_out.PA_values(handles_out.PA_ii).groupNo=grNo;
-                            handles_out.PA_values(handles_out.PA_ii).MI=mean(mean_peakAngleVar_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)));
+                            handles_out.PA_values(handles_out.PA_ii).PA_var=mean(mean_peakAngleVar_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)));
+                            
+                              %Save the mean per mouse
+                            these_mice=mean_MI_mouseNo_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo));
+                            handles_out.PA_values(handles_out.PA_ii).noMice=0;
+                            for iiMice=min(these_mice):max(these_mice)
+                                if sum(these_mice==iiMice)>0
+                                    handles_out.PA_values(handles_out.PA_ii).noMice=handles_out.PA_values(handles_out.PA_ii).noMice+1;
+                                    handles_out.PA_values(handles_out.PA_ii).mouseNo(handles_out.PA_values(handles_out.PA_ii).noMice)=iiMice;
+                                    handles_out.PA_values(handles_out.PA_ii).PA_var_per_mouse(handles_out.PA_values(handles_out.PA_ii).noMice)=mean(mean_peakAngleVar_per_mouse((mean_MI_mouseNo_per_mouse==iiMice)&(~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo)));
+                                end
+                            end
                             
                             x_PAvar=mean_MI_per_mouse((~isnan(mean_MI_per_mouse))&(mean_MI_perii_per_mouse==per_ii)&(mean_MI_pacii_per_mouse==pacii)&(mean_MI_evNo_per_mouse==evNo)&(mean_MI_group_no_per_mouse==grNo));
                             glm_PAvar.data(glm_ii+1:glm_ii+length(x_PAvar))=x_PAvar;
@@ -12847,7 +12868,7 @@ switch which_display
                     CI(:,1)= this_mean_dbWB'-CI(:,1);
                     CI(:,2)=CI(:,2)- this_mean_dbWB';
                     
-                   
+                    
                     
                     if evNo==1
                         if per_ii==1
@@ -12890,7 +12911,7 @@ switch which_display
             ylabel('dB')
             
         end
-         
+        
         save([handles.PathName handles.drgb.outFileName(1:end-4) handles_pars.output_suffix],'handles_out')
         
         pffft=1;
@@ -13121,15 +13142,15 @@ switch which_display
                                         deltaCxy_group_no_per_mouse(deltaCxy_No_per_mouse)=group_no_per_mouse(mouseNo);
                                     end
                                 end
-                                    if theseEvNos_af(evNo).noEv>0
-                                        deltaCxy_af_No_per_mouse=deltaCxy_af_No_per_mouse+1;
-                                        deltaCxy_af_per_mouse(deltaCxy_af_No_per_mouse,:)=mean(theseEvNos_af(evNo).this_deltaCxy_Ev,1);
-                                        deltaCxy_af_perii_per_mouse(deltaCxy_af_No_per_mouse)=per_ii;
-                                        deltaCxy_af_evNo_per_mouse(deltaCxy_af_No_per_mouse)=evNo;
-                                        deltaCxy_af_mouseNo_per_mouse(deltaCxy_af_No_per_mouse)=mouseNo;
-                                        deltaCxy_af_elec_pair_per_mouse(deltaCxy_af_No_per_mouse)=elec_pair;
-                                        deltaCxy_af_group_no_per_mouse(deltaCxy_af_No_per_mouse)=group_no_per_mouse(mouseNo);
-                                    end
+                                if theseEvNos_af(evNo).noEv>0
+                                    deltaCxy_af_No_per_mouse=deltaCxy_af_No_per_mouse+1;
+                                    deltaCxy_af_per_mouse(deltaCxy_af_No_per_mouse,:)=mean(theseEvNos_af(evNo).this_deltaCxy_Ev,1);
+                                    deltaCxy_af_perii_per_mouse(deltaCxy_af_No_per_mouse)=per_ii;
+                                    deltaCxy_af_evNo_per_mouse(deltaCxy_af_No_per_mouse)=evNo;
+                                    deltaCxy_af_mouseNo_per_mouse(deltaCxy_af_No_per_mouse)=mouseNo;
+                                    deltaCxy_af_elec_pair_per_mouse(deltaCxy_af_No_per_mouse)=elec_pair;
+                                    deltaCxy_af_group_no_per_mouse(deltaCxy_af_No_per_mouse)=group_no_per_mouse(mouseNo);
+                                end
                                 
                             end
                             
@@ -13340,7 +13361,18 @@ switch which_display
                             handles_out.dcoh_values(handles_out.dcoh_ii).per_ii=per_ii;
                             handles_out.dcoh_values(handles_out.dcoh_ii).groupNo=grNo;
                             handles_out.dcoh_values(handles_out.dcoh_ii).dcoh=mean(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
-                                                
+                            
+                            %Save the mean per mouse
+                            these_mice=deltaCxy_mouseNo_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
+                            handles_out.dcoh_values(handles_out.dcoh_ii).noMice=0;
+                            for iiMice=min(these_mice):max(these_mice)
+                                if sum(these_mice==iiMice)>0
+                                    handles_out.dcoh_values(handles_out.dcoh_ii).noMice=handles_out.dcoh_values(handles_out.dcoh_ii).noMice+1;
+                                    handles_out.dcoh_values(handles_out.dcoh_ii).mouseNo(handles_out.dcoh_values(handles_out.dcoh_ii).noMice)=iiMice;
+                                    handles_out.dcoh_values(handles_out.dcoh_ii).dcoh_per_mouse(handles_out.dcoh_values(handles_out.dcoh_ii).noMice)=mean( deltaCxy_per_mouse((deltaCxy_mouseNo_per_mouse==iiMice)&(deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)) );
+                                end
+                            end
+                            
                             %Violin plot
                             
                             [mean_out, CIout]=drgViolinPoint(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))...
@@ -13576,6 +13608,17 @@ switch which_display
                                 handles_out.dcoh_values(handles_out.dcoh_ii).dcoh=mean(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
                                 handles_out.dcoh_values(handles_out.dcoh_ii).all_dcoh=deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
                                 
+                                %Save the mean per mouse
+                                these_mice=deltaCxy_mouseNo_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
+                                handles_out.dcoh_values(handles_out.dcoh_ii).noMice=0;
+                                for iiMice=min(these_mice):max(these_mice)
+                                    if sum(these_mice==iiMice)>0
+                                        handles_out.dcoh_values(handles_out.dcoh_ii).noMice=handles_out.dcoh_values(handles_out.dcoh_ii).noMice+1;
+                                        handles_out.dcoh_values(handles_out.dcoh_ii).mouseNo(handles_out.dcoh_values(handles_out.dcoh_ii).noMice)=iiMice;
+                                        handles_out.dcoh_values(handles_out.dcoh_ii).dcoh_per_mouse(handles_out.dcoh_values(handles_out.dcoh_ii).noMice)=mean(deltaCxy_per_mouse((deltaCxy_mouseNo_per_mouse==iiMice)&(deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
+                                    end
+                                end
+                                
                                 %Violin plot
                                 
                                 [mean_out, CIout]=drgViolinPoint(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))...
@@ -13742,16 +13785,29 @@ switch which_display
                                     [hlCR, hpCR] = boundedline(frequency',mean_deltaCxy', CI, 'y');
                             end
                             
+                            %Save the coherence spectrum
                             handles_out.dcohaf_ii=handles_out.dcohaf_ii+1;
-                            handles_out.dcohaf_values(handles_out.dcohaf_ii).bwii=bwii;
                             handles_out.dcohaf_values(handles_out.dcohaf_ii).evNo=evNo;
                             handles_out.dcohaf_values(handles_out.dcohaf_ii).per_ii=per_ii;
                             handles_out.dcohaf_values(handles_out.dcohaf_ii).groupNo=grNo;
                             handles_out.dcohaf_values(handles_out.dcohaf_ii).dcohaf=mean_deltaCxy;
-                            handles_out.frequency=frequency; 
+                            handles_out.frequency=frequency;
                             
-                            
+                            %Save the mean per mouse
+                            these_mice=deltaCxy_af_mouseNo_per_mouse((deltaCxy_af_perii_per_mouse==per_ii)&(deltaCxy_af_evNo_per_mouse==evNo)&(deltaCxy_af_group_no_per_mouse==grNo));
+                            these_deltaCxy_af_per_mouse=deltaCxy_af_per_mouse((deltaCxy_af_perii_per_mouse==per_ii)&(deltaCxy_af_evNo_per_mouse==evNo)&(deltaCxy_af_group_no_per_mouse==grNo),:);
+                            handles_out.dcohaf_values(handles_out.dcohaf_ii).noMice=0;
+                            handles_out.dcohaf_values(handles_out.dcohaf_ii).dcoh_per_mouse=[];
+                            for iiMice=min(these_mice):max(these_mice)
+                                if sum(these_mice==iiMice)>0
+                                    handles_out.dcohaf_values(handles_out.dcohaf_ii).noMice=handles_out.dcohaf_values(handles_out.dcohaf_ii).noMice+1;
+                                    handles_out.dcohaf_values(handles_out.dcohaf_ii).mouseNo(handles_out.dcohaf_values(handles_out.dcohaf_ii).noMice)=iiMice;
+                                    handles_out.dcohaf_values(handles_out.dcohaf_ii).dcoh_per_mouse(handles_out.dcohaf_values(handles_out.dcohaf_ii).noMice,:)=mean(these_deltaCxy_af_per_mouse((these_mice==iiMice),:));
+                                end
+                            end
                         end
+                        
+                        
                     end
                     
                     title(['delta coherence per mouse, per electrode during odor ' prof_naive_leg{per_ii} ' ' evTypeLabels{evNo}])
@@ -13766,13 +13822,13 @@ switch which_display
             minyl=minlP-0.1*(maxlP-minlP);
             
             fNo=figureNo-4;
-             for evNo=1:length(eventType)
-                for per_ii=2:-1:1      
+            for evNo=1:length(eventType)
+                for per_ii=2:-1:1
                     fNo=fNo+1;
                     hFig=figure(fNo);
                     ylim([minyl maxyl])
                 end
-             end
+            end
             
             
             %         %Now plot the average per mouse LFP power
@@ -14375,6 +14431,9 @@ switch which_display
             %Display auROC
             edges=[-0.3:0.05:0.5];
             rand_offset=0.8;
+            coh_auROC_per_mouse=[];
+            coh_group_no_per_mouse=[];
+            
             for bwii=1:no_bandwidths    %for different bandwidths
                 
                 ii_roc=0;
@@ -14420,14 +14479,24 @@ switch which_display
                             
                             handles_out.auc_ii=handles_out.auc_ii+1;
                             handles_out.auc_values(handles_out.auc_ii).pacii=bwii;
-                            handles_out.auc_values(handles_out.auc_ii).evNo=evNo;
                             handles_out.auc_values(handles_out.auc_ii).per_ii=per_ii;
                             handles_out.auc_values(handles_out.auc_ii).groupNo=grNo;
                             handles_out.auc_values(handles_out.auc_ii).auc_coh=mean(auROC((ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo)));
                             
+                            %Save the mean per mouse
+                            these_mice=ROCmouse((ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo));
+                            handles_out.auc_values(handles_out.auc_ii).noMice=0;
+                            for iiMice=min(these_mice):max(these_mice)
+                                if sum(these_mice==iiMice)>0
+                                    handles_out.auc_values(handles_out.auc_ii).noMice=handles_out.auc_values(handles_out.auc_ii).noMice+1;
+                                    handles_out.auc_values(handles_out.auc_ii).mouseNo(handles_out.auc_values(handles_out.auc_ii).noMice)=iiMice;
+                                    handles_out.auc_values(handles_out.auc_ii).auROC_per_mouse(handles_out.auc_values(handles_out.auc_ii).noMice)=mean(auROC((ROCmouse==iiMice)&(ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo)));
+                                    coh_auROC_per_mouse(iiMice,bwii,per_ii)=mean(auROC((ROCmouse==iiMice)&(ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo)));
+                                    coh_group_no_per_mouse(iiMice)=grNo;
+                                end
+                            end
                             
                             %Violin plot
-                            
                             [mean_out, CIout]=drgViolinPoint(auROC((ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo))...
                                 ,edges,bar_offset,rand_offset,'k','k',3);
                             
@@ -14480,9 +14549,8 @@ switch which_display
             end
             
         end
-        pffft=1;
-         
-        save([handles.PathName handles.drgb.outFileName(1:end-4) handles_pars.output_suffix],'handles_out')
+        
+        save([handles.PathName handles.drgb.outFileName(1:end-4) handles_pars.output_suffix],'handles_out','coh_auROC_per_mouse','coh_group_no_per_mouse')
         
     case 22
         % Multiclass ROC analysis of LFP power differences for naive and proficient
@@ -17189,6 +17257,16 @@ switch which_display
                             handles_out.PRP_values(handles_out.PRP_ii).peak=1;
                             handles_out.PRP_values(handles_out.PRP_ii).PRP=mean(mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)));
                             
+                            %Save the mean per mouse
+                            these_mice=mean_PACpower_mouseNo_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo));
+                            handles_out.PRP_values(handles_out.PRP_ii).noMice=0;
+                            for iiMice=min(these_mice):max(these_mice)
+                                if sum(these_mice==iiMice)>0
+                                    handles_out.PRP_values(handles_out.PRP_ii).noMice=handles_out.PRP_values(handles_out.PRP_ii).noMice+1;
+                                    handles_out.PRP_values(handles_out.PRP_ii).mouseNo(handles_out.PRP_values(handles_out.PRP_ii).noMice)=iiMice;
+                                    handles_out.PRP_values(handles_out.PRP_ii).PRP_per_mouse(handles_out.PRP_values(handles_out.PRP_ii).noMice)=mean(mean_peakPACpower_per_mouse((mean_PACpower_mouseNo_per_mouse==iiMice)&(~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)));
+                                end
+                            end
                             
                             %Violin plot
                             [mean_out, CIout]=drgViolinPoint(mean_peakPACpower_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))...
@@ -17487,6 +17565,17 @@ switch which_display
                             handles_out.PRP_values(handles_out.PRP_ii).groupNo=grNo;
                             handles_out.PRP_values(handles_out.PRP_ii).peak=0;
                             handles_out.PRP_values(handles_out.PRP_ii).PRP=mean(mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)));
+                            
+                             %Save the mean per mouse
+                            these_mice=mean_PACpower_mouseNo_per_mouse((~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo));
+                            handles_out.PRP_values(handles_out.PRP_ii).noMice=0;
+                            for iiMice=min(these_mice):max(these_mice)
+                                if sum(these_mice==iiMice)>0
+                                    handles_out.PRP_values(handles_out.PRP_ii).noMice=handles_out.PRP_values(handles_out.PRP_ii).noMice+1;
+                                    handles_out.PRP_values(handles_out.PRP_ii).mouseNo(handles_out.PRP_values(handles_out.PRP_ii).noMice)=iiMice;
+                                    handles_out.PRP_values(handles_out.PRP_ii).PRP_per_mouse(handles_out.PRP_values(handles_out.PRP_ii).noMice)=mean(mean_troughPACpower_per_mouse((mean_PACpower_mouseNo_per_mouse==iiMice)&(~isnan(mean_peakPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo)));
+                                end
+                            end
                             
                             %Violin plot
                             [mean_out, CIout]=drgViolinPoint(mean_troughPACpower_per_mouse((~isnan(mean_troughPACpower_per_mouse))&(mean_PACpower_perii_per_mouse==per_ii)&(mean_PACpower_pacii_per_mouse==pacii)&(mean_PACpower_evNo_per_mouse==evNo)&(mean_PACpower_group_no_per_mouse==grNo))...
