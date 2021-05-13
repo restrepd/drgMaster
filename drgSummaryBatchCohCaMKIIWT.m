@@ -92,11 +92,7 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
     end
     hFig=figure(figNo);
     
-    %             try
-    %                 close(figNo+pacii)
-    %             catch
-    %             end
-    %             hFig=figure(figNo+pacii);
+    ax=gca;ax.LineWidth=3;
     
     set(hFig, 'units','normalized','position',[.1 .5 .3 .4])
     hold on
@@ -116,7 +112,7 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             bar_offset = bar_offset + 1;
             
-            %Get these MI values
+            %Get these coherence values
             these_coh=[];
             ii_coh=0;
             for ii=1:length(FileName)
@@ -399,9 +395,10 @@ catch
 end
 hFig=figure(figNo);
 
-set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
+set(hFig, 'units','normalized','position',[.1 .5 .3 .4])
 
-set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+
+set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 3)
 hold on
 
 for evNo=1:2
@@ -412,7 +409,7 @@ for evNo=1:2
 
         
         
-        grNo=1
+        grNo=1;
         
         %Get the deltaCxy_af
         %Get these MI values
@@ -433,7 +430,7 @@ for evNo=1:2
                 if mouse_op==1
                     sz_dcoh=size(all_files(ii).handles_out.dcohaf_values(this_jj).dcoh_per_mouse);
                     these_deltaCxy_af(ii_coh+1:ii_coh+sz_dcoh(1),1:sz_dcoh(2))=all_files(ii).handles_out.dcohaf_values(this_jj).dcoh_per_mouse;
-                    ii_coh=ii_coh+length(all_files(ii).handles_out.dcohaf_values(this_jj).dcoh_per_mouse);
+                    ii_coh=ii_coh+sz_dcoh(1);
                 else
                     ii_coh=ii_coh+1;
                     these_deltaCxy_af(ii_coh,:)=all_files(ii).handles_out.dcohaf_values(this_jj).dcohaf;
@@ -443,7 +440,7 @@ for evNo=1:2
         
         
         
-        
+         
         
         mean_deltaCxy=[];
         mean_deltaCxy=mean(these_deltaCxy_af,1);
@@ -460,7 +457,7 @@ for evNo=1:2
         
         if evNo==2
             if per_ii==1
-                %S+ Proficient
+                %S- Proficient
                 [hlCR, hpCR] = boundedline(frequency',mean_deltaCxy', CI, 'cmap',[158/255 31/255 99/255]);
                 %                     bar(bar_offset,mean(these_coh),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
             else
@@ -470,11 +467,11 @@ for evNo=1:2
             end
         else
             if per_ii==1
-                %S- Proficient
+                %S+ Proficient
                 [hlCR, hpCR] = boundedline(frequency',mean_deltaCxy', CI, 'cmap',[0 114/255 178/255]);
                 %                     bar(bar_offset,mean(these_coh),'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
             else
-                %S- naive
+                %S+ naive
                 [hlCR, hpCR] = boundedline(frequency',mean_deltaCxy', CI, 'cmap',[80/255 194/255 255/255]);
                 %                     bar(bar_offset,mean(these_coh),'LineWidth', 3,'EdgeColor','none','FaceColor',[80/255 194/255 255/255])
             end

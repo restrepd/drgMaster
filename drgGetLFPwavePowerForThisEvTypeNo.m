@@ -86,8 +86,11 @@ for trNo=firstTr:lastTr
             end
             
             
-            
-            [LFP, trialNo, can_read] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
+            %Note: Up to 5/3/2021 this used handles.peakLFPNo as the input. 
+            %On 5/3/2021 I changed it to handles.burstLFPNo
+            %This should
+            %not make any difference for drgRunBatchLFPpar and 
+            [LFP, trialNo, can_read] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, min_t, max_t);
             
             
             if (can_read==1)

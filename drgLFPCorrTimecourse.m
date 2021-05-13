@@ -4,7 +4,11 @@ if ~isfield(handles,'randpermLFP')
     handles.randpermLFP=0;
 end
 
-%Generates a trial per trial phase histogram
+%Generates a trial per trial lag histogram
+%following the procedure of Adhikari et al. 2010
+%https://doi.org/10.1016/j.jneumeth.2010.06.019
+%Figures 4F,G
+
 odorOn=2;
  
 sessionNo=handles.sessionNo;

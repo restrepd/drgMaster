@@ -30,19 +30,34 @@ evTypeLabels{2}='S-';
 peak_label{1}='Trough';
 peak_label{2}='Peak';
 
+% %Location of files
+% % hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
+% hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PLV/';
+% 
+% %Files
+% FileName{1}='CaMKIIPLVCamKIAPEB0301202_out.mat';
+% FileName{2}='CaMKIIEBAPPLV02282021_out.mat';
+% FileName{3}='CaMKIIPAEAPLV03062021_out.mat';
+% FileName{4}='CaMKIIEAPAPLV03112021_out.mat';
+% FileName{5}='CaMKIIpz1EAPAPLV03052021_out.mat';
+% FileName{6}='CaMKIIpz1PAEAPLV03042021_out.mat';
+% FileName{7}='CaMKIIpzz1EAPAPLV02262021_out.mat';
+% FileName{8}='CaMKIIpzz1propylacecPLV02222021_out.mat';
+
+
 %Location of files
 % hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
-hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PLV/';
+hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PLV80/';
 
 %Files
-FileName{1}='CaMKIIPLVCamKIAPEB0301202_out.mat';
-FileName{2}='CaMKIIEBAPPLV02282021_out.mat';
-FileName{3}='CaMKIIPAEAPLV03062021_out.mat';
-FileName{4}='CaMKIIEAPAPLV03112021_out.mat';
-FileName{5}='CaMKIIpz1EAPAPLV03052021_out.mat';
-FileName{6}='CaMKIIpz1PAEAPLV03042021_out.mat';
-FileName{7}='CaMKIIpzz1EAPAPLV02262021_out.mat';
-FileName{8}='CaMKIIpzz1propylacecPLV02222021_out.mat';
+FileName{1}='CaMKIIPLVCamKIAPEB8005012021_out.mat';
+FileName{2}='CaMKIIEBAPPLV04292021_out.mat';
+FileName{3}='CaMKIIPAEAPLV8004282021_out.mat';
+FileName{4}='CaMKIIEAPAPLV8004292021_out.mat';
+FileName{5}='CaMKIIpz1EAPAPLV8004272021_out.mat';
+FileName{6}='CaMKIIpz1PAEAPLV8004262021_out.mat';
+FileName{7}='CaMKII80pzz1EAPAPLV04242021_out.mat';
+FileName{8}='CaMKIIpzz1PAEA80PLV04242021_out.mat';
 
 
 %Load data
@@ -65,7 +80,7 @@ edges=[-0.6:0.05:0.6];
 rand_offset=0.7;
 
 
-for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
+for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     glm_PLV=[];
     glm_ii=0;
@@ -82,11 +97,8 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
     end
     hFig=figure(figNo);
     
-    %             try
-    %                 close(figNo+pacii)
-    %             catch
-    %             end
-    %             hFig=figure(figNo+pacii);
+     ax=gca;ax.LineWidth=3;
+    
     
     set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
     hold on
@@ -194,7 +206,7 @@ end
 
 
 %Now plot the average delta phase calculated per odor pair
-for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
+for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     glm_delta_phase=[];
     glm_ii=0;
@@ -211,11 +223,8 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
     end
     hFig=figure(figNo);
     
-    %             try
-    %                 close(figNo+pacii)
-    %             catch
-    %             end
-    %             hFig=figure(figNo+pacii);
+     ax=gca;ax.LineWidth=3;
+    
     
     set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
     hold on
@@ -323,7 +332,7 @@ end
 
 %Now plot the per odor pair/mouse in violin plots
 
-for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
+for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     glm_PLV=[];
     glm_ii=0;
@@ -340,11 +349,8 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
     end
     hFig=figure(figNo);
     
-    %             try
-    %                 close(figNo+pacii)
-    %             catch
-    %             end
-    %             hFig=figure(figNo+pacii);
+     ax=gca;ax.LineWidth=3;
+    
     
     set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
     hold on
@@ -432,7 +438,7 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
     xticklabels({'nS+', 'pS+','nS-', 'pS-'})
     
     ylabel('delta PLV')
-    
+    ylim([-0.6 0.6])
     
     %Perform the glm
     fprintf(1, ['glm for average delta PLV for each odor pair/mouse for '  bandwidth_names{bwii} '\n'])
@@ -457,8 +463,9 @@ end
 
 edges=[-3:0.2:3];
 rand_offset=0.7;
+all_theta_phases=[];
 
-for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
+for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     glm_delta_phase=[];
     glm_ii=0;
@@ -475,11 +482,8 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
     end
     hFig=figure(figNo);
     
-    %             try
-    %                 close(figNo+pacii)
-    %             catch
-    %             end
-    %             hFig=figure(figNo+pacii);
+    ax=gca;ax.LineWidth=3;
+    
     
     set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
     hold on
@@ -509,6 +513,9 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
                     ii_delta_phase=ii_delta_phase+length(these_delta_phases);
             end
             
+            if bwii==1
+                all_theta_phases=[all_theta_phases these_delta_phase];
+            end
             
             if evNo==2
                 if per_ii==1
@@ -570,7 +577,8 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
     xticks([1 2 4 5])
     xticklabels({'nS+', 'pS+','nS-', 'pS-'})
     
-    ylabel('delta PLV')
+    ylabel('delta phase')
+    ylim([-1 1])
     
     
     %Perform the glm
@@ -590,6 +598,31 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
     
 end
 
+edges=[-1:0.1:1]
 
+%Plot the average
+figNo = figNo +1;
+
+try
+    close(figNo)
+catch
+end
+hFig=figure(figNo);
+
+ax=gca;ax.LineWidth=3;
+
+
+set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
+hold on
+
+histogram(all_theta_phases,edges)
+
+[h,p]=ttest(all_theta_phases);
+
+fprintf(1, ['mean delta theta phase %d radians, %d msec\n\n'],mean(all_theta_phases),100*mean(all_theta_phases)/(2*pi()))
+fprintf(1, ['p value = %d for theta delta phase vs zero\n\n'],p)
+    
+ylabel('Number of observations')
+xlabel('delta theta phase hipp - pre')
 
 pffft=1;

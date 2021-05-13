@@ -135,6 +135,8 @@ for PACii=these_PACii
             
             hold on
             
+            ax=gca;ax.LineWidth=3;
+            
             %Note that I merge the shuffled for both peak and
             %trough for the average plot
             all_discriminant_correct_shuffled=zeros(2*no_mice_included,length(t));
@@ -355,6 +357,7 @@ for PACii=these_PACii
     set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
     hold on
     
+    ax=gca;ax.LineWidth=3;
     
     bar_offset = 0;
     
@@ -409,6 +412,7 @@ for PACii=these_PACii
     set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
     hold on
     
+    ax=gca;ax.LineWidth=3;
     
     bar_offset = 0;
     
@@ -463,6 +467,7 @@ for PACii=these_PACii
     set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
     hold on
     
+    ax=gca;ax.LineWidth=3;
     
     bar_offset = 0;
     
@@ -517,6 +522,7 @@ for PACii=these_PACii
     set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
     hold on
     
+    ax=gca;ax.LineWidth=3;
     
     bar_offset = 0;
     
@@ -571,6 +577,7 @@ for PACii=these_PACii
     set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
     hold on
     
+    ax=gca;ax.LineWidth=3;
     
     bar_offset = 0;
     
@@ -625,6 +632,7 @@ for PACii=these_PACii
     set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
     hold on
     
+    ax=gca;ax.LineWidth=3;
     
     bar_offset = 0;
     
@@ -779,6 +787,8 @@ for PACii=these_PACii
             set(hFig, 'units','normalized','position',[.61 .4 .38 .38])
             
             hold on
+            
+            ax=gca;ax.LineWidth=3;
             
             all_discriminant_p_val_lick=log10(all_discriminant_p_val_lick(1:no_mice_included,:));
             all_discriminant_p_val_peak=log10(all_discriminant_p_val_peak(1:no_mice_included,:));
@@ -1011,6 +1021,7 @@ for PACii=these_PACii
         set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
         hold on
         
+        ax=gca;ax.LineWidth=3;
         
         bar_offset = 0;
         
@@ -1066,6 +1077,7 @@ for PACii=these_PACii
     set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
     hold on
     
+    ax=gca;ax.LineWidth=3;
     
     bar_offset = 0;
     
@@ -1121,6 +1133,7 @@ for PACii=these_PACii
     set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
     hold on
     
+    ax=gca;ax.LineWidth=3;
     
     bar_offset = 0;
     
@@ -1236,6 +1249,7 @@ for percent_correct_ii=1:2
         
         hold on
         
+        ax=gca;ax.LineWidth=3;
         
         %First plot Sminus
         mean_sminus_lickf=nanmean(all_discriminant_sminus_lickf,1)';

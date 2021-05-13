@@ -11,6 +11,10 @@ warning('off')
 close all
 clear all
 
+%If you want statistics to be done with the value for each odor pair for
+%each mouse make this variable 1
+mouse_op=1;
+
 grNo=1;
 
 PACnames{1}='Beta';
@@ -33,34 +37,42 @@ evTypeLabels{2}='S-';
 peak_label{1}='Trough';
 peak_label{2}='Peak';
 
+% %Location of files
+
 %Location of files
 % hippPathName='F:\Datos summary CaMKII111720\PRP drgAnalysisBatchLFPCaMKII case 24 output for summary\';
-hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for summary/';
-fwd_rev_hippo=[1 2 2 1 1 2 1 2]; %1=forward, 2=reverse
-    
-%Hippocampus
-hippFileName{1}='spm_LFP_acetowavephasepower32620_hippoPRPnew.mat';
-hippFileName{2}='spm_LFP_acetowavephasepower32620_hippoPRPnewpropyl.mat';
-hippFileName{3}='spm_LFP_ethylbenwavephasepower41420_hippoPRPnew.mat';
-hippFileName{4}='spm_LFP_ethylwavephasepower3520_hippoPRPnew.mat';
-hippFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_hippoPRPnew.mat';
-hippFileName{6}='spm_LFP_pz1propylwavephasepower013020_hippoPRPnew.mat';
-hippFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_hippoPRPnew.mat';
-hippFileName{8}='spm_LFP_pzz1propylwavephasepower071220_hippoPRPnew.mat';
+hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for 80/';
+
+
+%Hippocampus proficient =[80 100]
+hippFileName{1}='spm_LFP_acetowavephasepower32620_hippocampusLFP80.mat';
+hippFileName{2}='spm_LFP_ethylbenwavephasepower41420_hippocampusLFP80.mat';
+hippFileName{3}='spm_LFP_ethylwavephasepower3520_hippocampusLFP80.mat';
+hippFileName{4}='spm_LFP_acetowavephasepower32620 2_hippocampusLFP80.mat';
+hippFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_hippocampusLFP80.mat';
+hippFileName{6}='spm_LFP_pz1propylwavephasepower013020_hippocampusLFP80.mat';
+hippFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_hippocampusLFP80.mat';
+hippFileName{8}='spm_LFP_pzz1propylwavephasepower071220_hippocampusLFP80.mat';
+
+fwd_rev_hippo=[2 2 1 1 1 2 1 2]; %1=forward, 2=reverse
+
+
 
 % prePathName='F:\Datos summary CaMKII111720\PRP drgAnalysisBatchLFPCaMKII case 24 output for summary\';
-prePathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for summary/';
-fwd_rev_pre=[1 2 2 1 1 2 1 2]; %1=forward, 2=reverse
+prePathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for 80/';
 
-%Prefrontal
-preFileName{1}='spm_LFP_acetowavephasepower32620_prefrontPRPnew.mat';
-preFileName{2}='spm_LFP_acetowavephasepower32620_prefrontPRPnewpropyl.mat';
-preFileName{3}='spm_LFP_ethylbenwavephasepower41420_prefrontPRPnew.mat';
-preFileName{4}='spm_LFP_ethylwavephasepower3520_prefrontPRPnew.mat';
-preFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_prefrontPRPnew.mat';
-preFileName{6}='spm_LFP_pz1propylwavephasepower013020_prefrontPRPnew.mat';
-preFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_prefrontPRPnew.mat';
-preFileName{8}='spm_LFP_pzz1propylwavephasepower071220_prefrontPRPnew.mat';
+
+%Prefrontal proficient =[80 100]
+preFileName{1}='spm_LFP_acetowavephasepower32620_prefrontalLFP80.mat';
+preFileName{2}='spm_LFP_ethylbenwavephasepower41420_prefrontalLFP80.mat';
+preFileName{3}='spm_LFP_ethylwavephasepower3520_prefrontalLFP80.mat';
+preFileName{4}='spm_LFP_acetowavephasepower32620 2_prefrontalLFP80.mat';
+preFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_prefrontalLFP80.mat';
+preFileName{6}='spm_LFP_pz1propylwavephasepower013020_prefrontalLFP80.mat';
+preFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_prefrontalLFP80.mat';
+preFileName{8}='spm_LFP_pzz1propylwavephasepower071220_prefrontalLFP80.mat';
+
+fwd_rev_pre=[2 2 1 1 1 2 1 2]; %1=forward, 2=reverse
 
 
 %Now process the hippocampus
@@ -84,8 +96,8 @@ figNo=0;
 
 %Now plot the average PRP for each electrode calculated per mouse
 %(including all sessions for each mouse)
-edges=[0:0.001:0.02];
-rand_offset=0.8;
+edges=[-15:0.1:10];
+rand_offset=0.5;
 
 
 for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -115,13 +127,9 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
         end
         hFig=figure(figNo);
         
-        %             try
-        %                 close(figNo+pacii)
-        %             catch
-        %             end
-        %             hFig=figure(figNo+pacii);
+        ax=gca;ax.LineWidth=3;
         
-        set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+        set(hFig, 'units','normalized','position',[.1 .5 .3 .4])
         hold on
         
         bar_lab_loc=[];
@@ -163,8 +171,13 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                         end
                     end
                     if ~isempty(this_jj)
-                        ii_PRP=ii_PRP+1;
-                        these_PRP(ii_PRP)=all_hippo(ii).handles_out.PRP_values(this_jj).PRP;
+                        if mouse_op==1
+                            these_PRP(ii_PRP+1:ii_PRP+length(all_hippo(ii).handles_out.PRP_values(this_jj).PRP_per_mouse))=all_hippo(ii).handles_out.PRP_values(this_jj).PRP_per_mouse;
+                            ii_PRP=ii_PRP+length(all_hippo(ii).handles_out.PRP_values(this_jj).PRP_per_mouse);
+                        else
+                            ii_PRP=ii_PRP+1;
+                            these_PRP(ii_PRP)=all_hippo(ii).handles_out.PRP_values(this_jj).PRP;
+                        end
                     end
                 end
                 
@@ -190,11 +203,12 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 
                 %Violin plot
                 
-                %[mean_out, CIout]=drgViolinPoint(these_PRP,edges,bar_offset,rand_offset,'k','k',1);
-                CI = bootci(1000, {@mean, these_PRP},'type','cper');
-                plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                plot(bar_offset*ones(1,length(these_PRP)),these_PRP,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                [mean_out, CIout]=drgViolinPoint(these_PRP,edges,bar_offset,rand_offset,'k','k',3);
                 
+                %                 CI = bootci(1000, {@mean, these_PRP},'type','cper');
+                %                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                %                 plot(bar_offset*ones(1,length(these_PRP)),these_PRP,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                %
                 
                 %                                 %Save data for glm and ranksum
                 
@@ -224,29 +238,15 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
             
         end
         
-        title(['Average PRP for each electrode calculated per mouse for ' peak_label{peak+1} ' theta/' PACnames{pacii} ' hippocampus'])
+        title(['Average PRP per mouse per odor pair for ' peak_label{peak+1} ' theta/' PACnames{pacii} ' hippocampus'])
         
         
-        %         %Annotations identifying groups
-        %         x_interval=0.8/ii_gr_included;
-        %         for ii=1:ii_gr_included
-        %             annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
-        %         end
-        
-        %         %Proficient/Naive annotations
-        %         annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
-        %         annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
-        %
-        %
         xticks([1 2 4 5])
         xticklabels({'FS+', 'RS+','FS-', 'RS-'})
         
-        ylim([-13 10])
+        ylim([-15 10])
         
         ylabel('PRP')
-        
-        
-        
         
         
         %Do the ranksum/t-test
@@ -283,13 +283,9 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
         end
         hFig=figure(figNo);
         
-        %             try
-        %                 close(figNo+pacii)
-        %             catch
-        %             end
-        %             hFig=figure(figNo+pacii);
+        ax=gca;ax.LineWidth=3;
         
-        set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+        set(hFig, 'units','normalized','position',[.1 .5 .3 .4])
         hold on
         
         bar_lab_loc=[];
@@ -302,7 +298,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
             for fwd_rev=1:2
                 per_ii=1;
                 
-%                 grNo=1;
+                %                 grNo=1;
                 bar_offset = bar_offset +1;
                 
                 
@@ -318,7 +314,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                                 if all_pre(ii).handles_out.PRP_values(jj).per_ii==per_ii
                                     if all_pre(ii).handles_out.PRP_values(jj).peak==peak
                                         if all_pre(ii).handles_out.PRP_values(jj).groupNo==grNo
-                                            if fwd_rev_hippo(ii)==fwd_rev
+                                            if fwd_rev_pre(ii)==fwd_rev
                                                 this_jj=jj;
                                             end
                                         end
@@ -330,8 +326,13 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                         
                     end
                     if ~isempty(this_jj)
-                        ii_PRP=ii_PRP+1;
-                        these_PRP(ii_PRP)=all_pre(ii).handles_out.PRP_values(this_jj).PRP;
+                        if mouse_op==1
+                            these_PRP(ii_PRP+1:ii_PRP+length(all_hippo(ii).handles_out.PRP_values(this_jj).PRP_per_mouse))=all_hippo(ii).handles_out.PRP_values(this_jj).PRP_per_mouse;
+                            ii_PRP=ii_PRP+length(all_hippo(ii).handles_out.PRP_values(this_jj).PRP_per_mouse);
+                        else
+                            ii_PRP=ii_PRP+1;
+                            these_PRP(ii_PRP)=all_hippo(ii).handles_out.PRP_values(this_jj).PRP;
+                        end
                     end
                 end
                 
@@ -357,11 +358,12 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 
                 %Violin plot
                 
-                %[mean_out, CIout]=drgViolinPoint(these_PRP,edges,bar_offset,rand_offset,'k','k',1);
-                CI = bootci(1000, {@mean, these_PRP},'type','cper');
-                plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-                plot(bar_offset*ones(1,length(these_PRP)),these_PRP,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                [mean_out, CIout]=drgViolinPoint(these_PRP,edges,bar_offset,rand_offset,'k','k',3);
                 
+                %                 CI = bootci(1000, {@mean, these_PRP},'type','cper');
+                %                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                %                 plot(bar_offset*ones(1,length(these_PRP)),these_PRP,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                %
                 
                 %                                 %Save data for glm and ranksum
                 
@@ -388,7 +390,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
             
         end
         
-        title(['Average PRP for each electrode calculated per mouse for ' peak_label{peak+1} ' theta/' PACnames{pacii} ' prefrontal'])
+        title(['Average PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' theta/' PACnames{pacii} ' prefrontal'])
         
         
         %         %Annotations identifying groups
@@ -406,7 +408,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
         xticklabels({'FS+', 'RS+','FS-', 'RS-'})
         
         ylabel('PRP')
-        ylim([-13 10])
+        ylim([-15 10])
         
         
         %Do the ranksum/t-test

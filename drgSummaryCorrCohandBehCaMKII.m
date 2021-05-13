@@ -11,6 +11,7 @@ warning('off')
 close all
 clear all
 
+figNo=0;
 
 bandwidth_names{1}='Theta';
 bandwidth_names{2}='Beta';
@@ -29,6 +30,9 @@ evTypeLabels{2}='S-';
 
 peak_label{1}='Trough';
 peak_label{2}='Peak';
+
+PAC_disc_names{1}='beta';
+PAC_disc_names{2}='gamma';
 
 %Location of files
 % hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
@@ -69,12 +73,272 @@ coh_FileName{6}='CaMKIIPZ1PAEAcohe202102021_out80.mat';
 coh_FileName{7}='CaMKIIpzz1EAPAcohe02112021_out80.mat';
 coh_FileName{8}='CaMKIIpzz1propylacecohe02092021_out80.mat';
 
+%Discrimination files
+%Location of files for proficient=[80 100]
+
+%Path names
+hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Discriminant new 80/';
+prePathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Discriminant new 80/';
+
+%Files
+
+%Hippocampus
+
+%pzz1PAEA
+hippFileName{8}='pcorr_Discriminant_CaMKIIpzz1paea_disc80_04052021_hipp.mat';
+file_legend{8}='pzz1PAEA';
+
+%pzz1EAPA
+hippFileName{7}='pcorr_Discriminant_CaMKIIpzz1ethylace_disc_80hipp2_04082021.mat';
+file_legend{7}='pzz1EAPA';
+
+%pz1PAEA
+hippFileName{6}='pcorr_Discriminant_CaMKIIpz1paea_disc_04112021_80hipp.mat';
+file_legend{6}='pz1PAEA';
+
+%pz1EAPA
+hippFileName{5}='pcorr_Discriminant_CaMKIIpz1eapa_disc_80_04142021_hipp.mat';
+file_legend{5}='pz1EAPA';
+
+%PAEA
+hippFileName{4}='pcorr_Discriminant_CaMKIIPAEA_disc80_hipp2_04162021.mat';
+file_legend{4}='PAEA';
+
+%EBAP
+hippFileName{2}='pcorr_Discriminant_CaMKIIEBAP_disc_80_hipp04182021.mat';
+file_legend{2}='EBAP';
+
+%EAPA
+hippFileName{3}='pcorr_Discriminant_CaMKIIEAPA_dis80c_hipp2_04212021.mat';
+file_legend{3}='EAPA';
+
+%APEB aceto
+hippFileName{1}='pcorr_Discriminant_CaMKIIAPEB_disc_PRP80_hippo_04142021.mat';
+file_legend{1}='APEB';
+
+%Prefrontal files
+
+%pzz1PAEA
+preFileName{8}='pcorr_Discriminant_CaMKIIpzz1paea_disc80_04052021_pref.mat';
+
+%pzz1EAPA
+preFileName{7}='pcorr_Discriminant_CaMKIIpzz1ethylace_disc_80pref2_04072021.mat';
+
+%pz1PAEA
+preFileName{6}='pcorr_Discriminant_CaMKIIpz1paea_disc_04112021_80pref.mat';
+
+%pz1EAPA
+preFileName{5}='pcorr_Discriminant_CaMKIIEAPA_dis80c_pre2_04212021.mat';
+
+%PAEA
+preFileName{4}='pcorr_Discriminant_CaMKIIPAEA_disc80_pre2_04162021.mat';
+
+%EBAP
+preFileName{2}='pcorr_Discriminant_CaMKIIEBAP_disc_80_pre04182021.mat';
+
+%EAPA
+preFileName{3}='pcorr_Discriminant_CaMKIIEAPA_dis80c_pre2_04212021.mat';
+
+%APEB aceto
+preFileName{1}='pcorr_Discriminant_CaMKIIAPEB_disc_PRP80_pre_04232021.mat';
+
+
+
+%Correlation for discrimination
+fprintf(1,'\n')
+ii_pval=0;
+
+%Do hippocampus first
+
+%Load data
+all_hipp_pcorr_files=[];
+all_beh_files=[];
+
+
+%Now
+for PACii=1:2   %for amplitude bandwidths (beta, low gamma, high gamma)
+    
+    all_disc_hipp_percorr=[];
+    all_pCorr=[];
+    
+    id_ii=0;
+    input_data=[];
+    
+    %Plot the average
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    hold on
+      
+    for ii=1:length(hippFileName)
+        load([hippPathName hippFileName{ii}])
+            hippo_pcorr_out=pcorr_out;
+%         all_PLV_files(ii).delta_PLV_odor_minus_ref_per_mouse=delta_PLV_odor_minus_ref_per_mouse;
+%         all_PLV_files(ii).delta_phase_odor_per_mouse=delta_phase_odor_per_mouse;
+%         all_PLV_files(ii).group_no_per_mouse=group_no_per_mouse;
+        
+        load([behPathName behFileName{ii}])
+%         all_beh_files(ii).mean_per_corr_per_mouse_prof=mean_per_corr_per_mouse_prof;
+%         all_beh_files(ii).group_no_per_mouse=group_no_per_mouse;
+        
+        per_ii=1;
+        
+        
+        for grNo=1:3
+            pfft=1;
+             
+            these_disc_pcorr=[];
+            these_disc_pcorr=hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
+            all_disc_hipp_percorr=[all_disc_hipp_percorr these_disc_pcorr];
+            these_pCorr=mean_per_corr_per_mouse_prof(group_no_per_mouse==grNo);
+            these_pCorr=these_pCorr(~isnan(these_pCorr));
+            all_pCorr=[all_pCorr these_pCorr];
+            switch grNo
+                case 1
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','g')
+                case 2
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','b')
+                case 3
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','y')
+            end
+            
+            
+        end
+        
+    end
+    
+    x=all_disc_hipp_percorr(~isnan(all_pCorr))';
+    y=all_pCorr(~isnan(all_pCorr))';
+    
+    ii_pval=ii_pval+1;
+    [rho,pval(ii_pval)]=corr(x,y);
+    
+    %Fit a line
+    c = polyfit(x,y,1);
+    % Display evaluated equation y = m*x + b
+    disp(['Equation is y = ' num2str(c(1)) '*x + ' num2str(c(2))])
+    % Evaluate fit equation using polyval
+    y_est = polyval(c,x);
+    % Add trend line to plot
+    plot(x,y_est,'k-','LineWidth',2)
+    
+    xlim([40 100])
+    ylim([80 100])
+    
+    fprintf(1, ['rho = %d, p value = %d for hippocampus discriminant peak PRP for '  PAC_disc_names{PACii} '\n\n'],rho,pval(ii_pval))
+    
+    xlabel('Accuracy')
+    ylabel('Percent correct')
+    title(['Discriminant accuracy vs percent correct for hippocampus peak PRP ' PAC_disc_names{PACii} ])
+end
+ 
+ fprintf(1,'\n')
+ 
+ %Do prefrontal next
+
+%Load data
+all_hipp_pcorr_files=[];
+all_beh_files=[];
+
+
+
+for PACii=1:2   %for amplitude bandwidths (beta, low gamma, high gamma)
+    
+    all_disc_pre_percorr=[];
+    all_pCorr=[];
+    
+    id_ii=0;
+    input_data=[];
+    
+    %Plot the average
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    hold on
+      
+    for ii=1:length(preFileName)
+        load([prePathName preFileName{ii}])
+            pref_pcorr_out=pcorr_out;
+%         all_PLV_files(ii).delta_PLV_odor_minus_ref_per_mouse=delta_PLV_odor_minus_ref_per_mouse;
+%         all_PLV_files(ii).delta_phase_odor_per_mouse=delta_phase_odor_per_mouse;
+%         all_PLV_files(ii).group_no_per_mouse=group_no_per_mouse;
+        
+        load([behPathName behFileName{ii}])
+%         all_beh_files(ii).mean_per_corr_per_mouse_prof=mean_per_corr_per_mouse_prof;
+%         all_beh_files(ii).group_no_per_mouse=group_no_per_mouse;
+        
+        per_ii=1;
+        
+        
+        for grNo=1:3
+            pfft=1;
+             
+            these_disc_pcorr=[];
+            these_pCorr=mean_per_corr_per_mouse_prof(group_no_per_mouse==grNo);
+            these_disc_pcorr=pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
+            these_disc_pcorr=these_disc_pcorr(~isnan(these_pCorr));
+            all_disc_pre_percorr=[all_disc_pre_percorr these_disc_pcorr];
+            these_pCorr=these_pCorr(~isnan(these_pCorr));
+            all_pCorr=[all_pCorr these_pCorr];
+            switch grNo
+                case 1
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','g')
+                case 2
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','b')
+                case 3
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','y')
+            end
+            
+            
+        end
+        
+    end
+    
+    x=all_disc_pre_percorr(~isnan(all_pCorr))';
+    y=all_pCorr(~isnan(all_pCorr))';
+    
+     ii_pval=ii_pval+1;
+    [rho,pval(ii_pval)]=corr(x,y);
+    
+    %Fit a line
+    c = polyfit(x,y,1);
+    % Display evaluated equation y = m*x + b
+    disp(['Equation is y = ' num2str(c(1)) '*x + ' num2str(c(2))])
+    % Evaluate fit equation using polyval
+    y_est = polyval(c,x);
+    % Add trend line to plot
+    plot(x,y_est,'k-','LineWidth',2)
+    
+    fprintf(1, ['rho = %d, p value = %d for discriminant prefrontal peak PRP for '  PAC_disc_names{PACii} '\n\n'],rho,pval(ii_pval))
+    
+    xlim([40 100])
+    ylim([80 100])
+    xlabel('Accuracy')
+    ylabel('Percent correct')
+    title(['Discriminant accuracy vs percent correct for prefrontal peak PRP ' PAC_disc_names{PACii} ])
+end
+
+pFDR=drsFDRpval(pval);
+fprintf(1, ['\n\npFDR = %d \n\n'],pFDR)
+
+ fprintf(1,'\n')
+ 
 %Correlation for coherence
 
 %Load data
 all_coh_files=[];
 all_beh_files=[];
-figNo=0;
+
 
 %Now
 for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)

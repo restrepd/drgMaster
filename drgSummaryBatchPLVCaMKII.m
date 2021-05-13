@@ -32,17 +32,32 @@ peak_label{2}='Peak';
 
 %Location of files
 % hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
-hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PLV/';
+% hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PLV/';
+% 
+% %Files
+% FileName{1}='CaMKIIPLVCamKIAPEB0301202_out.mat';
+% FileName{2}='CaMKIIEBAPPLV02282021_out.mat';
+% FileName{3}='CaMKIIPAEAPLV03062021_out.mat';
+% FileName{4}='CaMKIIEAPAPLV03112021_out.mat';
+% FileName{5}='CaMKIIpz1EAPAPLV03052021_out.mat';
+% FileName{6}='CaMKIIpz1PAEAPLV03042021_out.mat';
+% FileName{7}='CaMKIIpzz1EAPAPLV02262021_out.mat';
+% FileName{8}='CaMKIIpzz1propylacecPLV02222021_out.mat';
+
+%Location of files
+% hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
+hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PLV80/';
 
 %Files
-FileName{1}='CaMKIIPLVCamKIAPEB0301202_out.mat';
-FileName{2}='CaMKIIEBAPPLV02282021_out.mat';
-FileName{3}='CaMKIIPAEAPLV03062021_out.mat';
-FileName{4}='CaMKIIEAPAPLV03112021_out.mat';
-FileName{5}='CaMKIIpz1EAPAPLV03052021_out.mat';
-FileName{6}='CaMKIIpz1PAEAPLV03042021_out.mat';
-FileName{7}='CaMKIIpzz1EAPAPLV02262021_out.mat';
-FileName{8}='CaMKIIpzz1propylacecPLV02222021_out.mat';
+FileName{1}='CaMKIIPLVCamKIAPEB8005012021_out.mat';
+FileName{2}='CaMKIIEBAPPLV04292021_out.mat';
+FileName{3}='CaMKIIPAEAPLV8004282021_out.mat';
+FileName{4}='CaMKIIEAPAPLV8004292021_out.mat';
+FileName{5}='CaMKIIpz1EAPAPLV8004272021_out.mat';
+FileName{6}='CaMKIIpz1PAEAPLV8004262021_out.mat';
+FileName{7}='CaMKII80pzz1EAPAPLV04242021_out.mat';
+FileName{8}='CaMKIIpzz1PAEA80PLV04242021_out.mat';
+
 
 
 %Load data

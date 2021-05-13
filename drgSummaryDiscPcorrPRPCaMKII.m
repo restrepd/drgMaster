@@ -10,6 +10,8 @@ warning('off')
 close all
 clear all
 
+edges=[30:0.5:100];
+rand_offset=0.5;
 
 figNo=0;
 
@@ -34,77 +36,145 @@ peak_label{1}='Trough';
 peak_label{2}='Peak';
 
 
-%Location of files
+% %Location of files for proficient = [85 100]
+% 
+% %Path names
+% hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Discriminant/';
+% prePathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Discriminant/';
+% 
+% %Files
+% 
+% %Hippocampus
+% 
+% %pzz1PAEA
+% hippFileName{8}='pcorr_Discriminant_CaMKIIpzz1paea_disc_01302021_hippo2.mat';
+% file_legend{8}='pzz1PAEA';
+% 
+% %pzz1EAPA
+% hippFileName{7}='pcorr_Discriminant_CaMKIIpzz1ethylace_disc_PRPhipp2_01222020.mat';
+% file_legend{7}='pzz1EAPA';
+% 
+% %pz1PAEA
+% hippFileName{6}='pcorr_Discriminant_CaMKIIpz1paea_disc_02042021_hipp2.mat';
+% file_legend{6}='pz1PAEA';
+% 
+% %pz1EAPA
+% hippFileName{5}='pcorr_Discriminant_CaMKIIPZ1EAPA_disc_PRPhippo2_0212021.mat';
+% file_legend{5}='pz1EAPA';
+% 
+% %PAEA
+% hippFileName{4}='pcorr_Discriminant_CaMKIIPAEA_disc_PRPhipp2_01222020.mat';
+% file_legend{4}='PAEA';
+% 
+% %EBAP
+% hippFileName{2}='pcorr_Discriminant_CaMKIIEBAP_disc_PRPhipp2_01222020.mat';
+% file_legend{2}='EBAP';
+% 
+% %EAPA
+% hippFileName{3}='pcorr_Discriminant_CaMKIIEAPA_disc_PRPhippo2_02082021.mat';
+% file_legend{3}='EAPA';
+% 
+% %APEB aceto
+% hippFileName{1}='pcorr_Discriminant_CaMKIIaceto_disc_PRPhippo2_0272021.mat';
+% file_legend{1}='APEB';
+% 
+% %Prefrontal files
+% 
+% %pzz1PAEA
+% preFileName{8}='pcorr_Discriminant_CaMKIIpzz1paea_disc_02012021_pref2.mat';
+% 
+% %pzz1EAPA
+% preFileName{7}='pcorr_Discriminant_CaMKIIpzz1ethylace_disc_PRPpref2_01262020.mat';
+% 
+% %pz1PAEA
+% preFileName{6}='pcorr_Discriminant_CaMKIIpz1paea_disc_02072021_pref2.mat';
+% 
+% %pz1EAPA
+% preFileName{5}='pcorr_Discriminant_CaMKIIPZ1EAPA_disc_PRPprefront2_01302021.mat';
+% 
+% %PAEA
+% preFileName{4}='pcorr_Discriminant_CaMKIIPAEA_disc_PRPprefront2_01252021.mat';
+% 
+% %EBAP
+% preFileName{2}='pcorr_Discriminant_CaMKIIEBAP_disc_PRPprefront2_01262021.mat';
+% 
+% %EAPA
+% preFileName{3}='pcorr_Discriminant_CaMKIIEAPA_disc_PRPrefront2_01232021.mat';
+% 
+% %APEB aceto
+% preFileName{1}='pcorr_Discriminant_CaMKIIaceto_disc_PRPprefront2_01302021.mat';
+
+
+%Location of files for proficient=[80 100]
 
 %Path names
-hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Discriminant/';
-prePathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Discriminant/';
+hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Discriminant new 80/';
+prePathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Discriminant new 80/';
 
 %Files
 
 %Hippocampus
 
 %pzz1PAEA
-hippFileName{8}='pcorr_Discriminant_CaMKIIpzz1paea_disc_01302021_hippo2.mat';
+hippFileName{8}='pcorr_Discriminant_CaMKIIpzz1paea_disc80_04052021_hipp.mat';
 file_legend{8}='pzz1PAEA';
 
 %pzz1EAPA
-hippFileName{7}='pcorr_Discriminant_CaMKIIpzz1ethylace_disc_PRPhipp2_01222020.mat';
+hippFileName{7}='pcorr_Discriminant_CaMKIIpzz1ethylace_disc_80hipp2_04082021.mat';
 file_legend{7}='pzz1EAPA';
 
 %pz1PAEA
-hippFileName{6}='pcorr_Discriminant_CaMKIIpz1paea_disc_02042021_hipp2.mat';
+hippFileName{6}='pcorr_Discriminant_CaMKIIpz1paea_disc_04112021_80hipp.mat';
 file_legend{6}='pz1PAEA';
 
 %pz1EAPA
-hippFileName{5}='pcorr_Discriminant_CaMKIIPZ1EAPA_disc_PRPhippo2_0212021.mat';
+hippFileName{5}='pcorr_Discriminant_CaMKIIpz1eapa_disc_80_04142021_hipp.mat';
 file_legend{5}='pz1EAPA';
 
 %PAEA
-hippFileName{4}='pcorr_Discriminant_CaMKIIPAEA_disc_PRPhipp2_01222020.mat';
+hippFileName{4}='pcorr_Discriminant_CaMKIIPAEA_disc80_hipp2_04162021.mat';
 file_legend{4}='PAEA';
 
 %EBAP
-hippFileName{2}='pcorr_Discriminant_CaMKIIEBAP_disc_PRPhipp2_01222020.mat';
+hippFileName{2}='pcorr_Discriminant_CaMKIIEBAP_disc_80_hipp04182021.mat';
 file_legend{2}='EBAP';
 
 %EAPA
-hippFileName{3}='pcorr_Discriminant_CaMKIIEAPA_disc_PRPhippo2_02082021.mat';
+hippFileName{3}='pcorr_Discriminant_CaMKIIEAPA_dis80c_hipp2_04212021.mat';
 file_legend{3}='EAPA';
 
 %APEB aceto
-hippFileName{1}='pcorr_Discriminant_CaMKIIaceto_disc_PRPhippo2_0272021.mat';
+hippFileName{1}='pcorr_Discriminant_CaMKIIAPEB_disc_PRP80_hippo_04142021.mat';
 file_legend{1}='APEB';
 
 %Prefrontal files
 
 %pzz1PAEA
-preFileName{8}='pcorr_Discriminant_CaMKIIpzz1paea_disc_02012021_pref2.mat';
+preFileName{8}='pcorr_Discriminant_CaMKIIpzz1paea_disc80_04052021_pref.mat';
 
 %pzz1EAPA
-preFileName{7}='pcorr_Discriminant_CaMKIIpzz1ethylace_disc_PRPpref2_01262020.mat';
+preFileName{7}='pcorr_Discriminant_CaMKIIpzz1ethylace_disc_80pref2_04072021.mat';
 
 %pz1PAEA
-preFileName{6}='pcorr_Discriminant_CaMKIIpz1paea_disc_02072021_pref2.mat';
+preFileName{6}='pcorr_Discriminant_CaMKIIpz1paea_disc_04112021_80pref.mat';
 
 %pz1EAPA
-preFileName{5}='pcorr_Discriminant_CaMKIIPZ1EAPA_disc_PRPprefront2_01302021.mat';
+preFileName{5}='pcorr_Discriminant_CaMKIIEAPA_dis80c_pre2_04212021.mat';
 
 %PAEA
-preFileName{4}='pcorr_Discriminant_CaMKIIPAEA_disc_PRPprefront2_01252021.mat';
+preFileName{4}='pcorr_Discriminant_CaMKIIPAEA_disc80_pre2_04162021.mat';
 
 %EBAP
-preFileName{2}='pcorr_Discriminant_CaMKIIEBAP_disc_PRPprefront2_01262021.mat';
+preFileName{2}='pcorr_Discriminant_CaMKIIEBAP_disc_80_pre04182021.mat';
 
 %EAPA
-preFileName{3}='pcorr_Discriminant_CaMKIIEAPA_disc_PRPrefront2_01232021.mat';
+preFileName{3}='pcorr_Discriminant_CaMKIIEAPA_dis80c_pre2_04212021.mat';
 
 %APEB aceto
-preFileName{1}='pcorr_Discriminant_CaMKIIaceto_disc_PRPprefront2_01302021.mat';
+preFileName{1}='pcorr_Discriminant_CaMKIIAPEB_disc_PRP80_pre_04232021.mat';
 
 
-
-
+%Separate calculations for each odor pair
 %Now process percent correct for the hippocampus, proficient, peak
 
 for PACii=1:2
@@ -596,6 +666,439 @@ for PACii=1:2
     
 end
 
+
+%Now do the calculations per mouse per odor pair
+%Separate calculations for each odor pair
+
+
+for PACii=1:2
+    
+    
+    %Now process percent correct for the hippocampus, proficient, peak
+    
+    glm_disc=[];
+    glm_ii_disc=0;
+    
+    p_corr_stats=[];
+    ii_stats=0;
+    
+    %Bar graph plot for peak percent correct
+    %Plot the average
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .2 .3 .4])
+    hold on
+    
+    ax=gca;ax.LineWidth=3;
+    
+    bar_offset = 0;
+    
+    per_ii=1;  %We only do proficient
+    
+    all_ps=[];
+    
+    for grNo=1:3
+        these_percorr=[];
+        
+        for fileNo=1:8
+            if ~isempty(hippFileName{fileNo})
+                load([hippPathName hippFileName{fileNo}])
+                hippo_pcorr_out=pcorr_out;
+                
+                these_percorr=[these_percorr hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data];
+            end
+        end
+        
+        %Hippocampus
+        bar_offset = bar_offset +1;
+        
+        switch grNo
+            case 1
+                bar(bar_offset,mean(these_percorr),'g','LineWidth', 3,'EdgeColor','none')
+            case 2
+                bar(bar_offset,mean(these_percorr),'b','LineWidth', 3,'EdgeColor','none')
+            case 3
+                bar(bar_offset,mean(these_percorr),'y','LineWidth', 3,'EdgeColor','none')
+        end
+        
+        %Violin plot
+        
+        [mean_out, CIout]=drgViolinPoint(these_percorr,edges,bar_offset,rand_offset,'k','k',3);
+        
+        %         CI = bootci(1000, {@mean, hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+        %         plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+        %         plot(bar_offset*ones(1,length(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data)),hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+        %
+        glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_percorr))=these_percorr;
+        glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(these_percorr))=grNo*ones(1,length(these_percorr));
+        glm_ii_disc=glm_ii_disc+length(these_percorr);
+        
+        
+        ii_stats=ii_stats+1;
+        p_corr_stats(ii_stats).data=these_percorr;
+        
+        switch grNo
+            case 1
+                p_corr_stats(ii_stats).description=['WT'];
+            case 2
+                p_corr_stats(ii_stats).description=['Het'];
+            case 3
+                p_corr_stats(ii_stats).description=['KO'];
+        end
+        
+    end
+    
+    yticks([50 60 70 80 90 100])
+    ylim([50 100])
+    
+    xlim([0.3 3.8])
+    
+    xticks([1 2 3])
+    xticklabels({'WT', 'Het', 'KO'})
+    
+    title(['LDA percent correct for hippocampus for peak per mouse per odor pair theta/' PACnames{PACii} ])
+    
+
+    ylabel('Percent correct')
+    
+       %Perform the glm
+    fprintf(1, ['glm for percent correct vs genotype for hippocampus for peak per mouse per odor pair for theta/' PACnames{PACii} '\n'])
+    tbl = table(glm_disc.data',glm_disc.group',...
+        'VariableNames',{'performance','group'});
+    mdl = fitglm(tbl,'performance~group'...
+        ,'CategoricalVars',[2])
+    
+    %Do ranksum/t test
+    [output_data] = drgMutiRanksumorTtest(p_corr_stats);
+    
+    
+    
+    %Now process percent correct for the hippocampus, proficient, trough
+    
+    glm_disc=[];
+    glm_ii_disc=0;
+    
+    p_corr_stats=[];
+    ii_stats=0;
+    
+    %Bar graph plot for trough percent correct
+    %Plot the average
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .2 .3 .4])
+    hold on
+    
+    ax=gca;ax.LineWidth=3;
+    
+    bar_offset = 0;
+    
+    per_ii=1;  %We only do proficient
+    
+    all_ps=[];
+    
+    for grNo=1:3
+        these_percorr=[];
+        
+        for fileNo=1:8
+            if ~isempty(hippFileName{fileNo})
+                load([hippPathName hippFileName{fileNo}])
+                hippo_pcorr_out=pcorr_out;
+                
+                these_percorr=[these_percorr hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data];
+            end
+        end
+        
+        %Hippocampus
+        bar_offset = bar_offset +1;
+        
+        switch grNo
+            case 1
+                bar(bar_offset,mean(these_percorr),'g','LineWidth', 3,'EdgeColor','none')
+            case 2
+                bar(bar_offset,mean(these_percorr),'b','LineWidth', 3,'EdgeColor','none')
+            case 3
+                bar(bar_offset,mean(these_percorr),'y','LineWidth', 3,'EdgeColor','none')
+        end
+        
+        %Violin plot
+        
+        [mean_out, CIout]=drgViolinPoint(these_percorr,edges,bar_offset,rand_offset,'k','k',3);
+        
+        %         CI = bootci(1000, {@mean, hippo_pcorr_out.PACii(PACii).troughs.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+        %         plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+        %         plot(bar_offset*ones(1,length(hippo_pcorr_out.PACii(PACii).troughs.pcorr(per_ii).group(grNo).odor_data)),hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+        %
+        glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_percorr))=these_percorr;
+        glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(these_percorr))=grNo*ones(1,length(these_percorr));
+        glm_ii_disc=glm_ii_disc+length(these_percorr);
+        
+        
+        ii_stats=ii_stats+1;
+        p_corr_stats(ii_stats).data=these_percorr;
+        
+        switch grNo
+            case 1
+                p_corr_stats(ii_stats).description=['WT'];
+            case 2
+                p_corr_stats(ii_stats).description=['Het'];
+            case 3
+                p_corr_stats(ii_stats).description=['KO'];
+        end
+        
+    end
+    
+    yticks([50 60 70 80 90 100])
+    ylim([50 100])
+    
+    xlim([0.3 3.8])
+    
+    xticks([1 2 3])
+    xticklabels({'WT', 'Het', 'KO'})
+    
+    title(['LDA percent correct for hippocampus for trough per mouse per odor pair theta/' PACnames{PACii} ])
+    
+
+    ylabel('Percent correct')
+    
+       %Perform the glm
+    fprintf(1, ['glm for percent correct vs genotype for hippocampus for trough per mouse per odor pair for theta/' PACnames{PACii} '\n'])
+    tbl = table(glm_disc.data',glm_disc.group',...
+        'VariableNames',{'performance','group'});
+    mdl = fitglm(tbl,'performance~group'...
+        ,'CategoricalVars',[2])
+    
+    %Do ranksum/t test
+    [output_data] = drgMutiRanksumorTtest(p_corr_stats);
+    
+    
+     %Now process percent correct for the prefrontal, proficient, peak
+    
+    glm_disc=[];
+    glm_ii_disc=0;
+    
+    p_corr_stats=[];
+    ii_stats=0;
+    
+    %Bar graph plot for peak percent correct
+    %Plot the average
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .2 .3 .4])
+    hold on
+    
+    ax=gca;ax.LineWidth=3;
+    
+    bar_offset = 0;
+    
+    per_ii=1;  %We only do proficient
+    
+    all_ps=[];
+    
+    for grNo=1:3
+        these_percorr=[];
+        
+        for fileNo=1:8
+            if ~isempty(preFileName{fileNo})
+                load([prePathName preFileName{fileNo}])
+                pre_pcorr_out=pcorr_out;
+                
+                these_percorr=[these_percorr pre_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data];
+            end
+        end
+        
+        %Hippocampus
+        bar_offset = bar_offset +1;
+        
+        switch grNo
+            case 1
+                bar(bar_offset,mean(these_percorr),'g','LineWidth', 3,'EdgeColor','none')
+            case 2
+                bar(bar_offset,mean(these_percorr),'b','LineWidth', 3,'EdgeColor','none')
+            case 3
+                bar(bar_offset,mean(these_percorr),'y','LineWidth', 3,'EdgeColor','none')
+        end
+        
+        %Violin plot
+        
+        [mean_out, CIout]=drgViolinPoint(these_percorr,edges,bar_offset,rand_offset,'k','k',3);
+        
+        %         CI = bootci(1000, {@mean, hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+        %         plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+        %         plot(bar_offset*ones(1,length(hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data)),hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+        %
+        glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_percorr))=these_percorr;
+        glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(these_percorr))=grNo*ones(1,length(these_percorr));
+        glm_ii_disc=glm_ii_disc+length(these_percorr);
+        
+        
+        ii_stats=ii_stats+1;
+        p_corr_stats(ii_stats).data=these_percorr;
+        
+        switch grNo
+            case 1
+                p_corr_stats(ii_stats).description=['WT'];
+            case 2
+                p_corr_stats(ii_stats).description=['Het'];
+            case 3
+                p_corr_stats(ii_stats).description=['KO'];
+        end
+        
+    end
+    
+    yticks([50 60 70 80 90 100])
+    ylim([50 100])
+    
+    xlim([0.3 3.8])
+    
+    xticks([1 2 3])
+    xticklabels({'WT', 'Het', 'KO'})
+    
+    title(['LDA percent correct for prefrontal for peak per mouse per odor pair theta/' PACnames{PACii} ])
+    
+
+    ylabel('Percent correct')
+    
+       %Perform the glm
+    fprintf(1, ['glm for percent correct vs genotype for prefrontal for peak per mouse per odor pair for theta/' PACnames{PACii} '\n'])
+    tbl = table(glm_disc.data',glm_disc.group',...
+        'VariableNames',{'performance','group'});
+    mdl = fitglm(tbl,'performance~group'...
+        ,'CategoricalVars',[2])
+    
+    %Do ranksum/t test
+    [output_data] = drgMutiRanksumorTtest(p_corr_stats);
+    
+    
+    
+    %Now process percent correct for the prefrontal, proficient, trough
+    
+    glm_disc=[];
+    glm_ii_disc=0;
+    
+    p_corr_stats=[];
+    ii_stats=0;
+    
+    %Bar graph plot for trough percent correct
+    %Plot the average
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .2 .3 .4])
+    hold on
+    
+    ax=gca;ax.LineWidth=3;
+    
+    bar_offset = 0;
+    
+    per_ii=1;  %We only do proficient
+    
+    all_ps=[];
+    
+    for grNo=1:3
+        these_percorr=[];
+        
+        for fileNo=1:8
+            if ~isempty(preFileName{fileNo})
+                load([prePathName preFileName{fileNo}])
+                pre_pcorr_out=pcorr_out;
+                
+                these_percorr=[these_percorr pre_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data];
+            end
+        end
+        
+        %Hippocampus
+        bar_offset = bar_offset +1;
+        
+        switch grNo
+            case 1
+                bar(bar_offset,mean(these_percorr),'g','LineWidth', 3,'EdgeColor','none')
+            case 2
+                bar(bar_offset,mean(these_percorr),'b','LineWidth', 3,'EdgeColor','none')
+            case 3
+                bar(bar_offset,mean(these_percorr),'y','LineWidth', 3,'EdgeColor','none')
+        end
+        
+        %Violin plot
+        
+        [mean_out, CIout]=drgViolinPoint(these_percorr,edges,bar_offset,rand_offset,'k','k',3);
+        
+        %         CI = bootci(1000, {@mean, hippo_pcorr_out.PACii(PACii).troughs.pcorr(per_ii).group(grNo).odor_data},'type','cper');
+        %         plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+        %         plot(bar_offset*ones(1,length(hippo_pcorr_out.PACii(PACii).troughs.pcorr(per_ii).group(grNo).odor_data)),hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+        %
+        glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_percorr))=these_percorr;
+        glm_disc.group(glm_ii_disc+1:glm_ii_disc+length(these_percorr))=grNo*ones(1,length(these_percorr));
+        glm_ii_disc=glm_ii_disc+length(these_percorr);
+        
+        
+        ii_stats=ii_stats+1;
+        p_corr_stats(ii_stats).data=these_percorr;
+        
+        switch grNo
+            case 1
+                p_corr_stats(ii_stats).description=['WT'];
+            case 2
+                p_corr_stats(ii_stats).description=['Het'];
+            case 3
+                p_corr_stats(ii_stats).description=['KO'];
+        end
+        
+    end
+    
+    yticks([50 60 70 80 90 100])
+    ylim([50 100])
+    
+    xlim([0.3 3.8])
+    
+    xticks([1 2 3])
+    xticklabels({'WT', 'Het', 'KO'})
+    
+    title(['LDA percent correct for prefrontal for trough per mouse per odor pair theta/' PACnames{PACii} ])
+    
+
+    ylabel('Percent correct')
+    
+       %Perform the glm
+    fprintf(1, ['glm for percent correct vs genotype for prefrontal for trough per mouse per odor pair for theta/' PACnames{PACii} '\n'])
+    tbl = table(glm_disc.data',glm_disc.group',...
+        'VariableNames',{'performance','group'});
+    mdl = fitglm(tbl,'performance~group'...
+        ,'CategoricalVars',[2])
+    
+    %Do ranksum/t test
+    [output_data] = drgMutiRanksumorTtest(p_corr_stats);
+    pffft=1;
+    
+end
+
+
 %Now do the plots for the WT only
 
 
@@ -838,6 +1341,9 @@ for PACii=1:2
     
     mean_hippo_peak_naive=[];
     mean_hippo_peak_proficient=[];
+    all_hippo_peak_shuffled=[];
+    all_hippo_peak_naive=[];
+    all_hippo_peak_proficient=[];
     bar_offset = 0;
     
     per_ii=1;  %We only do proficient
@@ -860,7 +1366,7 @@ for PACii=1:2
             
             grNo=1;
             
-            
+             
             
             %Shuffled
             bar_offset = bar_offset +1;
@@ -868,6 +1374,7 @@ for PACii=1:2
             these_pcorr=hippo_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
             per_ii=2;
             these_pcorr=hippo_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
+            all_hippo_peak_shuffled=[all_hippo_peak_shuffled these_pcorr];
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
             
@@ -892,6 +1399,7 @@ for PACii=1:2
             per_ii=2;
             these_pcorr=hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
             mean_hippo_peak_naive(fileNo)=mean(these_pcorr);
+            all_hippo_peak_naive=[all_hippo_peak_naive these_pcorr];
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
             
@@ -917,6 +1425,7 @@ for PACii=1:2
             per_ii=1;
             these_pcorr=hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
             mean_hippo_peak_proficient(fileNo)=mean(these_pcorr);
+            all_hippo_peak_proficient=[all_hippo_peak_proficient these_pcorr];
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
             
@@ -1007,6 +1516,10 @@ for PACii=1:2
     mean_hippo_trough_naive=[];
     mean_hippo_trough_proficient=[];
     
+    all_hippo_trough_shuffled=[];
+    all_hippo_trough_naive=[];
+    all_hippo_trough_proficient=[];
+    
     
     for fileNo=1:8
         
@@ -1025,6 +1538,7 @@ for PACii=1:2
             these_pcorr=hippo_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
             per_ii=2;
             these_pcorr=hippo_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
+            all_hippo_trough_shuffled=[all_hippo_trough_shuffled these_pcorr];
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
             
@@ -1049,6 +1563,7 @@ for PACii=1:2
             per_ii=2;
             these_pcorr=hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
             mean_hippo_trough_naive(fileNo)=mean(these_pcorr);
+            all_hippo_trough_naive=[all_hippo_trough_naive these_pcorr];
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
             
@@ -1074,6 +1589,7 @@ for PACii=1:2
             per_ii=1;
             these_pcorr=hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
             mean_hippo_trough_proficient(fileNo)=mean(these_pcorr);
+            all_hippo_trough_proficient=[all_hippo_trough_proficient these_pcorr];
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
             
@@ -1163,6 +1679,9 @@ for PACii=1:2
     
     mean_pref_peak_naive=[];
     mean_pref_peak_proficient=[];
+    all_pref_peak_naive=[];
+    all_pref_peak_proficient=[];
+    all_pref_peak_shuffled=[];
     
     for fileNo=1:8
         
@@ -1181,7 +1700,8 @@ for PACii=1:2
             these_pcorr=pref_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
             per_ii=2;
             these_pcorr=pref_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
-            
+            all_pref_peak_shuffled=[all_pref_peak_shuffled these_pcorr];
+                
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
             
             
@@ -1205,6 +1725,7 @@ for PACii=1:2
             per_ii=2;
             these_pcorr=pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
             mean_pref_peak_naive(fileNo)=mean(these_pcorr);
+            all_pref_peak_naive=[all_pref_peak_naive these_pcorr];
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
             
@@ -1230,6 +1751,7 @@ for PACii=1:2
             per_ii=1;
             these_pcorr=pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
             mean_pref_peak_proficient(fileNo)=mean(these_pcorr);
+            all_pref_peak_proficient=[all_pref_peak_proficient these_pcorr];
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
             
@@ -1320,6 +1842,9 @@ for PACii=1:2
     
     mean_pref_trough_naive=[];
     mean_pref_trough_proficient=[];
+    all_pref_trough_naive=[];
+    all_pref_trough_proficient=[];
+    all_pref_trough_shuffled=[];
     
     for fileNo=1:8
         
@@ -1338,6 +1863,7 @@ for PACii=1:2
             these_pcorr=pref_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
             per_ii=2;
             these_pcorr=pref_pcorr_out.PACii(PACii).shuffled.pcorr(per_ii).group(grNo).odor_data;
+            all_pref_trough_shuffled=[all_pref_trough_shuffled these_pcorr];
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
             
@@ -1362,6 +1888,8 @@ for PACii=1:2
             per_ii=2;
             these_pcorr=pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
             mean_pref_trough_naive(fileNo)=mean(these_pcorr);
+            all_pref_trough_naive=[all_pref_trough_naive these_pcorr];
+            
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
             
@@ -1387,6 +1915,7 @@ for PACii=1:2
             per_ii=1;
             these_pcorr=pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
             mean_pref_trough_proficient(fileNo)=mean(these_pcorr);
+            all_pref_trough_proficient=[all_pref_trough_proficient these_pcorr];
             
             bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
             
@@ -1756,6 +2285,444 @@ for PACii=1:2
     
     %Perform the glm
     fprintf(1, ['glm for mean performance for theta/' PACnames{PACii} '\n'])
+    tbl = table(glm_disc.data',glm_disc.peak',glm_disc.proficient',glm_disc.brain_region',...
+        'VariableNames',{'performance','peak','proficient','brain_region'});
+    mdl = fitglm(tbl,'performance~peak+proficient+brain_region+peak*proficient*brain_region'...
+        ,'CategoricalVars',[2,3,4])
+    
+    %Do ranksum/t test
+    [output_data] = drgMutiRanksumorTtest(p_corr_stats);
+    
+    %Finally, do the plots for percent correct per odor pair per mouse
+    %Now plot the bar graphs for the mean percent correct per mouse
+    
+    glm_disc=[];
+    glm_ii_disc=0;
+    
+    p_corr_stats=[];
+    ii_stats=0;
+    
+    
+    
+    %Hippocampus peak
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .2 .3 .4])
+    hold on
+    
+    ax=gca;ax.LineWidth=3;
+    
+    bar_offset = 0;
+    
+    %Shuffled
+    bar_offset = bar_offset +1;
+    
+    
+    these_pcorr=all_hippo_peak_shuffled;
+    bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
+     
+    [mean_out, CIout]=drgViolinPoint(these_pcorr,edges,bar_offset,rand_offset,'k','k',3);
+    
+%     CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%     plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%     
+    glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+    glm_disc.peak(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_disc.proficient(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=3*ones(1,length(these_pcorr));
+    glm_disc.brain_region(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_ii_disc=glm_ii_disc+length(these_pcorr);
+    
+    
+    ii_stats=ii_stats+1;
+    p_corr_stats(ii_stats).data=these_pcorr;
+    p_corr_stats(ii_stats).description=['Hippo peak shuffled'];
+    
+    %Naive
+    bar_offset = bar_offset +1;
+    
+    
+    these_pcorr=all_hippo_peak_naive;
+    bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
+    
+    [mean_out, CIout]=drgViolinPoint(these_pcorr,edges,bar_offset,rand_offset,'k','k',3);
+    
+%     CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%     plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%     
+    glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+    glm_disc.peak(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_disc.proficient(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=2*ones(1,length(these_pcorr));
+    glm_disc.brain_region(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_ii_disc=glm_ii_disc+length(these_pcorr);
+    
+    
+    ii_stats=ii_stats+1;
+    p_corr_stats(ii_stats).data=these_pcorr;
+    p_corr_stats(ii_stats).description=['Hippo peak naive'];
+    
+    
+    %Proficient
+    bar_offset = bar_offset +1;
+    these_pcorr=all_hippo_peak_proficient;
+    
+    
+    bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
+    
+    
+    [mean_out, CIout]=drgViolinPoint(these_pcorr,edges,bar_offset,rand_offset,'k','k',3);
+%     CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%     plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%     
+    glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+    glm_disc.peak(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_disc.proficient(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_disc.brain_region(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_ii_disc=glm_ii_disc+length(these_pcorr);
+    
+    
+    ii_stats=ii_stats+1;
+    p_corr_stats(ii_stats).data=these_pcorr;
+    p_corr_stats(ii_stats).description=['Hippo peak proficient'];
+    
+    
+    plot([0 4],[50 50],'-k')
+    
+    ylim([40 100])
+    xlim([0.3 3.8])
+    
+    xticks([1 2 3])
+    xticklabels({'Shuffled', 'Naive', 'Proficient'})
+    
+    title(['LDA percent correct for hippocampus per odor pair per mouse for peak theta/' PACnames{PACii} ])
+    ylabel('Percent correct')
+    
+    %Hippocampus trough
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .2 .3 .4])
+    hold on
+    
+    
+    bar_offset = 0;
+    
+    ax=gca;ax.LineWidth=3;
+    
+    %Shuffled
+    bar_offset = bar_offset +1;
+    
+    
+    these_pcorr=all_hippo_trough_shuffled;
+    bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
+    
+    [mean_out, CIout]=drgViolinPoint(these_pcorr,edges,bar_offset,rand_offset,'k','k',3);
+    
+%     CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%     plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%     
+    glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+    glm_disc.peak(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=zeros(1,length(these_pcorr));
+    glm_disc.proficient(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=3*ones(1,length(these_pcorr));
+    glm_disc.brain_region(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_ii_disc=glm_ii_disc+length(these_pcorr);
+    
+    
+    ii_stats=ii_stats+1;
+    p_corr_stats(ii_stats).data=these_pcorr;
+    p_corr_stats(ii_stats).description=['Hippo trough shuffled'];
+    
+    %Naive
+    bar_offset = bar_offset +1;
+    
+    
+    these_pcorr=all_hippo_trough_naive;
+    bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
+    
+    [mean_out, CIout]=drgViolinPoint(these_pcorr,edges,bar_offset,rand_offset,'k','k',3);
+    
+%     CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%     plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%     
+    glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+    glm_disc.peak(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=zeros(1,length(these_pcorr));
+    glm_disc.proficient(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=2*ones(1,length(these_pcorr));
+    glm_disc.brain_region(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_ii_disc=glm_ii_disc+length(these_pcorr);
+    
+    
+    ii_stats=ii_stats+1;
+    p_corr_stats(ii_stats).data=these_pcorr;
+    p_corr_stats(ii_stats).description=['Hippo trough naive'];
+    
+    
+    %Proficient
+    bar_offset = bar_offset +1;
+    these_pcorr=all_hippo_trough_proficient;
+    
+    
+    bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
+    
+    [mean_out, CIout]=drgViolinPoint(these_pcorr,edges,bar_offset,rand_offset,'k','k',3);
+     
+%     CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%     plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+    
+    glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+    glm_disc.peak(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=zeros(1,length(these_pcorr));
+    glm_disc.proficient(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_disc.brain_region(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_ii_disc=glm_ii_disc+length(these_pcorr);
+    
+    
+    ii_stats=ii_stats+1;
+    p_corr_stats(ii_stats).data=these_pcorr;
+    p_corr_stats(ii_stats).description=['Hippo trough proficient'];
+    
+    
+    plot([0 4],[50 50],'-k')
+    
+    ylim([40 100])
+    xlim([0.3 3.8])
+    
+    xticks([1 2 3])
+    xticklabels({'Shuffled', 'Naive', 'Proficient'})
+    
+    title(['LDA percent correct for hippocampus per mouse per odor pair for trough theta/' PACnames{PACii} ])
+    ylabel('Percent correct')
+    
+    %Prefrontal peak
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .2 .3 .4])
+    hold on
+    
+    
+    bar_offset = 0;
+    
+     ax=gca;ax.LineWidth=3;
+     
+     
+    %Shuffled
+    bar_offset = bar_offset +1;
+    
+    
+    these_pcorr=all_pref_peak_shuffled;
+    bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
+    
+    
+    [mean_out, CIout]=drgViolinPoint(these_pcorr,edges,bar_offset,rand_offset,'k','k',3);
+    
+%     CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%     plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+    
+    glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+    glm_disc.peak(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_disc.proficient(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=3*ones(1,length(these_pcorr));
+    glm_disc.brain_region(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=2*ones(1,length(these_pcorr));
+    glm_ii_disc=glm_ii_disc+length(these_pcorr);
+    
+    
+    ii_stats=ii_stats+1;
+    p_corr_stats(ii_stats).data=these_pcorr;
+    p_corr_stats(ii_stats).description=['Pref peak shuffled'];
+    
+     
+    %Naive
+    bar_offset = bar_offset +1;
+    
+    
+    these_pcorr=all_pref_peak_naive;
+    bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
+    
+    [mean_out, CIout]=drgViolinPoint(these_pcorr,edges,bar_offset,rand_offset,'k','k',3);
+    
+%     CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%     plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%     
+    glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+    glm_disc.peak(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_disc.proficient(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=2*ones(1,length(these_pcorr));
+    glm_disc.brain_region(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=2*ones(1,length(these_pcorr));
+    glm_ii_disc=glm_ii_disc+length(these_pcorr);
+    
+    
+    ii_stats=ii_stats+1;
+    p_corr_stats(ii_stats).data=these_pcorr;
+    p_corr_stats(ii_stats).description=['Pref peak naive'];
+    
+    
+    %Proficient
+    bar_offset = bar_offset +1;
+    these_pcorr=all_pref_peak_proficient;
+    
+    
+    bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
+    
+    [mean_out, CIout]=drgViolinPoint(these_pcorr,edges,bar_offset,rand_offset,'k','k',3);
+    
+    
+%     CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%     plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+    
+    glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+    glm_disc.peak(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_disc.proficient(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_disc.brain_region(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=2*ones(1,length(these_pcorr));
+    glm_ii_disc=glm_ii_disc+length(these_pcorr);
+    
+    
+    ii_stats=ii_stats+1;
+    p_corr_stats(ii_stats).data=these_pcorr;
+    p_corr_stats(ii_stats).description=['Pref peak proficient'];
+    
+    
+    plot([0 4],[50 50],'-k')
+    
+    ylim([40 100])
+    xlim([0.3 3.8])
+    
+    xticks([1 2 3])
+    xticklabels({'Shuffled','Naive', 'Proficient'})
+    
+    title(['LDA percent correct per mouse per odor pair for prefrontal for peak theta/' PACnames{PACii} ])
+    ylabel('Percent correct')
+    
+    %Prefrontal trough
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .2 .3 .4])
+    hold on
+    
+     ax=gca;ax.LineWidth=3;
+     
+    bar_offset = 0;
+    
+    %Naive
+    bar_offset = bar_offset +1;
+    
+    
+    these_pcorr=all_pref_trough_shuffled;
+    bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[120/255 120/255 120/255])
+    
+    
+    [mean_out, CIout]=drgViolinPoint(these_pcorr,edges,bar_offset,rand_offset,'k','k',3);
+    
+%     CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%     plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%     
+    glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+    glm_disc.peak(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=zeros(1,length(these_pcorr));
+    glm_disc.proficient(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=3*ones(1,length(these_pcorr));
+    glm_disc.brain_region(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=2*ones(1,length(these_pcorr));
+    glm_ii_disc=glm_ii_disc+length(these_pcorr);
+    
+    
+    ii_stats=ii_stats+1;
+    p_corr_stats(ii_stats).data=these_pcorr;
+    p_corr_stats(ii_stats).description=['Pref trough shuffled'];
+    
+    %Naive
+    bar_offset = bar_offset +1;
+    
+    
+    these_pcorr=all_pref_trough_naive;
+    bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
+    
+     [mean_out, CIout]=drgViolinPoint(these_pcorr,edges,bar_offset,rand_offset,'k','k',3);
+     
+%     CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%     plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+    
+    glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+    glm_disc.peak(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=zeros(1,length(these_pcorr));
+    glm_disc.proficient(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=2*ones(1,length(these_pcorr));
+    glm_disc.brain_region(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=2*ones(1,length(these_pcorr));
+    glm_ii_disc=glm_ii_disc+length(these_pcorr);
+    
+    
+    ii_stats=ii_stats+1;
+    p_corr_stats(ii_stats).data=these_pcorr;
+    p_corr_stats(ii_stats).description=['Pref trough naive'];
+    
+    
+    %Proficient
+    bar_offset = bar_offset +1;
+    these_pcorr=all_pref_trough_proficient;
+    
+    
+    bar(bar_offset,mean(these_pcorr),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
+    
+    [mean_out, CIout]=drgViolinPoint(these_pcorr,edges,bar_offset,rand_offset,'k','k',3);
+     
+%     
+%     CI = bootci(1000, {@mean, these_pcorr},'type','cper');
+%     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+%     plot(bar_offset*ones(1,length(these_pcorr)),these_pcorr,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+%     
+    glm_disc.data(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=these_pcorr;
+    glm_disc.peak(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=zeros(1,length(these_pcorr));
+    glm_disc.proficient(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=ones(1,length(these_pcorr));
+    glm_disc.brain_region(glm_ii_disc+1:glm_ii_disc+length(these_pcorr))=2*ones(1,length(these_pcorr));
+    glm_ii_disc=glm_ii_disc+length(these_pcorr);
+    
+    
+    ii_stats=ii_stats+1;
+    p_corr_stats(ii_stats).data=these_pcorr;
+    p_corr_stats(ii_stats).description=['Pref trough proficient'];
+    
+    
+    plot([0 4],[50 50],'-k')
+    
+    ylim([40 100])
+    xlim([0.3 3.8])
+    
+    xticks([1 2 3])
+    xticklabels({'Shuffled', 'Naive', 'Proficient'})
+    
+    title(['LDApercent correct for prefrontal per mouse per odor pair for trough theta/' PACnames{PACii} ])
+    ylabel('Percent correct')
+    
+    
+    %Perform the glm
+    fprintf(1, ['glm for percent correct per mouse per odor pair for theta/' PACnames{PACii} '\n'])
     tbl = table(glm_disc.data',glm_disc.peak',glm_disc.proficient',glm_disc.brain_region',...
         'VariableNames',{'performance','peak','proficient','brain_region'});
     mdl = fitglm(tbl,'performance~peak+proficient+brain_region+peak*proficient*brain_region'...

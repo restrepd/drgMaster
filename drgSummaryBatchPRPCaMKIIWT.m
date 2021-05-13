@@ -155,11 +155,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
         end
         hFig=figure(figNo);
         
-        %             try
-        %                 close(figNo+pacii)
-        %             catch
-        %             end
-        %             hFig=figure(figNo+pacii);
+      ax=gca;ax.LineWidth=3;
         
         set(hFig, 'units','normalized','position',[.1 .5 .3 .4])
         hold on
@@ -332,11 +328,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
         end
         hFig=figure(figNo);
         
-        %             try
-        %                 close(figNo+pacii)
-        %             catch
-        %             end
-        %             hFig=figure(figNo+pacii);
+       ax=gca;ax.LineWidth=3;
         
         set(hFig, 'units','normalized','position',[.1 .5 .3 .4])
         hold on

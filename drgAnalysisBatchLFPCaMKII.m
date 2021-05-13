@@ -13089,9 +13089,9 @@ switch which_display
                                             theseEvNos_af(evNo).this_deltaCxy_Ev(theseEvNos_af(evNo).noEv+1:theseEvNos_af(evNo).noEv+sum(trials_in_event_Ev),:)=this_deltaCxy;
                                             
                                             %Enter the  Ev1
-                                            theseEvNos_af(evNo).this_Cxy_Ev(1,theseEvNos(evNo,bwii).noEv+1:theseEvNos(evNo,bwii).noEv+sum(trials_in_event_Ev))=this_Cxy_Ev';
-                                            theseEvNos_af(evNo).groupNo(1,theseEvNos(evNo,bwii).noEv+1:theseEvNos(evNo,bwii).noEv+sum(trials_in_event_Ev))=handles_drgb.drgbchoices.group_no(fileNo)*ones(1,sum(trials_in_event_Ev));
-                                            theseEvNos_af(evNo).noEv=theseEvNos(evNo,bwii).noEv+sum(trials_in_event_Ev);
+                                            theseEvNos_af(evNo).this_Cxy_Ev(1,theseEvNos_af(evNo).noEv+1:theseEvNos_af(evNo).noEv+sum(trials_in_event_Ev))=this_Cxy_Ev';
+                                            theseEvNos_af(evNo).groupNo(1,theseEvNos_af(evNo).noEv+1:theseEvNos_af(evNo).noEv+sum(trials_in_event_Ev))=handles_drgb.drgbchoices.group_no(fileNo)*ones(1,sum(trials_in_event_Ev));
+                                            theseEvNos_af(evNo).noEv=theseEvNos_af(evNo).noEv+sum(trials_in_event_Ev);
                                             
                                             fprintf(1, ['%d trials in event No %d succesfully processed for file No %d electrode pair %d\n'],sum(trials_in_event_Ev), evNo,fileNo,elec_pair);
                                             
