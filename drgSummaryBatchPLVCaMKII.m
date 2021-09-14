@@ -366,7 +366,7 @@ end
 edges=[-0.6:0.05:0.6];
 rand_offset=0.7;
 
-for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
+for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     glm_PLV=[];
     glm_ii=0;
@@ -383,11 +383,7 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
     end
     hFig=figure(figNo);
     
-    %             try
-    %                 close(figNo+pacii)
-    %             catch
-    %             end
-    %             hFig=figure(figNo+pacii);
+    ax=gca;ax.LineWidth=3;
     
     set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
     hold on
@@ -403,19 +399,7 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             for grNo=1:3
                 bar_offset = bar_offset +1;
-                
-                %                         if sum(eventType==3)>0
-                %                             bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(2-evNo);
-                %                         else
-                %                             bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(length(eventType)-evNo);
-                %                         end
-                %
-                %                         these_offsets(per_ii)=bar_offset;
-                bar_offset = bar_offset + 1;
-                
-                if (grNo==3)&(evNo==2)&(per_ii==1)
-                    pffft=1;
-                end
+      
                 
                 %Get these PLV values
                 these_PLV=[];
@@ -461,32 +445,21 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
                 
                 
             end
-            bar_offset = bar_offset + 2;
+            bar_offset = bar_offset + 1;
             
         end
-        bar_offset = bar_offset + 3;
+        bar_offset = bar_offset + 1;
         
     end
     
     title(['Average delta PLV for each odor_pair/mouse for ' bandwidth_names{bwii}])
     
     
-    %Annotations identifying groups
-    x_interval=0.8/ii_gr_included;
-    for ii=1:ii_gr_included
-        annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
-    end
-    
-    %Proficient/Naive annotations
-    annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
-    annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
-    
-    
-    xticks([2 4 6 10 12 14 21 23 25 29 31 33])
+    xticks([1 2 3 5 6 7 10 11 12 14 15 16])
     xticklabels({'nwtS+', 'nHS+', 'nKOS+', 'pwtS+', 'pHS+', 'pKOS+', 'nwtS-', 'nHS-', 'nKOS-', 'pwtS-', 'pHS-', 'pKOS-'})
     
     ylabel('delta PLV')
-    
+    ylim([-0.6 0.6])
     
     %Perform the glm
     fprintf(1, ['glm for delta PLV for each odor pair/mouse for '  bandwidth_names{bwii} '\n'])
@@ -506,7 +479,7 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
 end
 
 
-
+ 
 
 %Now plot the average delta phase for each odor pair/mouse
 %(including all sessions for each mouse)

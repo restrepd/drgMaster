@@ -155,7 +155,8 @@ all_hipp_pcorr_files=[];
 all_beh_files=[];
 
 
-%Now
+%Do peaks
+
 for PACii=1:2   %for amplitude bandwidths (beta, low gamma, high gamma)
     
     all_disc_hipp_percorr=[];
@@ -174,24 +175,31 @@ for PACii=1:2   %for amplitude bandwidths (beta, low gamma, high gamma)
     hFig=figure(figNo);
     
     hold on
-      
+    
+    
+    set(hFig, 'units','normalized','position',[.1 .5 .25 .4])
+    
+    hold on
+    
+    ax=gca;ax.LineWidth=3;
+    
     for ii=1:length(hippFileName)
         load([hippPathName hippFileName{ii}])
-            hippo_pcorr_out=pcorr_out;
-%         all_PLV_files(ii).delta_PLV_odor_minus_ref_per_mouse=delta_PLV_odor_minus_ref_per_mouse;
-%         all_PLV_files(ii).delta_phase_odor_per_mouse=delta_phase_odor_per_mouse;
-%         all_PLV_files(ii).group_no_per_mouse=group_no_per_mouse;
+        hippo_pcorr_out=pcorr_out;
+        %         all_PLV_files(ii).delta_PLV_odor_minus_ref_per_mouse=delta_PLV_odor_minus_ref_per_mouse;
+        %         all_PLV_files(ii).delta_phase_odor_per_mouse=delta_phase_odor_per_mouse;
+        %         all_PLV_files(ii).group_no_per_mouse=group_no_per_mouse;
         
         load([behPathName behFileName{ii}])
-%         all_beh_files(ii).mean_per_corr_per_mouse_prof=mean_per_corr_per_mouse_prof;
-%         all_beh_files(ii).group_no_per_mouse=group_no_per_mouse;
+        %         all_beh_files(ii).mean_per_corr_per_mouse_prof=mean_per_corr_per_mouse_prof;
+        %         all_beh_files(ii).group_no_per_mouse=group_no_per_mouse;
         
         per_ii=1;
         
         
         for grNo=1:3
             pfft=1;
-             
+            
             these_disc_pcorr=[];
             these_disc_pcorr=hippo_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
             all_disc_hipp_percorr=[all_disc_hipp_percorr these_disc_pcorr];
@@ -200,11 +208,11 @@ for PACii=1:2   %for amplitude bandwidths (beta, low gamma, high gamma)
             all_pCorr=[all_pCorr these_pCorr];
             switch grNo
                 case 1
-                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','g')
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','g','MarkerFaceColor','g')
                 case 2
-                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','b')
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','b','MarkerFaceColor','b')
                 case 3
-                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','y')
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','y','MarkerFaceColor','y')
             end
             
             
@@ -236,10 +244,10 @@ for PACii=1:2   %for amplitude bandwidths (beta, low gamma, high gamma)
     ylabel('Percent correct')
     title(['Discriminant accuracy vs percent correct for hippocampus peak PRP ' PAC_disc_names{PACii} ])
 end
- 
- fprintf(1,'\n')
- 
- %Do prefrontal next
+
+fprintf(1,'\n')
+
+%Do prefrontal next
 
 %Load data
 all_hipp_pcorr_files=[];
@@ -264,25 +272,29 @@ for PACii=1:2   %for amplitude bandwidths (beta, low gamma, high gamma)
     end
     hFig=figure(figNo);
     
+    set(hFig, 'units','normalized','position',[.1 .5 .25 .4])
+    
     hold on
-      
+    
+    ax=gca;ax.LineWidth=3;
+    
     for ii=1:length(preFileName)
         load([prePathName preFileName{ii}])
-            pref_pcorr_out=pcorr_out;
-%         all_PLV_files(ii).delta_PLV_odor_minus_ref_per_mouse=delta_PLV_odor_minus_ref_per_mouse;
-%         all_PLV_files(ii).delta_phase_odor_per_mouse=delta_phase_odor_per_mouse;
-%         all_PLV_files(ii).group_no_per_mouse=group_no_per_mouse;
+        pref_pcorr_out=pcorr_out;
+        %         all_PLV_files(ii).delta_PLV_odor_minus_ref_per_mouse=delta_PLV_odor_minus_ref_per_mouse;
+        %         all_PLV_files(ii).delta_phase_odor_per_mouse=delta_phase_odor_per_mouse;
+        %         all_PLV_files(ii).group_no_per_mouse=group_no_per_mouse;
         
         load([behPathName behFileName{ii}])
-%         all_beh_files(ii).mean_per_corr_per_mouse_prof=mean_per_corr_per_mouse_prof;
-%         all_beh_files(ii).group_no_per_mouse=group_no_per_mouse;
+        %         all_beh_files(ii).mean_per_corr_per_mouse_prof=mean_per_corr_per_mouse_prof;
+        %         all_beh_files(ii).group_no_per_mouse=group_no_per_mouse;
         
         per_ii=1;
         
         
         for grNo=1:3
             pfft=1;
-             
+            
             these_disc_pcorr=[];
             these_pCorr=mean_per_corr_per_mouse_prof(group_no_per_mouse==grNo);
             these_disc_pcorr=pref_pcorr_out.PACii(PACii).peaks.pcorr(per_ii).group(grNo).odor_data;
@@ -292,11 +304,11 @@ for PACii=1:2   %for amplitude bandwidths (beta, low gamma, high gamma)
             all_pCorr=[all_pCorr these_pCorr];
             switch grNo
                 case 1
-                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','g')
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','g','MarkerFaceColor','g')
                 case 2
-                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','b')
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','b','MarkerFaceColor','b')
                 case 3
-                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','y')
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','y','MarkerFaceColor','y')
             end
             
             
@@ -307,7 +319,7 @@ for PACii=1:2   %for amplitude bandwidths (beta, low gamma, high gamma)
     x=all_disc_pre_percorr(~isnan(all_pCorr))';
     y=all_pCorr(~isnan(all_pCorr))';
     
-     ii_pval=ii_pval+1;
+    ii_pval=ii_pval+1;
     [rho,pval(ii_pval)]=corr(x,y);
     
     %Fit a line
@@ -328,11 +340,191 @@ for PACii=1:2   %for amplitude bandwidths (beta, low gamma, high gamma)
     title(['Discriminant accuracy vs percent correct for prefrontal peak PRP ' PAC_disc_names{PACii} ])
 end
 
-pFDR=drsFDRpval(pval);
-fprintf(1, ['\n\npFDR = %d \n\n'],pFDR)
+%Do troughs
 
- fprintf(1,'\n')
- 
+for PACii=1:2   %for amplitude bandwidths (beta, low gamma, high gamma)
+    
+    all_disc_hipp_percorr=[];
+    all_pCorr=[];
+    
+    id_ii=0;
+    input_data=[];
+    
+    %Plot the average
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    set(hFig, 'units','normalized','position',[.1 .5 .25 .4])
+    
+    hold on
+    
+    ax=gca;ax.LineWidth=3;
+    
+    for ii=1:length(hippFileName)
+        load([hippPathName hippFileName{ii}])
+        hippo_pcorr_out=pcorr_out;
+        %         all_PLV_files(ii).delta_PLV_odor_minus_ref_per_mouse=delta_PLV_odor_minus_ref_per_mouse;
+        %         all_PLV_files(ii).delta_phase_odor_per_mouse=delta_phase_odor_per_mouse;
+        %         all_PLV_files(ii).group_no_per_mouse=group_no_per_mouse;
+        
+        load([behPathName behFileName{ii}])
+        %         all_beh_files(ii).mean_per_corr_per_mouse_prof=mean_per_corr_per_mouse_prof;
+        %         all_beh_files(ii).group_no_per_mouse=group_no_per_mouse;
+        
+        per_ii=1;
+        
+        
+        for grNo=1:3
+            pfft=1;
+            
+            these_disc_pcorr=[];
+            these_disc_pcorr=hippo_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
+            all_disc_hipp_percorr=[all_disc_hipp_percorr these_disc_pcorr];
+            these_pCorr=mean_per_corr_per_mouse_prof(group_no_per_mouse==grNo);
+            these_pCorr=these_pCorr(~isnan(these_pCorr));
+            all_pCorr=[all_pCorr these_pCorr];
+            switch grNo
+                case 1
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','g','MarkerFaceColor','g')
+                case 2
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','b','MarkerFaceColor','b')
+                case 3
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','y','MarkerFaceColor','y')
+            end
+            
+            
+        end
+        
+    end
+    
+    x=all_disc_hipp_percorr(~isnan(all_pCorr))';
+    y=all_pCorr(~isnan(all_pCorr))';
+    
+    ii_pval=ii_pval+1;
+    [rho,pval(ii_pval)]=corr(x,y);
+    
+    %Fit a line
+    c = polyfit(x,y,1);
+    % Display evaluated equation y = m*x + b
+    disp(['Equation is y = ' num2str(c(1)) '*x + ' num2str(c(2))])
+    % Evaluate fit equation using polyval
+    y_est = polyval(c,x);
+    % Add trend line to plot
+    plot(x,y_est,'k-','LineWidth',2)
+    
+    xlim([40 100])
+    ylim([80 100])
+    
+    fprintf(1, ['rho = %d, p value = %d for hippocampus discriminant trough PRP for '  PAC_disc_names{PACii} '\n\n'],rho,pval(ii_pval))
+    
+    xlabel('Accuracy')
+    ylabel('Percent correct')
+    title(['Discriminant accuracy vs percent correct for hippocampus trough PRP ' PAC_disc_names{PACii} ])
+end
+
+fprintf(1,'\n')
+
+%Do prefrontal next
+
+%Load data
+all_hipp_pcorr_files=[];
+all_beh_files=[];
+
+
+
+for PACii=1:2   %for amplitude bandwidths (beta, low gamma, high gamma)
+    
+    all_disc_pre_percorr=[];
+    all_pCorr=[];
+    
+    id_ii=0;
+    input_data=[];
+    
+    %Plot the average
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    set(hFig, 'units','normalized','position',[.1 .5 .25 .4])
+    
+    hold on
+    
+    ax=gca;ax.LineWidth=3;
+    
+    for ii=1:length(preFileName)
+        load([prePathName preFileName{ii}])
+        pref_pcorr_out=pcorr_out;
+        %         all_PLV_files(ii).delta_PLV_odor_minus_ref_per_mouse=delta_PLV_odor_minus_ref_per_mouse;
+        %         all_PLV_files(ii).delta_phase_odor_per_mouse=delta_phase_odor_per_mouse;
+        %         all_PLV_files(ii).group_no_per_mouse=group_no_per_mouse;
+        
+        load([behPathName behFileName{ii}])
+        %         all_beh_files(ii).mean_per_corr_per_mouse_prof=mean_per_corr_per_mouse_prof;
+        %         all_beh_files(ii).group_no_per_mouse=group_no_per_mouse;
+        
+        per_ii=1;
+        
+        
+        for grNo=1:3
+            pfft=1;
+            
+            these_disc_pcorr=[];
+            these_pCorr=mean_per_corr_per_mouse_prof(group_no_per_mouse==grNo);
+            these_disc_pcorr=pref_pcorr_out.PACii(PACii).trough.pcorr(per_ii).group(grNo).odor_data;
+            these_disc_pcorr=these_disc_pcorr(~isnan(these_pCorr));
+            all_disc_pre_percorr=[all_disc_pre_percorr these_disc_pcorr];
+            these_pCorr=these_pCorr(~isnan(these_pCorr));
+            all_pCorr=[all_pCorr these_pCorr];
+            switch grNo
+                case 1
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','g','MarkerFaceColor','g')
+                case 2
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','b','MarkerFaceColor','b')
+                case 3
+                    plot(these_disc_pcorr,these_pCorr,'o','MarkerEdgeColor','y','MarkerFaceColor','y')
+            end
+            
+            
+        end
+        
+    end
+    
+    x=all_disc_pre_percorr(~isnan(all_pCorr))';
+    y=all_pCorr(~isnan(all_pCorr))';
+    
+    ii_pval=ii_pval+1;
+    [rho,pval(ii_pval)]=corr(x,y);
+    
+    %Fit a line
+    c = polyfit(x,y,1);
+    % Display evaluated equation y = m*x + b
+    disp(['Equation is y = ' num2str(c(1)) '*x + ' num2str(c(2))])
+    % Evaluate fit equation using polyval
+    y_est = polyval(c,x);
+    % Add trend line to plot
+    plot(x,y_est,'k-','LineWidth',2)
+    
+    fprintf(1, ['rho = %d, p value = %d for discriminant prefrontal trough PRP for '  PAC_disc_names{PACii} '\n\n'],rho,pval(ii_pval))
+    
+    xlim([40 100])
+    ylim([80 100])
+    xlabel('Accuracy')
+    ylabel('Percent correct')
+    title(['Discriminant accuracy vs percent correct for prefrontal trough PRP ' PAC_disc_names{PACii} ])
+end
+
+
+fprintf(1,'\n')
+
 %Correlation for coherence
 
 %Load data
@@ -383,11 +575,11 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
             all_pCorr=[all_pCorr these_pCorr];
             switch grNo
                 case 1
-                    plot(these_coh_auROC,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','g')
+                    plot(these_coh_auROC,these_pCorr,'o','MarkerEdgeColor','g','MarkerFaceColor','g')
                 case 2
-                    plot(these_coh_auROC,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','b')
+                    plot(these_coh_auROC,these_pCorr,'o','MarkerEdgeColor','b','MarkerFaceColor','b')
                 case 3
-                    plot(these_coh_auROC,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','y')
+                    plot(these_coh_auROC,these_pCorr,'o','MarkerEdgeColor','y','MarkerFaceColor','y')
             end
             
             
@@ -452,11 +644,11 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
             all_pCorr=[all_pCorr these_pCorr];
             switch grNo
                 case 1
-                    plot(these_ddPLV,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','g')
+                    plot(these_ddPLV,these_pCorr,'o','MarkerEdgeColor','g','MarkerFaceColor','g')
                 case 2
-                    plot(these_ddPLV,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','b')
+                    plot(these_ddPLV,these_pCorr,'o','MarkerEdgeColor','b','MarkerFaceColor','b')
                 case 3
-                    plot(these_ddPLV,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','y')
+                    plot(these_ddPLV,these_pCorr,'o','MarkerEdgeColor','y','MarkerFaceColor','y')
             end
             
             
@@ -515,11 +707,11 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
             all_pCorr=[all_pCorr these_pCorr];
             switch grNo
                 case 1
-                    plot(these_ddphase,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','g')
+                    plot(these_ddphase,these_pCorr,'o','MarkerEdgeColor','g','MarkerFaceColor','g')
                 case 2
-                    plot(these_ddphase,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','b')
+                    plot(these_ddphase,these_pCorr,'o','MarkerEdgeColor','b','MarkerFaceColor','b')
                 case 3
-                    plot(these_ddphase,these_pCorr,'o','MarkerEdgeColor','k','MarkerFaceColor','y')
+                    plot(these_ddphase,these_pCorr,'o','MarkerEdgeColor','y','MarkerFaceColor','y')
             end
             
             
@@ -578,11 +770,11 @@ for bwii=1:4    %for amplitude bandwidths (beta, low gamma, high gamma)
            
             switch grNo
                 case 1
-                    plot(these_ddphase,these_ddPLV,'o','MarkerEdgeColor','k','MarkerFaceColor','g')
+                    plot(these_ddphase,these_ddPLV,'o','MarkerEdgeColor','g','MarkerFaceColor','g')
                 case 2
-                    plot(these_ddphase,these_ddPLV,'o','MarkerEdgeColor','k','MarkerFaceColor','b')
+                    plot(these_ddphase,these_ddPLV,'o','MarkerEdgeColor','b','MarkerFaceColor','b')
                 case 3
-                    plot(these_ddphase,these_ddPLV,'o','MarkerEdgeColor','k','MarkerFaceColor','y')
+                    plot(these_ddphase,these_ddPLV,'o','MarkerEdgeColor','y','MarkerFaceColor','y')
             end
             
             

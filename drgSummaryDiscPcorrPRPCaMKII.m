@@ -2722,7 +2722,7 @@ for PACii=1:2
     
     
     %Perform the glm
-    fprintf(1, ['glm for percent correct per mouse per odor pair for theta/' PACnames{PACii} '\n'])
+    fprintf(1, ['Fig 4B and C glm for percent correct per mouse per odor pair for theta/' PACnames{PACii} '\n'])
     tbl = table(glm_disc.data',glm_disc.peak',glm_disc.proficient',glm_disc.brain_region',...
         'VariableNames',{'performance','peak','proficient','brain_region'});
     mdl = fitglm(tbl,'performance~peak+proficient+brain_region+peak*proficient*brain_region'...

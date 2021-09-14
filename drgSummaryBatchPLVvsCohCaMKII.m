@@ -364,161 +364,161 @@ rand_offset=0.7;
 
 
 %Now plot the per odor pair/mouse correlation of PLV and coherence
-
-for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
-    
-    glm_PLV=[];
-    glm_ii=0;
-    
-    id_ii=0;
-    input_data=[];
-    
-    %Plot the average
-    figNo = figNo +1;
-    
-    try
-        close(figNo)
-    catch
-    end
-    hFig=figure(figNo);
-    
-    ax=gca;ax.LineWidth=3;
-    
-    
-    set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
-    hold on
-    
-    
-    bar_offset = 0;
-    
-    all_cohs=[];
-    all_PLVs=[];
-    
-    for evNo=1:2
+for grNo=1:3
+    for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
         
-        for per_ii=2:-1:1
+        glm_PLV=[];
+        glm_ii=0;
+        
+        id_ii=0;
+        input_data=[];
+        
+        %Plot the average
+        figNo = figNo +1;
+        
+        try
+            close(figNo)
+        catch
+        end
+        hFig=figure(figNo);
+        
+        ax=gca;ax.LineWidth=3;
+        
+        
+        set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
+        hold on
+        
+        
+        bar_offset = 0;
+        
+        all_cohs=[];
+        all_PLVs=[];
+        
+        for evNo=1:2
             
-            grNo=1;
-            
-            bar_offset = bar_offset + 1;
-            
-            %Get these PLV and coherence values and sort them per mouse
-            these_PLV=[];
-            ii_PLV=0;
-            these_coh=[];
-            ii_coh=0;
-            
-            for ii=1:length(FileNamePLV)
-                these_PLVs=zeros(1,sum(group_no_per_mouse==grNo));
-                these_PLV_mice=zeros(1,sum(group_no_per_mouse==grNo));
-                these_PLVs(1,:)=all_filesPLV(ii).delta_PLV_odor_minus_ref_per_mouse(group_no_per_mouse==grNo,bwii,per_ii,evNo);
-                these_PLV_mice(1,:)=all_filesPLV(ii).which_mice(group_no_per_mouse==grNo);
+            for per_ii=2:-1:1
                 
                 
                 
-                this_jj=[];
-                for jj=1:all_filescoh(ii).handles_out.dcoh_ii
+                bar_offset = bar_offset + 1;
+                
+                %Get these PLV and coherence values and sort them per mouse
+                these_PLV=[];
+                ii_PLV=0;
+                these_coh=[];
+                ii_coh=0;
+                
+                for ii=1:length(FileNamePLV)
+                    these_PLVs=zeros(1,sum(group_no_per_mouse==grNo));
+                    these_PLV_mice=zeros(1,sum(group_no_per_mouse==grNo));
+                    these_PLVs(1,:)=all_filesPLV(ii).delta_PLV_odor_minus_ref_per_mouse(group_no_per_mouse==grNo,bwii,per_ii,evNo);
+                    these_PLV_mice(1,:)=all_filesPLV(ii).which_mice(group_no_per_mouse==grNo);
                     
-                    if all_filescoh(ii).handles_out.dcoh_values(jj).pacii==bwii
-                        if all_filescoh(ii).handles_out.dcoh_values(jj).evNo==evNo
-                            if all_filescoh(ii).handles_out.dcoh_values(jj).per_ii==per_ii
-                                
-                                
-                                if all_filescoh(ii).handles_out.dcoh_values(jj).groupNo==grNo
-                                    this_jj=jj;
+                    
+                    
+                    this_jj=[];
+                    for jj=1:all_filescoh(ii).handles_out.dcoh_ii
+                        
+                        if all_filescoh(ii).handles_out.dcoh_values(jj).pacii==bwii
+                            if all_filescoh(ii).handles_out.dcoh_values(jj).evNo==evNo
+                                if all_filescoh(ii).handles_out.dcoh_values(jj).per_ii==per_ii
+                                    
+                                    
+                                    if all_filescoh(ii).handles_out.dcoh_values(jj).groupNo==grNo
+                                        this_jj=jj;
+                                    end
+                                    
                                 end
                                 
                             end
-                            
                         end
                     end
+                    
+                    
+                    these_cohs=all_filescoh(ii).handles_out.dcoh_values(this_jj).dcoh_per_mouse;
+                    these_coh_mice=all_filescoh(ii).handles_out.dcoh_values(this_jj).mouseNo;
+                    
+                    for kk=1:length(these_coh_mice)
+                        this_PLVmouse_ii=find(these_PLV_mice==these_coh_mice(kk));
+                        if ~isempty(this_PLVmouse_ii)
+                            these_PLV(ii_PLV+1)=these_PLVs(this_PLVmouse_ii);
+                            ii_PLV=ii_PLV+1;
+                            these_coh(ii_coh+1)=these_cohs(kk);
+                            ii_coh=ii_coh+1;
+                        end
+                    end
+                    
                 end
                 
+                all_cohs=[all_cohs these_coh];
+                all_PLVs=[all_PLVs these_PLV];
                 
-                these_cohs=all_filescoh(ii).handles_out.dcoh_values(this_jj).dcoh_per_mouse;
-                these_coh_mice=all_filescoh(ii).handles_out.dcoh_values(this_jj).mouseNo;
-                
-                for kk=1:length(these_coh_mice)
-                    this_PLVmouse_ii=find(these_PLV_mice==these_coh_mice(kk));
-                    if ~isempty(this_PLVmouse_ii)
-                        these_PLV(ii_PLV+1)=these_PLVs(this_PLVmouse_ii);
-                        ii_PLV=ii_PLV+1;
-                        these_coh(ii_coh+1)=these_cohs(kk);
-                        ii_coh=ii_coh+1;
+                if evNo==2
+                    if per_ii==1
+                        %S+ Proficient
+                        plot(these_coh,these_PLV,'o','MarkerEdgeColor','none','MarkerFaceColor',[158/255 31/255 99/255])
+                    else
+                        %S+ Naive
+                        plot(these_coh,these_PLV,'o','MarkerEdgeColor','none','MarkerFaceColor',[238/255 111/255 179/255])
+                    end
+                else
+                    if per_ii==1
+                        %S- Proficient
+                        plot(these_coh,these_PLV,'o','MarkerEdgeColor','none','MarkerFaceColor',[0 114/255 178/255])
+                    else
+                        %S- naive
+                        plot(these_coh,these_PLV,'o','MarkerEdgeColor','none','MarkerFaceColor',[80/255 194/255 255/255])
                     end
                 end
                 
+                
+                
             end
-            
-            all_cohs=[all_cohs these_coh];
-            all_PLVs=[all_PLVs these_PLV];
-            
-            if evNo==2
-                if per_ii==1
-                    %S+ Proficient
-                    plot(these_coh,these_PLV,'o','MarkerEdgeColor','none','MarkerFaceColor',[158/255 31/255 99/255])
-                else
-                    %S+ Naive
-                    plot(these_coh,these_PLV,'o','MarkerEdgeColor','none','MarkerFaceColor',[238/255 111/255 179/255])
-                end
-            else
-                if per_ii==1
-                    %S- Proficient
-                    plot(these_coh,these_PLV,'o','MarkerEdgeColor','none','MarkerFaceColor',[0 114/255 178/255])
-                else
-                    %S- naive
-                    plot(these_coh,these_PLV,'o','MarkerEdgeColor','none','MarkerFaceColor',[80/255 194/255 255/255])
-                end
-            end
-            
             
             
         end
         
+        title(['delta PLV vs. delta coherence for each odor pair/mouse for ' bandwidth_names{bwii} ' and ' group_legend{grNo}])
+        
+        
+        %     %Annotations identifying groups
+        %     x_interval=0.8/ii_gr_included;
+        %     for ii=1:ii_gr_included
+        %         annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
+        %     end
+        %
+        %     %Proficient/Naive annotations
+        %     annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
+        %     annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
+        
+        
+        
+        
+        ylabel('delta PLV')
+        xlabel('delta coherence')
+        xlim([-0.4 0.3])
+        ylim([-0.6 0.5])
+        
+        ii_pval=ii_pval+1;
+        x=all_cohs';
+        y=all_PLVs';
+        [rho,pval(ii_pval)]=corr(x,y);
+        
+        %Fit a line
+        c = polyfit(x,y,1);
+        % Display evaluated equation y = m*x + b
+        disp(['Equation is y = ' num2str(c(1)) '*x + ' num2str(c(2))])
+        % Evaluate fit equation using polyval
+        y_est = polyval(c,[-0.4 0.3]);
+        % Add trend line to plot
+        plot([-0.4 0.3],y_est,'k-','LineWidth',2)
+        
+        fprintf(1, ['rho = %d, p value = %d for delta PLV vs delta coherence for '  bandwidth_names{bwii} ' and ' group_legend{grNo} '\n\n'],rho,pval(ii_pval))
+        
         
     end
-    
-    title(['delta PLV vs. delta coherence for each odor pair/mouse for ' bandwidth_names{bwii}])
-    
-    
-    %     %Annotations identifying groups
-    %     x_interval=0.8/ii_gr_included;
-    %     for ii=1:ii_gr_included
-    %         annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
-    %     end
-    %
-    %     %Proficient/Naive annotations
-    %     annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
-    %     annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
-    
-    
-    
-    
-    ylabel('delta PLV')
-    xlabel('delta coherence')
-    xlim([-0.4 0.3])
-    ylim([-0.6 0.5])
-    
-    ii_pval=ii_pval+1;
-    x=all_cohs';
-    y=all_PLVs';
-    [rho,pval(ii_pval)]=corr(x,y);
-    
-    %Fit a line
-    c = polyfit(x,y,1);
-    % Display evaluated equation y = m*x + b
-    disp(['Equation is y = ' num2str(c(1)) '*x + ' num2str(c(2))])
-    % Evaluate fit equation using polyval
-    y_est = polyval(c,[-0.4 0.3]);
-    % Add trend line to plot
-    plot([-0.4 0.3],y_est,'k-','LineWidth',2)
-    
-    fprintf(1, ['rho = %d, p value = %d for delta PLV vs delta coherence for '  bandwidth_names{bwii} '\n\n'],rho,pval(ii_pval))
-
-    
 end
 
- 
 
 %Now plot the average delta phase calculated per odor pair
 

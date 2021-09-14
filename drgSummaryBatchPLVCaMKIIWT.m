@@ -203,7 +203,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
 end
 
-
+ 
 
 %Now plot the average delta phase calculated per odor pair
 for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -457,7 +457,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
 end
 
-
+ 
 
 %Now plot the average delta phase calculated per odor pair
 
@@ -519,18 +519,18 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             if evNo==2
                 if per_ii==1
-                    %S+ Proficient
+                    %S- Proficient
                     bar(bar_offset,circ_mean(these_delta_phase'),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
                 else
-                    %S+ Naive
+                    %S- Naive
                     bar(bar_offset,circ_mean(these_delta_phase'),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
                 end
             else
                 if per_ii==1
-                    %S- Proficient
+                    %S+ Proficient
                     bar(bar_offset,circ_mean(these_delta_phase'),'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
                 else
-                    %S- naive
+                    %S+ naive
                     bar(bar_offset,circ_mean(these_delta_phase'),'LineWidth', 3,'EdgeColor','none','FaceColor',[80/255 194/255 255/255])
                 end
             end

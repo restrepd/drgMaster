@@ -1,4 +1,4 @@
-function drgSummaryBatchPRPCaMKII
+function drgSummaryBatchPRPClosedLoop
 %Analyzes the linear discriminant analysis performed by drgLFPDiscriminantBatch
 %Takes as a in input the 'drgbDiscPar' file listing 'Discriminant_*.mat' output files
 %from drgLFPDiscriminantBatch
@@ -62,7 +62,7 @@ peak_label{2}='Peak';
 
 %Location of files
 % hippPathName='F:\Datos summary CaMKII111720\PRP drgAnalysisBatchLFPCaMKII case 24 output for summary\';
-hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for 80/';
+hippPathName='/Users/restrepd/OneDrive - The University of Colorado Denver/Daniel''s K01 2021/closed/83121/';
 % fwd_rev_hippo=[
 
 % %Hippocampus
@@ -86,14 +86,15 @@ hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysis
 % hippFileName{8}='spm_LFP_pzz1propylwavephasepower071220_hippocampusLFP2.mat';
 
 %Hippocampus proficient =[80 100]
-hippFileName{1}='spm_LFP_acetowavephasepower32620_hippocampusLFP80.mat';
-hippFileName{2}='spm_LFP_ethylbenwavephasepower41420_hippocampusLFP80.mat';
-hippFileName{3}='spm_LFP_ethylwavephasepower3520_hippocampusLFP80.mat';
-hippFileName{4}='spm_LFP_acetowavephasepower32620 2_hippocampusLFP80.mat';
-hippFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_hippocampusLFP80.mat';
-hippFileName{6}='spm_LFP_pz1propylwavephasepower013020_hippocampusLFP80.mat';
-hippFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_hippocampusLFP80.mat';
-hippFileName{8}='spm_LFP_pzz1propylwavephasepower071220_hippocampusLFP80.mat';
+% hippFileName{1}='closed loopspm_LFP_wavephasepowerpeak83021_powerhippo.mat';
+hippFileName{1}='closed loopspm_LFP_wavephasepowerpeak83021';
+% hippFileName{2}='spm_LFP_ethylbenwavephasepower41420_hippocampusLFP80.mat';
+% hippFileName{3}='spm_LFP_ethylwavephasepower3520_hippocampusLFP80.mat';
+% hippFileName{4}='spm_LFP_acetowavephasepower32620 2_hippocampusLFP80.mat';
+% hippFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_hippocampusLFP80.mat';
+% hippFileName{6}='spm_LFP_pz1propylwavephasepower013020_hippocampusLFP80.mat';
+% hippFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_hippocampusLFP80.mat';
+% hippFileName{8}='spm_LFP_pzz1propylwavephasepower071220_hippocampusLFP80.mat';
 
 % prePathName='F:\Datos summary CaMKII111720\PRP drgAnalysisBatchLFPCaMKII case 24 output for summary\';
 prePathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for 80/';
@@ -119,14 +120,15 @@ prePathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysisB
 % preFileName{8}='spm_LFP_pzz1propylwavephasepower071220_prefrontalLFP2.mat';
 
 %Prefrontal proficient =[80 100]
-preFileName{1}='spm_LFP_acetowavephasepower32620_prefrontalLFP80.mat';
-preFileName{2}='spm_LFP_ethylbenwavephasepower41420_prefrontalLFP80.mat';
-preFileName{3}='spm_LFP_ethylwavephasepower3520_prefrontalLFP80.mat';
-preFileName{4}='spm_LFP_acetowavephasepower32620 2_prefrontalLFP80.mat';
-preFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_prefrontalLFP80.mat';
-preFileName{6}='spm_LFP_pz1propylwavephasepower013020_prefrontalLFP80.mat';
-preFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_prefrontalLFP80.mat';
-preFileName{8}='spm_LFP_pzz1propylwavephasepower071220_prefrontalLFP80.mat';
+% preFileName{1}='closed loopspm_LFP_wavephasepowerpeak83021_powerhippo.mat';
+preFileName{1}='closed loopspm_LFP_wavephasepowerpeak83021';
+% preFileName{2}='spm_LFP_ethylbenwavephasepower41420_prefrontalLFP80.mat';
+% preFileName{3}='spm_LFP_ethylwavephasepower3520_prefrontalLFP80.mat';
+% preFileName{4}='spm_LFP_acetowavephasepower32620 2_prefrontalLFP80.mat';
+% preFileName{5}='spm_LFP_pz1ethyllwavephasepower0213020_prefrontalLFP80.mat';
+% preFileName{6}='spm_LFP_pz1propylwavephasepower013020_prefrontalLFP80.mat';
+% preFileName{7}='spm_LFP_pzz1ethyllwavephasepower043020_prefrontalLFP80.mat';
+% preFileName{8}='spm_LFP_pzz1propylwavephasepower071220_prefrontalLFP80.mat';
 
 
 %Now process the hippocampus

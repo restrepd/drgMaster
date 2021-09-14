@@ -1,4 +1,4 @@
-function [meanVectorLength, meanVectorAngle, peakAngle, MI_Tort, phase, phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env]=drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins,method)
+function [meanVectorLength, meanVectorAngle, peakAngle, MI_Tort, phase, phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env, laser_phases]=drgGetClosedLoopPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins,method)
 %Generates the phase histogram for the envelope and pac
 %function [pac_value, mod_indx, phase, phase_histo, theta_wave]=drgGetThetaAmpPhase(LFP,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins)
  
@@ -36,9 +36,11 @@ angleGammaEnv = angle(hilbert(filtLFPgamma)); % phase modulation of amplitude
 % Now filter the theta
 switch method
     case 1
+        
         bpFilttheta = designfilt('bandpassiir','FilterOrder',20, ...
             'HalfPowerFrequency1',lowF1,'HalfPowerFrequency2',lowF2, ...
             'SampleRate',Fs);
+        
         thfiltLFPgenv=filtfilt(bpFilttheta,LFPgenv);
     case 2
         thfiltLFPgenv = eegfilt(LFPgenv, rsFs, lowF1, lowF2);
@@ -221,8 +223,79 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 %Note peak_amp_phase_timecourse_t goes from zero to
 %(time_end-time_start)+2*time_pad
 
+%Find the phase for each laser pulse (do this only for the first pulse
+at_end=0;
+ii=1;
+laser_phases=[];
+these_phase_iis=[];
+ii_laser=0;
+while at_end==0
+    if ~isempty(find(LFPhigh(ii:end)>2,1,'first'))
+        next_laser_ii=find(LFPhigh(ii:end)>2,1,'first');
+        ii_laser=ii_laser+1;
+        this_phase=anglethetaLFP(next_laser_ii+ii-1);
+        this_phase_degrees=360*((this_phase+pi)/(2*pi));
+        laser_phases(ii_laser)=this_phase_degrees;
+        these_phase_iis(ii_laser)=next_laser_ii+ii-1;
+        ii=ii+next_laser_ii-1+420;
+    else
+        at_end=1;
+    end
+    if ii>length(LFPhigh)-410
+       at_end=1; 
+    end
+end
 
-% % %Plot for troubleshooting
+
+% 
+% % % %Plot for troubleshooting
+
+
+% % 
+% %Theta phase
+% try
+%     close(20)
+% catch
+% end
+% hFig=figure(20);
+% set(hFig, 'units','normalized','position',[.02 .45 .5 .2])
+% hold on
+% % time=[1:length(anglethetaLFP(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(180+(anglethetaLFP*(180/pi)),'-b')
+% for ii=1:length(these_phase_iis)
+%     plot([these_phase_iis(ii) these_phase_iis(ii)],[0 360],'-r')
+% end
+% xlabel('Sample number')
+% ylabel('degrees')
+% 
+% 
+% %Laser trigger
+% try
+%     close(21)
+% catch
+% end
+% hFig=figure(21);
+% set(hFig, 'units','normalized','position',[.02 .65 .5 .2])
+% hold on
+% % time=[1:length(LFPhigh(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(LFPhigh,'-b')
+% for ii=1:length(these_phase_iis)
+%     plot([these_phase_iis(ii) these_phase_iis(ii)],[0 5],'-r')
+% end
+% xlabel('Sample number')
+% ylabel('volts')
+% ylim([-1.5 5])
+% 
+% 
+% try
+%     close(22)
+% catch
+% end
+% hFig=figure(22);
+% histogram(laser_phases)
+
+
+
 % figure(10)
 % subplot(3,1,1)
 % plot(LFPgenv)
@@ -246,7 +319,7 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % plot(loc*Fs,(max(anglethetaLFP)+0.05*(max(anglethetaLFP)-min(anglethetaLFP))*ones(1,length(loc))),'ob')
 % plot((out_times+time_pad)*Fs,out_phase,'ok')
 % title('Angle for low frequency LFP/sniff')
-
+% 
 % %Plot for Justin's Fig. 4 (example of PAC wavelet power)
 % %
 % figure(16)
@@ -255,11 +328,11 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % timeAngle=([1:length(trimmed_anglethetaLFP)]/Fs)-2;
 % plot(timeAngle,(180/pi)*(trimmed_anglethetaLFP+pi),'-b')
 % xlim([-2 5])
-
-
-% Plots for Daniel's Fig. 1
-% Raw data
-% set(gcf,'renderer','zbuffer')
+% 
+% 
+% % Plots for Daniel's Fig. 1
+% % Raw data
+% % set(gcf,'renderer','zbuffer')
 % set(gcf,'renderer','painters');
 % 
 % try
@@ -302,22 +375,8 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % ylim([-7000 7000])
 % xlim([3 4])
 % 
-% 
-% 
-% %Theta phase
-% try
-%     close(20)
-% catch
-% end
-% hFig=figure(20);
-% set(hFig, 'units','normalized','position',[.02 .45 .5 .2])
-% time=[1:length(anglethetaLFP(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
-% plot(time,anglethetaLFP(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-b')
-% xlabel('Time (sec)')
-% ylabel('degrees')
-% ylim([-200 200])
-% xlim([3 4])
-% 
+
+
 % 
 % %Gamma + envelope
 % try
@@ -335,6 +394,21 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % ylabel('uv')
 % xlim([3 4])
 % ylim([-500 500])
+% 
+% %Laser trigger
+% try
+%     close(21)
+% catch
+% end
+% hFig=figure(21);
+% set(hFig, 'units','normalized','position',[.02 .65 .5 .2])
+% hold on
+% time=[1:length(LFPhigh(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,LFPhigh(time_pad*Fs+1:end-time_pad*Fs),'-b')
+% xlabel('Time (sec)')
+% ylabel('volts')
+% xlim([3 4])
+% ylim([-5 5])
       
 % %Uncomment if you want to save the theta LFP to test with closed loop
 % try
@@ -345,8 +419,8 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % end
 % save('C:\Users\Diego Restrepo\Desktop\theta.mat','theta_out')
 
-pffft=1;
-
+pffft=1; 
+ 
 
 
 

@@ -57,4 +57,6 @@ switch handles.analysisNoOsc
         drgPLVTimecourse(handles);
     case 27
         drgPLVTimecourseAllElecs(handles);
+    case 28
+        drgClosedLoopPhase(handles);
 end
