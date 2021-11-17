@@ -17197,8 +17197,10 @@ switch which_display
         
         for pacii=1:no_pacii    %for amplitude bandwidths (beta, low gamma, high gamma)
             
-            ii_prp=0;
-            prp_data=[];
+            ii_prp_peak=0;
+            prp_data_peak=[];
+            ii_prp_trough=0;
+            prp_data_trough=[];
             glm_prp=[];
             glm_prp_ii=0;
             
@@ -17279,9 +17281,9 @@ switch which_display
                             glm_prp_ii=glm_prp_ii+length(these_data);
                             
                             %Enter the data for t-test/ranksum
-                            ii_prp=ii_prp+1;
-                            prp_data(ii_prp).data=these_data;
-                            prp_data(ii_prp).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' prof_naive_leg{per_ii} ' peak'];
+                            ii_prp_peak=ii_prp_peak+1;
+                            prp_data_peak(ii_prp_peak).data=these_data;
+                            prp_data_peak(ii_prp_peak).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii} ' peak'];
                         end
                     end
                     bar_offset = bar_offset + 1;
@@ -17569,9 +17571,9 @@ switch which_display
                             glm_prp_ii=glm_prp_ii+length(these_data);
                             
                             %Enter the data for t-test/ranksum
-                            ii_prp=ii_prp+1;
-                            prp_data(ii_prp).data=these_data;
-                            prp_data(ii_prp).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' prof_naive_leg{per_ii} ' trough'];
+                            ii_prp_trough=ii_prp_trough+1;
+                            prp_data_trough(ii_prp_trough).data=these_data;
+                            prp_data_trough(ii_prp_trough).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' prof_naive_leg{per_ii} ' trough'];
                             
                         end
                     end
@@ -17617,9 +17619,13 @@ switch which_display
                 ,'CategoricalVars',[2,3,4])
             
             
-            fprintf(1, ['\n\nRanksum or t-test for PRP for theta ' freq_names{pacii+1} '\n'])
+            fprintf(1, ['\n\nRanksum or t-test for PRP for peak theta ' freq_names{pacii+1} '\n'])
             %Now do the ranksums
-            output_data = drgMutiRanksumorTtest(prp_data);
+            output_data = drgMutiRanksumorTtest(prp_data_peak);
+            
+             fprintf(1, ['\n\nRanksum or t-test for PRP for trough theta ' freq_names{pacii+1} '\n'])
+            %Now do the ranksums
+            output_data = drgMutiRanksumorTtest(prp_data_trough);
             
         end
         

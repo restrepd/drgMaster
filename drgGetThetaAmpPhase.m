@@ -61,7 +61,7 @@ end
 
 %thfiltLFP=LFPlow;
 
-anglethetaLFP = angle(hilbert(thfiltLFP)); % phase modulation of amplitude
+anglethetaLFP = angle(hilbert(thfiltLFP)); % theta phase
 
 %This is PAC as defined by Bradley Voytek
 pac_value = abs(sum(exp(1i * (anglethetaLFP - angleThFlGammaEnv)), 'double')) / length(LFPlow);

@@ -220,7 +220,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 
                 id_ii=id_ii+1;
                 input_data(id_ii).data=these_PRP;
-                input_data(id_ii).description=[evTypeLabels{evNo} ' ' fwd_rev_leg{per_ii}];
+                input_data(id_ii).description=[evTypeLabels{evNo} ' ' fwd_rev_leg{fwd_rev}];
                 
                 
                 glm_PRP_both.data(glm_PRP_ii_both+1:glm_PRP_ii_both+length(these_PRP))=these_PRP;
@@ -375,7 +375,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 
                 id_ii=id_ii+1;
                 input_data(id_ii).data=these_PRP;
-                input_data(id_ii).description=[evTypeLabels{evNo} ' ' fwd_rev_leg{per_ii}];
+                input_data(id_ii).description=[evTypeLabels{evNo} ' ' fwd_rev_leg{fwd_rev}];
                 
                 
                 glm_PRP_both.data(glm_PRP_ii_both+1:glm_PRP_ii_both+length(these_PRP))=these_PRP;

@@ -571,17 +571,19 @@ if handles.drgb.PAC.no_trials>0
                 hFig = figure(figNo);
                 set(hFig, 'units','normalized','position',[.07 .7 .7 .23])
                 
-                
-                if length(this_trialNo)==1
-                    plot(times_lick_freq, lick_freq)
-                else
-                    [hl1, hp1] = boundedline(times_lick_freq',lick_freq', CIlickf', 'r');
+                try
+                    if length(this_trialNo)==1
+                        plot(times_lick_freq, lick_freq)
+                    else
+                        [hl1, hp1] = boundedline(times_lick_freq',lick_freq', CIlickf', 'r');
+                    end
+                    
+                    ylim([0 1.2*max(lick_freq)])
+                    xlabel('Time (sec)')
+                    ylabel('frequency (Hz)')
+                    title('Lick frequency')
+                catch
                 end
-                
-                ylim([0 1.2*max(lick_freq)])
-                xlabel('Time (sec)')
-                ylabel('frequency (Hz)')
-                title('Lick frequency')
                 
             end
             

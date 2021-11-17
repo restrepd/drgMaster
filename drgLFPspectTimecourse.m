@@ -23,7 +23,7 @@ if handles.subtractRef==0
     end
 else
     log_P_timecourse=zeros(length(f),length(t));
-    log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse),1);
+    log_P_timecourse(:,:)=mean( 10*log10(all_Power_timecourse(:,:,1:length(t))) ,1);
     log_P_timecourse_ref=zeros(length(f),length(t));
     log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref),1)',1,length(t));
     if handles.autoscale==1

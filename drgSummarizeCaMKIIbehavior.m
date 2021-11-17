@@ -106,7 +106,9 @@ catch
 end
 hFig=figure(figNo);
 
-set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+ax=gca;ax.LineWidth=3;
+
+set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
 hold on
 
 
@@ -178,7 +180,9 @@ catch
 end
 hFig=figure(figNo);
 
-set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+ax=gca;ax.LineWidth=3;
+
+set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
 hold on
 
 
@@ -260,7 +264,9 @@ catch
 end
 hFig=figure(figNo);
 
-set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+ax=gca;ax.LineWidth=3;
+
+set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
 hold on
 
 
@@ -344,7 +350,9 @@ catch
 end
 hFig=figure(figNo);
 
-set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+ax=gca;ax.LineWidth=3;
+
+set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
 hold on
 
 
@@ -428,7 +436,9 @@ catch
 end
 hFig=figure(figNo);
 
-set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+ax=gca;ax.LineWidth=3;
+
+set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
 hold on
 
 
@@ -512,7 +522,9 @@ catch
 end
 hFig=figure(figNo);
 
-set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+ax=gca;ax.LineWidth=3;
+
+set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
 hold on
 
 
@@ -595,7 +607,9 @@ catch
 end
 hFig=figure(figNo);
 
-set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+ax=gca;ax.LineWidth=3;
+
+set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
 hold on
 
 
@@ -628,7 +642,7 @@ for grNo=1:max(all_group_no_per_odor_pair)
     %Violin plot
      
     [mean_out, CIout]=drgViolinPoint(these_mean_sessions_to_proficient...
-        ,edges,bar_offset,rand_offset,'k','k',3);
+        ,edges,bar_offset,rand_offset,'k','k',5);
     
    %Save data for  ranksum
     
@@ -648,7 +662,7 @@ xticks([0 1 2])
 xticklabels({'WT', 'Het', 'KO'})
 
 
-ylabel('ITI')
+ylabel('Sessions')
 
 
 
