@@ -256,11 +256,11 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % plot(timeAngle,(180/pi)*(trimmed_anglethetaLFP+pi),'-b')
 % xlim([-2 5])
 
-
-% Plots for Daniel's Fig. 1
-% Raw data
-% set(gcf,'renderer','zbuffer')
-% set(gcf,'renderer','painters');
+% 
+% % Plots for Daniel's Fig. 1
+% % % Raw data
+% % set(gcf,'renderer','zbuffer')
+% % set(gcf,'renderer','painters');
 % 
 % try
 %     close(17)
@@ -274,19 +274,19 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % ylim([-5000 5000])
 % ylabel('uv')
 % 
-% 
-% % try
-% %     close(18)
-% % catch
-% % end
-% % hFig=figure(18);
-% % set(hFig, 'units','normalized','position',[.02 .05 .5 .2])
-% % time=[1:length(LFPhigh(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
-% % plot(time,LFPhigh(time_pad*Fs+1:end-time_pad*Fs),'-b','LineWidth',0.2)
-% % xlabel('Time (sec)')
-% % ylim([-5000 5000])
-% % xlim([3 4])
-% % ylabel('uv')
+%  
+% try
+%     close(18)
+% catch
+% end
+% hFig=figure(18);
+% set(hFig, 'units','normalized','position',[.02 .05 .5 .2])
+% time=[1:length(LFPhigh(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,LFPhigh(time_pad*Fs+1:end-time_pad*Fs),'-b','LineWidth',0.2)
+% xlabel('Time (sec)')
+% ylim([-5000 5000])
+% xlim([3 4])
+% ylabel('uv')
 % 
 % %Theta
 % try
@@ -335,7 +335,127 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 % ylabel('uv')
 % xlim([3 4])
 % ylim([-500 500])
-      
+% 
+%Plots for Daniel's new Figure 5 (licks vs theta)
+%These are used with LFP 1
+% 
+% 
+% %Theta
+% try
+%     close(21)
+% catch
+% end
+% hFig=figure(21);
+% set(hFig, 'units','normalized','position',[.02 .37 .5 .2])
+% hold on
+% ax=gca;ax.LineWidth=3;
+% time=[1:length(thfiltLFP(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,thfiltLFP(time_pad*Fs+1:end-time_pad*Fs),'-b','LineWidth',2)
+% plot(time,30*LFPhigh(time_pad*Fs+1:end-time_pad*Fs)*(180/pi)-3000,'-','LineWidth',1,'Color',[0.7 0.7 0.7])
+% xlabel('Time (sec)')
+% ylabel('uv')
+% ylim([-4500 4500])
+% 
+% 
+% %Licks
+% try
+%     close(22)
+% catch
+% end
+% hFig=figure(22);
+% set(hFig, 'units','normalized','position',[.02 .65 .5 .2])
+% ax=gca;ax.LineWidth=3;
+% time=[1:length(anglethetaLFP(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,LFPhigh(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-k','LineWidth',2)
+% xlabel('Time (sec)')
+% % ylabel('degrees')
+% ylim([-50 250])
+% 
+% %Theta
+% try
+%     close(19)
+% catch
+% end
+% hFig=figure(19);
+% set(hFig, 'units','normalized','position',[.02 .37 .5 .2])
+% hold on
+% ax=gca;ax.LineWidth=3;
+% time=[1:length(thfiltLFP(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,thfiltLFP(time_pad*Fs+1:end-time_pad*Fs),'-b','LineWidth',2)
+% plot(time,30*LFPhigh(time_pad*Fs+1:end-time_pad*Fs)*(180/pi)-3000,'-','LineWidth',1,'Color',[0.7 0.7 0.7])
+% xlabel('Time (sec)')
+% ylabel('uv')
+% ylim([-4500 4500])
+% xlim([2.5 4.5])
+% 
+% %Licks
+% try
+%     close(20)
+% catch
+% end
+% hFig=figure(20);
+% set(hFig, 'units','normalized','position',[.02 .65 .5 .2])
+% ax=gca;ax.LineWidth=3;
+% time=[1:length(anglethetaLFP(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,LFPhigh(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-k','LineWidth',2)
+% xlabel('Time (sec)')
+% % ylabel('degrees')
+% ylim([-50 250])
+% xlim([2.5 4.5])
+
+
+% %Theta phase
+% try
+%     close(20)
+% catch
+% end
+% hFig=figure(20);
+% set(hFig, 'units','normalized','position',[.02 .09 .5 .2])
+% ax=gca;ax.LineWidth=3;
+% hold on
+% time=[1:length(anglethetaLFP(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,anglethetaLFP(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-b','LineWidth',3)
+% plot(time,2.2*LFPhigh(time_pad*Fs+1:end-time_pad*Fs)*(180/pi)-240,'-','LineWidth',1,'Color',[0.7 0.7 0.7])
+% xlabel('Time (sec)')
+% ylabel('degrees')
+% ylim([-250 250])
+% xlim([3 4])
+
+
+% %Gamma + envelope
+% try
+%     close(21)
+% catch
+% end
+% hFig=figure(21);
+% set(hFig, 'units','normalized','position',[.02 .65 .5 .2])
+% ax=gca;ax.LineWidth=3;
+% hold on
+% time=[1:length(LFPgenv(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,filtLFPgamma(time_pad*Fs+1:end-time_pad*Fs),'-b','LineWidth',3)
+% plot(time,LFPgenv(time_pad*Fs+1:end-time_pad*Fs),'-r','LineWidth',3)
+% plot(time,-LFPgenv(time_pad*Fs+1:end-time_pad*Fs),'-r','LineWidth',3)
+% xlabel('Time (sec)')
+% ylabel('uv')
+% xlim([3 4])
+% ylim([-1200 1200])
+
+% %Licks
+% try
+%     close(22)
+% catch
+% end
+% hFig=figure(22);
+% set(hFig, 'units','normalized','position',[.02 .65 .5 .2])
+% ax=gca;ax.LineWidth=3;
+% time=[1:length(anglethetaLFP(time_pad*Fs+1:end-time_pad*Fs))]/Fs;
+% plot(time,LFPhigh(time_pad*Fs+1:end-time_pad*Fs)*(180/pi),'-k','LineWidth',3)
+% xlabel('Time (sec)')
+% % ylabel('degrees')
+% ylim([-50 250])
+% xlim([3 4])
+
+       
 % %Uncomment if you want to save the theta LFP to test with closed loop
 % try
 %     load('C:\Users\Diego Restrepo\Desktop\theta.mat')
@@ -344,7 +464,7 @@ out_times_env=[1:length(decLFPgenv)]*(1/(Fs/dec_n));
 %     theta_out=thfiltLFP;
 % end
 % save('C:\Users\Diego Restrepo\Desktop\theta.mat','theta_out')
-
+ 
 pffft=1;
 
 

@@ -35,28 +35,32 @@ switch handles.analysisNoOsc
     case 16
         drgLFPcohspectTimecourse(handles);
     case 17
+        drgLFPimgcohspectTimecourse(handles);
+    case 18
          drgLFPxspectTimecourse(handles);
-    case 18 
+    case 19 
         drgLFPwavePerTrialPower(handles);
-    case 19
-        drgLFPspectrogramPerTrialPower(handles);
     case 20
-        drgLFPspectPerceptron(handles);
+        drgLFPspectrogramPerTrialPower(handles);
     case 21
-       drgThetaAmpPhaseTrialRangeConc(handles); 
+        drgLFPspectPerceptron(handles);
     case 22
-        drgLFPwaveTimecourseCont(handles);
+       drgThetaAmpPhaseTrialRangeConc(handles); 
     case 23
-        drgLFPCorrTrialRange(handles);
+        drgLFPwaveTimecourseCont(handles);
     case 24
+        drgLFPCorrTrialRange(handles);
+    case 25
 %         drgLFPCorrAllPairs(handles);
         drgLFPCorrTimecourseAllTets(handles);
-    case 25
-        drgLFPCorrTimecourse(handles);
     case 26
-        drgPLVTimecourse(handles);
+        drgLFPCorrTimecourse(handles);
     case 27
-        drgPLVTimecourseAllElecs(handles);
+        drgPLVTimecourse(handles);
     case 28
+        drgPLVTimecourseAllElecs(handles);
+    case 29
         drgClosedLoopPhase(handles);
+    case 30
+        drgLFPimgcohspectShTimecourse(handles);
 end

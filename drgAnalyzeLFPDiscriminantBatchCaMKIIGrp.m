@@ -1131,6 +1131,59 @@ for PACii=these_PACii
     
     ylabel('Decision time (sec)')
     
+    %Plot for peak discrimination time vs lick discrimination time
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.2 .2 .4 .4])
+    hold on
+    
+    ax=gca;ax.LineWidth=3;
+    
+    bar_offset = 0;
+    
+    per_ii=1;
+    
+    all_lick_times=[];
+    all_peak_times=[];
+    for grNo=1:max(handles_out.drgbchoices.group_no)
+        
+        
+        switch grNo
+            case 1
+                plot(disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data,disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor','g','MarkerEdgeColor','g')
+            case 2
+                plot(disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data,disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor','b','MarkerEdgeColor','b')
+            case 3
+                plot(disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data,disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor','y','MarkerEdgeColor','y')
+        end
+        
+         all_lick_times=[all_lick_times disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data];
+         all_peak_times=[all_peak_times disc_time.PACii(PACii).peaks.pcorr(per_ii).group(grNo).data];
+        
+    end
+    
+    
+    %     end
+    
+    plot([0 1],[0 1],'-k')
+    xlim([0 1])
+    ylim([0 1])
+    
+    title(['LDA decision time for peak vs licks theta/' handles_out.drgbchoices.PACnames{PACii} ])
+    
+
+    ylabel('Peak decision time (sec)')
+    xlabel('Lick decision time (sec)')
+    
+    [h,p]=ttest(all_lick_times,all_peak_times)
+    
     %Bar graph plot for trough discrimination time
     %Plot the average
     figNo = figNo +1;
@@ -1186,6 +1239,59 @@ for PACii=these_PACii
     
     
     ylabel('Decision time (sec)')
+    
+    %Plot for peak discrimination time vs lick discrimination time
+    figNo = figNo +1;
+    
+    try
+        close(figNo)
+    catch
+    end
+    hFig=figure(figNo);
+    
+    
+    set(hFig, 'units','normalized','position',[.2 .2 .4 .4])
+    hold on
+    
+    ax=gca;ax.LineWidth=3;
+    
+    bar_offset = 0;
+    
+    per_ii=1;
+    
+    all_lick_times=[];
+    all_trough_times=[];
+    for grNo=1:max(handles_out.drgbchoices.group_no)
+        
+        
+        switch grNo
+            case 1
+                plot(disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data,disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor','g','MarkerEdgeColor','g')
+            case 2
+                plot(disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data,disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor','b','MarkerEdgeColor','b')
+            case 3
+                plot(disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data,disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data,'o','MarkerFaceColor','y','MarkerEdgeColor','y')
+        end
+        
+         all_lick_times=[all_lick_times disc_time.PACii(PACii).licks.pcorr(per_ii).group(grNo).data];
+         all_trough_times=[all_trough_times disc_time.PACii(PACii).trough.pcorr(per_ii).group(grNo).data];
+        
+    end
+    
+    
+    %     end
+    
+    plot([0 1],[0 1],'-k')
+    xlim([0 1])
+    ylim([0 1])
+    
+    title(['LDA decision time for trough vs licks theta/' handles_out.drgbchoices.PACnames{PACii} ])
+     
+
+    ylabel('Trough decision time (sec)')
+    xlabel('Lick decision time (sec)')
+    
+    [h,p]=ttest(all_lick_times,all_trough_times)
     
     %Perform the glm
     fprintf(1, ['\n\nglm for lick decision time for Theta/' handles_out.drgbchoices.PACnames{PACii} '\n'])

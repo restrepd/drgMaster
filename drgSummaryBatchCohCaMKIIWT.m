@@ -37,7 +37,7 @@ peak_label{2}='Peak';
 %Location of files
 % hippPathName='E:\CaMKIIpaper\datos sumarry\coherence\';
 hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Coherence new/';
-% 
+%
 % %Files
 % FileName{1}='CaMKIIacetocohe02012021_out.mat';
 % FileName{2}='CaMKIIethylbenacetocohe2262021_out.mat';
@@ -97,7 +97,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     set(hFig, 'units','normalized','position',[.1 .5 .3 .4])
     hold on
     
-     ax=gca;ax.LineWidth=3;
+    ax=gca;ax.LineWidth=3;
     
     bar_lab_loc=[];
     no_ev_labels=0;
@@ -168,10 +168,10 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
             %Violin plot
             
             [mean_out, CIout]=drgViolinPoint(these_coh,edges,bar_offset,rand_offset,'k','k',3);
-%             CI = bootci(1000, {@mean, these_coh},'type','cper');
-%             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-%             plot(bar_offset*ones(1,length(these_coh)),these_coh,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-%             
+            %             CI = bootci(1000, {@mean, these_coh},'type','cper');
+            %             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+            %             plot(bar_offset*ones(1,length(these_coh)),these_coh,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+            %
             
             
             glm_coh.data(glm_ii+1:glm_ii+length(these_coh))=these_coh;
@@ -213,20 +213,34 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     %Perform the glm
     fprintf(1, ['glm for delta coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n'])
+    fprintf(fileID, ['glm for delta coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n']);
     
     fprintf(1, ['\n\nglm for PRP for' bandwidth_names{bwii} '\n'])
+    fprintf(fileID, ['\n\nglm for PRP for' bandwidth_names{bwii} '\n']);
+    
     tbl = table(glm_coh.data',glm_coh.perCorr',glm_coh.event',...
         'VariableNames',{'MI','perCorr','event'});
     mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
         ,'CategoricalVars',[2,3])
     
+    txt = evalc('mdl');
+    txt=regexp(txt,'<strong>','split');
+    txt=cell2mat(txt);
+    txt=regexp(txt,'</strong>','split');
+    txt=cell2mat(txt);
+    
+    fprintf(fileID,'%s\n', txt);
+    
     
     %Do the ranksum/t-test
     fprintf(1, ['\n\nRanksum or t-test p values for delta coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for delta coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n']);
     [output_data] = drgMutiRanksumorTtest(input_data);
     
     
 end
+
+fclose(fileID)
 
 
 %Plot the bounded lines

@@ -6,6 +6,7 @@ function handles=drgLFPwaveTimecourse(handles)
 % first_toc=toc;
 
 handles.drgb.PACwave=[];
+handles.drgb.lickStuff=[];
 
 if isfield(handles,'calculate_lick')
     calculate_lick=handles.calculate_lick;
@@ -19,6 +20,8 @@ end
 % fprintf(1, 'dt for drgGetLFPwavePowerForThisEvTypeNo = %d\n',toc-start_toc)
 
 handles.drgb.PACwave.trialNos_PRP=this_trialNo;
+dt=handles.dt_tPRP;
+t_pac=[handles.time_start+handles.time_pad:dt:handles.time_end-handles.time_pad];
 
 %Calculate the licks
 if calculate_lick==1
@@ -27,13 +30,25 @@ if calculate_lick==1
         trials_included,lick_threshold, lick_freq_per_trial,trials_included_per_trial]=drgGetLicks(handles);
 %     fprintf(1, 'dt for drgGetLicks = %d\n',toc-start_toc)
     
-    handles.drgb.PACwave.times_lick_freq=times_lick_freq;
-    handles.drgb.PACwave.lick_trials_included=trials_included;
-    handles.drgb.PACwave.lick_freq_per_trial=lick_freq_per_trial;
-    handles.drgb.PACwave.lick_freq_per_trial=lick_freq_per_trial;
-    handles.drgb.PACwave.stamped_lick_ii=stamped_lick_ii;
-    handles.drgb.PACwave.stamped_lick_ii=stamped_lick_ii;
-    handles.drgb.PACwave.these_stamped_lick_times=these_stamped_lick_times;
+    handles.drgb.lickStuff.times_lick_freq=times_lick_freq;
+    handles.drgb.lickStuff.lick_trials_included=trials_included;
+    handles.drgb.lickStuff.lick_freq_per_trial=lick_freq_per_trial;
+    handles.drgb.lickStuff.stamped_lick_ii=stamped_lick_ii;
+    handles.drgb.lickStuff.these_stamped_lick_times=these_stamped_lick_times;
+    
+    %Genetrate the licks timecourse
+    binary_lick_per_t=zeros(no_trials,length(t_pac));
+    for trNo=1:no_trials
+        for ii_t=1:length(t_pac)
+            if stamped_lick_ii(trNo)>0
+                if sum(lick_traces(trNo,(lick_trace_times>(t_pac(ii_t)-((t_pac(2)-t_pac(1))/2)))&(lick_trace_times<=(t_pac(ii_t)+((t_pac(2)-t_pac(1))/2))))>lick_threshold)>0
+                    binary_lick_per_t(trNo,ii_t)=1;
+                end
+            end
+        end
+    end
+    handles.drgb.lickStuff.binary_lick_per_t=binary_lick_per_t;
+    handles.drgb.lickStuff.t_pac=t_pac;
 end
 
 %Get PAC
@@ -51,10 +66,11 @@ if handles.drgb.PAC.no_trials>0
     %the lick analysis
     
     %Find the wavelet power at the peak and trough
-    dt=handles.window-handles.noverlap;
-    t_pac=[handles.time_start+handles.time_pad:dt:handles.time_end-handles.time_pad];
+%     dt=handles.window-handles.noverlap;
+    
     handles.drgb.PACwave.t_pac=t_pac;
     peakPower=zeros(handles.drgb.PAC.no_trials,length(t_pac));
+    allPower=zeros(handles.drgb.PAC.no_trials,length(t_pac));
     %Find the value of gamma power at each point
     out_times_env=handles.drgb.PAC.out_times_env;
     out_times_env=out_times_env+handles.time_start+handles.time_pad;
@@ -97,10 +113,15 @@ if handles.drgb.PAC.no_trials>0
             end
         end
         
+        
         this_peakPower=this_peakPower(1,1:jj);
         this_peakPower_spectrum=this_peakPower_spectrum(1:jj,:);
         this_peakPower_times=this_peakPower_times(1,1:jj);
         
+        handles.drgb.PACwave.PACtimecourse(trNum).Power_per_peak=this_peakPower;
+        handles.drgb.PACwave.PACtimecourse(trNum).peakPower_times=this_peakPower_times;
+        
+       
         %         d_t_pac=t_pac(2)-t_pac(1);
         
         for ii_t=1:length(t_pac)
@@ -125,6 +146,22 @@ if handles.drgb.PAC.no_trials>0
         handles.drgb.PACwave.peakPowerSpectrum(trNum,:)=mean(this_peakPower_spectrum,1);
         handles.drgb.PACwave.PACtimecourse(trNum).peakPower=peakPower(trNum,:);
         handles.drgb.PACwave.meanPeakPower(trNum)=mean(peakPower(trNum,:));
+        
+         %Calculate the power timecourse
+        this_all_Power=zeros(1,length(t_pac));
+        this_all_Power(1)=mean(mean(10*log10(all_Power_timecourse(trNum,:,t_apt<t_pac(1)+(dt/2))),2));
+        this_all_Power(end)=mean(mean(10*log10(all_Power_timecourse(trNum,:,t_apt>t_pac(end)-(dt/2))),2));
+        for ii=2:length(t_pac)-1
+            this_all_Power(ii)=mean(mean(10*log10(all_Power_timecourse(trNum,:,(t_apt<t_pac(ii)+(dt/2))&(t_apt<t_pac(ii)+(dt/2)))),2));
+        end
+        
+        if handles.subtractRef==1
+            this_all_Power=this_all_Power-mean(this_all_Power(t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad));
+        end
+        
+        handles.drgb.PACwave.PACtimecourse(trNum).allPower=this_all_Power;
+        allPower(trNum,:)=this_all_Power;
+        
     end
     
     %Find trough power
@@ -134,6 +171,9 @@ if handles.drgb.PAC.no_trials>0
         this_troughPower=zeros(1,max_t_points);
         this_troughPower_spectrum=zeros(max_t_points,length(freq));
         this_troughPower_times=zeros(1,max_t_points);
+        
+        handles.drgb.PACwave.PACtimecourse(trNum).Power_per_trough=this_troughPower;
+        handles.drgb.PACwave.PACtimecourse(trNum).troughPower_times=this_troughPower_times;
         
         ii=1;
         jj=0;
@@ -162,6 +202,9 @@ if handles.drgb.PAC.no_trials>0
         this_troughPower=this_troughPower(1,1:jj);
         this_troughPower_spectrum=this_troughPower_spectrum(1:jj,:);
         this_troughPower_times=this_troughPower_times(1,1:jj);
+        
+        handles.drgb.PACwave.PACtimecourse(trNum).Power_per_trough=this_troughPower;
+        handles.drgb.PACwave.PACtimecourse(trNum).troughPower_times=this_troughPower_times;
         
         for ii_t=1:length(t_pac)
             if t_pac(ii_t)<=this_troughPower_times(1)
@@ -198,7 +241,7 @@ if handles.drgb.PAC.no_trials>0
         
         d_t_pac=t_pac(2)-t_pac(1);
         
-        handles.drgb.PACwave.which_event_licks=[];
+        handles.drgb.lickStuff.which_event_licks=[];
         
         for trNum=1:length(trials_included_per_trial)
             ii_tr=find(handles.drgb.PAC.this_trialNo==trials_included_per_trial(trNum),1);
@@ -208,18 +251,18 @@ if handles.drgb.PAC.no_trials>0
                     lick_freq_per_trial(trNum,:)=lick_freq_per_trial(trNum,:)-mean(lick_freq_per_trial(trNum,(t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
                 end
                 
-                handles.drgb.PACwave.trNo_lick_and_PRP(ntrs_out)=trials_included_per_trial(trNum);
-                handles.drgb.PACwave.no_lick_trials=ntrs_out;
-                handles.drgb.PACwave.lick_timecourse(ntrs_out).lick_f=lick_freq_per_trial(trNum,:);
-                handles.drgb.PACwave.lick_timecourse(ntrs_out).times_lick_freq=times_lick_freq;
-                handles.drgb.PACwave.mean_lick_freq(ntrs_out)=mean(lick_freq_per_trial(trNum,:));
-                if ~isempty(handles.drgb.PAC.which_event)
-                    handles.drgb.PACwave.which_event_licks(1:size(handles.drgb.PAC.which_event,1),ntrs_out)=handles.drgb.PAC.which_event(:,trNum);
-                end
+                handles.drgb.lickStuff.trNo_lick_and_PRP(ntrs_out)=trials_included_per_trial(trNum);
+                handles.drgb.lickStuff.no_lick_trials=ntrs_out;
+                handles.drgb.lickStuff.lick_timecourse(ntrs_out).lick_f=lick_freq_per_trial(trNum,:);
+                handles.drgb.lickStuff.lick_timecourse(ntrs_out).times_lick_freq=times_lick_freq;
+                handles.drgb.lickStuff.mean_lick_freq(ntrs_out)=mean(lick_freq_per_trial(trNum,:));
+%                 if ~isempty(handles.drgb.PAC.which_event)
+%                     handles.drgb.lickStuff.which_event_licks(1:size(handles.drgb.PAC.which_event,1),ntrs_out)=handles.drgb.PAC.which_event(:,trNum);
+%                 end
                 
-                %Now enter peakPower and troughPower for trials that include licks
-                handles.drgb.PACwave.meanPeakPower_per_lick_trial(ntrs_out)=handles.drgb.PACwave.meanPeakPower(ii_tr);
-                handles.drgb.PACwave.meanTroughPower_per_lick_trial(ntrs_out)=handles.drgb.PACwave.meanTroughPower(ii_tr);
+%                 %Now enter peakPower and troughPower for trials that include licks
+%                 handles.drgb.PACwave.meanPeakPower_per_lick_trial(ntrs_out)=handles.drgb.PACwave.meanPeakPower(ii_tr);
+%                 handles.drgb.PACwave.meanTroughPower_per_lick_trial(ntrs_out)=handles.drgb.PACwave.meanTroughPower(ii_tr);
                 
                 handles.drgb.PACwave.lick_triggered_wpower_no(ntrs_out)=0;
                 this_power=zeros(1,size(all_Power_timecourse,2));
@@ -253,6 +296,10 @@ if handles.drgb.PAC.no_trials>0
                 
                 %Note: Lick power is only computed if there are lick times
                 if ~isempty(this_lickPower_times)
+                    
+                    handles.drgb.PACwave.PACtimecourse(trNum).Power_per_lick=this_lickPower;
+                    handles.drgb.PACwave.PACtimecourse(trNum).lickPower_times=this_lickPower_times;
+                    
                     n_lpw_out=n_lpw_out+1;
                     handles.drgb.PACwave.no_lickPower_trials=n_lpw_out;
                     handles.drgb.PACwave.lickPower_trials(n_lpw_out)=trials_included_per_trial(trNum);
@@ -282,6 +329,10 @@ if handles.drgb.PAC.no_trials>0
                     
                     handles.drgb.PACwave.PACtimecourse(n_lpw_out).lickPower=lickPower(n_lpw_out,:);
                     handles.drgb.PACwave.meanLickPower(n_lpw_out)=mean(lickPower(n_lpw_out,:));
+                    
+                else
+                    handles.drgb.PACwave.PACtimecourse(trNum).Power_per_lick=[];
+                    handles.drgb.PACwave.PACtimecourse(trNum).lickPower_times=[];
                 end
             end
         end
@@ -454,9 +505,9 @@ if handles.drgb.PAC.no_trials>0
             %Uncomment if you want to save power spectra
             peakPowerSpectrum=handles.drgb.PACwave.peakPowerSpectrum;
             troughPowerSpectrum=handles.drgb.PACwave.troughPowerSpectrum;
-            save('/Users/restrepd/Documents/Projects/CaMKII_analysis/Figure_3_PRP/6151853931_elec12_splus_naive.mat','peakPowerSpectrum',...
-                'troughPowerSpectrum','freq')
-            %
+%             save('/Users/restrepd/Documents/Projects/CaMKII_analysis/Figure_3_PRP/6151853931_elec12_splus_naive.mat','peakPowerSpectrum',...
+%                 'troughPowerSpectrum','freq')
+%             %
             figNo=figNo+1;
             try
                 close(figNo)
@@ -646,7 +697,7 @@ if handles.drgb.PAC.no_trials>0
                 legend('Mean','Trough')
             end
             
-            title(['Power (dB, wavelet)  ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
+            title(['tPRP (dB, wavelet)  ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
             
             if handles.autoscale==0
                 ylim([handles.minLogP handles.maxLogP])
@@ -697,6 +748,56 @@ if handles.drgb.PAC.no_trials>0
                     ylim([handles.minLogP handles.maxLogP])
                 end
             end
+            
+            %Plot the timecourse for all power
+            figNo=figNo+1;
+            
+            try
+                close(figNo)
+            catch
+            end
+            
+            
+            
+            hFig = figure(figNo);
+            set(hFig, 'units','normalized','position',[.15 .6 .7 .23])
+            
+            hold on
+            
+            
+            %             mean_lickPower=mean(lickPower,1)';
+            %             if no_trials>2
+            %                 CI_lickPower = bootci(1000, {@mean, lickPower})';
+            %                 CI_lickPower(:,1)=mean_lickPower-CI_lickPower(:,1);
+            %                 CI_lickPower(:,2)=CI_lickPower(:,2)-mean_lickPower;
+            %             end
+            
+            
+            mean_allPower=mean(allPower,1)';
+            if no_trials>2
+                CI_allPower = bootci(1000, {@mean, allPower})';
+                CI_allPower(:,1)=mean_allPower-CI_allPower(:,1);
+                CI_allPower(:,2)=CI_allPower(:,2)-mean_allPower;
+            end
+            
+           
+            
+            if no_trials>2
+                [hlall, hpall]=boundedline(t_pac,mean_allPower, CI_allPower, 'r');
+            else
+                
+  
+                plot(t_pac,mean_allPower,  'r');
+            end
+            xlabel('Time(sec)')
+            ylabel('Wavelet power (dB)')
+            
+           
+            
+            title(['Power (dB, wavelet)  ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
+            
+          
+            
             
         end
     end

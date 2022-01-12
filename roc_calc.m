@@ -148,7 +148,9 @@ fo_ = fitoptions('method','NonlinearLeastSquares','Lower',L,'Upper',U,'Startpoin
 ft_ = fittype('1-1/((1+(x/C)^B)^E)',...
      'dependent',{'y'},'independent',{'x'},...
      'coefficients',{'B', 'C', 'E'});
+
 cfit = fit(xroc,yroc,ft_,fo_);
+
 
 
 xfit=linspace(0,1,500);

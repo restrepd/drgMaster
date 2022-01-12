@@ -81,6 +81,7 @@ handles.data_vs_simulate=0;
 handles.subtractRef=0;
 handles.window=1; %This is the FFT window in sec  %Tort is 1 sec, old DR 0.37
 handles.noverlap=handles.window*0.9; 
+handles.dt_tPRP=0.03333;
 handles.deltaLowF_PAC=1;  %2
 handles.deltaHighF_PAC=5; %30 
 handles.bandwidth_lowF=3;
