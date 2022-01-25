@@ -1,7 +1,10 @@
-function [output_data] = drgMutiRanksumorTtest(input_data,fileID)
+function [output_data] = drgMutiRanksumorTtest(input_data,fileID,inhibit_print)
 % This function performs t tests or ranksum for a series of data sets
 % A t test is used if the data are normal, otherwise a ranksum is used
 
+if nargin<2
+    inhibit_print=0;
+end
 warning('off')
 pvals=[];
 output_data.ii_pairs=0;
@@ -17,9 +20,11 @@ for ii=1:ii_for_test
 end
 
 output_data.pFDR = drsFDRpval(pvals);
-fprintf(1, ['\n\npFDR = %d \n\n'],output_data.pFDR)
-if nargin>1
-    fprintf(fileID, ['\n\npFDR = %d \n\n'],output_data.pFDR);
+if inhibit_print==0
+    fprintf(1, ['\n\npFDR = %d \n\n'],output_data.pFDR)
+    if (nargin>1)&(fileID~=-1)
+        fprintf(fileID, ['\n\npFDR = %d \n\n'],output_data.pFDR);
+    end
 end
 
 %Now sort the data
@@ -35,28 +40,35 @@ for jj_pair=1:output_data.ii_pairs
     p=output_data.p(output_data.sorted_ii_pairs(jj_pair));
     if (p>output_data.pFDR)&(is_first==1)
         is_first=0;
-        fprintf(1, ['\np values below are > pFDR\n\n'])
-        if nargin>1
-            fprintf(fileID, ['\np values below are > pFDR\n\n']);
+        if inhibit_print==0
+            fprintf(1, ['\np values below are > pFDR\n\n'])
+            if (nargin>1)&(fileID~=-1)
+                fprintf(fileID, ['\np values below are > pFDR\n\n']);
+            end
         end
     end
     r_or_t=output_data.r_or_t(output_data.sorted_ii_pairs(jj_pair));
     if r_or_t==0
-        fprintf(1, ['p value ranksum for ' input_data(ii).description ' vs ' input_data(jj).description ' =  %d\n'],p)
-        if nargin>1
-            fprintf(fileID, ['p value ranksum for ' input_data(ii).description ' vs ' input_data(jj).description ' =  %d\n'],p);
+        if inhibit_print==0
+            fprintf(1, ['p value ranksum for ' input_data(ii).description ' vs ' input_data(jj).description ' =  %d\n'],p)
+            if (nargin>1)&(fileID~=-1)
+                fprintf(fileID, ['p value ranksum for ' input_data(ii).description ' vs ' input_data(jj).description ' =  %d\n'],p);
+            end
         end
     else
-        fprintf(1, ['p value t-test for ' input_data(ii).description ' vs ' input_data(jj).description ' =  %d\n'],p)
-        if nargin>1
-            fprintf(fileID, ['p value t-test for ' input_data(ii).description ' vs ' input_data(jj).description ' =  %d\n'],p);
+        if inhibit_print==0
+            fprintf(1, ['p value t-test for ' input_data(ii).description ' vs ' input_data(jj).description ' =  %d\n'],p)
+            if (nargin>1)&(fileID~=-1)
+                fprintf(fileID, ['p value t-test for ' input_data(ii).description ' vs ' input_data(jj).description ' =  %d\n'],p);
+            end
         end
     end
 end
-
-fprintf(1, ['\n\n'])
-if nargin>1
-    fprintf(fileID, ['\n\n']);
+if inhibit_print==0
+    fprintf(1, ['\n\n'])
+    if (nargin>1)&(fileID~=-1)
+        fprintf(fileID, ['\n\n']);
+    end
 end
 
 warning('on')

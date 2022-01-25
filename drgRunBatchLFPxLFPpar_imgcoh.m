@@ -142,7 +142,7 @@ if all_files_present==1
             
             fprintf(1, 'Loaded data from temp file for file number: %d\n',filNum);
         else
-            
+             
         
             %Othrwise read the jt_times and do processing
             %read the jt_times file
@@ -200,7 +200,7 @@ if all_files_present==1
 %                        this_electrode=1;
 %                     end
                     handlespf.peakLFPNo=electrode_pairs(lfppairNo,1);
-                    handlespf.burstLFPNo=electrode_pairs(lfppairNo,1);
+                    handlespf.burstLFPNo=electrode_pairs(lfppairNo,2);
                     handlespf.referenceEvent=handles.drgbchoices.referenceEvent;
                     
                     
