@@ -1,4 +1,4 @@
-function drgAnalysisBatchLFPCaMKIIv2(handles)
+function drgAnalysisBatchLFPCaMKIIv2(parsFileName,parsPathName,outFileName,PathName,show_figures)
 
 %drgAnalysisBatchLFPCaMKIIv2 displays the LFP power and PAC data processed by drgRunBatchLFPpar
  
@@ -44,9 +44,12 @@ function drgAnalysisBatchLFPCaMKIIv2(handles)
 % 24 Oscillatory wavelet power calculated at the peak and trough of the low frequency PAC phase
 % This was used for Losacco, Ramirez-Gordillo et al., eLife 2020 Figure 3
 %
-
+ 
 %% Read the BatchParameters
-[parsFileName,parsPathName] = uigetfile({'drgLFPBatchAnalPars*.m'},'Select the .m file with all the parameters for LFP batch analysis');
+if exist('parsPathName')==0
+    [parsFileName,parsPathName] = uigetfile({'drgLFPBatchAnalPars*.m'},'Select the .m file with all the parameters for LFP batch analysis');
+end
+
 fprintf(1, ['\ndrgAnalysisBatchLFP run for ' parsFileName '\n\n']);
 
 addpath(parsPathName)
@@ -160,7 +163,14 @@ event2=eventType(2);
 
 
 %Ask user for the drgb output .mat file and load those data
-[handles.drgb.outFileName,handles.PathName] = uigetfile('*.mat','Select the drgb output file');
+if exist('PathName')==0
+    [handles.drgb.outFileName,handles.PathName] = uigetfile('*.mat','Select the drgb output file');
+    show_figures=1;
+else
+    handles.drgb.outFileName=outFileName;
+    handles.PathName=PathName;
+end
+    
 % [handles.drgb.outFileName,handles.PathName] = uigetfile('*');
 % handles.PathName=handles_pars.PathName;
 % handles.drgb.outFileName=handles_pars.outFileName;
@@ -3118,7 +3128,8 @@ switch which_display
                                                                         these_peak_times=handles_drgb.drgb.lfpevpair(lfpodNo).PACwave(pacii).PACwave.PACtimecourse(trialNos_in_lick_event_Ev(ww)).peakPower_times;
                                                                         these_peak_powers=handles_drgb.drgb.lfpevpair(lfpodNo).PACwave(pacii).PACwave.PACtimecourse(trialNos_in_lick_event_Ev(ww)).Power_per_peak;
                                                                         these_trough_times=handles_drgb.drgb.lfpevpair(lfpodNo).PACwave(pacii).PACwave.PACtimecourse(trialNos_in_lick_event_Ev(ww)).troughPower_times;
-                                                                        
+                                                                        these_trough_powers=handles_drgb.drgb.lfpevpair(lfpodNo).PACwave(pacii).PACwave.PACtimecourse(trialNos_in_lick_event_Ev(ww)).Power_per_trough;
+                                                                       
                                                                         %Autocorrelogram for licks
                                                                         these_deltas=[];
                                                                         these_d_lick_times=[];
@@ -3234,7 +3245,7 @@ switch which_display
                                                                             end
                                                                         end
                                                                         
-                                                                        %Lick-trough crosscorrelogram
+                                                                        %Lick-trough crosscorrelogram and lick-peak delta-gated peak power timecourse
                                                                         if ~isempty(these_lick_times)
                                                                             these_deltas=[];
                                                                             xx=0;
@@ -3247,6 +3258,57 @@ switch which_display
                                                                             for ii=1:3
                                                                                 PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).lick_trough_cross(ii).dt=...
                                                                                     these_deltas((these_trough_times>=win_lick_start(ii))&(these_trough_times<=win_lick_end(ii)));
+                                                                            end
+                                                                            
+                                                                            
+                                                                            min_times=20;
+                                                                            
+                                                                            %Trough power timecourse below
+                                                                            this_troughPower_times=these_trough_times(these_deltas<0);
+                                                                            if length(this_troughPower_times)>=min_times
+                                                                                this_troughPower=these_trough_powers(these_deltas<0);
+                                                                                this_troughPower_timecourse=zeros(1,length(t_pac));
+                                                                                for ii_t=1:length(t_pac)
+                                                                                    if t_pac(ii_t)<=this_troughPower_times(1)
+                                                                                        this_troughPower_timecourse(ii_t)=this_troughPower(1);
+                                                                                        %this_troughPower_t_pac(ii_t)=this_troughPower(1);
+                                                                                    else
+                                                                                        if t_pac(ii_t)>=this_troughPower_times(end)
+                                                                                            this_troughPower_timecourse(ii_t)=this_troughPower(end);
+                                                                                            %this_troughPower_t_pac(ii_t)=this_troughPower(end);
+                                                                                        else
+                                                                                            ii_pt=find(this_troughPower_times>=t_pac(ii_t),1,'first');
+                                                                                            this_troughPower_timecourse(ii_t)=this_troughPower(ii_pt-1)+(t_pac(ii_t)-this_troughPower_times(ii_pt-1))*((this_troughPower(ii_pt)-this_troughPower(ii_pt-1))/(this_troughPower_times(ii_pt)-this_troughPower_times(ii_pt-1)));
+                                                                                        end
+                                                                                    end
+                                                                                end
+                                                                                PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).troughPower_timecourse_below=this_troughPower_timecourse;
+                                                                            else
+                                                                                PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).troughPower_timecourse_below=[];
+                                                                            end
+                                                                            
+                                                                            %Trough power timecourse above
+                                                                            this_troughPower_times=these_trough_times(these_deltas>0);
+                                                                            if length(this_troughPower_times)>=min_times
+                                                                                this_troughPower=these_trough_powers(these_deltas>0);
+                                                                                this_troughPower_timecourse=zeros(1,length(t_pac));
+                                                                                for ii_t=1:length(t_pac)
+                                                                                    if t_pac(ii_t)<=this_troughPower_times(1)
+                                                                                        this_troughPower_timecourse(ii_t)=this_troughPower(1);
+                                                                                        %this_troughPower_t_pac(ii_t)=this_troughPower(1);
+                                                                                    else
+                                                                                        if t_pac(ii_t)>=this_troughPower_times(end)
+                                                                                            this_troughPower_timecourse(ii_t)=this_troughPower(end);
+                                                                                            %this_troughPower_t_pac(ii_t)=this_troughPower(end);
+                                                                                        else
+                                                                                            ii_pt=find(this_troughPower_times>=t_pac(ii_t),1,'first');
+                                                                                            this_troughPower_timecourse(ii_t)=this_troughPower(ii_pt-1)+(t_pac(ii_t)-this_troughPower_times(ii_pt-1))*((this_troughPower(ii_pt)-this_troughPower(ii_pt-1))/(this_troughPower_times(ii_pt)-this_troughPower_times(ii_pt-1)));
+                                                                                        end
+                                                                                    end
+                                                                                end
+                                                                                PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).troughPower_timecourse_above=this_troughPower_timecourse;
+                                                                            else
+                                                                                PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).troughPower_timecourse_above=[];
                                                                             end
                                                                             
                                                                         end
@@ -3317,6 +3379,51 @@ switch which_display
                                                                             end
                                                                         end
                                                                     end
+                                                                    
+                                                                    %Get z scored trough power below
+                                                                    if isfield(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power,'troughPower_timecourse_below')
+                                                                        
+                                                                        these_ref_power=[];
+                                                                        for ww=1:length(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power)
+                                                                            if ~isempty(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).troughPower_timecourse_below)
+                                                                                this_p=PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).troughPower_timecourse_below;
+                                                                                these_ref_power=[these_ref_power this_p((t_pac>=handles_pars.refWin_times(1))&(t_pac<=handles_pars.refWin_times(2)))];
+                                                                            end
+                                                                        end
+                                                                        ref_power_SD=std(these_ref_power);
+                                                                        ref_power_mean=mean(these_ref_power);
+                                                                        
+                                                                        
+                                                                        for ww=1:length(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power)
+                                                                            if ~isempty(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).troughPower_timecourse_below)
+                                                                                this_p=(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).troughPower_timecourse_below-ref_power_mean)/ref_power_SD;
+                                                                                PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).z_troughPower_timecourse_below=this_p((t_pac>=handles_pars.analysisWin_times(1))&(t_pac<=handles_pars.analysisWin_times(2)));
+                                                                            end
+                                                                        end
+                                                                    end
+                                                                    
+                                                                    %Get z scored trough power above
+                                                                    if isfield(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power,'troughPower_timecourse_above')
+                                                                        
+                                                                        these_ref_power=[];
+                                                                        for ww=1:length(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power)
+                                                                            if ~isempty(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).troughPower_timecourse_above)
+                                                                                this_p=PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).troughPower_timecourse_above;
+                                                                                these_ref_power=[these_ref_power this_p((t_pac>=handles_pars.refWin_times(1))&(t_pac<=handles_pars.refWin_times(2)))];
+                                                                            end
+                                                                        end
+                                                                        ref_power_SD=std(these_ref_power);
+                                                                        ref_power_mean=mean(these_ref_power);
+                                                                        
+                                                                        
+                                                                        for ww=1:length(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power)
+                                                                            if ~isempty(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).troughPower_timecourse_above)
+                                                                                this_p=(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).troughPower_timecourse_above-ref_power_mean)/ref_power_SD;
+                                                                                PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).z_power(ww).z_troughPower_timecourse_above=this_p((t_pac>=handles_pars.analysisWin_times(1))&(t_pac<=handles_pars.analysisWin_times(2)));
+                                                                            end
+                                                                        end
+                                                                    end
+                                                                    
                                                                 else
                                                                     PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elec).event(evNo).no_z_lick_power=0;
                                                                 end
@@ -3486,7 +3593,7 @@ switch which_display
                         end
                         
                     end
-                    
+                     
                     %Now do the peaks
                     
                     for mouseNo=1:length(PRPtimecourse.mouse)
@@ -3707,23 +3814,35 @@ switch which_display
         figureNo=0;
         
         between_edges=(edges(2:end)+edges(1:end-1))/2;
+        ylim_max=0.06;
+        
+        handles_out.correl_trough_ii=0;
+        handles_out.correl_trough=[];
+        handles_out.correl_peak_ii=0;
+        handles_out.correl_peak=[];
+        handles_out.correl_lick_ii=0;
+        handles_out.correl_lick=[];
         
         %Plot the histograms for peak and trough relative to licks
         for groupNo=1:3
-            for pacii=1:no_pacii
+            for pacii=1:2 %Note: I am stopping at 2, not showing swr
                 for per_ii=2:-1:1
-                    figureNo=figureNo+1;
-                    try
-                        close(figureNo)
-                    catch
+                    
+                    if show_figures==1
+                        figureNo=figureNo+1;
+                        try
+                            close(figureNo)
+                        catch
+                        end
+                        hFig=figure(figureNo);
+                        
+                        set(hFig, 'units','normalized','position',[.1 .1 .7 .7])
+                        %             subplot(2,1,1)
+                        ax=gca;ax.LineWidth=3;
+                        hold on
                     end
-                    hFig=figure(figureNo);
                     
-                    set(hFig, 'units','normalized','position',[.1 .1 .7 .7])
-                    %             subplot(2,1,1)
-                    ax=gca;ax.LineWidth=3;
                     
-                    hold on
                     
                    %First do lick auto
                     for ii_dt=1:3
@@ -3735,6 +3854,8 @@ switch which_display
                         for mouseNo=1:length(PRPtimecourse.mouse)
                              
                             group_no=PRPtimecourse.mouse(mouseNo).group_no;
+                            
+                           
                             
                             if group_no==groupNo
                                
@@ -3749,45 +3870,59 @@ switch which_display
                                         this_Sm_lick_auto(ii_mouse,:)=this_Sm;
                                         this_Sp_lick_auto_asym(ii_mouse)=((sum(this_Sp(between_edges>0))/sum(this_Sp))-0.5)/0.5;
                                         this_Sm_lick_auto_asym(ii_mouse)=((sum(this_Sm(between_edges>0))/sum(this_Sm))-0.5)/0.5;
+                                        
+                                        handles_out.correl_lick_ii=handles_out.correl_lick_ii+1;
+                                        handles_out.correl_lick(handles_out.correl_lick_ii).pacii=pacii;
+                                        handles_out.correl_lick(handles_out.correl_lick_ii).per_ii=per_ii;
+                                        handles_out.correl_lick(handles_out.correl_lick_ii).group_no=PRPtimecourse.mouse(mouseNo).group_no;
+                                        handles_out.correl_lick(handles_out.correl_lick_ii).mouseNo=mouseNo;
+                                        handles_out.correl_lick(handles_out.correl_lick_ii).ii_dt=ii_dt;
+                                        handles_out.correl_lick(handles_out.correl_lick_ii).pSp_lick_auto=this_Sp;
+                                        handles_out.correl_lick(handles_out.correl_lick_ii).pSm_lick_auto=this_Sm;
                                     end
                                 end
                             end
                         end
-                        subplot(3,3,ii_dt)
-                        hold on
                         
+                        if show_figures==1
+                            subplot(3,3,ii_dt)
+                            hold on
+                        end
+                        
+                      
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).pSp_lick_auto=this_Sp_lick_auto;
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).pSm_lick_auto=this_Sm_lick_auto;
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).ii_mouse_lick=ii_mouse;
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).Sp_lick_auto_asym=this_Sp_lick_auto_asym;
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).Sm_lick_auto_asym=this_Sm_lick_auto_asym;
                         
-                        try
-                            CIsm = bootci(1000, @mean, this_Sm_lick_auto);
-                            meansm=mean(this_Sm_lick_auto,1);
-                            CIsm(1,:)=meansm-CIsm(1,:);
-                            CIsm(2,:)=CIsm(2,:)-meansm;
+                        if show_figures==1
+                            try
+                                CIsm = bootci(1000, @mean, this_Sm_lick_auto);
+                                meansm=mean(this_Sm_lick_auto,1);
+                                CIsm(1,:)=meansm-CIsm(1,:);
+                                CIsm(2,:)=CIsm(2,:)-meansm;
+                                
+                                [hlsm, hpsm] = boundedline(between_edges',mean(this_Sm_lick_auto,1)', CIsm', 'b');
+                                
+                                CIsp = bootci(1000, @mean, this_Sp_lick_auto);
+                                meansp=mean(this_Sp_lick_auto,1);
+                                CIsp(1,:)=meansp-CIsp(1,:);
+                                CIsp(2,:)=CIsp(2,:)-meansp;
+                                
+                                
+                                [hlsp, hpsp] = boundedline(between_edges',mean(this_Sp_lick_auto,1)', CIsp', 'r');
+                            catch
+                            end
                             
-                            [hlsm, hpsm] = boundedline(between_edges',mean(this_Sm_lick_auto,1)', CIsm', 'b');
+                            plot([0 0],[0 0.35],'-k')
                             
-                            CIsp = bootci(1000, @mean, this_Sp_lick_auto);
-                            meansp=mean(this_Sp_lick_auto,1);
-                            CIsp(1,:)=meansp-CIsp(1,:);
-                            CIsp(2,:)=CIsp(2,:)-meansp;
-                            
-                            
-                            [hlsp, hpsp] = boundedline(between_edges',mean(this_Sp_lick_auto,1)', CIsp', 'r');
-                        catch
+                            title(['licks ' dt_legend{ii_dt}])
+                            xlabel('Time(sec)')
+                            ylabel('p')
+                            xlim([-0.3 0.3])
+                            ylim([0 ylim_max])
                         end
-                        
-                        plot([0 0],[0 0.35],'-k')
-                        
-                        title(['licks ' dt_legend{ii_dt}])
-                        xlabel('Time(sec)')
-                        ylabel('p')
-                        xlim([-0.3 0.3])
-                        ylim([0 0.05])
-                        
                         
                     end
                     
@@ -3817,6 +3952,15 @@ switch which_display
                                         this_Sm_lick_peak_cross(ii_mouse,:)=this_Sm;
                                         this_Sp_lick_peak_cross_asym(ii_mouse)=((sum(this_Sp(between_edges>0))/sum(this_Sp))-0.5)/0.5;
                                         this_Sm_lick_peak_cross_asym(ii_mouse)=((sum(this_Sm(between_edges>0))/sum(this_Sm))-0.5)/0.5;
+                                        
+                                        handles_out.correl_peak_ii=handles_out.correl_peak_ii+1;
+                                        handles_out.correl_peak(handles_out.correl_peak_ii).pacii=pacii;
+                                        handles_out.correl_peak(handles_out.correl_peak_ii).per_ii=per_ii;
+                                        handles_out.correl_peak(handles_out.correl_peak_ii).group_no=PRPtimecourse.mouse(mouseNo).group_no;
+                                        handles_out.correl_peak(handles_out.correl_peak_ii).mouseNo=mouseNo;
+                                        handles_out.correl_peak(handles_out.correl_peak_ii).ii_dt=ii_dt;
+                                        handles_out.correl_peak(handles_out.correl_peak_ii).pSp_lick_peak_cross=this_Sp;
+                                        handles_out.correl_peak(handles_out.correl_peak_ii).pSm_lick_peak_cross=this_Sm;
                                     end
                                 end
                             end
@@ -3828,35 +3972,37 @@ switch which_display
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).Sp_lick_peak_cross_asym=this_Sp_lick_peak_cross_asym;
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).Sm_lick_peak_cross_asym=this_Sm_lick_peak_cross_asym;
                         
-                        
-                        subplot(3,3,3+ii_dt)
-                        hold on
-                        
-                        try
-                            CIsm = bootci(1000, @mean, this_Sm_lick_peak_cross);
-                            meansm=mean(this_Sm_lick_peak_cross,1);
-                            CIsm(1,:)=meansm-CIsm(1,:);
-                            CIsm(2,:)=CIsm(2,:)-meansm;
-                            
-                            [hlsm, hpsm] = boundedline(between_edges',mean(this_Sm_lick_peak_cross,1)', CIsm', 'b');
-                            
-                            CIsp = bootci(1000, @mean, this_Sp_lick_peak_cross);
-                            meansp=mean(this_Sp_lick_peak_cross,1);
-                            CIsp(1,:)=meansp-CIsp(1,:);
-                            CIsp(2,:)=CIsp(2,:)-meansp;
+                        if show_figures==1
+                            subplot(3,3,3+ii_dt)
+                            hold on
                             
                             
-                            [hlsp, hpsp] = boundedline(between_edges',mean(this_Sp_lick_peak_cross,1)', CIsp', 'r');
-                        catch
+                            try
+                                CIsm = bootci(1000, @mean, this_Sm_lick_peak_cross);
+                                meansm=mean(this_Sm_lick_peak_cross,1);
+                                CIsm(1,:)=meansm-CIsm(1,:);
+                                CIsm(2,:)=CIsm(2,:)-meansm;
+                                
+                                [hlsm, hpsm] = boundedline(between_edges',mean(this_Sm_lick_peak_cross,1)', CIsm', 'b');
+                                
+                                CIsp = bootci(1000, @mean, this_Sp_lick_peak_cross);
+                                meansp=mean(this_Sp_lick_peak_cross,1);
+                                CIsp(1,:)=meansp-CIsp(1,:);
+                                CIsp(2,:)=CIsp(2,:)-meansp;
+                                
+                                
+                                [hlsp, hpsp] = boundedline(between_edges',mean(this_Sp_lick_peak_cross,1)', CIsp', 'r');
+                            catch
+                            end
+                            
+                            plot([0 0],[0 0.05],'-k')
+                            
+                            title(['peak ' dt_legend{ii_dt}])
+                            xlabel('Time(sec)')
+                            ylabel('p')
+                            xlim([-0.3 0.3])
+                            ylim([0 ylim_max])
                         end
-                        
-                        plot([0 0],[0 0.05],'-k')
-                        
-                        title(['peak ' dt_legend{ii_dt}])
-                        xlabel('Time(sec)')
-                        ylabel('p')
-                        xlim([-0.3 0.3])
-                        ylim([0 0.05])
                         
                     end
                            
@@ -3884,49 +4030,59 @@ switch which_display
                                         this_Sm_lick_trough_cross(ii_mouse,:)=this_Sm;
                                         this_Sp_lick_trough_cross_asym(ii_mouse)=((sum(this_Sp(between_edges>0))/sum(this_Sp))-0.5)/0.5;
                                         this_Sm_lick_trough_cross_asym(ii_mouse)=((sum(this_Sm(between_edges>0))/sum(this_Sm))-0.5)/0.5;
+                                        
+                                        handles_out.correl_trough_ii=handles_out.correl_trough_ii+1;
+                                        handles_out.correl_trough(handles_out.correl_trough_ii).pacii=pacii;
+                                        handles_out.correl_trough(handles_out.correl_trough_ii).per_ii=per_ii;
+                                        handles_out.correl_trough(handles_out.correl_trough_ii).group_no=PRPtimecourse.mouse(mouseNo).group_no;
+                                        handles_out.correl_trough(handles_out.correl_trough_ii).mouseNo=mouseNo;
+                                        handles_out.correl_trough(handles_out.correl_trough_ii).ii_dt=ii_dt;
+                                        handles_out.correl_trough(handles_out.correl_trough_ii).pSp_lick_trough_cross=this_Sp;
+                                        handles_out.correl_trough(handles_out.correl_trough_ii).pSm_lick_trough_cross=this_Sm;
                                     end
                                 end
                             end
                         end
                         
-                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).pSp_lick_peak_cross=this_Sp_lick_trough_cross;
+                        handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).pSp_lick_peak_cross=this_Sp_lick_trough_cross;
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).pSm_lick_peak_cross=this_Sm_lick_trough_cross;
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).ii_mouse_trough=ii_mouse;
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).Sp_lick_trough_cross_asym=this_Sp_lick_trough_cross_asym;
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).Sm_lick_trough_cross_asym=this_Sm_lick_trough_cross_asym;
                         
-                        subplot(3,3,6+ii_dt)
-                        hold on 
-                        try
-                            CIsm = bootci(1000, @mean, this_Sm_lick_trough_cross);
-                            meansm=mean(this_Sm_lick_trough_cross,1);
-                            CIsm(1,:)=meansm-CIsm(1,:);
-                            CIsm(2,:)=CIsm(2,:)-meansm;
+                        if show_figures==1
+                            subplot(3,3,6+ii_dt)
+                            hold on
+                            try
+                                CIsm = bootci(1000, @mean, this_Sm_lick_trough_cross);
+                                meansm=mean(this_Sm_lick_trough_cross,1);
+                                CIsm(1,:)=meansm-CIsm(1,:);
+                                CIsm(2,:)=CIsm(2,:)-meansm;
+                                
+                                
+                                [hlsm, hpsm] = boundedline(between_edges',mean(this_Sm_lick_trough_cross,1)', CIsm', 'b');
+                            catch
+                            end
                             
+                            try
+                                CIsp = bootci(1000, @mean, this_Sp_lick_trough_cross);
+                                meansp=mean(this_Sp_lick_trough_cross,1);
+                                CIsp(1,:)=meansp-CIsp(1,:);
+                                CIsp(2,:)=CIsp(2,:)-meansp;
+                                
+                                
+                                [hlsp, hpsp] = boundedline(between_edges',mean(this_Sp_lick_trough_cross,1)', CIsp', 'r');
+                            catch
+                            end
                             
-                            [hlsm, hpsm] = boundedline(between_edges',mean(this_Sm_lick_trough_cross,1)', CIsm', 'b');
-                        catch
+                            plot([0 0],[0 0.35],'-k')
+                            
+                            title(['trough ' dt_legend{ii_dt}])
+                            xlabel('Time(sec)')
+                            ylabel('p')
+                            xlim([-0.3 0.3])
+                            ylim([0 ylim_max])
                         end
-                        
-                        try
-                            CIsp = bootci(1000, @mean, this_Sp_lick_trough_cross);
-                            meansp=mean(this_Sp_lick_trough_cross,1);
-                            CIsp(1,:)=meansp-CIsp(1,:);
-                            CIsp(2,:)=CIsp(2,:)-meansp;
-                            
-                            
-                            [hlsp, hpsp] = boundedline(between_edges',mean(this_Sp_lick_trough_cross,1)', CIsp', 'r');
-                        catch
-                        end
-                        
-                        plot([0 0],[0 0.35],'-k')
-                        
-                        title(['trough ' dt_legend{ii_dt}])
-                        xlabel('Time(sec)')
-                        ylabel('p')
-                        xlim([-0.3 0.3])
-                        ylim([0 0.35])
-                        
                     end
                     
                     sgtitle(['Cross ' freq_names{pacii+1} ' ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ])
@@ -3940,7 +4096,65 @@ switch which_display
         these_edges=-1:0.1:1;
         rand_offset=0.8;
         %Bar graph for asymmetry
-        for pacii=1:3
+        for pacii=1:2 %Note: I am stopping at 2, not showing swr
+            if show_figures==1
+                figureNo=figureNo+1;
+                try
+                    close(figureNo)
+                catch
+                end
+                hFig=figure(figureNo);
+                
+                set(hFig, 'units','normalized','position',[.1 .1 .7 .7])
+                
+                ax=gca;ax.LineWidth=3;
+                
+            end
+            %Proficient Splus
+           
+            
+            bar_offset=0;
+            
+  
+            for per_ii=2:-1:1
+                
+                if show_figures==1
+                    subplot(2,1,per_ii)
+                    hold on
+                end
+                
+                for grNo=1:3
+                    
+                    for ii_dt=1:3
+                        these_asym=handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).Sp_lick_peak_cross_asym;
+                        if show_figures==1
+                            switch grNo
+                                case 1
+                                    bar(bar_offset,mean(these_asym),'g','LineWidth', 3,'EdgeColor','none')
+                                case 2
+                                    bar(bar_offset,mean(these_asym),'b','LineWidth', 3,'EdgeColor','none')
+                                case 3
+                                    bar(bar_offset,mean(these_asym),'y','LineWidth', 3,'EdgeColor','none')
+                            end
+                            %Violin plot
+                            [mean_out, CIout]=drgViolinPoint(these_asym,these_edges,bar_offset,rand_offset,'k','k',3);
+                            bar_offset=bar_offset+1;
+                        end
+                    end
+                    bar_offset=bar_offset+1;
+                end
+                if show_figures==1
+                    title(prof_naive_leg{per_ii})
+                end
+            end
+            if show_figures==1
+                sgtitle(['Asymmetry ' freq_names{pacii+1} ' S+'])
+            end
+                    
+        end
+        
+        %Now plot the lick frequency timecourse
+        if show_figures==1
             figureNo=figureNo+1;
             try
                 close(figureNo)
@@ -3951,52 +4165,7 @@ switch which_display
             set(hFig, 'units','normalized','position',[.1 .1 .7 .7])
             
             ax=gca;ax.LineWidth=3;
-            
-            
-            %Proficient Splus
-           
-            
-            bar_offset=0;
-            
-  
-            for per_ii=2:-1:1
-                subplot(2,1,per_ii)
-                hold on
-                for grNo=1:3
-                    
-                    for ii_dt=1:3
-                        these_asym=handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).Sp_lick_peak_cross_asym;
-                           switch grNo
-                                case 1
-                                    bar(bar_offset,mean(these_asym),'g','LineWidth', 3,'EdgeColor','none')
-                                case 2
-                                    bar(bar_offset,mean(these_asym),'b','LineWidth', 3,'EdgeColor','none')
-                                case 3
-                                    bar(bar_offset,mean(these_asym),'y','LineWidth', 3,'EdgeColor','none')
-                           end
-                             %Violin plot
-                            [mean_out, CIout]=drgViolinPoint(these_asym,these_edges,bar_offset,rand_offset,'k','k',3);
-                            bar_offset=bar_offset+1;
-                    end
-                    bar_offset=bar_offset+1;
-                end
-                title(prof_naive_leg{per_ii})
-            end
-            sgtitle(['Asymmetry ' freq_names{pacii+1} ' S+'])
-                    
         end
-        
-        %Now plot the lick frequency timecourse
-        figureNo=figureNo+1;
-        try
-            close(figureNo)
-        catch
-        end
-        hFig=figure(figureNo);
-        
-        set(hFig, 'units','normalized','position',[.1 .1 .7 .7])
-        
-        ax=gca;ax.LineWidth=3;
         
         for per_ii=2:-1:1
             for groupNo=1:3
@@ -4023,49 +4192,52 @@ switch which_display
                     end
                 end
                 
-                subplot(2,3,3*(per_ii-1)+groupNo)
-                hold on
-                
-                CIsm = bootci(1000, @mean, Sm_lick_freq);
-                meansm=mean(Sm_lick_freq,1);
-                CIsm(1,:)=meansm-CIsm(1,:);
-                CIsm(2,:)=CIsm(2,:)-meansm;
-                
-                
-                [hlsm, hpsm] = boundedline(anal_t_pac',mean(Sm_lick_freq,1)', CIsm', 'b');
-                
-                CIsp = bootci(1000, @mean, Sm_lick_freq);
-                meansp=mean(Sm_lick_freq,1);
-                CIsp(1,:)=meansp-CIsp(1,:);
-                CIsp(2,:)=CIsp(2,:)-meansp;
-                
-                
-                [hlsp, hpsp] = boundedline(anal_t_pac',mean(Sp_lick_freq,1)', CIsp', 'r');
-                
-                
-                plot([0 0],[0 0.35],'-k')
-                
-                title([prof_naive_leg{per_ii} ' ' group_legend{groupNo} ])
-                xlabel('Time(sec)')
-                ylabel('licks/sec')
+                if show_figures==1
+                    subplot(2,3,3*(per_ii-1)+groupNo)
+                    hold on
+                    
+                    CIsm = bootci(1000, @mean, Sm_lick_freq);
+                    meansm=mean(Sm_lick_freq,1);
+                    CIsm(1,:)=meansm-CIsm(1,:);
+                    CIsm(2,:)=CIsm(2,:)-meansm;
+                    
+                    
+                    [hlsm, hpsm] = boundedline(anal_t_pac',mean(Sm_lick_freq,1)', CIsm', 'b');
+                    
+                    CIsp = bootci(1000, @mean, Sm_lick_freq);
+                    meansp=mean(Sm_lick_freq,1);
+                    CIsp(1,:)=meansp-CIsp(1,:);
+                    CIsp(2,:)=CIsp(2,:)-meansp;
+                    
+                    
+                    [hlsp, hpsp] = boundedline(anal_t_pac',mean(Sp_lick_freq,1)', CIsp', 'r');
+                    
+                    
+                    plot([0 0],[0 0.35],'-k')
+                    
+                    title([prof_naive_leg{per_ii} ' ' group_legend{groupNo} ])
+                    xlabel('Time(sec)')
+                    ylabel('licks/sec')
+                end
                
             end
         end
-        
-        sgtitle('Lick frequency')
-        
-        %For WT plot the lick frequency timecourse for naive
-        figureNo=figureNo+1;
-        try
-            close(figureNo)
-        catch
+        if show_figures==1
+            sgtitle('Lick frequency')
+            
+            %For WT plot the lick frequency timecourse for naive
+            figureNo=figureNo+1;
+            try
+                close(figureNo)
+            catch
+            end
+            hFig=figure(figureNo);
+            
+            set(hFig, 'units','normalized','position',[.3 .3 .4 .25])
+            
+            ax=gca;ax.LineWidth=3;
+            hold on
         end
-        hFig=figure(figureNo);
-        
-        set(hFig, 'units','normalized','position',[.3 .3 .4 .25])
-        
-        ax=gca;ax.LineWidth=3;
-        hold on
         
         per_ii=2;
         groupNo=1;
@@ -4092,51 +4264,54 @@ switch which_display
             end
         end
         
- 
-        
-        CIsm = bootci(1000, @mean, Sm_lick_freq);
-        meansm=mean(Sm_lick_freq,1);
-        CIsm(1,:)=meansm-CIsm(1,:);
-        CIsm(2,:)=CIsm(2,:)-meansm;
-        
-        
-        [hlsm, hpsm] = boundedline(anal_t_pac',mean(Sm_lick_freq,1)', CIsm', 'cmap',[80/255 194/255 255/255]);
-        
-        CIsp = bootci(1000, @mean, Sm_lick_freq);
-        meansp=mean(Sm_lick_freq,1);
-        CIsp(1,:)=meansp-CIsp(1,:);
-        CIsp(2,:)=CIsp(2,:)-meansp;
-        
-        
-        [hlsp, hpsp] = boundedline(anal_t_pac',mean(Sp_lick_freq,1)', CIsp', 'cmap',[238/255 111/255 179/255]);
-        
-        plot(anal_t_pac',mean(Sm_lick_freq,1)','-','Color',[80/255 194/255 255/255]);
-        plot(anal_t_pac',mean(Sp_lick_freq,1)','-','Color',[238/255 111/255 179/255]);
-        
-        ylim([0 10])
-        xlim([-1.45 4.5])
-        
-        title('Lick rate for wild type naive')
-        xlabel('Time(sec)')
-        ylabel('licks/sec')
-        
+        if show_figures==1
+            
+            CIsm = bootci(1000, @mean, Sm_lick_freq);
+            meansm=mean(Sm_lick_freq,1);
+            CIsm(1,:)=meansm-CIsm(1,:);
+            CIsm(2,:)=CIsm(2,:)-meansm;
+            
+            
+            [hlsm, hpsm] = boundedline(anal_t_pac',mean(Sm_lick_freq,1)', CIsm', 'cmap',[80/255 194/255 255/255]);
+            
+            CIsp = bootci(1000, @mean, Sm_lick_freq);
+            meansp=mean(Sm_lick_freq,1);
+            CIsp(1,:)=meansp-CIsp(1,:);
+            CIsp(2,:)=CIsp(2,:)-meansp;
+            
+            
+            [hlsp, hpsp] = boundedline(anal_t_pac',mean(Sp_lick_freq,1)', CIsp', 'cmap',[238/255 111/255 179/255]);
+            
+            plot(anal_t_pac',mean(Sm_lick_freq,1)','-','Color',[80/255 194/255 255/255]);
+            plot(anal_t_pac',mean(Sp_lick_freq,1)','-','Color',[238/255 111/255 179/255]);
+            
+            ylim([0 10])
+            xlim([-1.45 4.5])
+            
+            title('Lick rate for wild type naive')
+            xlabel('Time(sec)')
+            ylabel('licks/sec')
+        end
         handles_out.lick_rate.Sp_lick_freq_n=Sp_lick_freq;
         handles_out.lick_rate.mean_Sp_lick_freq_n=mean(Sp_lick_freq,1)';
         handles_out.lick_rate.Sm_lick_freq_n=Sm_lick_freq;
         handles_out.lick_rate.mean_Sm_lick_freq_n=mean(Sm_lick_freq,1)';
         handles_out.lick_rate.anal_t_pac=anal_t_pac';
+        
         %For WT plot the lick frequency timecourse for proficient
-        figureNo=figureNo+1;
-        try
-            close(figureNo)
-        catch
+        if show_figures==1
+            figureNo=figureNo+1;
+            try
+                close(figureNo)
+            catch
+            end
+            hFig=figure(figureNo);
+            
+            set(hFig, 'units','normalized','position',[.3 .3 .4 .25])
+            
+            ax=gca;ax.LineWidth=3;
+            hold on
         end
-        hFig=figure(figureNo);
-        
-        set(hFig, 'units','normalized','position',[.3 .3 .4 .25])
-        
-        ax=gca;ax.LineWidth=3;
-        hold on
         
         per_ii=1;
         groupNo=1;
@@ -4164,32 +4339,33 @@ switch which_display
         end
         
  
-        
-        CIsm = bootci(1000, @mean, Sm_lick_freq);
-        meansm=mean(Sm_lick_freq,1);
-        CIsm(1,:)=meansm-CIsm(1,:);
-        CIsm(2,:)=CIsm(2,:)-meansm;
-        
-        
-        [hlsm, hpsm] = boundedline(anal_t_pac',mean(Sm_lick_freq,1)', CIsm', 'cmap',[0 114/255 178/255]);
-        
-        CIsp = bootci(1000, @mean, Sm_lick_freq);
-        meansp=mean(Sm_lick_freq,1);
-        CIsp(1,:)=meansp-CIsp(1,:);
-        CIsp(2,:)=CIsp(2,:)-meansp;
-        
-        
-        [hlsp, hpsp] = boundedline(anal_t_pac',mean(Sp_lick_freq,1)', CIsp', 'cmap',[158/255 31/255 99/255]);
-        
-        plot(anal_t_pac',mean(Sm_lick_freq,1)','-','Color',[0 114/255 178/255]);
-        plot(anal_t_pac',mean(Sp_lick_freq,1)','-','Color',[158/255 31/255 99/255]);
-        
-        ylim([0 10])
-        xlim([-1.45 4.5])
-        
-        title('Lick rate for wild type proficient')
-        xlabel('Time(sec)')
-        ylabel('licks/sec')
+        if show_figures==1
+            CIsm = bootci(1000, @mean, Sm_lick_freq);
+            meansm=mean(Sm_lick_freq,1);
+            CIsm(1,:)=meansm-CIsm(1,:);
+            CIsm(2,:)=CIsm(2,:)-meansm;
+            
+            
+            [hlsm, hpsm] = boundedline(anal_t_pac',mean(Sm_lick_freq,1)', CIsm', 'cmap',[0 114/255 178/255]);
+            
+            CIsp = bootci(1000, @mean, Sm_lick_freq);
+            meansp=mean(Sm_lick_freq,1);
+            CIsp(1,:)=meansp-CIsp(1,:);
+            CIsp(2,:)=CIsp(2,:)-meansp;
+            
+            
+            [hlsp, hpsp] = boundedline(anal_t_pac',mean(Sp_lick_freq,1)', CIsp', 'cmap',[158/255 31/255 99/255]);
+            
+            plot(anal_t_pac',mean(Sm_lick_freq,1)','-','Color',[0 114/255 178/255]);
+            plot(anal_t_pac',mean(Sp_lick_freq,1)','-','Color',[158/255 31/255 99/255]);
+            
+            ylim([0 10])
+            xlim([-1.45 4.5])
+            
+            title('Lick rate for wild type proficient')
+            xlabel('Time(sec)')
+            ylabel('licks/sec')
+        end
         
         handles_out.lick_rate.Sp_lick_freq_p=Sp_lick_freq;
         handles_out.lick_rate.mean_Sp_lick_freq_p=mean(Sp_lick_freq,1)';
@@ -4204,7 +4380,7 @@ switch which_display
         handles_out.RP_ii=0;
         handles_out.anal_t_pac=anal_t_pac;
         
-        for pacii=1:no_pacii
+        for pacii=1:2 %Note: I am stopping at 2, not showing swr
             for group_no=1:3
                 handles_out.disc_t.pacii(pacii).groupNo(group_no).no_peak=0;
                 handles_out.disc_t.pacii(pacii).groupNo(group_no).no_licks=0;
@@ -4213,7 +4389,7 @@ switch which_display
         end
         
         figureNo = figureNo + 1;
-        for pacii=1:no_pacii
+        for pacii=1:2 %Note: I am stopping at 2, not showing swr
             for per_ii=2:-1:1
                 
                 for mouseNo=1:length(PRPtimecourse.mouse)
@@ -4561,6 +4737,148 @@ switch which_display
                     
                     handles_out.RPtimecourse(handles_out.RP_ii).SmPRPtimecourse_trough=SmPRPtimecourse_trough;
                     handles_out.RPtimecourse(handles_out.RP_ii).SpPRPtimecourse_trough=SpPRPtimecourse_trough;
+                    
+                    
+                    %Trough below p values
+                    SpPRPtimecourse_trough_below=[];
+                    ii_Spb=0;
+                    SmPRPtimecourse_trough_below=[];
+                    ii_Smb=0;
+                    for elecNo=which_electrodes
+                        for this_session=1:PRPtimecourse.mouse(mouseNo).no_sessions
+                            if PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).per_ii_processed==1
+                                
+                                %Splus
+                                evNo=1;
+                                if PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).no_events>0
+                                    for trNo=1:length(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power)
+                                        if isfield(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo),'z_troughPower_timecourse_below')
+                                            if ~isempty(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo).z_troughPower_timecourse_below)
+                                                if ~isempty(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo).z_troughPower_timecourse_below)
+                                                    this_PRPtimecourse=zeros(1,length(anal_t_pac));
+                                                    this_PRPtimecourse(1,:)=PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo).z_troughPower_timecourse_below;
+                                                    ii_Spb=ii_Spb+1;
+                                                    SpPRPtimecourse_trough_below(ii_Spb,:)=this_PRPtimecourse;
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                                
+                                %Sminus
+                                evNo=2;
+                                if PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).no_events>0
+                                    for trNo=1:length(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power)
+                                        if isfield(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo),'z_troughPower_timecourse_below')
+                                            if ~isempty(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo).z_troughPower_timecourse_below)
+                                                if ~isempty(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo).z_troughPower_timecourse_below)
+                                                    this_PRPtimecourse=zeros(1,length(anal_t_pac));
+                                                    this_PRPtimecourse(1,:)=PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo).z_troughPower_timecourse_below;
+                                                    ii_Smb=ii_Smb+1;
+                                                    SmPRPtimecourse_trough_below(ii_Smb,:)=this_PRPtimecourse;
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    handles_out.RPtimecourse(handles_out.RP_ii).p_vals_trough_below=[];
+                    handles_out.RPtimecourse(handles_out.RP_ii).t_sig_trough_below=[];
+                    
+                    if (size(SpPRPtimecourse_trough_below,1)>10)&(size(SmPRPtimecourse_trough_below,1)>10)
+                        p_vals_trough_below=zeros(1,length(anal_t_pac));
+                        for ii_t=1:length(anal_t_pac)
+                            [h,p_vals_trough_below(ii_t)]=ttest2(SpPRPtimecourse_trough_below(:,ii_t),SmPRPtimecourse_trough_below(:,ii_t));
+                        end
+                        
+                        handles_out.RPtimecourse(handles_out.RP_ii).p_vals_trough_below=p_vals_trough_below;
+                        ii_zero=find(anal_t_pac>=t_odor_on,1,'first');
+                        delta_ii_sig=find(p_vals_trough_below(ii_zero:end)<=0.05,1,'first');
+                        handles_out.RPtimecourse(handles_out.RP_ii).t_sig_trough_below=anal_t_pac(ii_zero+delta_ii_sig-1)-t_odor_on;
+                    else
+                        data_calculated=0;
+                    end
+                    
+                    handles_out.RPtimecourse(handles_out.RP_ii).meanSmPRPtimecourse_trough_below=mean(SmPRPtimecourse_trough_below,1)';
+                    handles_out.RPtimecourse(handles_out.RP_ii).meanSpPRPtimecourse_trough_below=mean(SpPRPtimecourse_trough_below,1)';
+                    
+                    handles_out.RPtimecourse(handles_out.RP_ii).SmPRPtimecourse_trough_below=SmPRPtimecourse_trough_below;
+                    handles_out.RPtimecourse(handles_out.RP_ii).SpPRPtimecourse_trough_below=SpPRPtimecourse_trough_below;
+                    
+                    %Peak above p values
+                    SpPRPtimecourse_trough_above=[];
+                    ii_Spb=0;
+                    SmPRPtimecourse_trough_above=[];
+                    ii_Smb=0;
+                    for elecNo=which_electrodes
+                        for this_session=1:PRPtimecourse.mouse(mouseNo).no_sessions
+                            if PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).per_ii_processed==1
+                                
+                                %Splus
+                                evNo=1;
+                                if PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).no_events>0
+                                    for trNo=1:length(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power)
+                                        if isfield(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo),'z_troughPower_timecourse_above')
+                                            if ~isempty(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo).z_troughPower_timecourse_above)
+                                                if ~isempty(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo).z_troughPower_timecourse_above)
+                                                    this_PRPtimecourse=zeros(1,length(anal_t_pac));
+                                                    this_PRPtimecourse(1,:)=PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo).z_troughPower_timecourse_above;
+                                                    if sum(isnan(this_PRPtimecourse))==0
+                                                        ii_Spb=ii_Spb+1;
+                                                        SpPRPtimecourse_trough_above(ii_Spb,:)=this_PRPtimecourse;
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                                
+                                %Sminus
+                                evNo=2;
+                                if PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).no_events>0
+                                    for trNo=1:length(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power)
+                                        if isfield(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo),'z_troughPower_timecourse_above')
+                                            if ~isempty(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo).z_troughPower_timecourse_above)
+                                                if ~isempty(PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo).z_troughPower_timecourse_above)
+                                                    this_PRPtimecourse=zeros(1,length(anal_t_pac));
+                                                    this_PRPtimecourse(1,:)=PRPtimecourse.mouse(mouseNo).session(this_session).per_ii(per_ii).pacii(pacii).electrode(elecNo).event(evNo).z_power(trNo).z_troughPower_timecourse_above;
+                                                    if sum(isnan(this_PRPtimecourse))==0
+                                                        ii_Smb=ii_Smb+1;
+                                                        SmPRPtimecourse_trough_above(ii_Smb,:)=this_PRPtimecourse;
+                                                    end
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                    end
+                    handles_out.RPtimecourse(handles_out.RP_ii).p_vals_trough_above=[];
+                    handles_out.RPtimecourse(handles_out.RP_ii).t_sig_trough_above=[];
+                     
+                    if (size(SpPRPtimecourse_trough_above,1)>10)&(size(SmPRPtimecourse_trough_above,1)>10)
+                        p_vals_trough_above=zeros(1,length(anal_t_pac));
+                        for ii_t=1:length(anal_t_pac)
+                            [h,p_vals_trough_above(ii_t)]=ttest2(SpPRPtimecourse_trough_above(:,ii_t),SmPRPtimecourse_trough_above(:,ii_t));
+                        end
+                        
+                        handles_out.RPtimecourse(handles_out.RP_ii).p_vals_trough_above=p_vals_trough_above;
+                        ii_zero=find(anal_t_pac>=t_odor_on,1,'first');
+                        delta_ii_sig=find(p_vals_trough_above(ii_zero:end)<=0.05,1,'first');
+                        handles_out.RPtimecourse(handles_out.RP_ii).t_sig_trough_above=anal_t_pac(ii_zero+delta_ii_sig-1)-t_odor_on;
+                    else
+                        data_calculated=0;
+                    end
+                    
+                    handles_out.RPtimecourse(handles_out.RP_ii).meanSmPRPtimecourse_trough_above=mean(SmPRPtimecourse_trough_above,1)';
+                    handles_out.RPtimecourse(handles_out.RP_ii).meanSpPRPtimecourse_trough_above=mean(SpPRPtimecourse_trough_above,1)';
+
+                    
+                    handles_out.RPtimecourse(handles_out.RP_ii).SmPRPtimecourse_trough_above=SmPRPtimecourse_trough_above;
+                    handles_out.RPtimecourse(handles_out.RP_ii).SpPRPtimecourse_trough_above=SpPRPtimecourse_trough_above;
                     
                     
                     %Lick power p values
@@ -4912,19 +5230,23 @@ switch which_display
         end
         
         %Peak PRP
-        for pacii=1:no_pacii
-            figureNo = figureNo + 1;
-            try
-                close(figureNo)
-            catch
+        for pacii=1:2 %Note: I am stopping at 2, not showing swr
+            if show_figures==1
+                figureNo = figureNo + 1;
+                try
+                    close(figureNo)
+                catch
+                end
+                hFig=figure(figureNo);
             end
-            hFig=figure(figureNo);
             
             for per_ii=2:-1:1
                 
                 for groupNo=1:3
-                    subplot(2,3,groupNo + 3*(2-per_ii))
-                    hold on
+                    if show_figures==1
+                        subplot(2,3,groupNo + 3*(2-per_ii))
+                        hold on
+                    end
                     
                     all_meanSmPRPtimecourse_peak=[];
                     all_meanSpPRPtimecourse_peak=[];
@@ -4940,46 +5262,54 @@ switch which_display
                     end
                     fprintf(1, ['The number of mice included for ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' is %d\n'], ii_tcs)
                     
-                    CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_peak);
-                    meansp=mean(all_meanSpPRPtimecourse_peak,1);
-                    CIsp(1,:)=meansp-CIsp(1,:);
-                    CIsp(2,:)=CIsp(2,:)-meansp;
-                    
-                    
-                    [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_peak,1)', CIsp', 'r');
-                    
-                    CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_peak);
-                    meansm=mean(all_meanSmPRPtimecourse_peak,1);
-                    CIsm(1,:)=meansm-CIsm(1,:);
-                    CIsm(2,:)=CIsm(2,:)-meansm;
-                    
-                    [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_peak,1)', CIsm', 'b');
-                    
-                    title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
-                    xlabel('Time(sec)')
-                    ylabel('z')
-                    ylim([-2 2])
+                    if show_figures==1
+                        CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_peak);
+                        meansp=mean(all_meanSpPRPtimecourse_peak,1);
+                        CIsp(1,:)=meansp-CIsp(1,:);
+                        CIsp(2,:)=CIsp(2,:)-meansp;
+                        
+                        
+                        [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_peak,1)', CIsp', 'r');
+                        
+                        CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_peak);
+                        meansm=mean(all_meanSmPRPtimecourse_peak,1);
+                        CIsm(1,:)=meansm-CIsm(1,:);
+                        CIsm(2,:)=CIsm(2,:)-meansm;
+                        
+                        [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_peak,1)', CIsm', 'b');
+                        
+                        title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
+                        xlabel('Time(sec)')
+                        ylabel('z')
+                        ylim([-2 2])
+                    end
                     
                 end
             end
             
-            sgtitle(['Peak PRP ' freq_names{pacii+1}])
+            if show_figures==1
+                sgtitle(['Peak PRP ' freq_names{pacii+1}])
+            end
         end
         
         %Peak PRP previous to lick
-        for pacii=1:no_pacii
-            figureNo = figureNo + 1;
-            try
-                close(figureNo)
-            catch
+        for pacii=1:2 %Note: I am stopping at 2, not showing swr
+            if show_figures==1
+                figureNo = figureNo + 1;
+                try
+                    close(figureNo)
+                catch
+                end
+                hFig=figure(figureNo);
             end
-            hFig=figure(figureNo);
             
             for per_ii=2:-1:1
                 
                 for groupNo=1:3
-                    subplot(2,3,groupNo + 3*(2-per_ii))
-                    hold on
+                    if show_figures==1
+                        subplot(2,3,groupNo + 3*(2-per_ii))
+                        hold on
+                    end
                     
                     all_meanSmPRPtimecourse_peak_below=[];
                     all_meanSpPRPtimecourse_peak_below=[];
@@ -4995,46 +5325,54 @@ switch which_display
                     end
                     fprintf(1, ['The number of mice included for ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' is %d\n'], ii_tcs)
                     
-                    CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_peak_below);
-                    meansp=mean(all_meanSpPRPtimecourse_peak_below,1);
-                    CIsp(1,:)=meansp-CIsp(1,:);
-                    CIsp(2,:)=CIsp(2,:)-meansp;
-                    
-                    
-                    [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_peak_below,1)', CIsp', 'r');
-                    
-                    CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_peak_below);
-                    meansm=mean(all_meanSmPRPtimecourse_peak_below,1);
-                    CIsm(1,:)=meansm-CIsm(1,:);
-                    CIsm(2,:)=CIsm(2,:)-meansm;
-                    
-                    [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_peak_below,1)', CIsm', 'b');
-                    
-                    title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
-                    xlabel('Time(sec)')
-                    ylabel('z')
-                    ylim([-2 2])
+                    if show_figures==1
+                        CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_peak_below);
+                        meansp=mean(all_meanSpPRPtimecourse_peak_below,1);
+                        CIsp(1,:)=meansp-CIsp(1,:);
+                        CIsp(2,:)=CIsp(2,:)-meansp;
+                        
+                        
+                        [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_peak_below,1)', CIsp', 'r');
+                        
+                        CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_peak_below);
+                        meansm=mean(all_meanSmPRPtimecourse_peak_below,1);
+                        CIsm(1,:)=meansm-CIsm(1,:);
+                        CIsm(2,:)=CIsm(2,:)-meansm;
+                        
+                        [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_peak_below,1)', CIsm', 'b');
+                        
+                        title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
+                        xlabel('Time(sec)')
+                        ylabel('z')
+                        ylim([-2 2])
+                    end
                     
                 end
             end
             
-            sgtitle(['Peak PRP for peaks before licks ' freq_names{pacii+1}])
+            if show_figures==1
+                sgtitle(['Peak PRP for peaks before licks ' freq_names{pacii+1}])
+            end
         end
         
         %Peak PRP after lick
-        for pacii=1:no_pacii
-            figureNo = figureNo + 1;
-            try
-                close(figureNo)
-            catch
+        for pacii=1:2 %Note: I am stopping at 2, not showing swr
+            if show_figures==1
+                figureNo = figureNo + 1;
+                try
+                    close(figureNo)
+                catch
+                end
+                hFig=figure(figureNo);
             end
-            hFig=figure(figureNo);
             
             for per_ii=2:-1:1
                 
                 for groupNo=1:3
-                    subplot(2,3,groupNo + 3*(2-per_ii))
-                    hold on
+                    if show_figures==1
+                        subplot(2,3,groupNo + 3*(2-per_ii))
+                        hold on
+                    end
                     
                     all_meanSmPRPtimecourse_peak_above=[];
                     all_meanSpPRPtimecourse_peak_above=[];
@@ -5050,116 +5388,264 @@ switch which_display
                     end
                     fprintf(1, ['The number of mice included for ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' is %d\n'], ii_tcs)
                      
-                    try
-                        if size(all_meanSpPRPtimecourse_peak_above,1)>2
-                            CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_peak_above);
-                            meansp=mean(all_meanSpPRPtimecourse_peak_above,1);
-                            CIsp(1,:)=meansp-CIsp(1,:);
-                            CIsp(2,:)=CIsp(2,:)-meansp;
+                    if show_figures==1
+                        try
+                            if size(all_meanSpPRPtimecourse_peak_above,1)>2
+                                CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_peak_above);
+                                meansp=mean(all_meanSpPRPtimecourse_peak_above,1);
+                                CIsp(1,:)=meansp-CIsp(1,:);
+                                CIsp(2,:)=CIsp(2,:)-meansp;
+                                
+                                
+                                [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_peak_above,1)', CIsp', 'r');
+                                
+                            else
+                                plot(anal_t_pac',mean(all_meanSpPRPtimecourse_peak_above,1)', 'r');
+                            end
                             
-                            
-                            [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_peak_above,1)', CIsp', 'r');
-                            
-                        else
-                            plot(anal_t_pac',mean(all_meanSpPRPtimecourse_peak_above,1)', 'r');
+                            if size(all_meanSmPRPtimecourse_peak_above,1)>2
+                                CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_peak_above);
+                                meansm=mean(all_meanSmPRPtimecourse_peak_above,1);
+                                CIsm(1,:)=meansm-CIsm(1,:);
+                                CIsm(2,:)=CIsm(2,:)-meansm;
+                                
+                                [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_peak_above,1)', CIsm', 'b');
+                            else
+                                plot(anal_t_pac',mean(all_meanSmPRPtimecourse_peak_above,1)', 'b');
+                            end
+                        catch
                         end
                         
-                        if size(all_meanSmPRPtimecourse_peak_above,1)>2
-                            CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_peak_above);
-                            meansm=mean(all_meanSmPRPtimecourse_peak_above,1);
-                            CIsm(1,:)=meansm-CIsm(1,:);
-                            CIsm(2,:)=CIsm(2,:)-meansm;
-                            
-                            [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_peak_above,1)', CIsm', 'b');
-                        else
-                            plot(anal_t_pac',mean(all_meanSmPRPtimecourse_peak_above,1)', 'b');
-                        end
-                    catch
+                        
+                        title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
+                        xlabel('Time(sec)')
+                        ylabel('z')
+                        ylim([-2 2])
                     end
-                    
-                  
-                    title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
-                    xlabel('Time(sec)')
-                    ylabel('z')
-                    ylim([-2 2])
                     
                 end
             end
-            
-            sgtitle(['Peak PRP for peaks after licks ' freq_names{pacii+1}])
+            if show_figures==1
+                sgtitle(['Peak PRP for peaks after licks ' freq_names{pacii+1}])
+            end
         end
         
-        %Peak PRP all lick
-        for pacii=1:no_pacii
-            figureNo = figureNo + 1;
-            try
-                close(figureNo)
-            catch
+        
+        %Trough PRP previous to lick
+        for pacii=1:2 %Note: I am stopping at 2, not showing swr
+            if show_figures==1
+                figureNo = figureNo + 1;
+                try
+                    close(figureNo)
+                catch
+                end
+                hFig=figure(figureNo);
             end
-            hFig=figure(figureNo);
             
             for per_ii=2:-1:1
                 
                 for groupNo=1:3
-                    subplot(2,3,groupNo + 3*(2-per_ii))
-                    hold on
+                    if show_figures==1
+                        subplot(2,3,groupNo + 3*(2-per_ii))
+                        hold on
+                    end
                     
-                    all_meanSmPRPtimecourse_peak_all=[];
-                    all_meanSpPRPtimecourse_peak_all=[];
+                    all_meanSmPRPtimecourse_trough_below=[];
+                    all_meanSpPRPtimecourse_trough_below=[];
                     ii_tcs=0;
                     for ii=1:handles_out.RP_ii
                         if (handles_out.RPtimecourse(ii).pacii==pacii)&(handles_out.RPtimecourse(ii).per_ii==per_ii)&(handles_out.RPtimecourse(ii).group_no==groupNo)
-                            if (length(handles_out.RPtimecourse(ii).meanSmPRPtimecourse_peak_all)>1)&(length(handles_out.RPtimecourse(ii).meanSpPRPtimecourse_peak_all)>1)
+                            if (length(handles_out.RPtimecourse(ii).meanSmPRPtimecourse_trough_below)>1)&(length(handles_out.RPtimecourse(ii).meanSpPRPtimecourse_trough_below)>1)
                                 ii_tcs=ii_tcs+1;
-                                all_meanSmPRPtimecourse_peak_all(ii_tcs,:)=handles_out.RPtimecourse(ii).meanSmPRPtimecourse_peak_all;
-                                all_meanSpPRPtimecourse_peak_all(ii_tcs,:)=handles_out.RPtimecourse(ii).meanSpPRPtimecourse_peak_all;
+                                all_meanSmPRPtimecourse_trough_below(ii_tcs,:)=handles_out.RPtimecourse(ii).meanSmPRPtimecourse_trough_below;
+                                all_meanSpPRPtimecourse_trough_below(ii_tcs,:)=handles_out.RPtimecourse(ii).meanSpPRPtimecourse_trough_below;
+                            end
+                        end
+                    end
+                    fprintf(1, ['The number of mice included for ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' is %d\n'], ii_tcs)
+                    
+                    if show_figures==1
+                        CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_trough_below);
+                        meansp=mean(all_meanSpPRPtimecourse_trough_below,1);
+                        CIsp(1,:)=meansp-CIsp(1,:);
+                        CIsp(2,:)=CIsp(2,:)-meansp;
+                        
+                        
+                        [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_trough_below,1)', CIsp', 'r');
+                        
+                        CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_trough_below);
+                        meansm=mean(all_meanSmPRPtimecourse_trough_below,1);
+                        CIsm(1,:)=meansm-CIsm(1,:);
+                        CIsm(2,:)=CIsm(2,:)-meansm;
+                        
+                        [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_trough_below,1)', CIsm', 'b');
+                        
+                        title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
+                        xlabel('Time(sec)')
+                        ylabel('z')
+                        ylim([-2 2])
+                    end
+                    
+                end
+            end
+            
+            if show_figures==1
+                sgtitle(['Trough PRP before licks ' freq_names{pacii+1}])
+            end
+        end
+        
+        %Trough PRP after lick
+        for pacii=1:2 %Note: I am stopping at 2, not showing swr
+            if show_figures==1
+                figureNo = figureNo + 1;
+                try
+                    close(figureNo)
+                catch
+                end
+                hFig=figure(figureNo);
+            end
+            
+            for per_ii=2:-1:1
+                
+                for groupNo=1:3
+                    if show_figures==1
+                        subplot(2,3,groupNo + 3*(2-per_ii))
+                        hold on
+                    end
+                    
+                    all_meanSmPRPtimecourse_trough_above=[];
+                    all_meanSpPRPtimecourse_trough_above=[];
+                    ii_tcs=0;
+                    for ii=1:handles_out.RP_ii
+                        if (handles_out.RPtimecourse(ii).pacii==pacii)&(handles_out.RPtimecourse(ii).per_ii==per_ii)&(handles_out.RPtimecourse(ii).group_no==groupNo)
+                            if (length(handles_out.RPtimecourse(ii).meanSmPRPtimecourse_trough_above)>1)&(length(handles_out.RPtimecourse(ii).meanSpPRPtimecourse_trough_above)>1)
+                                ii_tcs=ii_tcs+1;
+                                all_meanSmPRPtimecourse_trough_above(ii_tcs,:)=handles_out.RPtimecourse(ii).meanSmPRPtimecourse_trough_above;
+                                all_meanSpPRPtimecourse_trough_above(ii_tcs,:)=handles_out.RPtimecourse(ii).meanSpPRPtimecourse_trough_above;
                             end
                         end
                     end
                     fprintf(1, ['The number of mice included for ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' is %d\n'], ii_tcs)
                      
-                    
-                    if size(all_meanSpPRPtimecourse_peak_all,1)>2
-                        CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_peak_all);
-                        meansp=mean(all_meanSpPRPtimecourse_peak_all,1);
-                        CIsp(1,:)=meansp-CIsp(1,:);
-                        CIsp(2,:)=CIsp(2,:)-meansp;
+                    if show_figures==1
+                        try
+                            if size(all_meanSpPRPtimecourse_trough_above,1)>2
+                                CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_trough_above);
+                                meansp=mean(all_meanSpPRPtimecourse_trough_above,1);
+                                CIsp(1,:)=meansp-CIsp(1,:);
+                                CIsp(2,:)=CIsp(2,:)-meansp;
+                                
+                                
+                                [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_trough_above,1)', CIsp', 'r');
+                                
+                            else
+                                plot(anal_t_pac',mean(all_meanSpPRPtimecourse_trough_above,1)', 'r');
+                            end
+                            
+                            if size(all_meanSmPRPtimecourse_trough_above,1)>2
+                                CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_trough_above);
+                                meansm=mean(all_meanSmPRPtimecourse_trough_above,1);
+                                CIsm(1,:)=meansm-CIsm(1,:);
+                                CIsm(2,:)=CIsm(2,:)-meansm;
+                                
+                                [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_trough_above,1)', CIsm', 'b');
+                            else
+                                plot(anal_t_pac',mean(all_meanSmPRPtimecourse_trough_above,1)', 'b');
+                            end
+                        catch
+                        end
                         
                         
-                        [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_peak_all,1)', CIsp', 'r');
-                        
-                    else
-                        plot(anal_t_pac',mean(all_meanSpPRPtimecourse_peak_all,1)', 'r');
+                        title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
+                        xlabel('Time(sec)')
+                        ylabel('z')
+                        ylim([-2 2])
                     end
-                    
-                    if size(all_meanSmPRPtimecourse_peak_all,1)>2
-                        CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_peak_all);
-                        meansm=mean(all_meanSmPRPtimecourse_peak_all,1);
-                        CIsm(1,:)=meansm-CIsm(1,:);
-                        CIsm(2,:)=CIsm(2,:)-meansm;
-                        
-                        [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_peak_all,1)', CIsm', 'b');
-                    else
-                        plot(anal_t_pac',mean(all_meanSmPRPtimecourse_peak_all,1)', 'b');
-                    end
-                    
-                   
-                  
-                    title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
-                    xlabel('Time(sec)')
-                    ylabel('z')
-                    ylim([-2 2])
                     
                 end
             end
-            
-            sgtitle(['Peak PRP for all peaks referenced to licks ' freq_names{pacii+1}])
+            if show_figures==1
+                sgtitle(['Trough PRP after licks ' freq_names{pacii+1}])
+            end
         end
+        
+%         %Peak PRP all lick
+%         for pacii=1:no_pacii
+%             if show_figures==1
+%                 figureNo = figureNo + 1;
+%                 try
+%                     close(figureNo)
+%                 catch
+%                 end
+%                 hFig=figure(figureNo);
+%             end
+%             
+%             for per_ii=2:-1:1
+%                 
+%                 for groupNo=1:3
+%                     if show_figures==1
+%                         subplot(2,3,groupNo + 3*(2-per_ii))
+%                         hold on
+%                     end
+%                     
+%                     all_meanSmPRPtimecourse_peak_all=[];
+%                     all_meanSpPRPtimecourse_peak_all=[];
+%                     ii_tcs=0;
+%                     for ii=1:handles_out.RP_ii
+%                         if (handles_out.RPtimecourse(ii).pacii==pacii)&(handles_out.RPtimecourse(ii).per_ii==per_ii)&(handles_out.RPtimecourse(ii).group_no==groupNo)
+%                             if (length(handles_out.RPtimecourse(ii).meanSmPRPtimecourse_peak_all)>1)&(length(handles_out.RPtimecourse(ii).meanSpPRPtimecourse_peak_all)>1)
+%                                 ii_tcs=ii_tcs+1;
+%                                 all_meanSmPRPtimecourse_peak_all(ii_tcs,:)=handles_out.RPtimecourse(ii).meanSmPRPtimecourse_peak_all;
+%                                 all_meanSpPRPtimecourse_peak_all(ii_tcs,:)=handles_out.RPtimecourse(ii).meanSpPRPtimecourse_peak_all;
+%                             end
+%                         end
+%                     end
+%                     fprintf(1, ['The number of mice included for ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' is %d\n'], ii_tcs)
+%                     
+%                     if show_figures==1
+%                         if size(all_meanSpPRPtimecourse_peak_all,1)>2
+%                             CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_peak_all);
+%                             meansp=mean(all_meanSpPRPtimecourse_peak_all,1);
+%                             CIsp(1,:)=meansp-CIsp(1,:);
+%                             CIsp(2,:)=CIsp(2,:)-meansp;
+%                             
+%                             
+%                             [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_peak_all,1)', CIsp', 'r');
+%                             
+%                         else
+%                             plot(anal_t_pac',mean(all_meanSpPRPtimecourse_peak_all,1)', 'r');
+%                         end
+%                         
+%                         if size(all_meanSmPRPtimecourse_peak_all,1)>2
+%                             CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_peak_all);
+%                             meansm=mean(all_meanSmPRPtimecourse_peak_all,1);
+%                             CIsm(1,:)=meansm-CIsm(1,:);
+%                             CIsm(2,:)=CIsm(2,:)-meansm;
+%                             
+%                             [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_peak_all,1)', CIsm', 'b');
+%                         else
+%                             plot(anal_t_pac',mean(all_meanSmPRPtimecourse_peak_all,1)', 'b');
+%                         end
+%                         
+%                         
+%                         
+%                         title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
+%                         xlabel('Time(sec)')
+%                         ylabel('z')
+%                         ylim([-2 2])
+%                     end
+%                     
+%                 end
+%             end
+%             if show_figures==1
+%                 sgtitle(['Peak PRP for all peaks referenced to licks ' freq_names{pacii+1}])
+%             end
+%         end
         save([handles.PathName handles.drgb.outFileName(1:end-4) '_case' num2str(which_display) '_' handles_pars.output_suffix],'handles_out')
         pffft=1; 
         
         case 4
-        % Multiclass ROC analysis of coherence for naive and proficient
+        % Multiclass analysis of imaginary coherence for naive and proficient
         % mice for different epochs (concentrations or S+ vs. S-) and different groups. Analyzed per mouse
         
         deltaCxy=[];        %Change in coherence after stimulation with the odor
@@ -5168,8 +5654,7 @@ switch which_display
         per_mouse_no_ROCs=0;
         per_mouse_ROCout=[];
         per_mouse_p_vals_ROC=[];
-        %         deltaCxy_Ev1=[];
-        %         no_Ev1=0;
+  
         for evNo=1:length(eventType)
             evNo_out(evNo).noWB=0;
         end
@@ -5210,27 +5695,15 @@ switch which_display
         handles_out.abs_dcoh_ii=0;
         handles_out.auc_ii=0;
         handles_out.dcohaf_ii=0;
+        handles_out.WT_dcoh_ii=0;
+        handles_out.per_sig_ii=0;
+        handles_out.odor_Cxy_ii=0;
+                           
         
-        
-%         fprintf(1, ['Pairwise auROC analysis for coherence analysis of LFP\n\n'])
-        %         p_vals=[];
+
         no_files=max(files);
         
-%         %Initialize ROC
-%         no_ROCs=0;
-%         ROCelec_pair=[];
-%         ROCgroups=[];
-%         ROCmouse=[];
-%         ROCbwii=[];
-%         ROCper_ii=[];
-%         ROCEvNo1=[];
-%         ROCEvNo2=[];
-%         auROC=[];
-%         p_valROC=[];
-%         p_vals_ROC=[];
-        
-        
-        
+
         szpc=size(percent_windows);
         for per_ii=1:szpc(1)
             
@@ -5956,7 +6429,7 @@ switch which_display
                             %                         these_offsets(per_ii)=bar_offset;
                             bar_offset = bar_offset + 1;
                             
-%                             these_deltaCxy=logical((deltaCxy_per_mouse_p<=drsFDRpval(deltaCxy_per_mouse_p))&(deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
+                            %                             these_deltaCxy=logical((deltaCxy_per_mouse_p<=drsFDRpval(deltaCxy_per_mouse_p))&(deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
                             these_deltaCxy=logical((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
                             
                             if sum(these_deltaCxy)>0
@@ -5978,6 +6451,7 @@ switch which_display
                                 handles_out.dcoh_values(handles_out.dcoh_ii).per_ii=per_ii;
                                 handles_out.dcoh_values(handles_out.dcoh_ii).groupNo=grNo;
                                 handles_out.dcoh_values(handles_out.dcoh_ii).dcoh=mean(deltaCxy_per_mouse(these_deltaCxy));
+                                handles_out.dcoh_values(handles_out.dcoh_ii).sh_dcoh=mean(sh_deltaCxy_per_mouse(these_deltaCxy));
                                 handles_out.dcoh_values(handles_out.dcoh_ii).all_dcoh=deltaCxy_per_mouse(these_deltaCxy);
                                 
                                 %Save the mean per mouse
@@ -5987,7 +6461,8 @@ switch which_display
                                     if sum(these_mice==iiMice)>0
                                         handles_out.dcoh_values(handles_out.dcoh_ii).noMice=handles_out.dcoh_values(handles_out.dcoh_ii).noMice+1;
                                         handles_out.dcoh_values(handles_out.dcoh_ii).mouseNo(handles_out.dcoh_values(handles_out.dcoh_ii).noMice)=iiMice;
-                                        handles_out.dcoh_values(handles_out.dcoh_ii).dcoh_per_mouse(handles_out.dcoh_values(handles_out.dcoh_ii).noMice)=mean(deltaCxy_per_mouse(these_deltaCxy));
+                                        handles_out.dcoh_values(handles_out.dcoh_ii).dcoh_per_mouse(handles_out.dcoh_values(handles_out.dcoh_ii).noMice)=mean(deltaCxy_per_mouse(these_deltaCxy&(deltaCxy_mouseNo_per_mouse==iiMice)));
+                                         handles_out.dcoh_values(handles_out.dcoh_ii).sh_dcoh_per_mouse(handles_out.dcoh_values(handles_out.dcoh_ii).noMice)=mean(sh_deltaCxy_per_mouse(these_deltaCxy&(deltaCxy_mouseNo_per_mouse==iiMice)));
                                     end
                                 end
                                 
@@ -6101,7 +6576,7 @@ switch which_display
             end
             fprintf(1, ['\n\n'])
             
-            %Now plot the odor elicited change in the absolute value of the imaginary coherence 
+            %Now plot the odor elicited change in the absolute value of the imaginary coherence
             edges=[0:0.01:1];
             rand_offset=0.8;
             
@@ -6207,24 +6682,24 @@ switch which_display
                                 [mean_out, CIout]=drgViolinPoint(abs_deltaCxy_per_mouse(these_deltaCxy)...
                                     ,edges,bar_offset,rand_offset,'k','k',1);
                                 
-                             
+                                
                             end
                         end
                         bar_offset = bar_offset + 2;
-%                         try
-%                             if per_included==2
-%                                 for mouseNo=1:length(mouse_included)
-%                                     if mouse_included(mouseNo)==1
-%                                         if (sum(data_for_lines(1).these_mice==mouseNo)>0)&(sum(data_for_lines(2).these_mice==mouseNo)>0)
-%                                             plot([data_for_lines(1).these_bar_offsets*ones(1,sum(data_for_lines(1).these_mice==mouseNo)); data_for_lines(2).these_bar_offsets*ones(1,sum(data_for_lines(1).these_mice==mouseNo))],...
-%                                                 [data_for_lines(1).these_dB_per_e(data_for_lines(1).these_mice==mouseNo); data_for_lines(2).these_dB_per_e(data_for_lines(2).these_mice==mouseNo)],'-','Color',[0.7 0.7 0.7])
-%                                         end
-%                                     end
-%                                 end
-%                             end
-%                         catch
-%                             pffft=1
-%                         end
+                        %                         try
+                        %                             if per_included==2
+                        %                                 for mouseNo=1:length(mouse_included)
+                        %                                     if mouse_included(mouseNo)==1
+                        %                                         if (sum(data_for_lines(1).these_mice==mouseNo)>0)&(sum(data_for_lines(2).these_mice==mouseNo)>0)
+                        %                                             plot([data_for_lines(1).these_bar_offsets*ones(1,sum(data_for_lines(1).these_mice==mouseNo)); data_for_lines(2).these_bar_offsets*ones(1,sum(data_for_lines(1).these_mice==mouseNo))],...
+                        %                                                 [data_for_lines(1).these_dB_per_e(data_for_lines(1).these_mice==mouseNo); data_for_lines(2).these_dB_per_e(data_for_lines(2).these_mice==mouseNo)],'-','Color',[0.7 0.7 0.7])
+                        %                                         end
+                        %                                     end
+                        %                                 end
+                        %                             end
+                        %                         catch
+                        %                             pffft=1
+                        %                         end
                         %                     if include_group==1
                         %                         bar_lab_loc=[bar_lab_loc mean(these_offsets)];
                         %                         no_ev_labels=no_ev_labels+1;
@@ -6283,17 +6758,17 @@ switch which_display
                 %             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
                 %
                 
-%                 %Now do the GLM
-%                 fprintf(1, ['\n\nglm for odor-elicited change in coherence for ' freq_names{bwii} '\n'])
-%                 tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.spm',...
-%                     'VariableNames',{'delta_coherence','group','perCorr','spm'});
-%                 mdl = fitglm(tbl,'delta_coherence~group+perCorr+spm+group*perCorr*spm'...
-%                     ,'CategoricalVars',[2,3,4])
-%                 
-%                 
-%                 fprintf(1, ['\n\nRanksum or t-test for delta coherence ' freq_names{bwii} '\n'])
-%                 %Now do the ranksums
-%                 output_data = drgMutiRanksumorTtest(input_data);
+                %                 %Now do the GLM
+                %                 fprintf(1, ['\n\nglm for odor-elicited change in coherence for ' freq_names{bwii} '\n'])
+                %                 tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.spm',...
+                %                     'VariableNames',{'delta_coherence','group','perCorr','spm'});
+                %                 mdl = fitglm(tbl,'delta_coherence~group+perCorr+spm+group*perCorr*spm'...
+                %                     ,'CategoricalVars',[2,3,4])
+                %
+                %
+                %                 fprintf(1, ['\n\nRanksum or t-test for delta coherence ' freq_names{bwii} '\n'])
+                %                 %Now do the ranksums
+                %                 output_data = drgMutiRanksumorTtest(input_data);
                 
                 fprintf(1, ['\n\n'])
                 
@@ -6312,7 +6787,7 @@ switch which_display
                 catch
                 end
                 hFig=figure(figureNo);
-
+                
                 set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
                 
                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
@@ -6335,6 +6810,14 @@ switch which_display
                             %Violin plot
                             [mean_out, CIout]=drgViolinPoint(sh_deltaCxy_per_mouse(these_deltaCxy)...
                                 ,edges,bar_offset,rand_offset,'k','k',1);
+                            
+                             handles_out.WT_dcoh_ii=handles_out.WT_dcoh_ii+1;
+                            handles_out.WT_dcoh_values(handles_out.WT_dcoh_ii).bwii=bwii;
+                            handles_out.WT_dcoh_values(handles_out.WT_dcoh_ii).evNo=evNo;
+                            handles_out.WT_dcoh_values(handles_out.WT_dcoh_ii).sh=1;
+                            handles_out.WT_dcoh_values(handles_out.WT_dcoh_ii).per_ii=per_ii;
+                            handles_out.WT_dcoh_values(handles_out.WT_dcoh_ii).dcoh=mean(sh_deltaCxy_per_mouse(these_deltaCxy));
+                            
                             
                             bar_offset=bar_offset+1;
                             if evNo==2
@@ -6360,15 +6843,21 @@ switch which_display
                             [mean_out, CIout]=drgViolinPoint(deltaCxy_per_mouse(these_deltaCxy)...
                                 ,edges,bar_offset,rand_offset,'k','k',1);
                             
-                            
+                            handles_out.WT_dcoh_ii=handles_out.WT_dcoh_ii+1;
+                            handles_out.WT_dcoh_values(handles_out.WT_dcoh_ii).bwii=bwii;
+                            handles_out.WT_dcoh_values(handles_out.WT_dcoh_ii).evNo=evNo;
+                            handles_out.WT_dcoh_values(handles_out.WT_dcoh_ii).sh=0;
+                            handles_out.WT_dcoh_values(handles_out.WT_dcoh_ii).per_ii=per_ii;
+                            handles_out.WT_dcoh_values(handles_out.WT_dcoh_ii).dcoh=mean(deltaCxy_per_mouse(these_deltaCxy));
+           
                         end
                         
                         bar_offset = bar_offset + 1;
-                      
-                 
+                        
+                        
                     end
-                   
-                  bar_offset = bar_offset + 1;
+                    
+                    bar_offset = bar_offset + 1;
                 end
                 ylim([-0.15 0.15])
                 %             title([freq_names{bwii} ' average delta coherence per mouse, per electrode'])
@@ -6394,22 +6883,22 @@ switch which_display
                 %             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for events ' freq_names{bwii} '= %d \n'],  p(2));
                 %             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
                 %
-%                 
-%                 %Now do the GLM
-%                 fprintf(1, ['\n\nglm for odor-elicited change in coherence for ' freq_names{bwii} '\n'])
-%                 tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.spm',...
-%                     'VariableNames',{'delta_coherence','group','perCorr','spm'});
-%                 mdl = fitglm(tbl,'delta_coherence~group+perCorr+spm+group*perCorr*spm'...
-%                     ,'CategoricalVars',[2,3,4])
-%                 
-%                 
-%                 fprintf(1, ['\n\nRanksum or t-test for delta coherence ' freq_names{bwii} '\n'])
-%                 %Now do the ranksums
-%                 output_data = drgMutiRanksumorTtest(input_data);
+                %
+                %                 %Now do the GLM
+                %                 fprintf(1, ['\n\nglm for odor-elicited change in coherence for ' freq_names{bwii} '\n'])
+                %                 tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.spm',...
+                %                     'VariableNames',{'delta_coherence','group','perCorr','spm'});
+                %                 mdl = fitglm(tbl,'delta_coherence~group+perCorr+spm+group*perCorr*spm'...
+                %                     ,'CategoricalVars',[2,3,4])
+                %
+                %
+                %                 fprintf(1, ['\n\nRanksum or t-test for delta coherence ' freq_names{bwii} '\n'])
+                %                 %Now do the ranksums
+                %                 output_data = drgMutiRanksumorTtest(input_data);
                 
-             
+                
             end
-           
+            
             edges=[0:0.01:0.5];
             
             %Now plot the absolute delta coherence for WT along with shuffled controls
@@ -6422,7 +6911,7 @@ switch which_display
                 catch
                 end
                 hFig=figure(figureNo);
-
+                
                 set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
                 
                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
@@ -6474,11 +6963,11 @@ switch which_display
                         end
                         
                         bar_offset = bar_offset + 1;
-                      
-                 
+                        
+                        
                     end
-                   
-                  bar_offset = bar_offset + 1;
+                    
+                    bar_offset = bar_offset + 1;
                 end
                 ylim([-0.15 0.15])
                 %             title([freq_names{bwii} ' average delta coherence per mouse, per electrode'])
@@ -6504,31 +6993,31 @@ switch which_display
                 %             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for events ' freq_names{bwii} '= %d \n'],  p(2));
                 %             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
                 %
-%                 
-%                 %Now do the GLM
-%                 fprintf(1, ['\n\nglm for odor-elicited change in coherence for ' freq_names{bwii} '\n'])
-%                 tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.spm',...
-%                     'VariableNames',{'delta_coherence','group','perCorr','spm'});
-%                 mdl = fitglm(tbl,'delta_coherence~group+perCorr+spm+group*perCorr*spm'...
-%                     ,'CategoricalVars',[2,3,4])
-%                 
-%                 
-%                 fprintf(1, ['\n\nRanksum or t-test for delta coherence ' freq_names{bwii} '\n'])
-%                 %Now do the ranksums
-%                 output_data = drgMutiRanksumorTtest(input_data);
+                %
+                %                 %Now do the GLM
+                %                 fprintf(1, ['\n\nglm for odor-elicited change in coherence for ' freq_names{bwii} '\n'])
+                %                 tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.spm',...
+                %                     'VariableNames',{'delta_coherence','group','perCorr','spm'});
+                %                 mdl = fitglm(tbl,'delta_coherence~group+perCorr+spm+group*perCorr*spm'...
+                %                     ,'CategoricalVars',[2,3,4])
+                %
+                %
+                %                 fprintf(1, ['\n\nRanksum or t-test for delta coherence ' freq_names{bwii} '\n'])
+                %                 %Now do the ranksums
+                %                 output_data = drgMutiRanksumorTtest(input_data);
                 
-             
+                
             end
             
             %What fraction of sessions are different pre-post?
-            
-            edges=[0:0.02:1];
+             
+            edges=[0:5:100];
             
             %Now plot the delta coherence for WT along with shuffled controls
             deltaCxy_per_mouse_pFDR=drsFDRpval(deltaCxy_per_mouse_p);
             sh_deltaCxy_per_mouse_pFDR=drsFDRpval(sh_deltaCxy_per_mouse_p);
-
-            grNo=1;
+            
+            for grNo=1:3
             for bwii=[1 2 4]    %for bandwidths (theta, beta, high gamma)
                 
                 figureNo = figureNo + 1;
@@ -6537,7 +7026,7 @@ switch which_display
                 catch
                 end
                 hFig=figure(figureNo);
-
+                
                 set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
                 
                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
@@ -6556,52 +7045,342 @@ switch which_display
                             
                             %Shuffled
                             these_p=sh_deltaCxy_per_mouse_p(these_deltaCxy);
-                            this_sig_fraction=sum(these_p<=sh_deltaCxy_per_mouse_pFDR)/length(these_p<=sh_deltaCxy_per_mouse_pFDR);
+                            this_sig_fraction=100*sum(these_p<=sh_deltaCxy_per_mouse_pFDR)/length(these_p);
                             bar(bar_offset,this_sig_fraction,'LineWidth', 3,'EdgeColor','none','FaceColor',[0.7 0.7 0.7])
                             
-                         
                             
-                            bar_offset=bar_offset+1;
-                            these_p=deltaCxy_per_mouse_p(these_deltaCxy);
-                            this_sig_fraction=sum(these_p<=deltaCxy_per_mouse_pFDR)/length(these_p<=deltaCxy_per_mouse_pFDR);
+                            handles_out.per_sig_ii=handles_out.per_sig_ii+1;
+                            handles_out.per_sig_values(handles_out.per_sig_ii).bwii=bwii;
+                            handles_out.per_sig_values(handles_out.per_sig_ii).evNo=evNo;
+                            handles_out.per_sig_values(handles_out.per_sig_ii).grNo=grNo;
+                            handles_out.per_sig_values(handles_out.per_sig_ii).per_ii=per_ii;
+                            handles_out.per_sig_values(handles_out.per_sig_ii).sh_percent_sig=this_sig_fraction;
+                            
+                            %Save the mean per mouse
+                            these_mice=deltaCxy_mouseNo_per_mouse(these_deltaCxy);
+                            handles_out.per_sig_values(handles_out.per_sig_ii).noMice=0;
+                            these_sig_fraction=[];
+                            jj=0;
+                            for iiMice=min(these_mice):max(these_mice)
+                                if sum(these_mice==iiMice)>0
+                                    handles_out.per_sig_values(handles_out.per_sig_ii).noMice=handles_out.per_sig_values(handles_out.per_sig_ii).noMice+1;
+                                    handles_out.per_sig_values(handles_out.per_sig_ii).mouseNo(handles_out.per_sig_values(handles_out.per_sig_ii).noMice)=iiMice;
+                                    these_p=sh_deltaCxy_per_mouse_p(these_deltaCxy&(deltaCxy_mouseNo_per_mouse==iiMice));
+                                    jj=jj+1;
+                                    these_sig_fraction(jj)=100*sum(these_p<=sh_deltaCxy_per_mouse_pFDR)/length(these_p);
+                                    handles_out.per_sig_values(handles_out.per_sig_ii).sh_percent_sig_per_mouse(handles_out.per_sig_values(handles_out.per_sig_ii).noMice)=these_sig_fraction(jj);
+                                end
+                            end
+                            
+                            
                             if evNo==2
                                 if per_ii==1
                                     %S- Proficient
-                                    bar(bar_offset,this_sig_fraction,'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
+                                    bar(bar_offset,mean(these_sig_fraction),'LineWidth', 3,'EdgeColor','none','FaceColor','k')
                                 else
                                     %S- Naive
-                                    bar(bar_offset,this_sig_fraction,'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
+                                    bar(bar_offset,mean(these_sig_fraction),'LineWidth', 3,'EdgeColor','none','FaceColor','k')
                                 end
                             else
                                 if per_ii==1
                                     %S+ Proficient
-                                    bar(bar_offset,this_sig_fraction,'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
+                                    bar(bar_offset,mean(these_sig_fraction),'LineWidth', 3,'EdgeColor','none','FaceColor','k')
                                 else
                                     %S+ naive
-                                    bar(bar_offset,this_sig_fraction,'LineWidth', 3,'EdgeColor','none','FaceColor',[80/255 194/255 255/255])
+                                    bar(bar_offset,mean(these_sig_fraction),'LineWidth', 3,'EdgeColor','none','FaceColor','k')
                                 end
                             end
                             
-                      
+                             %Violin plot
+                            
+                            [mean_out, CIout]=drgViolinPoint(these_sig_fraction...
+                                ,edges,bar_offset,rand_offset,'k','k',1);
+                            
+                            bar_offset=bar_offset+1;
+                            these_p=deltaCxy_per_mouse_p(these_deltaCxy);
+                            this_sig_fraction=100*sum(these_p<=deltaCxy_per_mouse_pFDR)/length(these_p);
+                            
+                         
+                            handles_out.per_sig_values(handles_out.per_sig_ii).percent_sig=this_sig_fraction;
+                            
+                             %Save the mean per mouse
+                            these_mice=deltaCxy_mouseNo_per_mouse(these_deltaCxy);
+                            handles_out.per_sig_values(handles_out.per_sig_ii).noMice=0;
+                            these_sig_fraction=[];
+                            jj=0;
+                            for iiMice=min(these_mice):max(these_mice)
+                                if sum(these_mice==iiMice)>0
+                                    handles_out.per_sig_values(handles_out.per_sig_ii).noMice=handles_out.per_sig_values(handles_out.per_sig_ii).noMice+1;
+                                    handles_out.per_sig_values(handles_out.per_sig_ii).mouseNo(handles_out.per_sig_values(handles_out.per_sig_ii).noMice)=iiMice;
+                                    these_p=deltaCxy_per_mouse_p(these_deltaCxy&(deltaCxy_mouseNo_per_mouse==iiMice));
+                                    jj=jj+1;
+                                    these_sig_fraction(jj)=100*sum(these_p<=deltaCxy_per_mouse_pFDR)/length(these_p);
+                                    handles_out.per_sig_values(handles_out.per_sig_ii).percent_sig_per_mouse(handles_out.per_sig_values(handles_out.per_sig_ii).noMice)=these_sig_fraction(jj);
+                                    handles_out.per_sig_values(handles_out.per_sig_ii).sig_deltaCxy_per_mouse(handles_out.per_sig_values(handles_out.per_sig_ii).noMice).deltaCxy=...
+                                        deltaCxy_per_mouse(these_deltaCxy&(deltaCxy_mouseNo_per_mouse==iiMice)&(deltaCxy_per_mouse_p<=deltaCxy_per_mouse_pFDR));
+                                     handles_out.per_sig_values(handles_out.per_sig_ii).sig_Cxy_per_mouse(handles_out.per_sig_values(handles_out.per_sig_ii).noMice).Cxy=...
+                                        Cxy_per_mouse(these_deltaCxy&(deltaCxy_mouseNo_per_mouse==iiMice)&(deltaCxy_per_mouse_p<=deltaCxy_per_mouse_pFDR));
+                                end
+                            end
+                            
+                            if evNo==2
+                                if per_ii==1
+                                    %S- Proficient
+                                    bar(bar_offset,mean(these_sig_fraction),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
+                                else
+                                    %S- Naive
+                                    bar(bar_offset,mean(these_sig_fraction),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
+                                end
+                            else
+                                if per_ii==1
+                                    %S+ Proficient
+                                    bar(bar_offset,mean(these_sig_fraction),'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
+                                else
+                                    %S+ naive
+                                    bar(bar_offset,mean(these_sig_fraction),'LineWidth', 3,'EdgeColor','none','FaceColor',[80/255 194/255 255/255])
+                                end
+                            end
+                            
+                             %Violin plot
+                            
+                            [mean_out, CIout]=drgViolinPoint(these_sig_fraction...
+                                ,edges,bar_offset,rand_offset,'k','k',3);
+                            
                             
                         end
                         
                         bar_offset = bar_offset + 1;
-                      
-                 
+                        
+                        
                     end
-                   
-                  bar_offset = bar_offset + 1;
+                    
+                    bar_offset = bar_offset + 1;
                 end
-                ylim([0 1])
+                ylim([0 100])
                 %             title([freq_names{bwii} ' average delta coherence per mouse, per electrode'])
-                title(['WT ' freq_names{bwii} ' fraction of significant odor-elicited change in imaginary coherence'])
+                title([handles_drgb.drgbchoices.group_no_names{grNo} ' ' freq_names{bwii} ' percent significant delta imaginary coherence'])
                 
                 
                 
                 xticks([0 1 2 3 5 6 7 8])
                 xticklabels({'shNS+', 'NS+', 'shPS+', 'PS+', 'shNS-', 'NS-', 'shPS-', 'PS-'})
-
+                
+                
+                %             ylabel('Delta coherence')
+                ylabel('Percent')
+                
+                
+                %             %Calculate anovan for inteaction
+                %             [p,tbl,stats]=anovan(data_delta_dB,{prof_naive events mice electrodes},'varnames',{'proficient_vs_naive','events','groups','mice'},'display','off','random',4);
+                %             fprintf(1, ['p value for anovan delta dB power per mouse per electrode for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
+                %             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for events ' freq_names{bwii} '= %d \n'],  p(2));
+                %             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
+                %
+                %
+                %                 %Now do the GLM
+                %                 fprintf(1, ['\n\nglm for odor-elicited change in coherence for ' freq_names{bwii} '\n'])
+                %                 tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.spm',...
+                %                     'VariableNames',{'delta_coherence','group','perCorr','spm'});
+                %                 mdl = fitglm(tbl,'delta_coherence~group+perCorr+spm+group*perCorr*spm'...
+                %                     ,'CategoricalVars',[2,3,4])
+                %
+                %
+                %                 fprintf(1, ['\n\nRanksum or t-test for delta coherence ' freq_names{bwii} '\n'])
+                %                 %Now do the ranksums
+                %                 output_data = drgMutiRanksumorTtest(input_data);
+                
+                
+                
+            end
+            end
+            
+            %Now plot fractio of significant odor-elicited change for all groups
+            edges=[0:0.02:1];
+            rand_offset=0.8;
+            
+            for bwii=[1 2 4]    %for bandwidths (theta, beta, low gamma, high gamma)
+                %Plot the average
+                figureNo = figureNo + 1;
+                try
+                    close(figureNo)
+                catch
+                end
+                hFig=figure(figureNo);
+                
+                
+                %             try
+                %                 close(bwii)
+                %             catch
+                %             end
+                %             hFig=figure(bwii);
+                
+                set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
+                
+                set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+                hold on
+                
+                data_delta_dB=[];
+                prof_naive=[];
+                events=[];
+                mice=[];
+                electrodes=[];
+                groups=[];
+                
+                bar_lab_loc=[];
+                no_ev_labels=0;
+                ii_gr_included=0;
+                %defining and initinalizing all bar
+                all_bar=[];
+                bar_offset = 0;
+                
+                
+                input_data=[];
+                ii_rank=0;
+                glm_coh=[];
+                glm_ii=0;
+                
+                %             for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                
+                include_group=0;
+                
+                for evNo=1:length(eventType)
+                    
+                    per_included=0;
+                    these_dB_per_e=[];
+                    there_are_NaNs=0;
+                    
+                    
+                    for per_ii=2:-1:1      %performance bins. blue = naive, red = proficient
+                        for grNo=1:max(handles_drgb.drgbchoices.group_no)
+                            bar_offset = bar_offset +1;
+                            
+                            %                         if sum(eventType==3)>0
+                            %                             bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(evNo-1);
+                            %                         else
+                            %                             bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(length(eventType)-evNo);
+                            %                         end
+                            %
+                            %                         these_offsets(per_ii)=bar_offset;
+                            bar_offset = bar_offset + 1;
+                            
+                            %                             these_deltaCxy=logical((deltaCxy_per_mouse_p<=drsFDRpval(deltaCxy_per_mouse_p))&(deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
+                            these_deltaCxy=logical((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
+                            these_p=deltaCxy_per_mouse_p(these_deltaCxy);
+                            this_sig_fraction=sum(these_p<=deltaCxy_per_mouse_pFDR)/length(these_p<=deltaCxy_per_mouse_pFDR);
+                            
+                            if sum(these_deltaCxy)>0
+                                
+                                include_group=1;
+                                
+                                switch grNo
+                                    case 1
+                                        bar(bar_offset,this_sig_fraction,'g','LineWidth', 3,'EdgeColor','none')
+                                    case 2
+                                        bar(bar_offset,this_sig_fraction,'LineWidth', 3,'EdgeColor','none','FaceColor',[0.3010 0.7450 0.9330])
+                                    case 3
+                                        bar(bar_offset,this_sig_fraction,'y','LineWidth', 3,'EdgeColor','none')
+                                end
+                                
+                                %                                 handles_out.dcoh_ii=handles_out.dcoh_ii+1;
+                                %                                 handles_out.dcoh_values(handles_out.dcoh_ii).pacii=bwii;
+                                %                                 handles_out.dcoh_values(handles_out.dcoh_ii).evNo=evNo;
+                                %                                 handles_out.dcoh_values(handles_out.dcoh_ii).per_ii=per_ii;
+                                %                                 handles_out.dcoh_values(handles_out.dcoh_ii).groupNo=grNo;
+                                %                                 handles_out.dcoh_values(handles_out.dcoh_ii).dcoh=mean(deltaCxy_per_mouse(these_deltaCxy));
+                                %                                 handles_out.dcoh_values(handles_out.dcoh_ii).all_dcoh=deltaCxy_per_mouse(these_deltaCxy);
+                                %
+                                %                                 %Save the mean per mouse
+                                %                                 these_mice=deltaCxy_mouseNo_per_mouse(these_deltaCxy);
+                                %                                 handles_out.dcoh_values(handles_out.dcoh_ii).noMice=0;
+                                %                                 for iiMice=min(these_mice):max(these_mice)
+                                %                                     if sum(these_mice==iiMice)>0
+                                %                                         handles_out.dcoh_values(handles_out.dcoh_ii).noMice=handles_out.dcoh_values(handles_out.dcoh_ii).noMice+1;
+                                %                                         handles_out.dcoh_values(handles_out.dcoh_ii).mouseNo(handles_out.dcoh_values(handles_out.dcoh_ii).noMice)=iiMice;
+                                %                                         handles_out.dcoh_values(handles_out.dcoh_ii).dcoh_per_mouse(handles_out.dcoh_values(handles_out.dcoh_ii).noMice)=mean(deltaCxy_per_mouse(these_deltaCxy));
+                                %                                     end
+                                %                                 end
+                                %
+                                %                                 %Violin plot
+                                %
+                                %                                 [mean_out, CIout]=drgViolinPoint(deltaCxy_per_mouse(these_deltaCxy)...
+                                %                                     ,edges,bar_offset,rand_offset,'k','k',1);
+                                %
+                                %                                 %Save data for glm and t test/ranksum
+                                %                                 these_data=deltaCxy_per_mouse(these_deltaCxy);
+                                %                                 glm_coh.data(glm_ii+1:glm_ii+length(these_data))=these_data;
+                                %                                 glm_coh.group(glm_ii+1:glm_ii+length(these_data))=grNo;
+                                %                                 glm_coh.perCorr(glm_ii+1:glm_ii+length(these_data))=per_ii;
+                                %                                 glm_coh.spm(glm_ii+1:glm_ii+length(these_data))=evNo;
+                                %                                 glm_ii=glm_ii+length(these_data);
+                                %
+                                %                                 %Enter the data for t-test/ranksum
+                                %                                 ii_rank=ii_rank+1;
+                                %                                 input_data(ii_rank).data=these_data;
+                                %                                 input_data(ii_rank).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
+                                %
+                            end
+                        end
+                        bar_offset = bar_offset + 2;
+                        %                         try
+                        %                             if per_included==2
+                        %                                 for mouseNo=1:length(mouse_included)
+                        %                                     if mouse_included(mouseNo)==1
+                        %                                         if (sum(data_for_lines(1).these_mice==mouseNo)>0)&(sum(data_for_lines(2).these_mice==mouseNo)>0)
+                        %                                             plot([data_for_lines(1).these_bar_offsets*ones(1,sum(data_for_lines(1).these_mice==mouseNo)); data_for_lines(2).these_bar_offsets*ones(1,sum(data_for_lines(1).these_mice==mouseNo))],...
+                        %                                                 [data_for_lines(1).these_dB_per_e(data_for_lines(1).these_mice==mouseNo); data_for_lines(2).these_dB_per_e(data_for_lines(2).these_mice==mouseNo)],'-','Color',[0.7 0.7 0.7])
+                        %                                         end
+                        %                                     end
+                        %                                 end
+                        %                             end
+                        %                         catch
+                        %                             pffft=1
+                        %                         end
+                        %                     if include_group==1
+                        %                         bar_lab_loc=[bar_lab_loc mean(these_offsets)];
+                        %                         no_ev_labels=no_ev_labels+1;
+                        %                         if sum(eventType==3)>0
+                        %                             bar_labels{no_ev_labels}=evTypeLabels{evNo};
+                        %                         else
+                        %                             bar_labels{no_ev_labels}=num2str(concs(evNo));
+                        %                         end
+                        %                     end
+                    end
+                    bar_offset = bar_offset + 3;
+                    %                 if include_group==1
+                    %                     ii_gr_included=ii_gr_included+1;
+                    %                     groups_included(ii_gr_included)=grNo;
+                    %                 end
+                end
+                ylim([0 1])
+                %             title([freq_names{bwii} ' average delta coherence per mouse, per electrode'])
+                title([freq_names{bwii} ' significant fraction delta coherence'])
+                
+                %Annotations identifying groups
+                x_interval=0.8/ii_gr_included;
+                for ii=1:ii_gr_included
+                    annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.8 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
+                end
+                
+                %Proficient/Naive annotations
+                annotation('textbox',[0.15 0.70 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
+                annotation('textbox',[0.15 0.65 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
+                
+                %x labels
+                %             to_sort=[bar_lab_loc' [1:length(bar_lab_loc)]'];
+                %             sorted_A=sortrows(to_sort);
+                %             sorted_bar_lab_loc=sorted_A(:,1);
+                %             for ii=1:length(bar_lab_loc)
+                %                 sorted_bar_labels{ii}=bar_labels{sorted_A(ii,2)};
+                %             end
+                
+                
+                xticks([2 4 6 10 12 14 21 23 25 29 31 33])
+                xticklabels({'NwS+', 'NHS+', 'NKOS+', 'PwS+', 'PHS+', 'PKOS+', 'NwS-', 'NHS-', 'NKOS-', 'PwS-', 'PHS-', 'PKOS-'})
+                
+                
+                if sum(eventType==3)==0
+                    xlabel('Concentration (%)')
+                end
                 
                 %             ylabel('Delta coherence')
                 ylabel('Fraction')
@@ -6613,23 +7392,23 @@ switch which_display
                 %             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for events ' freq_names{bwii} '= %d \n'],  p(2));
                 %             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
                 %
-%                 
-%                 %Now do the GLM
-%                 fprintf(1, ['\n\nglm for odor-elicited change in coherence for ' freq_names{bwii} '\n'])
-%                 tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.spm',...
-%                     'VariableNames',{'delta_coherence','group','perCorr','spm'});
-%                 mdl = fitglm(tbl,'delta_coherence~group+perCorr+spm+group*perCorr*spm'...
-%                     ,'CategoricalVars',[2,3,4])
-%                 
-%                 
-%                 fprintf(1, ['\n\nRanksum or t-test for delta coherence ' freq_names{bwii} '\n'])
-%                 %Now do the ranksums
-%                 output_data = drgMutiRanksumorTtest(input_data);
-                
-               
+                %
+                %                 %Now do the GLM
+                %                 fprintf(1, ['\n\nglm for odor-elicited change in coherence for ' freq_names{bwii} '\n'])
+                %                 tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.spm',...
+                %                     'VariableNames',{'delta_coherence','group','perCorr','spm'});
+                %                 mdl = fitglm(tbl,'delta_coherence~group+perCorr+spm+group*perCorr*spm'...
+                %                     ,'CategoricalVars',[2,3,4])
+                %
+                %
+                %                 fprintf(1, ['\n\nRanksum or t-test for delta coherence ' freq_names{bwii} '\n'])
+                %                 %Now do the ranksums
+                %                 output_data = drgMutiRanksumorTtest(input_data);
+                %
+                %                 fprintf(1, ['\n\n'])
                 
             end
-            
+            fprintf(1, ['\n\n'])
             
             %Now plot the absolute delta coherence for WT along with shuffled controls
             edges=[0:0.01:1];
@@ -6642,7 +7421,7 @@ switch which_display
                 catch
                 end
                 hFig=figure(figureNo);
-
+                
                 set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
                 
                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
@@ -6694,11 +7473,11 @@ switch which_display
                         end
                         
                         bar_offset = bar_offset + 1;
-                      
-                 
+                        
+                        
                     end
-                   
-                  bar_offset = bar_offset + 1;
+                    
+                    bar_offset = bar_offset + 1;
                 end
                 ylim([-0.15 0.15])
                 %             title([freq_names{bwii} ' average delta coherence per mouse, per electrode'])
@@ -6724,18 +7503,18 @@ switch which_display
                 %             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for events ' freq_names{bwii} '= %d \n'],  p(2));
                 %             fprintf(1, ['p value for anovan delta dB power  per mouse per electrode for groups for ' freq_names{bwii} '= %d \n\n'],  p(3));
                 %
-%                 
-%                 %Now do the GLM
-%                 fprintf(1, ['\n\nglm for odor-elicited change in coherence for ' freq_names{bwii} '\n'])
-%                 tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.spm',...
-%                     'VariableNames',{'delta_coherence','group','perCorr','spm'});
-%                 mdl = fitglm(tbl,'delta_coherence~group+perCorr+spm+group*perCorr*spm'...
-%                     ,'CategoricalVars',[2,3,4])
-%                 
-%                 
-%                 fprintf(1, ['\n\nRanksum or t-test for delta coherence ' freq_names{bwii} '\n'])
-%                 %Now do the ranksums
-%                 output_data = drgMutiRanksumorTtest(input_data);
+                %
+                %                 %Now do the GLM
+                %                 fprintf(1, ['\n\nglm for odor-elicited change in coherence for ' freq_names{bwii} '\n'])
+                %                 tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.spm',...
+                %                     'VariableNames',{'delta_coherence','group','perCorr','spm'});
+                %                 mdl = fitglm(tbl,'delta_coherence~group+perCorr+spm+group*perCorr*spm'...
+                %                     ,'CategoricalVars',[2,3,4])
+                %
+                %
+                %                 fprintf(1, ['\n\nRanksum or t-test for delta coherence ' freq_names{bwii} '\n'])
+                %                 %Now do the ranksums
+                %                 output_data = drgMutiRanksumorTtest(input_data);
                 
                 fprintf(1, ['\n\n'])
                 
@@ -6976,799 +7755,173 @@ switch which_display
                 end
             end
             
-
-            %Now plot the histograms for imaginary coherence
+            
+            %Now plot the bar graphs for imaginary coherence during odor
             for grNo=1:3
-            for bwii=1:no_bandwidths
-                figureNo = figureNo + 1;
-                try
-                    close(figureNo)
-                catch
-                end
-                hFig=figure(figureNo);
-                
-                set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
-                
-                set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-                hold on
-                
-                
-                bar_offset=0;
-                
-                for evNo=1:length(eventType)
- 
-                    for per_ii=2:-1:1      %performance bins. blue = naive, red = proficient
-
-                        these_Cxy=(deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)...
-                            &(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo);
+                for bwii=1:no_bandwidths
+                    figureNo = figureNo + 1;
+                    try
+                        close(figureNo)
+                    catch
+                    end
+                    hFig=figure(figureNo);
+                    
+                    set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
+                    
+                    set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+                    hold on
+                    
+                    
+                    bar_offset=0;
+                    
+                    for evNo=1:length(eventType)
                         
-                        %Shuffled
-                        bar(bar_offset,mean(sh_Cxy_per_mouse(these_Cxy)),0.8,'LineWidth', 3,'EdgeColor','none','FaceColor',[0.7 0.7 0.7])
-                        
-                        %Violin plot
-                        [mean_out, CIout]=drgViolinPoint(sh_Cxy_per_mouse(these_Cxy)...
-                            ,edges,bar_offset,rand_offset,'k','k',1);
+                        for per_ii=2:-1:1      %performance bins. blue = naive, red = proficient
+                            
+                            these_Cxy=(deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)...
+                                &(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo);
+                            
+                            %Shuffled
+                            bar(bar_offset,mean(sh_Cxy_per_mouse(these_Cxy)),0.8,'LineWidth', 3,'EdgeColor','none','FaceColor',[0.7 0.7 0.7])
+                            
+                            %Violin plot
+                            [mean_out, CIout]=drgViolinPoint(sh_Cxy_per_mouse(these_Cxy)...
+                                ,edges,bar_offset,rand_offset,'k','k',1);
+                            bar_offset=bar_offset+1;
+                            
+                            if sum(these_Cxy)>0
+                                
+                                if evNo==2
+                                    if per_ii==1
+                                        %S- Proficient
+                                        bar(bar_offset,mean(Cxy_per_mouse(these_Cxy)),0.8,'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
+                                    else
+                                        %S- Naive
+                                        bar(bar_offset,mean(Cxy_per_mouse(these_Cxy)),0.8,'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
+                                    end
+                                else
+                                    if per_ii==1
+                                        %S+ Proficient
+                                        bar(bar_offset,mean(Cxy_per_mouse(these_Cxy)),0.8,'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
+                                    else
+                                        %S+ naive
+                                        bar(bar_offset,mean(Cxy_per_mouse(these_Cxy)),0.8,'LineWidth', 3,'EdgeColor','none','FaceColor',[80/255 194/255 255/255])
+                                    end
+                                end
+                                
+                                %Violin plot
+                                [mean_out, CIout]=drgViolinPoint(Cxy_per_mouse(these_Cxy)...
+                                    ,edges,bar_offset,rand_offset,'k','k',1);
+                                
+                            end
+                            
+                            bar_offset=bar_offset+1;
+                            
+                        end
                         bar_offset=bar_offset+1;
+                    end
+                    xticks([0 1 2 3 5 6 7 8])
+                    xticklabels({'shNS+', 'NS+', 'shPS+', 'PS+', 'shNS-', 'NS-', 'shPS-', 'PS-'})
+                    title(['Imaginary coherence during odor for ' freq_names{bwii} ' ' handles_drgb.drgbchoices.group_no_names{grNo}])
+                    ylabel('Imaginary coherence')
+                end
+            end
+            
+            %Now plot the cumulative histograms for imaginary coherence
+            for grNo=1:3
+                for bwii=1:no_bandwidths
+                    figureNo = figureNo + 1;
+                    try
+                        close(figureNo)
+                    catch
+                    end
+                    hFig=figure(figureNo);
+                    
+                    set(hFig, 'units','normalized','position',[.1 .5 .4 .4])
+                    
+                    set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
+                    hold on
+                    
+                    
+                    bar_offset=0;
+                    
+                    for evNo=1:length(eventType)
                         
-                        if sum(these_Cxy)>0
+                        for per_ii=2:-1:1      %performance bins. blue = naive, red = proficient
+                            
+                            these_Cxy=(deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)...
+                                &(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo);
+                            
+                            [f_shCxy,x_shCxy] = drg_ecdf(sh_Cxy_per_mouse(these_Cxy));
+
+                            p1=plot(x_shCxy,f_shCxy,'-k','LineWidth',3);
+ 
+                            [f_Cxy,x_Cxy] = drg_ecdf(Cxy_per_mouse(these_Cxy));
                             
                             if evNo==2
                                 if per_ii==1
                                     %S- Proficient
-                                    bar(bar_offset,mean(Cxy_per_mouse(these_Cxy)),0.8,'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
+                                    p1=plot(x_Cxy,f_Cxy,'-','Color',[158/255 31/255 99/255],'LineWidth',3);
+                                    
                                 else
                                     %S- Naive
-                                    bar(bar_offset,mean(Cxy_per_mouse(these_Cxy)),0.8,'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
+                                    p1=plot(x_Cxy,f_Cxy,'-','Color',[238/255 111/255 179/255],'LineWidth',3);
                                 end
                             else
                                 if per_ii==1
                                     %S+ Proficient
-                                    bar(bar_offset,mean(Cxy_per_mouse(these_Cxy)),0.8,'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
+                                    p1=plot(x_Cxy,f_Cxy,'-','Color',[0 114/255 178/255],'LineWidth',3);
+                                    
                                 else
                                     %S+ naive
-                                    bar(bar_offset,mean(Cxy_per_mouse(these_Cxy)),0.8,'LineWidth', 3,'EdgeColor','none','FaceColor',[80/255 194/255 255/255])
+                                    p1=plot(x_Cxy,f_Cxy,'-','Color',[80/255 194/255 255/255],'LineWidth',3);
+                                    
                                 end
                             end
                             
-                            %Violin plot
-                            [mean_out, CIout]=drgViolinPoint(Cxy_per_mouse(these_Cxy)...
-                                ,edges,bar_offset,rand_offset,'k','k',1);
+                            handles_out.odor_Cxy_ii=handles_out.odor_Cxy_ii+1;
+                            handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).bwii=bwii;
+                            handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).evNo=evNo;
+                            handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).per_ii=per_ii;
+                            handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).grNo=grNo;
+                            handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).x_shCxy=x_shCxy;
+                            handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).f_shCxy=f_shCxy;
+                            handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).x_Cxy=x_Cxy;
+                            handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).f_Cxy=f_Cxy;
                             
+                            %Save the mean per mouse
+                            these_mice=deltaCxy_mouseNo_per_mouse(these_Cxy);
+                            handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).noMice=0;
+                            for iiMice=min(these_mice):max(these_mice)
+                                if sum(these_mice==iiMice)>0
+                                    handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).noMice=handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).noMice+1;
+                                    handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).mouseNo(handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).noMice)=iiMice;
+                                    [f_shCxy,x_shCxy] = drg_ecdf(sh_Cxy_per_mouse(these_Cxy&(deltaCxy_mouseNo_per_mouse==iiMice)));
+                                    handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).Cxy_per_mouse(handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).noMice).x_shCxy=x_shCxy;
+                                    handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).Cxy_per_mouse(handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).noMice).f_shCxy=f_shCxy;
+                                    [f_Cxy,x_Cxy] = drg_ecdf(Cxy_per_mouse(these_Cxy&(deltaCxy_mouseNo_per_mouse==iiMice)));
+                                    handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).Cxy_per_mouse(handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).noMice).x_Cxy=x_Cxy;
+                                    handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).Cxy_per_mouse(handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).noMice).f_Cxy=f_Cxy;
+                                    handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).mean_Cxy_per_mouse(handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).noMice)=mean(x_Cxy);
+                                    handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).mean_sh_Cxy_per_mouse(handles_out.odor_Cxy_values(handles_out.odor_Cxy_ii).noMice)=mean(x_shCxy);
+                                end
+                            end
+                            
+                            pffft=1;
                         end
-
-                        bar_offset=bar_offset+1;
                         
                     end
-                    bar_offset=bar_offset+1;
+                    
+                    title(['Imaginary coherence during odor for ' freq_names{bwii} ' ' handles_drgb.drgbchoices.group_no_names{grNo}])
+                    ylabel('Imaginary coherence')
                 end
-                xticks([0 1 2 3 5 6 7 8])
-                xticklabels({'shNS+', 'NS+', 'shPS+', 'PS+', 'shNS-', 'NS-', 'shPS-', 'PS-'})
-                title(['Imaginary coherence during odor for ' freq_names{bwii} ' ' handles_drgb.drgbchoices.group_no_names{grNo}])
-                ylabel('Imaginary coherence')
             end
+            
+            %
         end
-            
-            %         %Now plot the average per mouse LFP power
-            %         for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
-            %             %Plot the average
-            %
-            %             figureNo=figureNo+1;
-            %             try
-            %                 close(figureNo)
-            %             catch
-            %             end
-            %             hFig=figure(figureNo);
-            %             set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
-            %
-            %
-            %
-            %             set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-            %             hold on
-            %
-            %             per_mouse_data_delta_dB=[];
-            %             per_mouse_prof_naive=[];
-            %             per_mouse_events=[];
-            %             per_mouse_groups=[];
-            %
-            %             bar_lab_loc=[];
-            %             no_ev_labels=0;
-            %             ii_gr_included=0;
-            %             all_bar=[];
-            %
-            %
-            %
-            % %             fprintf(1, ['\n\n'])
-            % %             fprintf(1, ['ANOVAN for delta dB power per mouse, electrode average\n\n'])
-            %
-            %             for grNo=1:max(handles_drgb.drgbchoices.group_no)
-            %
-            %                 include_group=0;
-            %
-            %                 for evNo=1:length(eventType)
-            %
-            %                     for per_ii=1:2      %performance bins. blue = naive, red = proficient
-            %
-            %                         %                         bar_offset=21-evNo*3+(2-per_ii);
-            %
-            %                         if sum(eventType==3)>0
-            %                             bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(evNo-1);
-            %                         else
-            %                             bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(length(eventType)-evNo);
-            %                         end
-            %
-            %                         these_offsets(per_ii)=bar_offset;
-            %                         %I added this
-            % %                         all_bar = [all_bar mean(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(length(eventType)-evNo)];
-            %
-            %                         %Compute per mouse avearge for this group
-            %                         no_mice_for_this_group=0;
-            %                         each_mouse_average_delta_dB=[];
-            %                         for mouseNo=1:max(deltaCxy_mouseNo_per_mouse)
-            %                             if sum((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_mouseNo_per_mouse==mouseNo)&(deltaCxy_group_no_per_mouse==grNo))>0
-            %                                 no_mice_for_this_group=no_mice_for_this_group+1;
-            %                                 each_mouse_average_delta_dB(no_mice_for_this_group)=mean(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_mouseNo_per_mouse==mouseNo)&(deltaCxy_group_no_per_mouse==grNo)));
-            %                             end
-            %                         end
-            %
-            %                         if no_mice_for_this_group>0
-            %
-            %                             include_group=1;
-            %
-            %                             if per_ii==1
-            %                                 bar(bar_offset,mean(each_mouse_average_delta_dB),'r','LineWidth', 3)
-            %                             else
-            %                                 bar(bar_offset,mean(each_mouse_average_delta_dB),'b','LineWidth', 3)
-            %                             end
-            %                             all_bar = [all_bar mean(each_mouse_average_delta_dB)];
-            %
-            %                             %In the future add lines linking the points
-            %                             plot((bar_offset)*ones(1,no_mice_for_this_group),each_mouse_average_delta_dB,'o',...
-            %                                 'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7])
-            %
-            %                             %Average and CI
-            %                             plot(bar_offset,mean(each_mouse_average_delta_dB),'ok','LineWidth', 3)
-            %                             if no_mice_for_this_group>2
-            %                                 CI = bootci(1000, {@mean, each_mouse_average_delta_dB},'type','cper');
-            %                                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-            %                             end
-            %
-            %
-            %                             %Save data for anovan
-            %                             per_mouse_data_delta_dB=[per_mouse_data_delta_dB each_mouse_average_delta_dB];
-            %                             per_mouse_prof_naive=[per_mouse_prof_naive per_ii*ones(1,no_mice_for_this_group)];
-            %                             per_mouse_events=[per_mouse_events evNo*ones(1,no_mice_for_this_group)];
-            %                             per_mouse_groups=[per_mouse_groups grNo*ones(1,no_mice_for_this_group)];
-            %                         end
-            %                     end
-            %                 end
-            %                 if include_group==1
-            %                     ii_gr_included=ii_gr_included+1;
-            %                     groups_included(ii_gr_included)=grNo;
-            %                 end
-            %             end
-            % %             if sum(eventType==3)>0
-            % %                 title([freq_names{bwii} ' delta coherence per mouse, electrode average'])
-            % %             else
-            % %                 title([freq_names{bwii} ' delta coherence per mouse, electrode avearage concentrations two steps appart'])
-            % %             end
-            %
-            %              if sum(eventType==3)>0
-            %                 title([freq_names{bwii} ' coherence during odor per mouse, electrode average'])
-            %             else
-            %                 title([freq_names{bwii} ' coherence during odor per mouse, electrode avearage concentrations two steps appart'])
-            %              end
-            %             % I added
-            %             ylim([-0.5 0.5])
-            %             %Annotations identifying groups
-            %             x_interval=0.8/ii_gr_included;
-            %             for ii=1:ii_gr_included
-            %                 annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.8 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
-            %             end
-            %
-            %             %Proficient/Naive annotations
-            %             annotation('textbox',[0.15 0.70 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
-            %             annotation('textbox',[0.15 0.65 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
-            %
-            %             %x labels
-            %             to_sort=[bar_lab_loc' [1:length(bar_lab_loc)]'];
-            %             sorted_A=sortrows(to_sort);
-            %             sorted_bar_lab_loc=sorted_A(:,1);
-            %             for ii=1:length(bar_lab_loc)
-            %                 sorted_bar_labels{ii}=bar_labels{sorted_A(ii,2)};
-            %             end
-            % %             xticks(sorted_bar_lab_loc)
-            % %             xticklabels(sorted_bar_labels)
-            %
-            %             if sum(eventType==3)==0
-            %                 xlabel('Concentration (%)')
-            %             end
-            %
-            %
-            % %             ylabel('Delta coherence')
-            %             ylabel('Coherence')
-            %
-            %
-            %
-            % %             %Calculate anovan for inteaction
-            % %
-            % %
-            % %             [p,tbl,stats]=anovan(per_mouse_data_delta_dB,{per_mouse_prof_naive per_mouse_events per_mouse_groups},'varnames',{'proficient_vs_naive','events','groups'},'display','off');
-            % %             fprintf(1, ['p value for anovan delta dB histogram per mouse, electrode avearage for naive vs proficient for ' freq_names{bwii} '= %d \n'],  p(1));
-            % %             fprintf(1, ['p value for anovan delta dB histogram  per mouse, electrode avearage for events ' freq_names{bwii} '= %d \n'],  p(2));
-            % %             fprintf(1, ['p value for anovan delta dB histogram  per mouse, electrode avearage for groups ' freq_names{bwii} '= %d \n\n'],  p(2));
-            % %
-            % %
-            %
-            %         end
-            
-            
-            
-            %         %Display cumulative histograms for delta coherence for average per electrode per mouse and do ranksum
-            %         pvals=[];
-            %         ranksum_deltaCxy=[];
-            %         if sum(eventType==3)>0
-            %             for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
-            %
-            %                 %fprintf for ranksums
-            % %                 fprintf(1, ['Ranksum or t-test p values for delta coherence for ' freq_names{bwii} '\n'])
-            %
-            %                 ii_rank=0;
-            %                 glm_coh=[];
-            %                 glm_ii=0;
-            %                 for evNo=1:length(eventType)
-            %                     %Plot the average
-            %
-            %                     figureNo=figureNo+1;
-            %                     try
-            %                         close(figureNo)
-            %                     catch
-            %                     end
-            %                     hFig=figure(figureNo);
-            %
-            %                     set(hFig, 'units','normalized','position',[.2 .2 .6 .6])
-            %
-            %                     set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-            %                     hold on
-            %                     for grNo=1:max(handles_drgb.drgbchoices.group_no)
-            %
-            %                         include_group=0;
-            %
-            %
-            %                         for per_ii=1:2      %performance bins. blue = naive, red = proficient
-            %
-            %                             if sum((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))>0
-            %
-            %                                 include_group=1;
-            %
-            %                                 [f_aic,x_aic] = drg_ecdf(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
-            %                                 if per_ii==1
-            %                                     switch grNo
-            %                                         case 1
-            %                                             p1=plot(x_aic,f_aic,'Color',[0 0 1],'LineWidth',3);
-            %                                         case 2
-            %                                             p2=plot(x_aic,f_aic,'Color',[1 0 0],'LineWidth',3);
-            %                                         case 3
-            %                                             p3=plot(x_aic,f_aic,'Color',[0 1 0],'LineWidth',3);
-            %                                     end
-            %                                 else
-            %                                     switch grNo
-            %                                         case 1
-            %                                             p4=plot(x_aic,f_aic,'Color',[0.7 0.7 1],'LineWidth',3);
-            %                                         case 2
-            %                                             p5=plot(x_aic,f_aic,'Color',[1 0.7 0.7],'LineWidth',3);
-            %                                         case 3
-            %                                             p6=plot(x_aic,f_aic,'Color',[0.7 1 0.7],'LineWidth',3);
-            %                                     end
-            %                                 end
-            %
-            %                                 %Compute and plot per mouse avearge for this group
-            %                                 no_mice_for_this_group=0;
-            %                                 each_mouse_average_delta_Cxy=[];
-            %                                 for mouseNo=1:max(deltaCxy_mouseNo_per_mouse)
-            %                                     if sum((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_mouseNo_per_mouse==mouseNo)&(deltaCxy_group_no_per_mouse==grNo))>0
-            %                                         no_mice_for_this_group=no_mice_for_this_group+1;
-            %                                         each_mouse_average_delta_Cxy(no_mice_for_this_group)=mean(deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_mouseNo_per_mouse==mouseNo)&(deltaCxy_group_no_per_mouse==grNo)));
-            %                                     end
-            %                                 end
-            %
-            %                                 for jj=1:length(each_mouse_average_delta_Cxy)
-            %
-            %                                     xii_below=find(x_aic<each_mouse_average_delta_Cxy(jj),1,'last');
-            %                                     xii_above=find(x_aic>each_mouse_average_delta_Cxy(jj),1,'first');
-            %
-            %                                     slope=(f_aic(xii_above)-f_aic(xii_below))/(x_aic(xii_above)-x_aic(xii_below));
-            %                                     intercept=f_aic(xii_above)-slope*x_aic(xii_above);
-            %
-            %                                     this_f=slope*each_mouse_average_delta_Cxy(jj)+intercept;
-            %
-            %                                     switch grNo
-            %                                         case 1
-            %                                             if per_ii==1
-            %                                                 plot(each_mouse_average_delta_Cxy(jj),this_f,'o','MarkerFace',[0 0 1],'MarkerEdge',[0 0 1],'MarkerSize',10)
-            %                                             else
-            %                                                 plot(each_mouse_average_delta_Cxy(jj),this_f,'o','MarkerFace',[0.7 0.7 1],'MarkerEdge',[0.7 0.7 1],'MarkerSize',10)
-            %                                             end
-            %                                         case 2
-            %                                             if per_ii==1
-            %                                                 plot(each_mouse_average_delta_Cxy(jj),this_f,'o','MarkerFace',[1 0 0],'MarkerEdge',[1 0 0],'MarkerSize',10)
-            %                                             else
-            %                                                 plot(each_mouse_average_delta_Cxy(jj),this_f,'o','MarkerFace',[1 0.7 0.7],'MarkerEdge',[1 0.7 0.7],'MarkerSize',10)
-            %                                             end
-            %                                         case 3
-            %                                             if per_ii==1
-            %                                                 plot(each_mouse_average_delta_Cxy(jj),this_f,'o','MarkerFace',[0 1 0],'MarkerEdge',[0 1 0],'MarkerSize',10)
-            %                                             else
-            %                                                 plot(each_mouse_average_delta_Cxy(jj),this_f,'o','MarkerFace',[0.7 1 0.7],'MarkerEdge',[0.7 1 0.7],'MarkerSize',10)
-            %                                             end
-            %                                     end
-            %
-            %                                 end
-            %
-            %                                 %Save data for ranksum
-            %                                 ii_rank=ii_rank+1;
-            %                                 ranksum_deltaCxy(ii_rank).deltaCxy=deltaCxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
-            %                                 ranksum_deltaCxy(ii_rank).per_ii=per_ii;
-            %                                 ranksum_deltaCxy(ii_rank).grNo=grNo;
-            %                                 ranksum_deltaCxy(ii_rank).evNo=evNo;
-            %                             end
-            %                         end
-            %
-            %                         if include_group==1
-            %                             ii_gr_included=ii_gr_included+1;
-            %                             groups_included(ii_gr_included)=grNo;
-            %                         end
-            %                     end
-            %                     title([freq_names{bwii} ' delta coherence per electrode (per mouse) for ' evTypeLabels{evNo}])
-            % %                     title([freq_names{bwii} ' coherence per electrode (per mouse) for ' evTypeLabels{evNo}])
-            %
-            %                     legend([p1 p2 p3 p4 p5 p6],{[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' proficient'] ,[handles_drgb.drgbchoices.group_no_names{3} ' proficient'],...
-            %                         [handles_drgb.drgbchoices.group_no_names{1} ' naive'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'],[handles_drgb.drgbchoices.group_no_names{3} ' naive']})
-            %
-            %                     xlabel('Delta coherence')
-            % %                      xlabel('Coherence')
-            %                     ylabel('Cumulative probability')
-            %
-            %
-            %                     prof_naive_leg{1}='Proficient';
-            %                     prof_naive_leg{2}='Naive';
-            %
-            %                 end
-            %
-            %                 %Now do the ranksums
-            %                 prof_naive_leg{1}='Proficient';
-            %                 prof_naive_leg{2}='Naive';
-            %
-            %                 input_data=[];
-            %                 for ii=1:ii_rank
-            %                     input_data(ii).data=ranksum_deltaCxy(ii).deltaCxy;
-            %                     input_data(ii).description=[handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' evTypeLabels{ranksum_deltaCxy(ii).evNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii}];
-            %                     input_data(ii).per_ii=ranksum_deltaCxy(ii).per_ii;
-            %                     input_data(ii).grNo=ranksum_deltaCxy(ii).grNo;
-            %                     input_data(ii).evNo=ranksum_deltaCxy(ii).evNo;
-            %
-            %                     glm_coh.data(glm_ii+1:glm_ii+length(ranksum_deltaCxy(ii).deltaCxy))=ranksum_deltaCxy(ii).deltaCxy;
-            %                     glm_coh.group(glm_ii+1:glm_ii+length(ranksum_deltaCxy(ii).deltaCxy))=ranksum_deltaCxy(ii).grNo;
-            %                     glm_coh.perCorr(glm_ii+1:glm_ii+length(ranksum_deltaCxy(ii).deltaCxy))=ranksum_deltaCxy(ii).per_ii;
-            %                     glm_coh.event(glm_ii+1:glm_ii+length(ranksum_deltaCxy(ii).deltaCxy))=ranksum_deltaCxy(ii).evNo;
-            %                     glm_ii=glm_ii+length(ranksum_deltaCxy(ii).deltaCxy);
-            %                 end
-            %
-            %                 %Perform the glm
-            % %                 fprintf(1, ['glm for delta coherence for each electrode pair calculated per mouse for ' freq_names{bwii} '\n'])
-            %                 fprintf(1, ['glm for ' freq_names{bwii} ' coherence during odor for each electrode pair calculated per mouse\n'])
-            %
-            %
-            %                 if sum(glm_coh.group==1)==length(glm_coh.group)
-            %                     %There is only one group here (e.g. for Justin's paper we only include
-            %                     %forward)
-            %                     fprintf(1, ['\n\nglm for odor coherence for ' freq_names{bwii} '\n'])
-            %                     tbl = table(glm_coh.data',glm_coh.perCorr',glm_coh.event',...
-            %                         'VariableNames',{'delta_coherence','perCorr','event'});
-            %                     mdl = fitglm(tbl,'delta_coherence~perCorr+event+perCorr*event'...
-            %                         ,'CategoricalVars',[2,3])
-            %                 else
-            %
-            %                     fprintf(1, ['\n\nglm for odor coherence for ' freq_names{bwii} '\n'])
-            %                     tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',glm_coh.event',...
-            %                         'VariableNames',{'delta_coherence','group','perCorr','event'});
-            %                     mdl = fitglm(tbl,'delta_coherence~group+perCorr+event+perCorr*group*event'...
-            %                         ,'CategoricalVars',[2,3,4])
-            %                 end
-            %
-            %                 %Do the ranksum/t-test
-            %                 fprintf(1, ['\n\nRanksum or t-test p values for odor coherence for each electrode pair calculated per mouse for ' freq_names{bwii} '\n'])
-            %                 [output_data] = drgMutiRanksumorTtest(input_data);
-            %
-            %
-            % %                 for ii=1:ii_rank
-            % %                     for jj=ii+1:ii_rank
-            % %                         [p, r_or_t]=drg_ranksum_or_ttest(ranksum_deltaCxy(ii).deltaCxy,ranksum_deltaCxy(jj).deltaCxy);
-            % %                         if r_or_t==0
-            % %                             fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(ii).evNo} ' vs ' ...
-            % %                                 handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(jj).evNo} ' =  %d\n'],p)
-            % %                         else
-            % %                             fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(ii).evNo} ' vs ' ...
-            % %                                 handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii} ' ' evTypeLabels{ranksum_deltaCxy(jj).evNo} ' =  %d\n'],p)
-            % %                         end
-            % %
-            % %                         pvals=[pvals p];
-            % %                     end
-            % %                 end
-            %
-            %                 fprintf(1, ['\n\n'])
-            %
-            %             end
-            %         end
-            %         fprintf(1, ['\n\n'])
-            %         pFDR = drsFDRpval(pvals);
-            %         fprintf(1, ['pFDR = %d \n\n'],pFDR)
-            %         fprintf(1, ['\n\n'])
-            
-            
-            %Display cumulative histograms for  coherence before odor on for average per electrode per mouse and do ranksum
-            %         pvals=[];
-            %         ranksum_Cxy=[];
-            %         if sum(eventType==3)>0
-            %             for bwii=1:no_bandwidths    %for bandwidths (theta, beta, low gamma, high gamma)
-            %
-            %                 %fprintf for ranksums
-            % %                 fprintf(1, ['Ranksum or t-test p values for coherence before odor for ' freq_names{bwii} '\n'])
-            %
-            %                 ii_rank=0;
-            %                 glm_coh_pre=[];
-            %                 glm_ii=0;
-            %
-            %                 figureNo=figureNo+1;
-            %                 try
-            %                     close(figureNo)
-            %                 catch
-            %                 end
-            %                 hFig=figure(figureNo);
-            %
-            %                 set(hFig, 'units','normalized','position',[.2 .2 .6 .6])
-            %
-            %                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-            %                 hold on
-            %                 for grNo=1:max(handles_drgb.drgbchoices.group_no)
-            %
-            %                     include_group=0;
-            %
-            %
-            %                     for per_ii=1:2      %performance bins. blue = naive, red = proficient
-            %
-            %                         if sum((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo))>0
-            %
-            %                             include_group=1;
-            %
-            % %                             [f_aic,x_aic] = drg_ecdf(Cxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
-            % %
-            % %                             switch grNo
-            % %                             case 1
-            % %                             if per_ii==1
-            % % %                                 if grNo==1
-            % %
-            % %                                     plot(x_aic,f_aic,'Color',[0 0 1],'LineWidth',3)
-            % %                                 else
-            % %
-            % %                                     plot(x_aic,f_aic,'Color',[0.7 0.7 1],'LineWidth',3)
-            % %                                 end
-            % %                                 case 2
-            % %                                 if per_ii==1
-            % %
-            % %                                     plot(x_aic,f_aic,'Color',[1 0 0])
-            % %                                 else
-            % %
-            % %                                     plot(x_aic,f_aic,'Color',[1 0.7 0.7])
-            % %                                 end
-            % %                                  case 3
-            % %                                 if per_ii==1
-            % %
-            % %                                     plot(x_aic,f_aic,'Color',[0 1 0])
-            % %                                 else
-            % %
-            % %                                     plot(x_aic,f_aic,'Color',[0.7 1 0.7])
-            % %                                 end
-            % %                             end
-            %
-            %                             [f_aic,x_aic] = drg_ecdf(Cxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
-            %
-            %                             if per_ii==1
-            %                                 switch  grNo
-            %                                     case 1
-            %
-            %                                     p1=plot(x_aic,f_aic,'Color',[0 0 1],'LineWidth',3);
-            %
-            %                                     case 2
-            %
-            %                                     p2=plot(x_aic,f_aic,'Color',[1 0 0],'LineWidth',3)
-            %
-            %                                     case 3
-            %
-            %                                     p3=plot(x_aic,f_aic,'Color',[0 1 0],'LineWidth',3)
-            %                                 end
-            %                             else
-            %                                 switch  grNo
-            %                                     case 1
-            %
-            %                                     p4=plot(x_aic,f_aic,'Color',[0.7 0.7 1],'LineWidth',3)
-            %
-            %                                     case 2
-            %
-            %                                     p5=plot(x_aic,f_aic,'Color',[1 0.7 0.7],'LineWidth',3)
-            %
-            %                                     case 3
-            %
-            %                                     p6=plot(x_aic,f_aic,'Color',[0.7 1 0.7],'LineWidth',3)
-            %                                 end
-            % %                                   if grNo==1
-            % %                                     [f_aic,x_aic] = drg_ecdf(Cxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
-            % %                                     plot(x_aic,f_aic,'Color',[0 1 0])
-            % %                                 else
-            % %                                     [f_aic,x_aic] = drg_ecdf(Cxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo)));
-            % %                                     plot(x_aic,f_aic,'Color',[0 1 0])
-            % %                                 end
-            %                             end
-            %
-            %                               %Compute and plot per mouse avearge for this group
-            %                                 no_mice_for_this_group=0;
-            %                                 each_mouse_average_Cxy_per_mouse=[];
-            %                                 for mouseNo=1:max(deltaCxy_mouseNo_per_mouse)
-            %                                     if sum((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_mouseNo_per_mouse==mouseNo)&(deltaCxy_group_no_per_mouse==grNo))>0
-            %                                         no_mice_for_this_group=no_mice_for_this_group+1;
-            %                                         each_mouse_average_Cxy_per_mouse(no_mice_for_this_group)=mean(Cxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_evNo_per_mouse==evNo)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_mouseNo_per_mouse==mouseNo)&(deltaCxy_group_no_per_mouse==grNo)));
-            %                                     end
-            %                                 end
-            %
-            %                                 for jj=1:length(each_mouse_average_Cxy_per_mouse)
-            %
-            %                                     xii_below=find(x_aic<each_mouse_average_Cxy_per_mouse(jj),1,'last');
-            %                                     xii_above=find(x_aic>each_mouse_average_Cxy_per_mouse(jj),1,'first');
-            %
-            %                                     slope=(f_aic(xii_above)-f_aic(xii_below))/(x_aic(xii_above)-x_aic(xii_below));
-            %                                     intercept=f_aic(xii_above)-slope*x_aic(xii_above);
-            %
-            %                                     this_f=slope*each_mouse_average_Cxy_per_mouse(jj)+intercept;
-            %
-            %                                     switch grNo
-            %                                         case 1
-            %                                             if per_ii==1
-            %                                                 plot(each_mouse_average_Cxy_per_mouse(jj),this_f,'o','MarkerFace',[0 0 1],'MarkerEdge',[0 0 1],'MarkerSize',10)
-            %                                             else
-            %                                                 plot(each_mouse_average_Cxy_per_mouse(jj),this_f,'o','MarkerFace',[0.7 0.7 1],'MarkerEdge',[0.7 0.7 1],'MarkerSize',10)
-            %                                             end
-            %                                         case 2
-            %                                             if per_ii==1
-            %                                                 plot(each_mouse_average_Cxy_per_mouse(jj),this_f,'o','MarkerFace',[1 0 0],'MarkerEdge',[1 0 0],'MarkerSize',10)
-            %                                             else
-            %                                                 plot(each_mouse_average_Cxy_per_mouse(jj),this_f,'o','MarkerFace',[1 0.7 0.7],'MarkerEdge',[1 0.7 0.7],'MarkerSize',10)
-            %                                             end
-            %                                         case 3
-            %                                             if per_ii==1
-            %                                                 plot(each_mouse_average_Cxy_per_mouse(jj),this_f,'o','MarkerFace',[0 1 0],'MarkerEdge',[0 1 0],'MarkerSize',10)
-            %                                             else
-            %                                                 plot(each_mouse_average_Cxy_per_mouse(jj),this_f,'o','MarkerFace',[0.7 1 0.7],'MarkerEdge',[0.7 1 0.7],'MarkerSize',10)
-            %                                             end
-            %                                     end
-            %
-            %                                 end
-            %
-            %                             %Save data for ranksum
-            %                             ii_rank=ii_rank+1;
-            %                             ranksum_Cxy(ii_rank).Cxy=Cxy_per_mouse((deltaCxy_perii_per_mouse==per_ii)&(deltaCxy_bwii_per_mouse==bwii)&(deltaCxy_group_no_per_mouse==grNo));
-            %                             ranksum_Cxy(ii_rank).per_ii=per_ii;
-            %                             ranksum_Cxy(ii_rank).grNo=grNo;
-            %
-            %                         end
-            %                     end
-            %
-            %                     if include_group==1
-            %                         ii_gr_included=ii_gr_included+1;
-            %                         groups_included(ii_gr_included)=grNo;
-            %                     end
-            %                 end
-            %                 title([freq_names{bwii} ' coherence before odor per electrode (per mouse)'])
-            %
-            %                legend([p1 p2 p3 p4 p5 p6],{[handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' proficient'] ,[handles_drgb.drgbchoices.group_no_names{3} ' proficient'],...
-            %                         [handles_drgb.drgbchoices.group_no_names{1} ' naive'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'],[handles_drgb.drgbchoices.group_no_names{3} ' naive']})
-            %
-            % %                 legend([handles_drgb.drgbchoices.group_no_names{1} ' proficient'],[handles_drgb.drgbchoices.group_no_names{1} ' naive']...
-            % %                     ,[handles_drgb.drgbchoices.group_no_names{2} ' proficient'],[handles_drgb.drgbchoices.group_no_names{2} ' naive'],...
-            % %                  [handles_drgb.drgbchoices.group_no_names{3} ' proficient'],[handles_drgb.drgbchoices.group_no_names{3} ' naive'])
-            %
-            %                 xlabel('coherence')
-            %                 ylabel('Cumulative probability')
-            %
-            %
-            %                 prof_naive_leg{1}='Proficient';
-            %                 prof_naive_leg{2}='Naive';
-            %
-            %
-            %
-            %                 input_data=[];
-            %                 for ii=1:ii_rank
-            %                     input_data(ii).data=ranksum_Cxy(ii).Cxy;
-            %                     input_data(ii).description=[handles_drgb.drgbchoices.group_no_names{ranksum_Cxy(ii).grNo} ' '  prof_naive_leg{ranksum_Cxy(ii).per_ii}];
-            %                     input_data(ii).per_ii=ranksum_Cxy(ii).per_ii;
-            %                     input_data(ii).grNo=ranksum_Cxy(ii).grNo;
-            %
-            %                     glm_coh_pre.data(glm_ii+1:glm_ii+length(ranksum_Cxy(ii).Cxy))=ranksum_Cxy(ii).Cxy;
-            %                     glm_coh_pre.group(glm_ii+1:glm_ii+length(ranksum_Cxy(ii).Cxy))=ranksum_Cxy(ii).grNo;
-            %                     glm_coh_pre.perCorr(glm_ii+1:glm_ii+length(ranksum_Cxy(ii).Cxy))=ranksum_Cxy(ii).per_ii;
-            %                     glm_ii=glm_ii+length(ranksum_Cxy(ii).Cxy);
-            %                 end
-            %
-            %                 %Perform the glm
-            %                 fprintf(1, ['glm for pre-odor coherence for each electrode pair calculated per mouse for ' freq_names{bwii} '\n'])
-            %
-            %                 if sum(glm_coh.group==1)==length(glm_coh.group)
-            %                     %There is only one group here (e.g. for Justin's paper we only include
-            %                     %forward)
-            %                     fprintf(1, ['\n\nglm for pre-odor coherence for ' freq_names{bwii} '\n'])
-            %                     tbl = table(glm_coh.data',glm_coh.perCorr',...
-            %                         'VariableNames',{'pre_odor_coherence','perCorr'});
-            %                     mdl = fitglm(tbl,'pre_odor_coherence~perCorr'...
-            %                         ,'CategoricalVars',[2])
-            %                 else
-            %
-            %                     fprintf(1, ['\n\nglm for pre-odor coherence for ' freq_names{bwii} '\n'])
-            %                     tbl = table(glm_coh.data',glm_coh.group',glm_coh.perCorr',...
-            %                         'VariableNames',{'pre_odor_coherence','group','perCorr'});
-            %                     mdl = fitglm(tbl,'pre_odor_coherence~group+perCorr+perCorr*group'...
-            %                         ,'CategoricalVars',[2,3])
-            %                 end
-            %
-            %                 %Do the ranksum/t-test
-            %                 fprintf(1, ['\n\nRanksum or t-test p values for pre-odor coherence for each electrode pair calculated per mouse for ' freq_names{bwii} '\n'])
-            %                 [output_data] = drgMutiRanksumorTtest(input_data);
-            %
-            %
-            % %                 for ii=1:ii_rank
-            % %                     for jj=ii+1:ii_rank
-            % %                         [p, r_or_t]=drg_ranksum_or_ttest(ranksum_Cxy(ii).Cxy,ranksum_Cxy(jj).Cxy);
-            % %                         if r_or_t==0
-            % %                             fprintf(1, ['p value ranksum for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii}  ' vs ' ...
-            % %                                 handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii}  ' =  %d\n'],p)
-            % %                         else
-            % %                             fprintf(1, ['p value t-test for ' handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(ii).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(ii).per_ii}  ' vs ' ...
-            % %                                 handles_drgb.drgbchoices.group_no_names{ranksum_deltaCxy(jj).grNo} ' ' prof_naive_leg{ranksum_deltaCxy(jj).per_ii}  ' =  %d\n'],p)
-            % %                         end
-            % %                         pvals=[pvals p];
-            % %                     end
-            % %                 end
-            % %
-            %                 fprintf(1, ['\n\n'])
-            %
-            %             end
-            %         end
-            % %         fprintf(1, ['\n\n'])
-            % %         pFDR = drsFDRpval(pvals);
-            % %         fprintf(1, ['pFDR = %d \n\n'],pFDR)
-            %         fprintf(1, ['\n\n'])
-            %
-%             %Display auROC
-%             edges=[-0.3:0.05:0.5];
-%             rand_offset=0.8;
-%             coh_auROC_per_mouse=[];
-%             coh_group_no_per_mouse=[];
-%             
-%             for bwii=1:no_bandwidths    %for different bandwidths
-%                 
-%                 ii_roc=0;
-%                 roc_data=[];
-%                 glm_roc=[];
-%                 glm_roc_ii=0;
-%                 
-%                 
-%                 
-%                 %Display the  auROC
-%                 figureNo=figureNo+1;
-%                 try
-%                     close(figureNo)
-%                 catch
-%                 end
-%                 hFig=figure(figureNo);
-%                 
-%                 set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
-%                 
-%                 set(gca,'FontName','Arial','FontSize',12,'FontWeight','Bold',  'LineWidth', 2)
-%                 hold on
-%                 
-%                 
-%                 
-%                 bar_offset=0;
-%                 
-%                 for per_ii=2:-1:1
-%                     for grNo=1:max(handles_drgb.drgbchoices.group_no)
-%                         
-%                         
-%                         if sum((ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo))>0
-%                             
-%                             bar_offset=bar_offset+1;
-%                             
-%                             switch grNo
-%                                 case 1
-%                                     bar(bar_offset,mean(auROC((ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo))),'g','LineWidth', 3,'EdgeColor','none')
-%                                 case 2
-%                                     bar(bar_offset,mean(auROC((ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo))),'b','LineWidth', 3,'EdgeColor','none')
-%                                 case 3
-%                                     bar(bar_offset,mean(auROC((ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo))),'y','LineWidth', 3,'EdgeColor','none')
-%                             end
-%                             
-%                             handles_out.auc_ii=handles_out.auc_ii+1;
-%                             handles_out.auc_values(handles_out.auc_ii).pacii=bwii;
-%                             handles_out.auc_values(handles_out.auc_ii).per_ii=per_ii;
-%                             handles_out.auc_values(handles_out.auc_ii).groupNo=grNo;
-%                             handles_out.auc_values(handles_out.auc_ii).auc_coh=mean(auROC((ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo)));
-%                             
-%                             %Save the mean per mouse
-%                             these_mice=ROCmouse((ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo));
-%                             handles_out.auc_values(handles_out.auc_ii).noMice=0;
-%                             for iiMice=min(these_mice):max(these_mice)
-%                                 if sum(these_mice==iiMice)>0
-%                                     handles_out.auc_values(handles_out.auc_ii).noMice=handles_out.auc_values(handles_out.auc_ii).noMice+1;
-%                                     handles_out.auc_values(handles_out.auc_ii).mouseNo(handles_out.auc_values(handles_out.auc_ii).noMice)=iiMice;
-%                                     handles_out.auc_values(handles_out.auc_ii).auROC_per_mouse(handles_out.auc_values(handles_out.auc_ii).noMice)=mean(auROC((ROCmouse==iiMice)&(ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo)));
-%                                     coh_auROC_per_mouse(iiMice,bwii,per_ii)=mean(auROC((ROCmouse==iiMice)&(ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo)));
-%                                     coh_group_no_per_mouse(iiMice)=grNo;
-%                                 end
-%                             end
-%                             
-%                             %Violin plot
-%                             [mean_out, CIout]=drgViolinPoint(auROC((ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo))...
-%                                 ,edges,bar_offset,rand_offset,'k','k',3);
-%                             
-%                             
-%                             %Enter data for glm for peak and trough only
-%                             these_data=auROC((ROCper_ii==per_ii)&(ROCbwii==bwii)&(ROCgroups==grNo));
-%                             glm_roc.data(glm_roc_ii+1:glm_roc_ii+length(these_data))=these_data;
-%                             glm_roc.group(glm_roc_ii+1:glm_roc_ii+length(these_data))=grNo;
-%                             glm_roc.perCorr(glm_roc_ii+1:glm_roc_ii+length(these_data))=per_ii;
-%                             glm_roc_ii=glm_roc_ii+length(these_data);
-%                             
-%                             %Enter the data for t-test/ranksum
-%                             ii_roc=ii_roc+1;
-%                             roc_data(ii_roc).data=these_data;
-%                             roc_data(ii_roc).description=[handles_drgb.drgbchoices.group_no_names{grNo} ' ' prof_naive_leg{per_ii}];
-%                             
-%                         end
-%                         
-%                         
-%                     end
-%                     
-%                     
-%                     bar_offset=bar_offset+1;
-%                 end
-%                 
-%                 title(['auROC per mouse, per electrode for ' freq_names{bwii} ' coherence'])
-%                 
-%                 
-%                 
-%                 ylabel('auROC')
-%                 
-%                 pffft=1;
-%                 
-%                 
-%                 
-%                 %Do glm for auROC coherence
-%                 fprintf(1, ['\n\nglm for auROC coherence for ' freq_names{bwii} '\n'])
-%                 tbl = table(glm_roc.data',glm_roc.group',glm_roc.perCorr',...
-%                     'VariableNames',{'Peak_wave','group','perCorr'});
-%                 mdl = fitglm(tbl,'Peak_wave~group+perCorr+group*perCorr'...
-%                     ,'CategoricalVars',[2,3])
-%                 
-%                 
-%                 fprintf(1, ['\n\nRanksum or t-test for auROC coherence for ' freq_names{bwii} '\n'])
-%                 %Now do the ranksums
-%                 output_data = drgMutiRanksumorTtest(roc_data);
-%                 
-%                 
-%                 
-%             end
-%             
-        end
-           
+         
         save([handles.PathName handles.drgb.outFileName(1:end-4) handles_pars.output_suffix],'handles_out')
-       
+        
         
     case 19
         % 19 PAC MI analysis for events (concentrations or S+/S-) for naive and proficient

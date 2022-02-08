@@ -2,7 +2,7 @@ function [output_data] = drgMutiRanksumorTtest(input_data,fileID,inhibit_print)
 % This function performs t tests or ranksum for a series of data sets
 % A t test is used if the data are normal, otherwise a ranksum is used
 
-if nargin<2
+if nargin<3
     inhibit_print=0;
 end
 warning('off')

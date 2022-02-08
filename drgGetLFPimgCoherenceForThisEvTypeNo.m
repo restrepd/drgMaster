@@ -24,7 +24,7 @@ function [out_times,freq,all_Cxy_timecourse, trial_numbers, perCorr_pertr, which
 %   result=xy./sqrt(xx.*yy);
 % end
 % If you only want the imaginary part, then it's a simple matter of computing imag(coherency(x,y,N)).
-
+ 
 odorOn=2;
 sessionNo=handles.sessionNo;
 Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
@@ -39,11 +39,11 @@ L  = floor(window/N);
 f=Fs*(0:(L/2))/L;
 freq=f((f>=handles.burstLowF)&(f<=handles.burstHighF));
 
-
+ 
 %Enter trials
 firstTr=handles.trialNo;
 lastTr=handles.lastTrialNo;
-
+ 
 no_trials=0;
 out_times=[];
 all_Cxy_timecourse=[];

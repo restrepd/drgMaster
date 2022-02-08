@@ -83,7 +83,9 @@ if (sum((t>=t_pre(1))&(t<=t_pre(2)))>5)&(sum((t>=t_post(1))&(t<=t_post(2)))>5)
     catch
     end
     hFig4 = figure(4);
-    set(hFig4, 'units','normalized','position',[.07 .7 .3 .3])
+    set(hFig4, 'units','normalized','position',[.07 .7 .15 .3])
+    
+    ax=gca;ax.LineWidth=3;
     
     hold on
     
@@ -94,7 +96,7 @@ if (sum((t>=t_pre(1))&(t<=t_pre(2)))>5)&(sum((t>=t_post(1))&(t<=t_post(2)))>5)
     bar_offset=1;
     
     bar(bar_offset,mean(Cxy_pre_per_trial),'LineWidth', 3,'EdgeColor','none','FaceColor',[80/255 194/255 255/255])
-    [mean_out, CIout]=drgViolinPoint(Cxy_pre_per_trial,edges,bar_offset,rand_offset,'k','k',3);
+    
     
     %Enter the data for t-test/ranksum
     ii_rank=ii_rank+1;
@@ -109,11 +111,12 @@ if (sum((t>=t_pre(1))&(t<=t_pre(2)))>5)&(sum((t>=t_post(1))&(t<=t_post(2)))>5)
     bar_offset=bar_offset+1;
     
     bar(bar_offset,mean(Cxy_post_per_trial),'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
-    [mean_out, CIout]=drgViolinPoint(Cxy_post_per_trial,edges,bar_offset,rand_offset,'k','k',3);
+    drgViolinPlot([1 2],[Cxy_pre_per_trial;Cxy_post_per_trial],edges,rand_offset,'k','k',4,1);
     
     title('Theta imaginary coherence')
     xticks([1 2])
-    xticklabels({'Pre', 'Post'})
+    xticklabels({'Pre', 'Odor'})
+    ylim([-0.5 1])
                
     %Enter the data for t-test/ranksum
     ii_rank=ii_rank+1;

@@ -5,7 +5,7 @@ function drgSummaryBatchPACCaMKIIWT
 %
 %Performs summary analises for LDA and  PAC analysis performed with case 19
 %of drgAnalysisBatchLFP
-
+ 
 warning('off')
 
 close all
@@ -246,7 +246,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                     glm_mi_mm_hipp.event(glm_ii_mm_hipp+1)=evNo;
                     glm_ii_mm_hipp=glm_ii_mm_hipp+1;
                     
-                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7],'Color',[0.7 0.7 0.7])
+                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.8 0.8 0.8],'MarkerEdgeColor',[0.8 0.8 0.8],'Color',[0.8 0.8 0.8])
                     
                 end
             end
@@ -481,7 +481,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                     glm_PA_mm_hipp.event(glm_ii_mm_hipp+1)=evNo;
                     glm_ii_mm_hipp=glm_ii_mm_hipp+1;
                     
-                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7],'Color',[0.7 0.7 0.7])
+                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.8 0.8 0.8],'MarkerEdgeColor',[0.8 0.8 0.8],'Color',[0.8 0.8 0.8])
                     
                 end
             end
@@ -689,7 +689,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                     glm_mi_mm_pre.event(glm_ii_mm_pre+1)=evNo;
                     glm_ii_mm_pre=glm_ii_mm_pre+1;
                     
-                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7],'Color',[0.7 0.7 0.7])
+                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.8 0.8 0.8],'MarkerEdgeColor',[0.8 0.8 0.8],'Color',[0.8 0.8 0.8])
                     
                 end
             end
@@ -937,7 +937,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                     glm_PA_mm_pre.event(glm_ii_mm_pre+1)=evNo;
                     glm_ii_mm_pre=glm_ii_mm_pre+1;
                     
-                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7],'Color',[0.7 0.7 0.7])
+                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.8 0.8 0.8],'MarkerEdgeColor',[0.8 0.8 0.8],'Color',[0.8 0.8 0.8])
                     
                 end
             end

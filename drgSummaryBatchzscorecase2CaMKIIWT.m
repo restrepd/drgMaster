@@ -350,7 +350,10 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     fprintf(1, ['\n\nRanksum or t-test p values for zPRPe per mouse per odor pair for ' bandwidth_names{pacii} ' hippocampus\n'])
     fprintf(fileID, ['\n\nRanksum or t-test p values for zPRPe per mouse per odor pair for ' bandwidth_names{pacii} ' hippocampus\n']);
     
+    try
     [output_data] = drgMutiRanksumorTtest(input_data, fileID);
+    catch
+    end
     
 end
 
@@ -1263,7 +1266,10 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     fprintf(1, ['\n\nRanksum or t-test p values for zPRPe per mouse per odor pair for ' bandwidth_names{pacii} ' prefrontal\n'])
     fprintf(fileID, ['\n\nRanksum or t-test p values for zPRPe per mouse per odor pair for ' bandwidth_names{pacii} ' prefrontal\n']);
     
+    try
     [output_data] = drgMutiRanksumorTtest(input_data, fileID);
+    catch
+    end
     
 end
 
@@ -1759,7 +1765,8 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         glm_ii_mm=glm_ii_mm+1;
         
         
-        plot([bar_offset-2 bar_offset-1 bar_offset],[this_mouse_mean_peak this_mouse_mean_trough this_mouse_mean_licks],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7],'Color',[0.7 0.7 0.7])
+        plot([bar_offset-2 bar_offset-1 bar_offset],[this_mouse_mean_peak this_mouse_mean_trough this_mouse_mean_licks],...
+            '-ok','MarkerSize',6,'LineWidth',2,'MarkerFaceColor',[0.8 0.8 0.8],'MarkerEdgeColor',[0.8 0.8 0.8],'Color',[0.8 0.8 0.8])
    
     end
     
@@ -1783,6 +1790,8 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     
     xticks([1 2 3])
     xticklabels({'Peak', 'Trough', 'Licks'})
+    
+    pffft=1;
 end
 
 
@@ -1809,7 +1818,10 @@ fprintf(fileID,'%s\n', txt);
 fprintf(1, ['\n\nRanksum or t-test p values for detection time\n'])
 fprintf(fileID, ['\n\nRanksum or t-test p values for detection time\n']);
 
+try
 [output_data] = drgMutiRanksumorTtest(input_dect_data, fileID);
+catch
+end
 
 
 %Perform the glm for decision time per mouse

@@ -12,6 +12,7 @@ close all
 clear all
 
 
+
 %If you want statistics to be done with the value for each odor pair for
 %each mouse make this variable 1
 mouse_op=1;
@@ -57,6 +58,9 @@ FileName{5}='CaMKIIpz1EAcohe02142021_out80.mat';
 FileName{6}='CaMKIIPZ1PAEAcohe202102021_out80.mat';
 FileName{7}='CaMKIIpzz1EAPAcohe02112021_out80.mat';
 FileName{8}='CaMKIIpzz1propylacecohe02092021_out80.mat';
+
+%Text file for statistical output
+fileID = fopen([hippPathName 'drgSummaryBatchCohCaMKIIWT.txt'],'w');
 
 
 %Load data
@@ -240,7 +244,6 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
 end
 
-fclose(fileID)
 
 
 %Plot the bounded lines
@@ -353,7 +356,7 @@ title(['delta coherence '])
 xlabel('Frequency (Hz')
 ylabel('delta coherence')
 
-
+fclose(fileID);
 
 pffft=1;
 
