@@ -59,6 +59,12 @@ FileName{6}='CaMKIIpz1PAEAimagcohe01122022_out80.mat';
 FileName{7}='spm_LFP_pzz1EAPA_imgcoh01252022_out80.mat';
 FileName{8}='CaMKIIpzz1PAEAimgcoh01222021_out80.mat';
 
+%Load the table of mouse numbers
+%Note: This may need to be revised for PRP
+mouse_no_table='/Users/restrepd/Documents/Projects/CaMKII_analysis/Reply_to_reviewers/camkii_mice_per_odor_pair_for_img_coh.xlsx';
+T_mouse_no = readtable(mouse_no_table);
+
+
 %Text file for statistical output
 fileID = fopen([hippPathName 'drgSummaryBatchImgCohCaMKIIWT.txt'],'w');
 
@@ -87,6 +93,12 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     id_ii=0;
     input_data=[];
     
+    glm_coh_mm=[];
+    glm_ii_mm=0;
+    
+    id_ii_mm=0;
+    input_data_mm=[];
+    
     %Plot the average
     figNo = figNo +1;
     
@@ -110,9 +122,11 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     for evNo=1:2
         
-        these_coh_per_Ev=[];
-        ii_coh=0;
-        
+        %         these_coh_per_Ev=[];
+        %         ii_coh=0;
+        coh_thisEv=[];
+        mouse_no_thisEv=[];
+        per_ii_thisEv=[];
         for per_ii=2:-1:1
             
             grNo=1;
@@ -122,8 +136,11 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
             %Get these coherence values
             these_coh=[];
             ii_coh=0;
+         
             for ii=1:length(FileName)
                 this_jj=[];
+                these_mouse_no_per_op=T_mouse_no.mouse_no_per_op(T_mouse_no.odor_pair_no==ii);
+                these_mouse_no=T_mouse_no.mouse_no(T_mouse_no.odor_pair_no==ii);
                 for jj=1:all_files(ii).handles_out.dcoh_ii
                     
                     if all_files(ii).handles_out.dcoh_values(jj).pacii==bwii
@@ -137,14 +154,23 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
                     end
                 end
                 if ~isempty(this_jj)
-                    if mouse_op==1
+                    
                         these_coh(ii_coh+1:ii_coh+length(all_files(ii).handles_out.dcoh_values(this_jj).dcoh_per_mouse))=all_files(ii).handles_out.dcoh_values(this_jj).dcoh_per_mouse;
                         ii_coh=ii_coh+length(all_files(ii).handles_out.dcoh_values(this_jj).dcoh_per_mouse);
-                    else
-                        ii_coh=ii_coh+1;
-                        these_coh(ii_coh)=all_files(ii).handles_out.dcoh_values(this_jj).dcoh;
+                 
+                    
+                    %Assign to overall mouse numbers
+                    these_dcoh_per_mouse=all_files(ii).handles_out.dcoh_values(this_jj).dcoh_per_mouse;
+                    these_mouse_nos=all_files(ii).handles_out.dcoh_values(this_jj).mouseNo;
+                    these_mouse_no_overall=[];
+                    for ii_mouse=1:length(these_mouse_nos)
+                        these_mouse_no_overall(ii_mouse)=these_mouse_no(find(these_mouse_nos(ii_mouse)==these_mouse_no_per_op));
                     end
                     
+                    coh_thisEv=[coh_thisEv these_dcoh_per_mouse];
+                    mouse_no_thisEv=[mouse_no_thisEv these_mouse_no_overall];
+                    per_ii_thisEv=[per_ii_thisEv per_ii*ones(1,length(these_dcoh_per_mouse))];
+
                 end
             end
             
@@ -153,7 +179,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 if per_ii==1
                     %S- Proficient
                     bar(bar_offset,mean(these_coh),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
-                    drgViolinPlot([bar_offset-1 bar_offset],[last_these_coh;these_coh],edges,rand_offset,'k','k',4,1);
+%                     drgViolinPlot([bar_offset-1 bar_offset],[last_these_coh;these_coh],edges,rand_offset,'k','k',4,1);
                 else
                     %S- Naive
                     bar(bar_offset,mean(these_coh),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
@@ -163,7 +189,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 if per_ii==1
                     %S+ Proficient
                     bar(bar_offset,mean(these_coh),'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
-                    drgViolinPlot([bar_offset-1 bar_offset],[last_these_coh;these_coh],edges,rand_offset,'k','k',4,1);
+%                     drgViolinPlot([bar_offset-1 bar_offset],[last_these_coh;these_coh],edges,rand_offset,'k','k',4,1);
                 else
                     %S+ naive
                     bar(bar_offset,mean(these_coh),'LineWidth', 3,'EdgeColor','none','FaceColor',[80/255 194/255 255/255])
@@ -176,7 +202,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             %Violin plot
             
-            [mean_out, CIout]=drgViolinPoint(these_coh,edges,bar_offset,rand_offset,'k','k',2);
+%             [mean_out, CIout]=drgViolinPoint(these_coh,edges,bar_offset,rand_offset,'k','k',2);
             %             CI = bootci(1000, {@mean, these_coh},'type','cper');
             %             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
             %             plot(bar_offset*ones(1,length(these_coh)),these_coh,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
@@ -195,12 +221,53 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
              
         end
 %         drgViolinPlot([bar_offset-1 bar_offset],these_coh_per_Ev,edges,rand_offset,'k','k',4,1);
+        per_ii2_mean_coh_mm=[];
+        per_ii1_mean_coh_mm=[];
+        for mouseNo=1:max(mouse_no_thisEv)
+            per_ii1_mean_coh_mm=[per_ii1_mean_coh_mm mean(coh_thisEv((mouse_no_thisEv==mouseNo)&(per_ii_thisEv==1)))];
+            per_ii2_mean_coh_mm=[per_ii2_mean_coh_mm mean(coh_thisEv((mouse_no_thisEv==mouseNo)&(per_ii_thisEv==2)))];
+        end
+        
+        %per_ii=1
+        glm_coh_mm.data(glm_ii_mm+1:glm_ii_mm+length(per_ii1_mean_coh_mm))=per_ii1_mean_coh_mm;
+        %                 glm_coh_mm.group(glm_ii_mm+1:glm_ii_mm+length(these_per_sig))=grNo*ones(1,length(per_ii1_mean_coh_mm));
+        glm_coh_mm.perCorr(glm_ii_mm+1:glm_ii_mm+length(per_ii1_mean_coh_mm))=ones(1,length(per_ii1_mean_coh_mm));
+        glm_coh_mm.event(glm_ii_mm+1:glm_ii_mm+length(per_ii1_mean_coh_mm))=evNo*ones(1,length(per_ii1_mean_coh_mm));
+        glm_ii_mm=glm_ii_mm+length(per_ii1_mean_coh_mm);
+        
+        id_ii_mm=id_ii_mm+1;
+        input_data_mm(id_ii_mm).data=per_ii1_mean_coh_mm;
+        input_data_mm(id_ii_mm).description=[ evTypeLabels{evNo} ' ' prof_naive_leg{1}];
+        
+         %per_ii=1
+        glm_coh_mm.data(glm_ii_mm+1:glm_ii_mm+length(per_ii2_mean_coh_mm))=per_ii2_mean_coh_mm;
+        %                 glm_coh_mm.group(glm_ii_mm+1:glm_ii_mm+length(these_per_sig))=grNo*ones(1,length(per_ii2_mean_coh_mm));
+        glm_coh_mm.perCorr(glm_ii_mm+1:glm_ii_mm+length(per_ii2_mean_coh_mm))=2*ones(1,length(per_ii2_mean_coh_mm));
+        glm_coh_mm.event(glm_ii_mm+1:glm_ii_mm+length(per_ii2_mean_coh_mm))=evNo*ones(1,length(per_ii2_mean_coh_mm));
+        glm_ii_mm=glm_ii_mm+length(per_ii2_mean_coh_mm);
+        
+        id_ii_mm=id_ii_mm+1;
+        input_data_mm(id_ii_mm).data=per_ii2_mean_coh_mm;
+        input_data_mm(id_ii_mm).description=[ evTypeLabels{evNo} ' ' prof_naive_leg{2}];
+        
+        for mouseNo=1:length(per_ii2_mean_coh_mm)
+            plot([bar_offset-1 bar_offset],[per_ii2_mean_coh_mm(mouseNo) per_ii1_mean_coh_mm(mouseNo)],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
+        end
+        
+        %Violin plot
+        [mean_out, CIout]=drgViolinPoint(these_coh...
+            ,edges,bar_offset,rand_offset,'k','k',3);
+        
+        %Violin plot
+        [mean_out, CIout]=drgViolinPoint(last_these_coh...
+            ,edges,bar_offset-1,rand_offset,'k','k',3);
+        
         
         bar_offset = bar_offset + 1;
         
     end
     
-    title(['Delta coherence for ' bandwidth_names{bwii}])
+    title(['Delta imaginary coherence for ' bandwidth_names{bwii}])
     ylim([-0.1 0.1])
     
     %     %Annotations identifying groups
@@ -219,19 +286,17 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     xticks([1 2 4 5])
     xticklabels({'nS+', 'pS+','nS-', 'pS-'})
     
-    ylabel('Delta coherence')
+    ylabel('Delta imaginary coherence')
     
     
-    %Perform the glm
-    fprintf(1, ['glm for delta coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n'])
-    fprintf(fileID, ['glm for delta coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n']);
+    %Perform the glm per mouse per odor pair
+    fprintf(1, ['glm for delta imaginary coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n'])
+    fprintf(fileID, ['glm for delta imaginary coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n']);
     
-    fprintf(1, ['\n\nglm for PRP for' bandwidth_names{bwii} '\n'])
-    fprintf(fileID, ['\n\nglm for PRP for' bandwidth_names{bwii} '\n']);
     
     tbl = table(glm_coh.data',glm_coh.perCorr',glm_coh.event',...
-        'VariableNames',{'MI','perCorr','event'});
-    mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
+        'VariableNames',{'Img_coh','sp_vs_sm','naive_vs_proficient'});
+    mdl = fitglm(tbl,'Img_coh~sp_vs_sm+naive_vs_proficient+sp_vs_sm*naive_vs_proficient'...
         ,'CategoricalVars',[2,3])
     
     txt = evalc('mdl');
@@ -244,9 +309,33 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for delta coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n'])
-    fprintf(fileID, ['\n\nRanksum or t-test p values for delta coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n']);
-    [output_data] = drgMutiRanksumorTtest(input_data);
+    fprintf(1, ['\n\nRanksum or t-test p values for delta imaginary coherence per mouse per odor pair for ' bandwidth_names{bwii} '\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for delta imaginary coherence per mouse per odor pair for ' bandwidth_names{bwii} '\n']);
+    [output_data] = drgMutiRanksumorTtest(input_data, fileID);
+    
+    %Perform the glm per mouse
+    fprintf(1, ['glm for delta imaginary coherence per mouse for '  bandwidth_names{bwii} '\n'])
+    fprintf(fileID, ['glm for delta imaginary coherence per mouse for '  bandwidth_names{bwii} '\n']);
+    
+    
+    tbl = table(glm_coh_mm.data',glm_coh_mm.perCorr',glm_coh_mm.event',...
+        'VariableNames',{'Img_coh','sp_vs_sm','naive_vs_proficient'});
+    mdl = fitglm(tbl,'Img_coh~sp_vs_sm+naive_vs_proficient+sp_vs_sm*naive_vs_proficient'...
+        ,'CategoricalVars',[2,3])
+    
+    txt = evalc('mdl');
+    txt=regexp(txt,'<strong>','split');
+    txt=cell2mat(txt);
+    txt=regexp(txt,'</strong>','split');
+    txt=cell2mat(txt);
+    
+    fprintf(fileID,'%s\n', txt);
+    
+    
+    %Do the ranksum/t-test
+    fprintf(1, ['\n\nRanksum or t-test p values for delta imaginary coherence per mouse for ' bandwidth_names{bwii} '\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for delta imaginary coherence per mouse for ' bandwidth_names{bwii} '\n']);
+    [output_data] = drgMutiRanksumorTtest(input_data_mm, fileID);
     
     
 end
@@ -514,14 +603,11 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     %Perform the glm
     fprintf(1, ['glm for odor coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n'])
-    fprintf(fileID, ['glm for odor coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n']);
-    
-    fprintf(1, ['\n\nglm for odor coherence for' bandwidth_names{bwii} '\n'])
-    fprintf(fileID, ['\n\nglm for odor coherence for' bandwidth_names{bwii} '\n']);
+%     fprintf(fileID, ['glm for odor coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n']);
     
     tbl = table(glm_coh.data',glm_coh.perCorr',glm_coh.event',...
-        'VariableNames',{'MI','perCorr','event'});
-    mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
+        'VariableNames',{'odor_coh','perCorr','event'});
+    mdl = fitglm(tbl,'odor_coh~perCorr+event+perCorr*event'...
         ,'CategoricalVars',[2,3]);
     
     txt = evalc('mdl');
@@ -530,12 +616,12 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     txt=regexp(txt,'</strong>','split');
     txt=cell2mat(txt);
     
-    fprintf(fileID,'%s\n', txt);
+%     fprintf(fileID,'%s\n', txt);
     
     
     %Do the ranksum/t-test
     fprintf(1, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n'])
-    fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n']);
+%     fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n']);
     [output_data] = drgMutiRanksumorTtest(input_data);
     
     
@@ -950,6 +1036,12 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     id_ii=0;
     input_data=[];
     
+     glm_coh_mm=[];
+    glm_ii_mm=0;
+    
+    id_ii_mm=0;
+    input_data_mm=[];
+    
     %Plot the average
     figNo = figNo +1;
     
@@ -973,8 +1065,11 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     for evNo=1:2
         
-        these_coh_per_Ev=[];
-        ii_coh=0;
+%         these_coh_per_Ev=[];
+%         ii_coh=0;
+        per_sig_thisEv=[];
+        mouse_no_thisEv=[];
+        per_ii_thisEv=[];
         
         for per_ii=2:-1:1
             
@@ -986,6 +1081,8 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
             these_per_sig=[];
             ii_these_per_sig=0;
             for ii=1:length(FileName)
+                these_mouse_no_per_op=T_mouse_no.mouse_no_per_op(T_mouse_no.odor_pair_no==ii);
+                these_mouse_no=T_mouse_no.mouse_no(T_mouse_no.odor_pair_no==ii);
                 this_jj=[];
                 for jj=1:all_files(ii).handles_out.dcoh_ii
                     
@@ -1012,6 +1109,17 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
                         these_per_sig(ii_these_per_sig)=all_files(ii).handles_out.per_sig_values(this_jj).dcoh;
                     end
                     
+                    %Assign to overall mouse numbers
+                    these_percent_sig=all_files(ii).handles_out.per_sig_values(this_jj).percent_sig_per_mouse;
+                    these_mouse_nos=all_files(ii).handles_out.per_sig_values(this_jj).mouseNo;
+                    these_mouse_no_overall=[];
+                    for ii_mouse=1:length(these_mouse_nos)
+                        these_mouse_no_overall(ii_mouse)=these_mouse_no(find(these_mouse_nos(ii_mouse)==these_mouse_no_per_op));
+                    end
+                    per_sig_thisEv=[per_sig_thisEv these_percent_sig];
+                    mouse_no_thisEv=[mouse_no_thisEv these_mouse_no_overall];
+                    per_ii_thisEv=[per_ii_thisEv per_ii*ones(1,length(these_percent_sig))];
+
                 end
             end
             
@@ -1020,7 +1128,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 if per_ii==1
                     %S- Proficient
                     bar(bar_offset,mean(these_per_sig),'LineWidth', 3,'EdgeColor','none','FaceColor',[158/255 31/255 99/255])
-                    drgViolinPlot([bar_offset-1 bar_offset],[last_these_per_sig;these_per_sig],edges,rand_offset,'k','k',4,1);
+%                     drgViolinPlot([bar_offset-1 bar_offset],[last_these_per_sig;these_per_sig],edges,rand_offset,'k','k',4,1);
                 else
                     %S- Naive
                     bar(bar_offset,mean(these_per_sig),'LineWidth', 3,'EdgeColor','none','FaceColor',[238/255 111/255 179/255])
@@ -1030,7 +1138,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 if per_ii==1
                     %S+ Proficient
                     bar(bar_offset,mean(these_per_sig),'LineWidth', 3,'EdgeColor','none','FaceColor',[0 114/255 178/255])
-                    drgViolinPlot([bar_offset-1 bar_offset],[last_these_per_sig;these_per_sig],edges,rand_offset,'k','k',4,1);
+%                     drgViolinPlot([bar_offset-1 bar_offset],[last_these_per_sig;these_per_sig],edges,rand_offset,'k','k',4,1);
                 else
                     %S+ naive
                     bar(bar_offset,mean(these_per_sig),'LineWidth', 3,'EdgeColor','none','FaceColor',[80/255 194/255 255/255])
@@ -1062,6 +1170,48 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
              
         end
 %         drgViolinPlot([bar_offset-1 bar_offset],these_per_sig_per_Ev,edges,rand_offset,'k','k',4,1);
+        %Calculate the per mouse means
+
+        per_ii2_mean_per_sig_mm=[];
+        per_ii1_mean_per_sig_mm=[];
+        for mouseNo=1:max(mouse_no_thisEv)
+            per_ii1_mean_per_sig_mm=[per_ii1_mean_per_sig_mm mean(per_sig_thisEv((mouse_no_thisEv==mouseNo)&(per_ii_thisEv==1)))];
+            per_ii2_mean_per_sig_mm=[per_ii2_mean_per_sig_mm mean(per_sig_thisEv((mouse_no_thisEv==mouseNo)&(per_ii_thisEv==2)))];
+        end
+        
+        %per_ii=1
+        glm_coh_mm.data(glm_ii_mm+1:glm_ii_mm+length(per_ii1_mean_per_sig_mm))=per_ii1_mean_per_sig_mm;
+        %                 glm_coh_mm.group(glm_ii_mm+1:glm_ii_mm+length(these_per_sig))=grNo*ones(1,length(per_ii1_mean_per_sig_mm));
+        glm_coh_mm.perCorr(glm_ii_mm+1:glm_ii_mm+length(per_ii1_mean_per_sig_mm))=ones(1,length(per_ii1_mean_per_sig_mm));
+        glm_coh_mm.event(glm_ii_mm+1:glm_ii_mm+length(per_ii1_mean_per_sig_mm))=evNo*ones(1,length(per_ii1_mean_per_sig_mm));
+        glm_ii_mm=glm_ii_mm+length(per_ii1_mean_per_sig_mm);
+        
+        id_ii_mm=id_ii_mm+1;
+        input_data_mm(id_ii_mm).data=per_ii1_mean_per_sig_mm;
+        input_data_mm(id_ii_mm).description=[ evTypeLabels{evNo} ' ' prof_naive_leg{1}];
+        
+         %per_ii=1
+        glm_coh_mm.data(glm_ii_mm+1:glm_ii_mm+length(per_ii2_mean_per_sig_mm))=per_ii2_mean_per_sig_mm;
+        %                 glm_coh_mm.group(glm_ii_mm+1:glm_ii_mm+length(these_per_sig))=grNo*ones(1,length(per_ii2_mean_per_sig_mm));
+        glm_coh_mm.perCorr(glm_ii_mm+1:glm_ii_mm+length(per_ii2_mean_per_sig_mm))=2*ones(1,length(per_ii2_mean_per_sig_mm));
+        glm_coh_mm.event(glm_ii_mm+1:glm_ii_mm+length(per_ii2_mean_per_sig_mm))=evNo*ones(1,length(per_ii2_mean_per_sig_mm));
+        glm_ii_mm=glm_ii_mm+length(per_ii2_mean_per_sig_mm);
+        
+        id_ii_mm=id_ii_mm+1;
+        input_data_mm(id_ii_mm).data=per_ii2_mean_per_sig_mm;
+        input_data_mm(id_ii_mm).description=[ evTypeLabels{evNo} ' ' prof_naive_leg{2}];
+        
+        for mouseNo=1:length(per_ii2_mean_per_sig_mm)
+            plot([bar_offset-1 bar_offset],[per_ii2_mean_per_sig_mm(mouseNo) per_ii1_mean_per_sig_mm(mouseNo)],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
+        end
+        
+        %Violin plot
+        [mean_out, CIout]=drgViolinPoint(these_per_sig...
+            ,edges,bar_offset,rand_offset,'k','k',3);
+        
+        %Violin plot
+        [mean_out, CIout]=drgViolinPoint(last_these_per_sig...
+            ,edges,bar_offset-1,rand_offset,'k','k',3);
         
         bar_offset = bar_offset + 1;
         
@@ -1086,19 +1236,16 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     xticks([1 2 4 5])
     xticklabels({'nS+', 'pS+','nS-', 'pS-'})
     
-    ylabel('Delta coherence')
+    ylabel('Percent significant')
     
     
-    %Perform the glm
-    fprintf(1, ['glm for odor coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n'])
-    fprintf(fileID, ['glm for odor coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n']);
-    
-    fprintf(1, ['\n\nglm for odor coherence for' bandwidth_names{bwii} '\n'])
-    fprintf(fileID, ['\n\nglm for odor coherence for' bandwidth_names{bwii} '\n']);
+    %Perform the glm per mouse per odor pair
+    fprintf(1, ['glm for percent significant delta imaginary coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n'])
+    fprintf(fileID, ['glm for percent significant delta imaginary coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n']);
     
     tbl = table(glm_coh.data',glm_coh.perCorr',glm_coh.event',...
-        'VariableNames',{'MI','perCorr','event'});
-    mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
+        'VariableNames',{'per_sig','naive_vs_proficient','sp_vs_sm'});
+    mdl = fitglm(tbl,'per_sig~naive_vs_proficient+sp_vs_sm+naive_vs_proficient*sp_vs_sm'...
         ,'CategoricalVars',[2,3])
     
     txt = evalc('mdl');
@@ -1111,10 +1258,32 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n'])
-    fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n']);
-    [output_data] = drgMutiRanksumorTtest(input_data);
+    fprintf(1, ['\n\nRanksum or t-test p values for percent significant delta imaginary coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for percent significant delta imaginary coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n']);
+    [output_data] = drgMutiRanksumorTtest(input_data, fileID);
     
+    %Perform the glm per mouse 
+    fprintf(1, ['glm for percent significant delta imaginary coherence per mouse for '  bandwidth_names{bwii} '\n'])
+    fprintf(fileID, ['glm for percent significant delta imaginary coherence per mouse for '  bandwidth_names{bwii} '\n']);
+    
+    tbl = table(glm_coh_mm.data',glm_coh_mm.perCorr',glm_coh_mm.event',...
+        'VariableNames',{'per_sig','naive_vs_proficient','sp_vs_sm'});
+    mdl = fitglm(tbl,'per_sig~naive_vs_proficient+sp_vs_sm+naive_vs_proficient*sp_vs_sm'...
+        ,'CategoricalVars',[2,3])
+    
+    txt = evalc('mdl');
+    txt=regexp(txt,'<strong>','split');
+    txt=cell2mat(txt);
+    txt=regexp(txt,'</strong>','split');
+    txt=cell2mat(txt);
+    
+    fprintf(fileID,'%s\n', txt);
+    
+    
+    %Do the ranksum/t-test
+    fprintf(1, ['\n\nRanksum or t-test p values for percent significant delta imaginary coherence per mouse for ' bandwidth_names{bwii} ' hippocampus\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for percent significant delta imaginary coherence per mouse for ' bandwidth_names{bwii} ' hippocampus\n']);
+    [output_data] = drgMutiRanksumorTtest(input_data_mm, fileID);
     
 end
 
@@ -1248,7 +1417,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
         
     end
     
-    title(['Histogram for delta odor coherence for significance changes for ' bandwidth_names{bwii}])
+    title(['Histogram for delta odor coherence for significant changes for ' bandwidth_names{bwii}])
     
     xlabel('Delta coherence')
     ylabel('Fraction')
@@ -1412,7 +1581,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
         
     end
     
-    title(['Histogram for odor coherence for significance changes for ' bandwidth_names{bwii}])
+    title(['Histogram for odor coherence for significant changes for ' bandwidth_names{bwii}])
     
     xlabel('Coherence')
     ylabel('Fraction')

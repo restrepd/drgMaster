@@ -89,14 +89,7 @@ for ii=1:length(preFileName)
     all_pre(ii).handles_out=handles_out;
 end
 
-glm_dect=[];
-glm_dect_ii=0;
 
-glm_dect_mm=[];
-glm_ii_mm=0;
-
-id_dect_ii=0;
-input_dect_data=[];
 
 glm_from=0.5;
 glm_to=2.5;
@@ -329,12 +322,12 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     end
     
     %Perform the glm
-    fprintf(1, ['glm for zPRP per mouse per odor pair for '  bandwidth_names{pacii} '\n'])
-    fprintf(fileID, ['glm for zPRP per mouse per odor pair for '  bandwidth_names{pacii} '\n']);
+    fprintf(1, ['glm for zPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' for hippocampus\n'])
+    fprintf(fileID, ['glm for zPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' for hippocampus\n']);
     
     tbl = table(glm_PRP_hipp.data',glm_PRP_hipp.perCorr',glm_PRP_hipp.event',glm_PRP_hipp.peak',...
-        'VariableNames',{'zPRP','naive_vs_proficient','event','peak_vs_trough'});
-    mdl = fitglm(tbl,'zPRP~naive_vs_proficient+event+peak_vs_trough+naive_vs_proficient*event*peak_vs_trough'...
+        'VariableNames',{'zPRP','naive_vs_proficient','sp_vs_sm','peak_vs_trough'});
+    mdl = fitglm(tbl,'zPRP~naive_vs_proficient+sp_vs_sm+peak_vs_trough+naive_vs_proficient*sp_vs_sm*peak_vs_trough'...
         ,'CategoricalVars',[2,3,4])
     
     
@@ -347,8 +340,8 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     fprintf(fileID,'%s\n', txt);
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for zPRPe per mouse per odor pair for ' bandwidth_names{pacii} ' hippocampus\n'])
-    fprintf(fileID, ['\n\nRanksum or t-test p values for zPRPe per mouse per odor pair for ' bandwidth_names{pacii} ' hippocampus\n']);
+    fprintf(1, ['\n\nRanksum or t-test p values for zPRP during odor per mouse per odor pair for ' bandwidth_names{pacii} ' hippocampus\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for zPRP during odor per mouse per odor pair for ' bandwidth_names{pacii} ' hippocampus\n']);
     
     try
     [output_data] = drgMutiRanksumorTtest(input_data, fileID);
@@ -357,8 +350,17 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     
 end
 
-%Now plot the p value timecourses for proficient mice for hippocampus
+%Now plot the p value timecourses and determine decision times for proficient mice for hippocampus
 for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
+    
+    glm_dect=[];
+    glm_dect_ii=0;
+    
+    glm_dect_mm=[];
+    glm_ii_mm=0;
+    
+    id_dect_ii=0;
+    input_dect_data=[];
     
     grNo=1;
     
@@ -895,7 +897,7 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     input_dect_data(id_dect_ii).data=these_data;
     input_dect_data(id_dect_ii).description=['Peak hippocampus ' bandwidth_names{pacii}];
     
-       %trough
+    %trough
     these_data=trough_decision_times_hipp(found_trough_decision_times_hipp==1);
     glm_dect.data(glm_dect_ii+1:glm_dect_ii+length(these_data))=these_data;
     glm_dect.lick_peak_trough(glm_dect_ii+1:glm_dect_ii+length(these_data))=2*ones(1,length(these_data));
@@ -967,7 +969,7 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         this_mouse_mean_peak=mean(these_data_peak(these_mice_peak==msNo));
         
         glm_dect_mm.data(glm_ii_mm+1)=this_mouse_mean_peak;
-        glm_dect_mm.lick_peak_trough(glm_ii_mm+1)=0;
+        glm_dect_mm.lick_peak_trough(glm_ii_mm+1)=1;
         glm_dect_mm.hipp_vs_pre(glm_ii_mm+1)=0;
         glm_dect_mm.pacii(glm_ii_mm+1)=pacii;
         glm_ii_mm=glm_ii_mm+1;
@@ -976,8 +978,8 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         this_mouse_mean_trough=mean(these_data_trough(these_mice_trough==msNo));
         
         glm_dect_mm.data(glm_ii_mm+1)=this_mouse_mean_trough;
-        glm_dect_mm.lick_trough_trough(glm_ii_mm+1)=1;
-        glm_dect_mm.hipp_vs_pre(glm_ii_mm+1)=0;
+        glm_dect_mm.lick_peak_trough(glm_ii_mm+1)=2;
+        glm_dect_mm.hipp_vs_pre(glm_ii_mm+1)=2;
         glm_dect_mm.pacii(glm_ii_mm+1)=pacii;
         glm_ii_mm=glm_ii_mm+1;
         
@@ -985,13 +987,13 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         this_mouse_mean_licks=mean(these_data_licks(these_mice_licks==msNo));
         
         glm_dect_mm.data(glm_ii_mm+1)=this_mouse_mean_licks;
-        glm_dect_mm.lick_peak_trough(glm_ii_mm+1)=2;
+        glm_dect_mm.lick_peak_trough(glm_ii_mm+1)=0;
         glm_dect_mm.hipp_vs_pre(glm_ii_mm+1)=0;
         glm_dect_mm.pacii(glm_ii_mm+1)=pacii;
         glm_ii_mm=glm_ii_mm+1;
         
         
-        plot([bar_offset-2 bar_offset-1 bar_offset],[this_mouse_mean_peak this_mouse_mean_trough this_mouse_mean_licks],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.7 0.7 0.7],'MarkerEdgeColor',[0.7 0.7 0.7],'Color',[0.7 0.7 0.7])
+        plot([bar_offset-2 bar_offset-1 bar_offset],[this_mouse_mean_peak this_mouse_mean_trough this_mouse_mean_licks],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
    
     end
     
@@ -1016,6 +1018,52 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     xticklabels({'Peak', 'Trough', 'Licks'})
     
     
+    
+    %Perform the glm for decision time
+    fprintf(1, ['glm for decision time per mouse per odor pair for hippocampus ' bandwidth_names{pacii} '\n'])
+    fprintf(fileID, ['glm for decision time per mouse per odor pair for hippocampus ' bandwidth_names{pacii} '\n']);
+    
+    tbl = table(glm_dect.data',glm_dect.lick_peak_trough',...
+        'VariableNames',{'detection_time','lick_peak_trough'});
+    mdl = fitglm(tbl,'detection_time~lick_peak_trough'...
+        ,'CategoricalVars',[2])
+    
+    
+    txt = evalc('mdl');
+    txt=regexp(txt,'<strong>','split');
+    txt=cell2mat(txt);
+    txt=regexp(txt,'</strong>','split');
+    txt=cell2mat(txt);
+    
+    fprintf(fileID,'%s\n', txt);
+    
+    %Do the ranksum/t-test
+    fprintf(1, ['\n\nRanksum or t-test p values for detection time for hippocampus ' bandwidth_names{pacii} '\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for detection time for hippocampus ' bandwidth_names{pacii} '\n']);
+    
+    try
+        [output_data] = drgMutiRanksumorTtest(input_dect_data, fileID);
+    catch
+    end
+    
+    
+    %Perform the glm for decision time per mouse
+    fprintf(1, ['glm for decision time per mouse for hippocampus ' bandwidth_names{pacii} '\n'])
+    fprintf(fileID, ['glm for decision timeper mouse for hippocampus ' bandwidth_names{pacii} '\n']);
+    
+    tbl = table(glm_dect_mm.data',glm_dect_mm.lick_peak_trough',...
+        'VariableNames',{'detection_time','lick_peak_trough'});
+    mdl = fitglm(tbl,'detection_time~lick_peak_trough'...
+        ,'CategoricalVars',[2])
+    
+    
+    txt = evalc('mdl');
+    txt=regexp(txt,'<strong>','split');
+    txt=cell2mat(txt);
+    txt=regexp(txt,'</strong>','split');
+    txt=cell2mat(txt);
+    
+    fprintf(fileID,'%s\n', txt);
     
 end
 
@@ -1245,12 +1293,12 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     end
     
     %Perform the glm
-    fprintf(1, ['glm for zPRP per mouse per odor pair for '  bandwidth_names{pacii} ' prefrontal\n'])
-    fprintf(fileID, ['glm for zPRP per mouse per odor pair for '  bandwidth_names{pacii} ' prefrontal\n']);
+    fprintf(1, ['glm for zPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' prefrontal\n'])
+    fprintf(fileID, ['glm for zPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' prefrontal\n']);
     
     tbl = table(glm_PRP_pre.data',glm_PRP_pre.perCorr',glm_PRP_pre.event',glm_PRP_pre.peak',...
-        'VariableNames',{'zPRP','naive_vs_proficient','event','peak_vs_trough'});
-    mdl = fitglm(tbl,'zPRP~naive_vs_proficient+event+peak_vs_trough+naive_vs_proficient*event*peak_vs_trough'...
+        'VariableNames',{'zPRP','naive_vs_proficient','sm_vs_sp','peak_vs_trough'});
+    mdl = fitglm(tbl,'zPRP~naive_vs_proficient+sm_vs_sp+peak_vs_trough+naive_vs_proficient*sm_vs_sp*peak_vs_trough'...
         ,'CategoricalVars',[2,3,4])
     
     
@@ -1275,6 +1323,15 @@ end
 
 %Now plot the p value timecourses for proficient mice for prefrontal
 for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
+    
+    glm_dect=[];
+    glm_dect_ii=0;
+    
+    glm_dect_mm=[];
+    glm_ii_mm=0;
+    
+    id_dect_ii=0;
+    input_dect_data=[];
     
     grNo=1;
     
@@ -1657,6 +1714,9 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     glm_dect.pacii(glm_dect_ii+1:glm_dect_ii+length(these_data))=pacii*ones(1,length(these_data));
     glm_dect_ii=glm_dect_ii+length(these_data);
     
+    id_dect_ii=id_dect_ii+1;
+    input_dect_data(id_dect_ii).data=these_data;
+    input_dect_data(id_dect_ii).description=['Lick prefrontal ' bandwidth_names{pacii}];
     
     %peak
     these_data=peak_decision_times_pre(found_peak_decision_times_pre==1);
@@ -1741,7 +1801,7 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         this_mouse_mean_peak=mean(these_data_peak(these_mice_peak==msNo));
         
         glm_dect_mm.data(glm_ii_mm+1)=this_mouse_mean_peak;
-        glm_dect_mm.lick_peak_trough(glm_ii_mm+1)=0;
+        glm_dect_mm.lick_peak_trough(glm_ii_mm+1)=1;
         glm_dect_mm.hipp_vs_pre(glm_ii_mm+1)=1;
         glm_dect_mm.pacii(glm_ii_mm+1)=pacii;
         glm_ii_mm=glm_ii_mm+1;
@@ -1750,7 +1810,7 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         this_mouse_mean_trough=mean(these_data_trough(these_mice_trough==msNo));
         
         glm_dect_mm.data(glm_ii_mm+1)=this_mouse_mean_trough;
-        glm_dect_mm.lick_trough_trough(glm_ii_mm+1)=1;
+        glm_dect_mm.lick_peak_trough(glm_ii_mm+1)=2;
         glm_dect_mm.hipp_vs_pre(glm_ii_mm+1)=1;
         glm_dect_mm.pacii(glm_ii_mm+1)=pacii;
         glm_ii_mm=glm_ii_mm+1;
@@ -1759,14 +1819,14 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         this_mouse_mean_licks=mean(these_data_licks(these_mice_licks==msNo));
         
         glm_dect_mm.data(glm_ii_mm+1)=this_mouse_mean_licks;
-        glm_dect_mm.lick_peak_trough(glm_ii_mm+1)=2;
+        glm_dect_mm.lick_peak_trough(glm_ii_mm+1)=0;
         glm_dect_mm.hipp_vs_pre(glm_ii_mm+1)=1;
         glm_dect_mm.pacii(glm_ii_mm+1)=pacii;
         glm_ii_mm=glm_ii_mm+1;
         
         
         plot([bar_offset-2 bar_offset-1 bar_offset],[this_mouse_mean_peak this_mouse_mean_trough this_mouse_mean_licks],...
-            '-ok','MarkerSize',6,'LineWidth',2,'MarkerFaceColor',[0.8 0.8 0.8],'MarkerEdgeColor',[0.8 0.8 0.8],'Color',[0.8 0.8 0.8])
+            '-ok','MarkerSize',6,'LineWidth',2,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
    
     end
     
@@ -1791,56 +1851,57 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     xticks([1 2 3])
     xticklabels({'Peak', 'Trough', 'Licks'})
     
-    pffft=1;
+    
+    
+    %Perform the glm for decision time
+    fprintf(1, ['glm for decision time per mouse per odor pair for prefrontal ' bandwidth_names{pacii} '\n'])
+    fprintf(fileID, ['glm for decision time per mouse per odor pair for prefrontal ' bandwidth_names{pacii} '\n']);
+    
+    tbl = table(glm_dect.data',glm_dect.lick_peak_trough',...
+        'VariableNames',{'detection_time','lick_peak_trough'});
+    mdl = fitglm(tbl,'detection_time~lick_peak_trough'...
+        ,'CategoricalVars',[2])
+    
+    
+    txt = evalc('mdl');
+    txt=regexp(txt,'<strong>','split');
+    txt=cell2mat(txt);
+    txt=regexp(txt,'</strong>','split');
+    txt=cell2mat(txt);
+    
+    fprintf(fileID,'%s\n', txt);
+    
+    %Do the ranksum/t-test
+    fprintf(1, ['\n\nRanksum or t-test p values for detection time for prefrontal ' bandwidth_names{pacii} '\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for detection time for prefrontal ' bandwidth_names{pacii} '\n']);
+    
+    try
+        [output_data] = drgMutiRanksumorTtest(input_dect_data, fileID);
+    catch
+    end
+    
+    
+    %Perform the glm for decision time per mouse
+    fprintf(1, ['glm for decision time per mouse for prefrontal ' bandwidth_names{pacii} '\n'])
+    fprintf(fileID, ['glm for decision timeper mouse for prefrontal ' bandwidth_names{pacii} '\n']);
+    
+    tbl = table(glm_dect_mm.data',glm_dect_mm.lick_peak_trough',...
+        'VariableNames',{'detection_time','lick_peak_trough'});
+    mdl = fitglm(tbl,'detection_time~lick_peak_trough'...
+        ,'CategoricalVars',[2])
+    
+    
+    txt = evalc('mdl');
+    txt=regexp(txt,'<strong>','split');
+    txt=cell2mat(txt);
+    txt=regexp(txt,'</strong>','split');
+    txt=cell2mat(txt);
+    
+    fprintf(fileID,'%s\n', txt);
 end
 
 
 
-%Perform the glm for decision time
-fprintf(1, ['glm for decision time per mouse per odor pair\n'])
-fprintf(fileID, ['glm for decision timeper mouse per odor pair\n']);
-
-tbl = table(glm_dect.data',glm_dect.lick_peak_trough',glm_dect.hipp_vs_pre',glm_dect.pacii',...
-    'VariableNames',{'detection_time','lick_peak_trough','hipp_vs_pre','bandwidth'});
-mdl = fitglm(tbl,'detection_time~lick_peak_trough+hipp_vs_pre+bandwidth+lick_peak_trough*hipp_vs_pre*bandwidth'...
-    ,'CategoricalVars',[2,3,4])
-
-
-txt = evalc('mdl');
-txt=regexp(txt,'<strong>','split');
-txt=cell2mat(txt);
-txt=regexp(txt,'</strong>','split');
-txt=cell2mat(txt);
-
-fprintf(fileID,'%s\n', txt);
-
-%Do the ranksum/t-test
-fprintf(1, ['\n\nRanksum or t-test p values for detection time\n'])
-fprintf(fileID, ['\n\nRanksum or t-test p values for detection time\n']);
-
-try
-[output_data] = drgMutiRanksumorTtest(input_dect_data, fileID);
-catch
-end
-
-
-%Perform the glm for decision time per mouse
-fprintf(1, ['glm for decision time per mouse\n'])
-fprintf(fileID, ['glm for decision timeper mouse\n']);
- 
-tbl = table(glm_dect_mm.data',glm_dect_mm.lick_peak_trough',glm_dect_mm.hipp_vs_pre',glm_dect_mm.pacii',...
-    'VariableNames',{'detection_time','lick_peak_trough','hipp_vs_pre','bandwidth'});
-mdl = fitglm(tbl,'detection_time~lick_peak_trough+hipp_vs_pre+bandwidth+lick_peak_trough*hipp_vs_pre*bandwidth'...
-    ,'CategoricalVars',[2,3,4])
-
-
-txt = evalc('mdl');
-txt=regexp(txt,'<strong>','split');
-txt=cell2mat(txt);
-txt=regexp(txt,'</strong>','split');
-txt=cell2mat(txt);
-
-fprintf(fileID,'%s\n', txt);
 
 
 fclose(fileID);
