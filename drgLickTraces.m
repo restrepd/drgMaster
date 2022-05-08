@@ -88,10 +88,10 @@ lowpctile=prctile(ev1_licks(:),1);
 delta_trial=2*(hipctile-lowpctile);
 y_offset=delta_trial;
 
-
+ 
 %S- first
 for trNo=1:size(ev2_licks,2)
-   plot(times,ev2_licks(handles.time_pad*Fr:handles.time_pad*Fr+length(times)-1,trNo)+y_offset,'-','Color',[0 114/255 178/255], 'LineWidth',1.5) 
+   plot(times,ev2_licks(handles.time_pad*Fr:handles.time_pad*Fr+length(times)-1,trNo)+y_offset,'-','Color',[158/255 31/255 99/255], 'LineWidth',1.5) 
    y_offset=y_offset+delta_trial;
 end
 
@@ -99,7 +99,7 @@ y_offset=y_offset+delta_trial*3;
 
 %S+ next
 for trNo=1:size(ev1_licks,2)
-   plot(times,ev1_licks(handles.time_pad*Fr:handles.time_pad*Fr+length(times)-1, trNo)+y_offset,'-','Color',[158/255 31/255 99/255],'LineWidth',1.5) 
+   plot(times,ev1_licks(handles.time_pad*Fr:handles.time_pad*Fr+length(times)-1, trNo)+y_offset,'-','Color',[0 114/255 178/255],'LineWidth',1.5) 
    y_offset=y_offset+delta_trial;
 end
 

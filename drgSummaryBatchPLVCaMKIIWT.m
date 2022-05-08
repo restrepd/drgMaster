@@ -51,13 +51,22 @@ hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PLV80/';
 
 %Files
 FileName{1}='CaMKIIPLVCamKIAPEB8005012021_out.mat';
-FileName{2}='CaMKIIEBAPPLV04292021_out.mat';
-FileName{3}='CaMKIIPAEAPLV8004282021_out.mat';
-FileName{4}='CaMKIIEAPAPLV8004292021_out.mat';
+FileName{2}='CaMKIIEAPAPLV8004292021_out.mat';
+FileName{3}='CaMKIIEBAPPLV04292021_out.mat';
+FileName{4}='CaMKIIPAEAPLV8004282021_out.mat';
 FileName{5}='CaMKIIpz1EAPAPLV8004272021_out.mat';
 FileName{6}='CaMKIIpz1PAEAPLV8004262021_out.mat';
 FileName{7}='CaMKII80pzz1EAPAPLV04242021_out.mat';
 FileName{8}='CaMKIIpzz1PAEA80PLV04242021_out.mat';
+
+
+%Load the table of mouse numbers
+mouse_no_table='/Users/restrepd/Documents/Projects/CaMKII_analysis/Reply_to_reviewers/camkii_mice_per_odor_pair_for_PLV.xlsx';
+T_mouse_no = readtable(mouse_no_table);
+
+
+%Text file for statistical output
+fileID = fopen([hippPathName 'drgSummaryBatchPLVCaMKIIWT.txt'],'w');
 
 
 %Load data
@@ -70,6 +79,7 @@ for ii=1:length(FileName)
     all_files(ii).delta_PLV_odor_minus_ref_per_mouse=delta_PLV_odor_minus_ref_per_mouse;
     all_files(ii).delta_phase_odor_per_mouse=delta_phase_odor_per_mouse;
     all_files(ii).group_no_per_mouse=group_no_per_mouse;
+    all_files(ii).which_mice=which_mice;
 end
 
 
@@ -166,7 +176,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
         
     end
     
-    title(['Average delta PLV for each electrode calculated per mouse for ' bandwidth_names{bwii}])
+    title(['Average delta PLV for each electrode calculated per odor pair for ' bandwidth_names{bwii}])
     
     
     %     %Annotations identifying groups
@@ -187,7 +197,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     
     %Perform the glm
-    fprintf(1, ['glm for average delta PLV for each electrode calculated per mouse for '  bandwidth_names{bwii} '\n'])
+    fprintf(1, ['glm for average delta PLV for each electrode calculated per odor pair for '  bandwidth_names{bwii} '\n'])
     
     fprintf(1, ['\n\nglm for PLV for' bandwidth_names{bwii} '\n'])
     tbl = table(glm_PLV.data',glm_PLV.perCorr',glm_PLV.event',...
@@ -197,7 +207,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for average delta PLV for each electrode calculated per mouse for ' bandwidth_names{bwii} ' hippocampus\n'])
+    fprintf(1, ['\n\nRanksum or t-test p values for average delta PLV for each electrode calculated per odor pair for ' bandwidth_names{bwii} ' hippocampus\n'])
     [output_data] = drgMutiRanksumorTtest(input_data);
     
     
@@ -369,14 +379,42 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
             %Get these PLV values
             these_PLV=[];
             ii_PLV=0;
+            these_mice=[];
             for ii=1:length(FileName)
-                    these_PLVs=zeros(1,sum(group_no_per_mouse==grNo));
-                    these_PLVs(1,:)=all_files(ii).delta_PLV_odor_minus_ref_per_mouse(group_no_per_mouse==grNo,bwii,per_ii,evNo);
-                    these_PLV(ii_PLV+1:ii_PLV+length(these_PLVs))=these_PLVs;
-                    ii_PLV=ii_PLV+length(these_PLVs);
+                
+                group_no_per_mouse=all_files(ii).group_no_per_mouse;
+                these_PLVs=zeros(1,sum(group_no_per_mouse==grNo));
+                these_PLVs(1,:)=all_files(ii).delta_PLV_odor_minus_ref_per_mouse(group_no_per_mouse==grNo,bwii,per_ii,evNo);
+                these_PLV(ii_PLV+1:ii_PLV+length(these_PLVs))=these_PLVs;
+                ii_PLV=ii_PLV+length(these_PLVs);
+                
+                
+                %Assign to overall mouse numbers
+                these_mouse_no_per_op=T_mouse_no.mouse_no_per_op(T_mouse_no.odor_pair_no==ii);
+                these_mouse_no=T_mouse_no.mouse_no(T_mouse_no.odor_pair_no==ii);
+                these_mouse_nos=all_files(ii).which_mice(group_no_per_mouse==grNo);
+                these_mouse_no_overall=[];
+                for ii_mouse=1:length(these_mouse_nos)
+                    these_mouse_no_overall(ii_mouse)=these_mouse_no(find(these_mouse_nos(ii_mouse)==these_mouse_no_per_op));
+                end
+                these_mice=[these_mice these_mouse_no_overall];
             end
             
-     
+            mean_PLV_mm=[];
+            if per_ii==1
+                mean_PLV_mm_per_ii1=[];
+            else
+                mean_PLV_mm_per_ii2=[];
+            end
+            
+            for mouseNo=unique(these_mice)
+                if per_ii==1
+                    mean_PLV_mm_per_ii1=[mean_PLV_mm_per_ii1 mean(these_PLV(these_mice==mouseNo))];
+                else
+                    mean_PLV_mm_per_ii2=[mean_PLV_mm_per_ii2 mean(these_PLV(these_mice==mouseNo))];
+                end
+            end
+            
             if evNo==2
                 if per_ii==1
                     %S+ Proficient
@@ -395,6 +433,11 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 end
             end
             
+            if per_ii==1
+                for mouseNo=1:length(mean_PLV_mm_per_ii2)
+                    plot([bar_offset-1 bar_offset],[mean_PLV_mm_per_ii2(mouseNo) mean_PLV_mm_per_ii1(mouseNo)],'-ok','MarkerSize',6,'LineWidth',2,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
+                end
+            end
             
             %Violin plot
             
@@ -409,6 +452,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
             %                 glm_PLV.group(glm_ii+1:glm_ii+length(these_PLV))=grNo*ones(1,length(these_PLV));
             glm_PLV.perCorr(glm_ii+1:glm_ii+length(these_PLV))=per_ii*ones(1,length(these_PLV));
             glm_PLV.event(glm_ii+1:glm_ii+length(these_PLV))=evNo*ones(1,length(these_PLV));
+            glm_PLV.mouse_no(glm_ii+1:glm_ii+length(these_PLV))=these_mice;
             glm_ii=glm_ii+length(these_PLV);
             
             id_ii=id_ii+1;
@@ -441,20 +485,46 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     ylim([-0.6 0.6])
     
     %Perform the glm
-    fprintf(1, ['glm for average delta PLV for each odor pair/mouse for '  bandwidth_names{bwii} '\n'])
+    fprintf(1, ['glm for average delta PLV per mouse per odor pair for '  bandwidth_names{bwii} '\n'])
+    fprintf(fileID, ['glm for average delta PLV per mouse per odor pair for '  bandwidth_names{bwii} '\n']);
     
     fprintf(1, ['\n\nglm for PLV for' bandwidth_names{bwii} '\n'])
     tbl = table(glm_PLV.data',glm_PLV.perCorr',glm_PLV.event',...
-        'VariableNames',{'dPLV','perCorr','event'});
-    mdl = fitglm(tbl,'dPLV~perCorr+event+perCorr*event'...
+        'VariableNames',{'dPLV','naive_vs_proficient','sp_vs_sm'});
+    mdl = fitglm(tbl,'dPLV~naive_vs_proficient+sp_vs_sm+naive_vs_proficient*sp_vs_sm'...
         ,'CategoricalVars',[2,3])
     
+       txt = evalc('mdl');
+    txt=regexp(txt,'<strong>','split');
+    txt=cell2mat(txt);
+    txt=regexp(txt,'</strong>','split');
+    txt=cell2mat(txt);
+    
+    fprintf(fileID,'%s\n', txt);
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for average delta PLV  for each odor pair/mouse for ' bandwidth_names{bwii} ' hippocampus\n'])
-    [output_data] = drgMutiRanksumorTtest(input_data);
+    fprintf(1, ['\n\nRanksum or t-test p values for average delta PLV  per mouse per odor pair for ' bandwidth_names{bwii} '\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for average delta PLV  per mouse per odor pair for ' bandwidth_names{bwii} '\n']);
+    
+    [output_data] = drgMutiRanksumorTtest(input_data, fileID);
     
     
+    %Nested ANOVAN
+    %https://www.mathworks.com/matlabcentral/answers/491365-within-between-subjects-in-anovan
+    nesting=[0 0 0; ... % This line indicates that group factor is not nested in any other factor.
+         0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+         1 1 0];    % This line indicates that mouse_no (the last factor) is nested under group, perCorr and event
+                    % (the 1 in position 1 on the line indicates nesting under the first factor).
+    figNo=figNo+1;
+                     
+    [p anovanTbl stats]=anovan(glm_PLV.data,{glm_PLV.perCorr glm_PLV.event glm_PLV.mouse_no},...
+    'model','interaction',...
+    'nested',nesting,...
+    'varnames',{'naive_vs_proficient', 'sp_vs_sm','mouse_no'});
+  
+    fprintf(fileID, ['\n\nNested ANOVAN for average delta PLV  per mouse per odor pair for '  bandwidth_names{bwii} '\n'])
+    drgWriteANOVANtbl(anovanTbl,fileID);
+    fprintf(fileID, '\n\n')
 end
 
  
@@ -624,5 +694,7 @@ fprintf(1, ['p value = %d for theta delta phase vs zero\n\n'],p)
     
 ylabel('Number of observations')
 xlabel('delta theta phase hipp - pre')
+
+fclose(fileID)
 
 pffft=1;

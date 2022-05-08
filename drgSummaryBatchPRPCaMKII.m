@@ -275,8 +275,8 @@ for peak=0:1
         
         fprintf(1, ['\n\nglm for PRP for Theta/' PACnames{pacii} '\n'])
         tbl = table(glm_PRP.data',glm_PRP.group',glm_PRP.perCorr',glm_PRP.event',...
-            'VariableNames',{'MI','group','perCorr','event'});
-        mdl = fitglm(tbl,'MI~group+perCorr+event+perCorr*group*event'...
+            'VariableNames',{'MI','group','naive_vs_proficient','sp_vs_sm'});
+        mdl = fitglm(tbl,'MI~group+naive_vs_proficient+sp_vs_sm+naive_vs_proficient*group*sp_vs_sm'...
             ,'CategoricalVars',[2,3,4])
         
         

@@ -8,6 +8,7 @@ function [mean_points CI_points] = drgViolinPoint(points,edges,x_val,rand_offset
 % which_color is the color for the points e.g. 'k'
 % point_size is the size of the points i.e. 1
  
+rng('shuffle')
 h=histogram(points,edges,'Visible','off');
 normval=h.Values/max(h.Values);
 random_offsets=rand(1,length(points))-0.5;
@@ -27,7 +28,11 @@ mean_points=mean(points);
 % plot(x_val,mean_points,['o' which_color_mean],'MarkerFaceColor',which_color_mean,'MarkerSize',10)
 
 %Plot CI
-CI_points=bootci(1000, @mean, points);
-plot([x_val x_val],CI_points,['-' which_color_mean],'LineWidth',3)
+try
+    CI_points=bootci(1000, @mean, points);
+    plot([x_val x_val],CI_points,['-' which_color_mean],'LineWidth',3)
+catch
+    CI_points=[];
+end
 
 pffft=1;

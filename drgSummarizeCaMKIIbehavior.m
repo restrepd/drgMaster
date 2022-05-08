@@ -10,6 +10,8 @@ group_legend{3}='KO';
 %Location of files
 PathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Behavior/';
 
+%Text file for statistical output
+fileID = fopen([PathName 'drgSummarizeCaMKIIbehavior_stats.txt'],'w');
 
 % %Files for 85%
 % pcorr_th=85;
@@ -88,10 +90,20 @@ for grNo=1:3
 end
 
 fprintf(1, ['\n\nglm for behavior > %d, per mouse per odor pair\n'],pcorr_th)
+fprintf(fileID, ['\n\nglm for behavior > %d, per mouse per odor pair\n'],pcorr_th);
+
 tbl = table(glm_beh.data',glm_beh.group',...
     'VariableNames',{'pCorr','group'});
 mdl = fitglm(tbl,'pCorr~group'...
     ,'CategoricalVars',[2])
+
+txt = evalc('mdl');
+txt=regexp(txt,'<strong>','split');
+txt=cell2mat(txt);
+txt=regexp(txt,'</strong>','split');
+txt=cell2mat(txt);
+
+fprintf(fileID,'%s\n', txt);
 
 %Now plot the proficient mean percent calculated per mouse per odor_pair
 id_ii=0;
@@ -163,7 +175,9 @@ ylim([80 100])
 
 %Do the ranksum/t-test
 fprintf(1, ['\n\nRanksum or t-test p values for percent correct (pCorr>= %d) per mouse per odor pair\n'],pcorr_th)
-[output_data] = drgMutiRanksumorTtest(input_data);
+fprintf(fileID, ['\n\nRanksum or t-test p values for percent correct (pCorr>= %d) per mouse per odor pair\n'],pcorr_th);
+
+[output_data] = drgMutiRanksumorTtest(input_data, fileID);
 
 
 %Now plot the proficient mean over odor pairs calculated for each mouse
@@ -324,15 +338,27 @@ ylabel('ITI')
 
 
 fprintf(1, ['\n\nglm for ITI for proficient > %d, per mouse per odor pair\n'],pcorr_th)
+fprintf(fileID, ['\n\nglm for ITI for proficient > %d, per mouse per odor pair\n'],pcorr_th);
+
 tbl = table(glm_beh.data',glm_beh.group',...
     'VariableNames',{'pCorr','group'});
 mdl = fitglm(tbl,'pCorr~group'...
     ,'CategoricalVars',[2])
 
+txt = evalc('mdl');
+txt=regexp(txt,'<strong>','split');
+txt=cell2mat(txt);
+txt=regexp(txt,'</strong>','split');
+txt=cell2mat(txt);
+
+fprintf(fileID,'%s\n', txt);
+
 
 %Do the ranksum/t-test
 fprintf(1, ['\n\nRanksum or t-test p values for ITI for proficient (pCorr>=%d) per mouse per odor pair\n'],pcorr_th)
-[output_data] = drgMutiRanksumorTtest(input_data);
+fprintf(fileID, ['\n\nRanksum or t-test p values for ITI for proficient (pCorr>=%d) per mouse per odor pair\n'],pcorr_th);
+
+[output_data] = drgMutiRanksumorTtest(input_data,fileID);
 
 
 %Now plot the iti proficient mean over odor pairs calculated for each mouse
@@ -667,16 +693,30 @@ ylabel('Sessions')
 
 
 fprintf(1, ['\n\nglm for sessions to proficiency > %d, per mouse\n'],pcorr_th)
+fprintf(fileID, ['\n\nglm for sessions to proficiency > %d, per mouse\n'],pcorr_th);
+
 tbl = table(glm_beh.data',glm_beh.group',...
     'VariableNames',{'pCorr','group'});
 mdl = fitglm(tbl,'pCorr~group'...
     ,'CategoricalVars',[2])
 
+txt = evalc('mdl');
+txt=regexp(txt,'<strong>','split');
+txt=cell2mat(txt);
+txt=regexp(txt,'</strong>','split');
+txt=cell2mat(txt);
+
+fprintf(fileID,'%s\n', txt);
+
 
 %Do the ranksum/t-test
 fprintf(1, ['\n\nRanksum or t-test p values sessions to proficiency (pCorr>=%d) per mouse\n'],pcorr_th)
-[output_data] = drgMutiRanksumorTtest(input_data);
+fprintf(fileID, ['\n\nRanksum or t-test p values sessions to proficiency (pCorr>=%d) per mouse\n'],pcorr_th);
+
+[output_data] = drgMutiRanksumorTtest(input_data, fileID);
 
 save([PathName 'drgSummarizeCaMKIIbehavior_out.mat'],'handlesb_out')
+
+fclose(fileID)
 
 pffft=1;

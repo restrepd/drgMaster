@@ -8,7 +8,7 @@ function drgSummaryBatchImgCohCaMKIIWT
 
 warning('off')
 
-close all
+close all hidden
 clear all
 
 
@@ -82,7 +82,7 @@ figNo=0;
 %Now plot the average PRP for each electrode calculated per mouse
 %(including all sessions for each mouse)
 edges=[-0.5:0.05:0.5];
-rand_offset=0.5;
+rand_offset=0.8;
 
 
 for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -210,7 +210,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             
             glm_coh.data(glm_ii+1:glm_ii+length(these_coh))=these_coh;
-            %                 glm_coh.group(glm_ii+1:glm_ii+length(these_coh))=grNo*ones(1,length(these_coh));
+            glm_coh.mouse_no(glm_ii+1:glm_ii+length(these_coh))=mouse_no_thisEv(per_ii_thisEv==per_ii);
             glm_coh.perCorr(glm_ii+1:glm_ii+length(these_coh))=per_ii*ones(1,length(these_coh));
             glm_coh.event(glm_ii+1:glm_ii+length(these_coh))=evNo*ones(1,length(these_coh));
             glm_ii=glm_ii+length(these_coh);
@@ -251,7 +251,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
         input_data_mm(id_ii_mm).description=[ evTypeLabels{evNo} ' ' prof_naive_leg{2}];
         
         for mouseNo=1:length(per_ii2_mean_coh_mm)
-            plot([bar_offset-1 bar_offset],[per_ii2_mean_coh_mm(mouseNo) per_ii1_mean_coh_mm(mouseNo)],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
+            plot([bar_offset-1 bar_offset],[per_ii2_mean_coh_mm(mouseNo) per_ii1_mean_coh_mm(mouseNo)],'-ok','MarkerSize',6,'LineWidth',2,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
         end
         
         %Violin plot
@@ -313,9 +313,27 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     fprintf(fileID, ['\n\nRanksum or t-test p values for delta imaginary coherence per mouse per odor pair for ' bandwidth_names{bwii} '\n']);
     [output_data] = drgMutiRanksumorTtest(input_data, fileID);
     
+    %Nested ANOVAN
+    %https://www.mathworks.com/matlabcentral/answers/491365-within-between-subjects-in-anovan
+    nesting=[0 0 0; ... % This line indicates that group factor is not nested in any other factor.
+         0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+         1 1 0];    % This line indicates that mouse_no (the last factor) is nested under group, perCorr and event
+                    % (the 1 in position 1 on the line indicates nesting under the first factor).
+    figNo=figNo+1;
+                     
+    [p anovanTbl stats]=anovan(glm_coh.data,{glm_coh.perCorr glm_coh.event glm_coh.mouse_no},...
+    'model','interaction',...
+    'nested',nesting,...
+    'varnames',{'naive_vs_proficient', 'sp_vs_sm','mouse_no'});
+  
+    fprintf(fileID, ['\n\nNested ANOVAN for delta imaginary coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n'])
+    drgWriteANOVANtbl(anovanTbl,fileID);
+    fprintf(fileID, '\n\n');
+    
+    
     %Perform the glm per mouse
     fprintf(1, ['glm for delta imaginary coherence per mouse for '  bandwidth_names{bwii} '\n'])
-    fprintf(fileID, ['glm for delta imaginary coherence per mouse for '  bandwidth_names{bwii} '\n']);
+%     fprintf(fileID, ['glm for delta imaginary coherence per mouse for '  bandwidth_names{bwii} '\n']);
     
     
     tbl = table(glm_coh_mm.data',glm_coh_mm.perCorr',glm_coh_mm.event',...
@@ -323,24 +341,24 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     mdl = fitglm(tbl,'Img_coh~sp_vs_sm+naive_vs_proficient+sp_vs_sm*naive_vs_proficient'...
         ,'CategoricalVars',[2,3])
     
-    txt = evalc('mdl');
-    txt=regexp(txt,'<strong>','split');
-    txt=cell2mat(txt);
-    txt=regexp(txt,'</strong>','split');
-    txt=cell2mat(txt);
-    
-    fprintf(fileID,'%s\n', txt);
+%     txt = evalc('mdl');
+%     txt=regexp(txt,'<strong>','split');
+%     txt=cell2mat(txt);
+%     txt=regexp(txt,'</strong>','split');
+%     txt=cell2mat(txt);
+%     
+%     fprintf(fileID,'%s\n', txt);
     
     
     %Do the ranksum/t-test
     fprintf(1, ['\n\nRanksum or t-test p values for delta imaginary coherence per mouse for ' bandwidth_names{bwii} '\n'])
-    fprintf(fileID, ['\n\nRanksum or t-test p values for delta imaginary coherence per mouse for ' bandwidth_names{bwii} '\n']);
-    [output_data] = drgMutiRanksumorTtest(input_data_mm, fileID);
+%     fprintf(fileID, ['\n\nRanksum or t-test p values for delta imaginary coherence per mouse for ' bandwidth_names{bwii} '\n']);
+    [output_data] = drgMutiRanksumorTtest(input_data_mm);
     
     
 end
 
-
+    
 
 %Plot the bounded lines
 maxlP=-200000;
@@ -455,7 +473,7 @@ ylabel('delta coherence')
 
 %Now plot the average Cxy during the odor epoch
 edges=[-0.5:0.05:0.5];
-rand_offset=0.5;
+rand_offset=0.8;
 
 
 for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -620,8 +638,8 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n'])
-%     fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n']);
+    fprintf(1, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' \n'])
+%     fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' \n']);
     [output_data] = drgMutiRanksumorTtest(input_data);
     
     
@@ -629,7 +647,7 @@ end
 
 %Now plot the cumulative histos
 edges=[-0.5:0.05:0.5];
-rand_offset=0.5;
+rand_offset=0.8;
 
 
 for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -817,8 +835,8 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     %
     %
     %     %Do the ranksum/t-test
-    %     fprintf(1, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n'])
-    %     fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n']);
+    %     fprintf(1, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' \n'])
+    %     fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' \n']);
     %     [output_data] = drgMutiRanksumorTtest(input_data);
     
     
@@ -828,7 +846,7 @@ end
 
 %Now plot the cumulative histos
 edges=[-0.5:0.05:0.5];
-rand_offset=0.5;
+rand_offset=0.8;
 
 
 for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -965,8 +983,8 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     %
     %
     %     %Do the ranksum/t-test
-    %     fprintf(1, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n'])
-    %     fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n']);
+    %     fprintf(1, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' \n'])
+    %     fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' \n']);
     %     [output_data] = drgMutiRanksumorTtest(input_data);
     shCxy_histo=shCxy_histo(1:ii_shCxy_histo,:);
     
@@ -1025,7 +1043,7 @@ end
 
 %Now plot the percent significant delta Cxy
 edges=[0:5:100];
-rand_offset=0.5;
+rand_offset=0.8;
 
 
 for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -1159,7 +1177,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             
             glm_coh.data(glm_ii+1:glm_ii+length(these_per_sig))=these_per_sig;
-            %                 glm_coh.group(glm_ii+1:glm_ii+length(these_per_sig))=grNo*ones(1,length(these_per_sig));
+            glm_coh.mouse_no(glm_ii+1:glm_ii+length(these_per_sig))=mouse_no_thisEv(per_ii_thisEv==per_ii);
             glm_coh.perCorr(glm_ii+1:glm_ii+length(these_per_sig))=per_ii*ones(1,length(these_per_sig));
             glm_coh.event(glm_ii+1:glm_ii+length(these_per_sig))=evNo*ones(1,length(these_per_sig));
             glm_ii=glm_ii+length(these_per_sig);
@@ -1202,7 +1220,7 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
         input_data_mm(id_ii_mm).description=[ evTypeLabels{evNo} ' ' prof_naive_leg{2}];
         
         for mouseNo=1:length(per_ii2_mean_per_sig_mm)
-            plot([bar_offset-1 bar_offset],[per_ii2_mean_per_sig_mm(mouseNo) per_ii1_mean_per_sig_mm(mouseNo)],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
+            plot([bar_offset-1 bar_offset],[per_ii2_mean_per_sig_mm(mouseNo) per_ii1_mean_per_sig_mm(mouseNo)],'-ok','MarkerSize',6,'LineWidth',2,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
         end
         
         %Violin plot
@@ -1258,38 +1276,56 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for percent significant delta imaginary coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n'])
-    fprintf(fileID, ['\n\nRanksum or t-test p values for percent significant delta imaginary coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n']);
+    fprintf(1, ['\n\nRanksum or t-test p values for percent significant delta imaginary coherence per mouse per odor pair for ' bandwidth_names{bwii} ' \n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for percent significant delta imaginary coherence per mouse per odor pair for ' bandwidth_names{bwii} ' \n']);
     [output_data] = drgMutiRanksumorTtest(input_data, fileID);
+    
+    %Nested ANOVAN
+    %https://www.mathworks.com/matlabcentral/answers/491365-within-between-subjects-in-anovan
+    nesting=[0 0 0; ... % This line indicates that group factor is not nested in any other factor.
+         0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+         1 1 0];    % This line indicates that mouse_no (the last factor) is nested under group, perCorr and event
+                    % (the 1 in position 1 on the line indicates nesting under the first factor).
+    figNo=figNo+1;
+                     
+    [p anovanTbl stats]=anovan(glm_coh.data,{glm_coh.perCorr glm_coh.event glm_coh.mouse_no},...
+    'model','interaction',...
+    'nested',nesting,...
+    'varnames',{'naive_vs_proficient', 'sp_vs_sm','mouse_no'});
+  
+    fprintf(fileID, ['\n\nNested ANOVAN for percent significant delta imaginary coherence per mouse per odor pair for '  bandwidth_names{bwii} '\n'])
+    drgWriteANOVANtbl(anovanTbl,fileID);
+    fprintf(fileID, '\n\n')
+    
     
     %Perform the glm per mouse 
     fprintf(1, ['glm for percent significant delta imaginary coherence per mouse for '  bandwidth_names{bwii} '\n'])
-    fprintf(fileID, ['glm for percent significant delta imaginary coherence per mouse for '  bandwidth_names{bwii} '\n']);
+%     fprintf(fileID, ['glm for percent significant delta imaginary coherence per mouse for '  bandwidth_names{bwii} '\n']);
     
     tbl = table(glm_coh_mm.data',glm_coh_mm.perCorr',glm_coh_mm.event',...
         'VariableNames',{'per_sig','naive_vs_proficient','sp_vs_sm'});
     mdl = fitglm(tbl,'per_sig~naive_vs_proficient+sp_vs_sm+naive_vs_proficient*sp_vs_sm'...
         ,'CategoricalVars',[2,3])
     
-    txt = evalc('mdl');
-    txt=regexp(txt,'<strong>','split');
-    txt=cell2mat(txt);
-    txt=regexp(txt,'</strong>','split');
-    txt=cell2mat(txt);
-    
-    fprintf(fileID,'%s\n', txt);
+%     txt = evalc('mdl');
+%     txt=regexp(txt,'<strong>','split');
+%     txt=cell2mat(txt);
+%     txt=regexp(txt,'</strong>','split');
+%     txt=cell2mat(txt);
+%     
+%     fprintf(fileID,'%s\n', txt);
     
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for percent significant delta imaginary coherence per mouse for ' bandwidth_names{bwii} ' hippocampus\n'])
-    fprintf(fileID, ['\n\nRanksum or t-test p values for percent significant delta imaginary coherence per mouse for ' bandwidth_names{bwii} ' hippocampus\n']);
-    [output_data] = drgMutiRanksumorTtest(input_data_mm, fileID);
+    fprintf(1, ['\n\nRanksum or t-test p values for percent significant delta imaginary coherence per mouse for ' bandwidth_names{bwii} ' \n'])
+%     fprintf(fileID, ['\n\nRanksum or t-test p values for percent significant delta imaginary coherence per mouse for ' bandwidth_names{bwii} ' \n']);
+    [output_data] = drgMutiRanksumorTtest(input_data_mm);
     
 end
 
 %Now plot the deltaCxy histogram for significant deltaCxy
 
-rand_offset=0.5;
+rand_offset=0.8;
 
 
 for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -1445,15 +1481,15 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
 %     
 %     
 %     %Do the ranksum/t-test
-%     fprintf(1, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n'])
-%     fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n']);
+%     fprintf(1, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' \n'])
+%     fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' \n']);
 %     [output_data] = drgMutiRanksumorTtest(input_data);
     
     
 end
 
 %Now plot the histograms for odor Cxy
-rand_offset=0.5;
+rand_offset=0.8;
 
 
 for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
@@ -1609,8 +1645,8 @@ for bwii=[1 2 4]    %for amplitude bandwidths (beta, low gamma, high gamma)
 %     
 %     
 %     %Do the ranksum/t-test
-%     fprintf(1, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n'])
-%     fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' hippocampus\n']);
+%     fprintf(1, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' \n'])
+%     fprintf(fileID, ['\n\nRanksum or t-test p values for odor coherence per mouse per odor pair for ' bandwidth_names{bwii} ' \n']);
 %     [output_data] = drgMutiRanksumorTtest(input_data);
     
     

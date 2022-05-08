@@ -200,7 +200,7 @@ switch which_display
             frequency=handles_drgb.drgb.file(1).freq_for_LFPpower;
         end
 end
-
+ 
 if isfield(handles_drgb.drgb.file,'eventlabels')
     if ~isempty(handles_drgb.drgb.file(1).eventlabels)
         %Overwrite the event labels
@@ -1593,7 +1593,7 @@ switch which_display
         end
         
         
-        save([handles.PathName handles.drgb.outFileName(1:end-4) handles_pars.output_suffix],'handles_out')
+        save([handles.PathName handles.drgb.outFileName(1:end-4) '_case1_' handles_pars.output_suffix],'handles_out')
         pfft=1;
         
     case 2
@@ -2218,8 +2218,12 @@ switch which_display
                             plot(anal_t_pac,log10(p_vals_peak),'-r','LineWidth',3)
                             
                             plot([anal_t_pac(1) anal_t_pac(end)],[log10(0.05) log10(0.05)],'-r','LineWidth', 2)
-%                             pFDR=drsFDRpval(p_vals_licks);
-%                             plot([anal_t_pac(1) anal_t_pac(end)],[log10(pFDR) log10(pFDR)],'-m','LineWidth', 2)
+                            %                             pFDR=drsFDRpval(p_vals_licks);
+                            %                             plot([anal_t_pac(1) anal_t_pac(end)],[log10(pFDR) log10(pFDR)],'-m','LineWidth', 2)
+                            ylim([-20 0])
+                            xlim([0.1 1.1])
+                            title(['p value for mouse no ' num2str(mouseNo) ' ' freq_names{pacii+1} ' ' prof_naive_leg{per_ii} ' group No ' num2str(PRPtimecourse.mouse(mouseNo).group_no)])
+                            
                         end
                         
                         %Find discrimination times and p value timecourses
@@ -2309,6 +2313,7 @@ switch which_display
                             end
                         end
                         
+                        plot_figure=0;
                         if plot_figure==1
                             xlabel('Time (sec)')
                             ylabel('log10(p)')
@@ -2427,7 +2432,7 @@ switch which_display
             
             for per_ii=2:-1:1
                 
-                for groupNo=1:3
+                for groupNo=1:max(handles_drgb.drgbchoices.group_no)
                     subplot(2,3,groupNo + 3*(2-per_ii))
                     hold on
                     
@@ -2445,20 +2450,32 @@ switch which_display
                     end
                     fprintf(1, ['The number of mice included for ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' is %d\n'], ii_tcs)
                     
-                    CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_peak);
-                    meansp=mean(all_meanSpPRPtimecourse_peak,1);
-                    CIsp(1,:)=meansp-CIsp(1,:);
-                    CIsp(2,:)=CIsp(2,:)-meansp;
+                    if ~isempty(all_meanSpPRPtimecourse_peak)
+                        try
+                            CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_peak);
+                            meansp=mean(all_meanSpPRPtimecourse_peak,1);
+                            CIsp(1,:)=meansp-CIsp(1,:);
+                            CIsp(2,:)=CIsp(2,:)-meansp;
+                            
+                            
+                            [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_peak,1)', CIsp', 'r');
+                        catch
+                            plot(anal_t_pac',mean(all_meanSpPRPtimecourse_peak,1)', 'r');
+                        end
+                    end
                     
-                    
-                    [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_peak,1)', CIsp', 'r');
-                    
-                    CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_peak);
-                    meansm=mean(all_meanSmPRPtimecourse_peak,1);
-                    CIsm(1,:)=meansm-CIsm(1,:);
-                    CIsm(2,:)=CIsm(2,:)-meansm;
-                    
-                    [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_peak,1)', CIsm', 'b');
+                    if ~isempty(all_meanSpPRPtimecourse_peak)
+                        try
+                            CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_peak);
+                            meansm=mean(all_meanSmPRPtimecourse_peak,1);
+                            CIsm(1,:)=meansm-CIsm(1,:);
+                            CIsm(2,:)=CIsm(2,:)-meansm;
+                            
+                            [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_peak,1)', CIsm', 'b');
+                        catch
+                            plot(anal_t_pac',mean(all_meanSmPRPtimecourse_peak,1)', 'b');
+                        end
+                    end
                     
                     title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
                     xlabel('Time(sec)')
@@ -2482,7 +2499,7 @@ switch which_display
             
             for per_ii=2:-1:1
                 
-                for groupNo=1:3
+                for groupNo=1:max(handles_drgb.drgbchoices.group_no)
                     subplot(2,3,groupNo + 3*(2-per_ii))
                     hold on
                     
@@ -2500,20 +2517,32 @@ switch which_display
                     end
                     fprintf(1, ['The number of mice included for ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' is %d\n'], ii_tcs)
                     
-                    CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_trough);
-                    meansp=mean(all_meanSpPRPtimecourse_trough,1);
-                    CIsp(1,:)=meansp-CIsp(1,:);
-                    CIsp(2,:)=CIsp(2,:)-meansp;
+                    if ~isempty(all_meanSpPRPtimecourse_trough)
+                        try
+                            CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_trough);
+                            meansp=mean(all_meanSpPRPtimecourse_trough,1);
+                            CIsp(1,:)=meansp-CIsp(1,:);
+                            CIsp(2,:)=CIsp(2,:)-meansp;
+                            
+                            
+                            [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_trough,1)', CIsp', 'r');
+                        catch
+                            plot(anal_t_pac',mean(all_meanSpPRPtimecourse_trough,1)', 'b')
+                        end
+                    end
                     
-                    
-                    [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_trough,1)', CIsp', 'r');
-                    
-                    CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_trough);
-                    meansm=mean(all_meanSmPRPtimecourse_trough,1);
-                    CIsm(1,:)=meansm-CIsm(1,:);
-                    CIsm(2,:)=CIsm(2,:)-meansm;
-                    
-                    [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_trough,1)', CIsm', 'b');
+                    if ~isempty(all_meanSmPRPtimecourse_trough)
+                        try
+                            CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_trough);
+                            meansm=mean(all_meanSmPRPtimecourse_trough,1);
+                            CIsm(1,:)=meansm-CIsm(1,:);
+                            CIsm(2,:)=CIsm(2,:)-meansm;
+                            
+                            [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_trough,1)', CIsm', 'b');
+                        catch
+                            plot(anal_t_pac',mean(all_meanSmPRPtimecourse_trough,1)',  'b')
+                        end
+                    end
                     
                     title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
                     xlabel('Time(sec)')
@@ -2537,7 +2566,7 @@ switch which_display
             
             for per_ii=2:-1:1
                 
-                for groupNo=1:3
+                for groupNo=1:max(handles_drgb.drgbchoices.group_no)
                     subplot(2,3,groupNo + 3*(2-per_ii))
                     hold on
                     
@@ -2555,20 +2584,33 @@ switch which_display
                     end
                     fprintf(1, ['The number of mice included for ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' is %d\n'], ii_tcs)
                     
-                    CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_lickp);
-                    meansp=mean(all_meanSpPRPtimecourse_lickp,1);
-                    CIsp(1,:)=meansp-CIsp(1,:);
-                    CIsp(2,:)=CIsp(2,:)-meansp;
+                    if ~isempty(all_meanSpPRPtimecourse_lickp)
+                        try
+                            CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_lickp);
+                            meansp=mean(all_meanSpPRPtimecourse_lickp,1);
+                            CIsp(1,:)=meansp-CIsp(1,:);
+                            CIsp(2,:)=CIsp(2,:)-meansp;
+                            
+                            
+                            [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_lickp,1)', CIsp', 'r');
+                        catch
+                            plot(anal_t_pac',mean(all_meanSpPRPtimecourse_lickp,1)', 'r')
+                        end
+                    end
                     
+                    if ~isempty(all_meanSmPRPtimecourse_lickp)
+                        try
+                            CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_lickp);
+                            meansm=mean(all_meanSmPRPtimecourse_lickp,1);
+                            CIsm(1,:)=meansm-CIsm(1,:);
+                            CIsm(2,:)=CIsm(2,:)-meansm;
+                            
+                            [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_lickp,1)', CIsm', 'b');
+                        catch
+                            plot(anal_t_pac',mean(all_meanSmPRPtimecourse_lickp,1)', 'b');
+                        end
+                    end
                     
-                    [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_lickp,1)', CIsp', 'r');
-                    
-                    CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_lickp);
-                    meansm=mean(all_meanSmPRPtimecourse_lickp,1);
-                    CIsm(1,:)=meansm-CIsm(1,:);
-                    CIsm(2,:)=CIsm(2,:)-meansm;
-                    
-                    [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_lickp,1)', CIsm', 'b');
                     
                     title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
                     xlabel('Time(sec)')
@@ -2593,7 +2635,7 @@ switch which_display
             
             per_ii=1;
                 
-                for groupNo=1:3
+                for groupNo=1:max(handles_drgb.drgbchoices.group_no)
                     subplot(3,3,groupNo + 3*(3-pacii))
                     hold on
                     
@@ -2638,37 +2680,55 @@ switch which_display
                     fprintf(1, ['The number of mice included for lick pval ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' ' freq_names{pacii+1} ' is %d\n'], ii)
                     
                     fprintf(1,'\n')
-                     
-                  
-                    CIpv = bootci(1000, @mean, all_mean_p_vals_licks);
-                    meanpv=mean(all_mean_p_vals_licks,1);
-                    CIpv(1,:)=meanpv-CIpv(1,:);
-                    CIpv(2,:)=CIpv(2,:)-meanpv;
                     
+                    if ~isempty(all_mean_p_vals_licks)
+                        try
+                            CIpv = bootci(1000, @mean, all_mean_p_vals_licks);
+                            meanpv=mean(all_mean_p_vals_licks,1);
+                            CIpv(1,:)=meanpv-CIpv(1,:);
+                            CIpv(2,:)=CIpv(2,:)-meanpv;
+                            
+                            
+                            [hlpvl, hppvl] = boundedline(anal_t_pac',mean(all_mean_p_vals_licks,1)', CIpv', 'k');
+                        catch
+                            plot(anal_t_pac',mean(all_mean_p_vals_licks,1)', 'k')
+                        end
+                    end
                     
-                    [hlpvl, hppvl] = boundedline(anal_t_pac',mean(all_mean_p_vals_licks,1)', CIpv', 'k');
+                    if ~isempty(all_mean_p_vals_trough)
+                        try
+                            CIpv = bootci(1000, @mean, all_mean_p_vals_trough);
+                            meanpv=mean(all_mean_p_vals_trough,1);
+                            CIpv(1,:)=meanpv-CIpv(1,:);
+                            CIpv(2,:)=CIpv(2,:)-meanpv;
+                            
+                            
+                            [hlpvt, hppvt] = boundedline(anal_t_pac',mean(all_mean_p_vals_trough,1)', CIpv', 'b');
+                        catch
+                            plot(anal_t_pac',mean(all_mean_p_vals_trough,1)', 'b');
+                        end
+                    end
                     
-                   
-                    CIpv = bootci(1000, @mean, all_mean_p_vals_trough);
-                    meanpv=mean(all_mean_p_vals_trough,1);
-                    CIpv(1,:)=meanpv-CIpv(1,:);
-                    CIpv(2,:)=CIpv(2,:)-meanpv;
+                    if ~isempty(all_mean_p_vals_peak)
+                        try
+                            CIpv = bootci(1000, @mean, all_mean_p_vals_peak);
+                            meanpv=mean(all_mean_p_vals_peak,1);
+                            CIpv(1,:)=meanpv-CIpv(1,:);
+                            CIpv(2,:)=CIpv(2,:)-meanpv;
+                            
+                            
+                            [hlpvp, hppvp] = boundedline(anal_t_pac',mean(all_mean_p_vals_peak,1)', CIpv', 'r');
+                        catch
+                            plot(anal_t_pac',mean(all_mean_p_vals_peak,1)', 'r')
+                        end
+                    end
                     
-                    
-                    [hlpvt, hppvt] = boundedline(anal_t_pac',mean(all_mean_p_vals_trough,1)', CIpv', 'b');
-                    
-                     CIpv = bootci(1000, @mean, all_mean_p_vals_peak);
-                    meanpv=mean(all_mean_p_vals_peak,1);
-                    CIpv(1,:)=meanpv-CIpv(1,:);
-                    CIpv(2,:)=CIpv(2,:)-meanpv;
-                    
-                    
-                    [hlpvp, hppvp] = boundedline(anal_t_pac',mean(all_mean_p_vals_peak,1)', CIpv', 'r');
-                  
-                    
-                    plot(anal_t_pac',mean(all_mean_p_vals_licks,1)',  'k');
-                    plot(anal_t_pac',mean(all_mean_p_vals_trough,1)',  'b');
-                    plot(anal_t_pac',mean(all_mean_p_vals_peak,1)',  'r');
+                    try
+                        plot(anal_t_pac',mean(all_mean_p_vals_licks,1)',  'k');
+                        plot(anal_t_pac',mean(all_mean_p_vals_trough,1)',  'b');
+                        plot(anal_t_pac',mean(all_mean_p_vals_peak,1)',  'r');
+                    catch
+                    end
                     
                     plot([anal_t_pac(1) anal_t_pac(end)],[log10(0.05) log10(0.05)],'-r','LineWidth', 2)
                     
@@ -2698,15 +2758,22 @@ switch which_display
 
             hold on
             
-            CIpv = bootci(1000, @mean, all_mean_p_vals_licks);
-            meanpv=mean(all_mean_p_vals_licks,1);
-            CIpv(1,:)=meanpv-CIpv(1,:);
-            CIpv(2,:)=CIpv(2,:)-meanpv;
-            
-            
-            [hlpvl, hppvl] = boundedline(anal_t_pac',mean(all_mean_p_vals_licks,1)', CIpv', 'k');
-            
-            plot(anal_t_pac',mean(all_mean_p_vals_licks,1)','-k','LineWidth',3);
+            if ~isempty(all_mean_p_vals_licks)
+                try
+                    CIpv = bootci(1000, @mean, all_mean_p_vals_licks);
+                    meanpv=mean(all_mean_p_vals_licks,1);
+                    CIpv(1,:)=meanpv-CIpv(1,:);
+                    CIpv(2,:)=CIpv(2,:)-meanpv;
+                    
+                    
+                    [hlpvl, hppvl] = boundedline(anal_t_pac',mean(all_mean_p_vals_licks,1)', CIpv', 'k');
+                catch
+                    plot(anal_t_pac',mean(all_mean_p_vals_licks,1)', 'k')
+                end
+                
+                
+                plot(anal_t_pac',mean(all_mean_p_vals_licks,1)','-k','LineWidth',3);
+            end
             
             plot([anal_t_pac(1) anal_t_pac(end)],[log10(0.05) log10(0.05)],'-r','LineWidth', 2)
             
@@ -2735,7 +2802,7 @@ switch which_display
             
             per_ii=1;
                 
-                for groupNo=1:3
+                for groupNo=1:max(handles_drgb.drgbchoices.group_no)
                     subplot(3,3,groupNo + 3*(3-pacii))
                     hold on
                     
@@ -2800,10 +2867,12 @@ switch which_display
                     %
                     %                     [hlpvp, hppvp] = boundedline(anal_t_pac',mean(all_mean_p_vals_peak,1)', CIpv', 'r');
                     
-                    
+                    try
                     plot(anal_t_pac',mean(all_mean_p_vals_licks,1)',  'k');
                     plot(anal_t_pac',mean(all_mean_p_vals_trough,1)',  'b');
                     plot(anal_t_pac',mean(all_mean_p_vals_peak,1)',  'r');
+                    catch
+                    end
                     
                     plot([anal_t_pac(1) anal_t_pac(end)],[log10(0.05) log10(0.05)],'-r','LineWidth', 2)
                     
@@ -2833,7 +2902,7 @@ switch which_display
             
             per_ii=1;
             
-            for groupNo=1:3
+            for groupNo=1:max(handles_drgb.drgbchoices.group_no)
                 subplot(3,3,groupNo + 3*(pacii-1))
                 hold on
                 
@@ -2898,7 +2967,7 @@ switch which_display
         end
         
         sgtitle(['Decision time (sec)'])
-          
+            
         if use_rs==1
             save([handles.PathName handles.drgb.outFileName(1:end-4) '_rs_case' num2str(which_display) '_' handles_pars.output_suffix],'handles_out')
         else
@@ -3824,7 +3893,7 @@ switch which_display
         handles_out.correl_lick=[];
         
         %Plot the histograms for peak and trough relative to licks
-        for groupNo=1:3
+        for groupNo=1:max(handles_drgb.drgbchoices.group_no)
             for pacii=1:2 %Note: I am stopping at 2, not showing swr
                 for per_ii=2:-1:1
                     
@@ -3895,23 +3964,31 @@ switch which_display
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).ii_mouse_lick=ii_mouse;
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).Sp_lick_auto_asym=this_Sp_lick_auto_asym;
                         handles_out.p_correl.groupNo(group_no).pacii(pacii).per_ii(per_ii).dt(ii_dt).Sm_lick_auto_asym=this_Sm_lick_auto_asym;
-                        
+                         
                         if show_figures==1
                             try
-                                CIsm = bootci(1000, @mean, this_Sm_lick_auto);
-                                meansm=mean(this_Sm_lick_auto,1);
-                                CIsm(1,:)=meansm-CIsm(1,:);
-                                CIsm(2,:)=CIsm(2,:)-meansm;
+                                if size(this_Sm_lick_auto,1)>2
+                                    CIsm = bootci(1000, @mean, this_Sm_lick_auto);
+                                    meansm=mean(this_Sm_lick_auto,1);
+                                    CIsm(1,:)=meansm-CIsm(1,:);
+                                    CIsm(2,:)=CIsm(2,:)-meansm;
+                                    
+                                    [hlsm, hpsm] = boundedline(between_edges',mean(this_Sm_lick_auto,1)', CIsm', 'b');
+                                else
+                                    plot(between_edges',mean(this_Sm_lick_auto,1)', '-b');
+                                end
                                 
-                                [hlsm, hpsm] = boundedline(between_edges',mean(this_Sm_lick_auto,1)', CIsm', 'b');
-                                
-                                CIsp = bootci(1000, @mean, this_Sp_lick_auto);
-                                meansp=mean(this_Sp_lick_auto,1);
-                                CIsp(1,:)=meansp-CIsp(1,:);
-                                CIsp(2,:)=CIsp(2,:)-meansp;
-                                
-                                
-                                [hlsp, hpsp] = boundedline(between_edges',mean(this_Sp_lick_auto,1)', CIsp', 'r');
+                                if size(this_Sm_lick_auto,1)>2
+                                    CIsp = bootci(1000, @mean, this_Sp_lick_auto);
+                                    meansp=mean(this_Sp_lick_auto,1);
+                                    CIsp(1,:)=meansp-CIsp(1,:);
+                                    CIsp(2,:)=CIsp(2,:)-meansp;
+                                    
+                                    
+                                    [hlsp, hpsp] = boundedline(between_edges',mean(this_Sp_lick_auto,1)', CIsp', 'r');
+                                else
+                                    plot(between_edges',mean(this_Sp_lick_auto,1)', '-r');
+                                end
                             catch
                             end
                             
@@ -3976,22 +4053,29 @@ switch which_display
                             subplot(3,3,3+ii_dt)
                             hold on
                             
-                            
                             try
-                                CIsm = bootci(1000, @mean, this_Sm_lick_peak_cross);
-                                meansm=mean(this_Sm_lick_peak_cross,1);
-                                CIsm(1,:)=meansm-CIsm(1,:);
-                                CIsm(2,:)=CIsm(2,:)-meansm;
+                                if size(this_Sm_lick_peak_cross,1)>2
+                                    CIsm = bootci(1000, @mean, this_Sm_lick_peak_cross);
+                                    meansm=mean(this_Sm_lick_peak_cross,1);
+                                    CIsm(1,:)=meansm-CIsm(1,:);
+                                    CIsm(2,:)=CIsm(2,:)-meansm;
+                                    
+                                    [hlsm, hpsm] = boundedline(between_edges',mean(this_Sm_lick_peak_cross,1)', CIsm', 'b');
+                                else
+                                    plot(between_edges',mean(this_Sm_lick_peak_cross,1)', '-b');
+                                end
                                 
-                                [hlsm, hpsm] = boundedline(between_edges',mean(this_Sm_lick_peak_cross,1)', CIsm', 'b');
-                                
-                                CIsp = bootci(1000, @mean, this_Sp_lick_peak_cross);
-                                meansp=mean(this_Sp_lick_peak_cross,1);
-                                CIsp(1,:)=meansp-CIsp(1,:);
-                                CIsp(2,:)=CIsp(2,:)-meansp;
-                                
-                                
-                                [hlsp, hpsp] = boundedline(between_edges',mean(this_Sp_lick_peak_cross,1)', CIsp', 'r');
+                                if size(this_Sp_lick_peak_cross,1)>2
+                                    CIsp = bootci(1000, @mean, this_Sp_lick_peak_cross);
+                                    meansp=mean(this_Sp_lick_peak_cross,1);
+                                    CIsp(1,:)=meansp-CIsp(1,:);
+                                    CIsp(2,:)=CIsp(2,:)-meansp;
+                                    
+                                    
+                                    [hlsp, hpsp] = boundedline(between_edges',mean(this_Sp_lick_peak_cross,1)', CIsp', 'r');
+                                else
+                                    plot(between_edges',mean(this_Sp_lick_peak_cross,1)', '-r');
+                                end
                             catch
                             end
                             
@@ -4053,25 +4137,31 @@ switch which_display
                         if show_figures==1
                             subplot(3,3,6+ii_dt)
                             hold on
-                            try
-                                CIsm = bootci(1000, @mean, this_Sm_lick_trough_cross);
-                                meansm=mean(this_Sm_lick_trough_cross,1);
-                                CIsm(1,:)=meansm-CIsm(1,:);
-                                CIsm(2,:)=CIsm(2,:)-meansm;
-                                
-                                
-                                [hlsm, hpsm] = boundedline(between_edges',mean(this_Sm_lick_trough_cross,1)', CIsm', 'b');
-                            catch
-                            end
                             
                             try
-                                CIsp = bootci(1000, @mean, this_Sp_lick_trough_cross);
-                                meansp=mean(this_Sp_lick_trough_cross,1);
-                                CIsp(1,:)=meansp-CIsp(1,:);
-                                CIsp(2,:)=CIsp(2,:)-meansp;
+                                if size(this_Sm_lick_trough_cross,1)>2
+                                    CIsm = bootci(1000, @mean, this_Sm_lick_trough_cross);
+                                    meansm=mean(this_Sm_lick_trough_cross,1);
+                                    CIsm(1,:)=meansm-CIsm(1,:);
+                                    CIsm(2,:)=CIsm(2,:)-meansm;
+                                    
+                                    
+                                    [hlsm, hpsm] = boundedline(between_edges',mean(this_Sm_lick_trough_cross,1)', CIsm', 'b');
+                                else
+                                    plot(between_edges',mean(this_Sm_lick_trough_cross,1)', '-b');
+                                end
                                 
-                                
-                                [hlsp, hpsp] = boundedline(between_edges',mean(this_Sp_lick_trough_cross,1)', CIsp', 'r');
+                                if size(this_Sp_lick_trough_cross,1)>2
+                                    CIsp = bootci(1000, @mean, this_Sp_lick_trough_cross);
+                                    meansp=mean(this_Sp_lick_trough_cross,1);
+                                    CIsp(1,:)=meansp-CIsp(1,:);
+                                    CIsp(2,:)=CIsp(2,:)-meansp;
+                                    
+                                    
+                                    [hlsp, hpsp] = boundedline(between_edges',mean(this_Sp_lick_trough_cross,1)', CIsp', 'r');
+                                else
+                                    plot(between_edges',mean(this_Sp_lick_trough_cross,1)', '-r');
+                                end
                             catch
                             end
                             
@@ -4137,8 +4227,11 @@ switch which_display
                                     bar(bar_offset,mean(these_asym),'y','LineWidth', 3,'EdgeColor','none')
                             end
                             %Violin plot
+                            try
                             [mean_out, CIout]=drgViolinPoint(these_asym,these_edges,bar_offset,rand_offset,'k','k',3);
                             bar_offset=bar_offset+1;
+                            catch
+                            end
                         end
                     end
                     bar_offset=bar_offset+1;
@@ -4168,7 +4261,7 @@ switch which_display
         end
         
         for per_ii=2:-1:1
-            for groupNo=1:3
+            for groupNo=1:max(handles_drgb.drgbchoices.group_no)
                 
                 
                 
@@ -4195,7 +4288,9 @@ switch which_display
                 if show_figures==1
                     subplot(2,3,3*(per_ii-1)+groupNo)
                     hold on
-                    
+                     
+                    try
+                    if size(Sm_lick_freq,1)>2
                     CIsm = bootci(1000, @mean, Sm_lick_freq);
                     meansm=mean(Sm_lick_freq,1);
                     CIsm(1,:)=meansm-CIsm(1,:);
@@ -4203,7 +4298,11 @@ switch which_display
                     
                     
                     [hlsm, hpsm] = boundedline(anal_t_pac',mean(Sm_lick_freq,1)', CIsm', 'b');
+                    else
+                        plot(anal_t_pac',mean(Sm_lick_freq,1)', '-b');
+                    end
                     
+                    if size(Sm_lick_freq,1)>2
                     CIsp = bootci(1000, @mean, Sm_lick_freq);
                     meansp=mean(Sm_lick_freq,1);
                     CIsp(1,:)=meansp-CIsp(1,:);
@@ -4212,6 +4311,11 @@ switch which_display
                     
                     [hlsp, hpsp] = boundedline(anal_t_pac',mean(Sp_lick_freq,1)', CIsp', 'r');
                     
+                    else
+                        plot(anal_t_pac',mean(Sp_lick_freq,1)', '-r');
+                    end
+                    catch
+                    end
                     
                     plot([0 0],[0 0.35],'-k')
                     
@@ -4266,14 +4370,19 @@ switch which_display
         
         if show_figures==1
             
-            CIsm = bootci(1000, @mean, Sm_lick_freq);
-            meansm=mean(Sm_lick_freq,1);
-            CIsm(1,:)=meansm-CIsm(1,:);
-            CIsm(2,:)=CIsm(2,:)-meansm;
+            if size(Sm_lick_freq,1)>2
+                CIsm = bootci(1000, @mean, Sm_lick_freq);
+                meansm=mean(Sm_lick_freq,1);
+                CIsm(1,:)=meansm-CIsm(1,:);
+                CIsm(2,:)=CIsm(2,:)-meansm;
+                
+                
+                [hlsm, hpsm] = boundedline(anal_t_pac',mean(Sm_lick_freq,1)', CIsm', 'cmap',[80/255 194/255 255/255]);
+            else
+                plot(anal_t_pac',mean(Sm_lick_freq,1)','-', 'Color',[80/255 194/255 255/255]);
+            end
             
-            
-            [hlsm, hpsm] = boundedline(anal_t_pac',mean(Sm_lick_freq,1)', CIsm', 'cmap',[80/255 194/255 255/255]);
-            
+            if size(Sm_lick_freq,1)>2
             CIsp = bootci(1000, @mean, Sm_lick_freq);
             meansp=mean(Sm_lick_freq,1);
             CIsp(1,:)=meansp-CIsp(1,:);
@@ -4281,7 +4390,9 @@ switch which_display
             
             
             [hlsp, hpsp] = boundedline(anal_t_pac',mean(Sp_lick_freq,1)', CIsp', 'cmap',[238/255 111/255 179/255]);
-            
+            else
+                plot(anal_t_pac',mean(Sp_lick_freq,1)','-', 'Color',[238/255 111/255 179/255]);
+            end
             plot(anal_t_pac',mean(Sm_lick_freq,1)','-','Color',[80/255 194/255 255/255]);
             plot(anal_t_pac',mean(Sp_lick_freq,1)','-','Color',[238/255 111/255 179/255]);
             
@@ -4340,6 +4451,8 @@ switch which_display
         
  
         if show_figures==1
+            
+            if size(Sm_lick_freq,1)>2
             CIsm = bootci(1000, @mean, Sm_lick_freq);
             meansm=mean(Sm_lick_freq,1);
             CIsm(1,:)=meansm-CIsm(1,:);
@@ -4347,7 +4460,11 @@ switch which_display
             
             
             [hlsm, hpsm] = boundedline(anal_t_pac',mean(Sm_lick_freq,1)', CIsm', 'cmap',[0 114/255 178/255]);
+            else
+                plot(anal_t_pac',mean(Sm_lick_freq,1)', '-', 'Color',[0 114/255 178/255]);
+            end
             
+            if size(Sm_lick_freq,1)>2
             CIsp = bootci(1000, @mean, Sm_lick_freq);
             meansp=mean(Sm_lick_freq,1);
             CIsp(1,:)=meansp-CIsp(1,:);
@@ -4355,6 +4472,9 @@ switch which_display
             
             
             [hlsp, hpsp] = boundedline(anal_t_pac',mean(Sp_lick_freq,1)', CIsp', 'cmap',[158/255 31/255 99/255]);
+            else
+                plot(anal_t_pac',mean(Sp_lick_freq,1)', '-', 'Color',[158/255 31/255 99/255]);
+            end
             
             plot(anal_t_pac',mean(Sm_lick_freq,1)','-','Color',[0 114/255 178/255]);
             plot(anal_t_pac',mean(Sp_lick_freq,1)','-','Color',[158/255 31/255 99/255]);
@@ -5242,7 +5362,7 @@ switch which_display
             
             for per_ii=2:-1:1
                 
-                for groupNo=1:3
+                for groupNo=1:max(handles_drgb.drgbchoices.group_no)
                     if show_figures==1
                         subplot(2,3,groupNo + 3*(2-per_ii))
                         hold on
@@ -5263,6 +5383,8 @@ switch which_display
                     fprintf(1, ['The number of mice included for ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' is %d\n'], ii_tcs)
                     
                     if show_figures==1
+                        try
+                        if size(all_meanSpPRPtimecourse_peak,1)>2
                         CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_peak);
                         meansp=mean(all_meanSpPRPtimecourse_peak,1);
                         CIsp(1,:)=meansp-CIsp(1,:);
@@ -5270,14 +5392,22 @@ switch which_display
                         
                         
                         [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_peak,1)', CIsp', 'r');
+                        else
+                            plot(anal_t_pac',mean(all_meanSpPRPtimecourse_peak,1)', '-r');
+                        end
                         
+                        if size(all_meanSmPRPtimecourse_peak,1)>2
                         CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_peak);
                         meansm=mean(all_meanSmPRPtimecourse_peak,1);
                         CIsm(1,:)=meansm-CIsm(1,:);
                         CIsm(2,:)=CIsm(2,:)-meansm;
                         
                         [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_peak,1)', CIsm', 'b');
-                        
+                        else
+                            plot(anal_t_pac',mean(all_meanSmPRPtimecourse_peak,1)', '-b');
+                        end
+                        catch
+                        end
                         title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
                         xlabel('Time(sec)')
                         ylabel('z')
@@ -5305,7 +5435,7 @@ switch which_display
             
             for per_ii=2:-1:1
                 
-                for groupNo=1:3
+                for groupNo=1:max(handles_drgb.drgbchoices.group_no)
                     if show_figures==1
                         subplot(2,3,groupNo + 3*(2-per_ii))
                         hold on
@@ -5326,6 +5456,8 @@ switch which_display
                     fprintf(1, ['The number of mice included for ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' is %d\n'], ii_tcs)
                     
                     if show_figures==1
+                        try
+                        if size(all_meanSpPRPtimecourse_peak_below,1)>2
                         CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_peak_below);
                         meansp=mean(all_meanSpPRPtimecourse_peak_below,1);
                         CIsp(1,:)=meansp-CIsp(1,:);
@@ -5333,14 +5465,22 @@ switch which_display
                         
                         
                         [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_peak_below,1)', CIsp', 'r');
+                        else
+                            plot(anal_t_pac',mean(all_meanSpPRPtimecourse_peak_below,1)', '-r');
+                        end
                         
+                        if size(all_meanSmPRPtimecourse_peak_below,1)>2
                         CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_peak_below);
                         meansm=mean(all_meanSmPRPtimecourse_peak_below,1);
                         CIsm(1,:)=meansm-CIsm(1,:);
                         CIsm(2,:)=CIsm(2,:)-meansm;
                         
                         [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_peak_below,1)', CIsm', 'b');
-                        
+                        else
+                            plot(anal_t_pac',mean(all_meanSmPRPtimecourse_peak_below,1)', '-b');
+                        end
+                        catch
+                        end
                         title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
                         xlabel('Time(sec)')
                         ylabel('z')
@@ -5368,7 +5508,7 @@ switch which_display
             
             for per_ii=2:-1:1
                 
-                for groupNo=1:3
+                for groupNo=1:max(handles_drgb.drgbchoices.group_no)
                     if show_figures==1
                         subplot(2,3,groupNo + 3*(2-per_ii))
                         hold on
@@ -5444,7 +5584,7 @@ switch which_display
             
             for per_ii=2:-1:1
                 
-                for groupNo=1:3
+                for groupNo=1:max(handles_drgb.drgbchoices.group_no)
                     if show_figures==1
                         subplot(2,3,groupNo + 3*(2-per_ii))
                         hold on
@@ -5465,6 +5605,9 @@ switch which_display
                     fprintf(1, ['The number of mice included for ' prof_naive_leg{per_ii} ' ' group_legend{groupNo} ' is %d\n'], ii_tcs)
                     
                     if show_figures==1
+                        
+                        try
+                        if size(all_meanSpPRPtimecourse_trough_below,1)>2
                         CIsp = bootci(1000, @mean, all_meanSpPRPtimecourse_trough_below);
                         meansp=mean(all_meanSpPRPtimecourse_trough_below,1);
                         CIsp(1,:)=meansp-CIsp(1,:);
@@ -5472,13 +5615,22 @@ switch which_display
                         
                         
                         [hlsp, hpsp] = boundedline(anal_t_pac',mean(all_meanSpPRPtimecourse_trough_below,1)', CIsp', 'r');
+                        else
+                            plot(anal_t_pac',mean(all_meanSpPRPtimecourse_trough_below,1)', '-r');
+                        end
                         
+                        if size(all_meanSmPRPtimecourse_trough_below,1)
                         CIsm = bootci(1000, @mean, all_meanSmPRPtimecourse_trough_below);
                         meansm=mean(all_meanSmPRPtimecourse_trough_below,1);
                         CIsm(1,:)=meansm-CIsm(1,:);
                         CIsm(2,:)=CIsm(2,:)-meansm;
                         
                         [hlsm, hpsm] = boundedline(anal_t_pac',mean(all_meanSmPRPtimecourse_trough_below,1)', CIsm', 'b');
+                        else
+                            plot(anal_t_pac',mean(all_meanSmPRPtimecourse_trough_below,1)',  '-b');
+                        end
+                        catch
+                        end
                         
                         title([group_legend{groupNo} ' ' prof_naive_leg{per_ii}])
                         xlabel('Time(sec)')
@@ -5507,7 +5659,7 @@ switch which_display
             
             for per_ii=2:-1:1
                 
-                for groupNo=1:3
+                for groupNo=1:max(handles_drgb.drgbchoices.group_no)
                     if show_figures==1
                         subplot(2,3,groupNo + 3*(2-per_ii))
                         hold on
@@ -5582,7 +5734,7 @@ switch which_display
 %             
 %             for per_ii=2:-1:1
 %                 
-%                 for groupNo=1:3
+%                 for groupNo=1:max(handles_drgb.drgbchoices.group_no)
 %                     if show_figures==1
 %                         subplot(2,3,groupNo + 3*(2-per_ii))
 %                         hold on

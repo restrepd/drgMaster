@@ -8,7 +8,7 @@ function drgSummaryBatchPACCaMKIIWT
  
 warning('off')
 
-close all
+close all hidden
 clear all
 
 %If you want statistics to be done with the value for each odor pair for
@@ -58,8 +58,6 @@ PathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/LFPPAC drgAnalysisB
 %Text file for statistical output
 fileID = fopen([PathName 'drgSummaryBatchPACCaMKIIWTstats.txt'],'w');
 
-%IMPORTANT: Please note that the numbering of these files is the same as the numbering
-%of odorant pairs in the mouse numbering worksheet
 
 %Hippocampus
 hippFileName{1}='CaMKIIacetoLFPPACall121319_hippocampusLFP80.mat';
@@ -246,7 +244,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                     glm_mi_mm_hipp.event(glm_ii_mm_hipp+1)=evNo;
                     glm_ii_mm_hipp=glm_ii_mm_hipp+1;
                     
-                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.8 0.8 0.8],'MarkerEdgeColor',[0.8 0.8 0.8],'Color',[0.8 0.8 0.8])
+                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
                     
                 end
             end
@@ -258,6 +256,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
             glm_mi_hipp.data(glm_ii_hipp+1:glm_ii_hipp+length(these_mi))=these_mi;
             glm_mi_hipp.perCorr(glm_ii_hipp+1:glm_ii_hipp+length(these_mi))=per_ii*ones(1,length(these_mi));
             glm_mi_hipp.event(glm_ii_hipp+1:glm_ii_hipp+length(these_mi))=evNo*ones(1,length(these_mi));
+            glm_mi_hipp.mouseNo(glm_ii_hipp+1:glm_ii_hipp+length(these_mi))=these_mouse_nos;
             glm_ii_hipp=glm_ii_hipp+length(these_mi);
             
             id_ii=id_ii+1;
@@ -276,7 +275,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
         
     end
     
-    title(['Average MI per mouse per odor pair for PAC Theta/' PACnames{pacii} ' hippocampus'])
+    title(['Average MI per mouse per odor pair for PAC Theta ' PACnames{pacii} ' hippocampus'])
     
     
     %Proficient/Naive annotations
@@ -287,19 +286,18 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     xticks([1 2 4 5])
     xticklabels({'nS+', 'pS+','nS-', 'pS-'})
     
-    yticks([0 0.01 0.02])
     
-    ylim([0 0.02])
+    ylim([0 0.03])
     
     ylabel('Modulation Index')
     
     %Perform the glm for MI per mouse per odor pair
-    fprintf(1, ['glm for MI per mouse per odor pair for PAC Theta/' PACnames{pacii} ' hippocampus\n'])
-    fprintf(fileID, ['glm for MI per mouse per odor pair for PAC Theta/' PACnames{pacii} ' hippocampus\n']);
+    fprintf(1, ['glm for MI per mouse per odor pair for PAC Theta ' PACnames{pacii} ' hippocampus\n'])
+    fprintf(fileID, ['glm for MI per mouse per odor pair for PAC Theta ' PACnames{pacii} ' hippocampus\n']);
     
     tbl = table(glm_mi_hipp.data',glm_mi_hipp.perCorr',glm_mi_hipp.event',...
-        'VariableNames',{'MI','perCorr','event'});
-    mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
+        'VariableNames',{'MI','naive_vs_proficient','rewarded_vs_unrewarded'});
+    mdl = fitglm(tbl,'MI~naive_vs_proficient+rewarded_vs_unrewarded+rewarded_vs_unrewarded*naive_vs_proficient'...
         ,'CategoricalVars',[2,3])
     
     txt = evalc('mdl');
@@ -312,27 +310,45 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for MI per mouse per odor pair for PAC Theta/' PACnames{pacii} ' hippocampus\n']);
-    fprintf(fileID, ['\n\nRanksum or t-test p values for MI per mouse per odor pair for PAC Theta/' PACnames{pacii} ' hippocampus\n']);
+    fprintf(1, ['\n\nRanksum or t-test p values for MI per mouse per odor pair for PAC Theta ' PACnames{pacii} ' hippocampus\n']);
+    fprintf(fileID, ['\n\nRanksum or t-test p values for MI per mouse per odor pair for PAC Theta ' PACnames{pacii} ' hippocampus\n']);
     
     [output_data] = drgMutiRanksumorTtest(input_data,fileID);
     
-    %Perform the glm for mean MI per mouse
-    fprintf(1, ['glm for mean MI per mouse for PAC Theta/' PACnames{pacii} ' hippocampus\n'])
-    fprintf(fileID, ['glm for mean MI per mouse for PAC Theta/' PACnames{pacii} ' hippocampus\n']);
+    %Nested ANOVAN
+    %https://www.mathworks.com/matlabcentral/answers/491365-within-between-subjects-in-anovan
+    nesting=[0 0 0; ... % This line indicates that group factor is not nested in any other factor.
+         0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+%          0 0 0; ... % This line indicates that event is not nested in any other factor.
+         1 1 0];    % This line indicates that mouse_no (the last factor) is nested under group, perCorr and event
+                    % (the 1 in position 1 on the line indicates nesting under the first factor).
+    figNo=figNo+1;
+                     
+    [p anovanTbl stats]=anovan(glm_mi_hipp.data,{glm_mi_hipp.perCorr glm_mi_hipp.event glm_mi_hipp.mouseNo},...
+    'model','interaction',...
+    'nested',nesting,...
+    'varnames',{'naive_vs_proficient', 'rewarded_vs_unrewarded','mouse_no'});
+  
+    fprintf(fileID, ['\n\nNested ANOVAN for MI during odor per mouse per odor pair for '  PACnames{pacii} ' for hippocampus\n'])
+    drgWriteANOVANtbl(anovanTbl,fileID);
+    fprintf(fileID, '\n\n');
     
-    tbl = table(glm_mi_mm_hipp.data',glm_mi_mm_hipp.perCorr',glm_mi_mm_hipp.event',...
-        'VariableNames',{'MI','perCorr','event'});
-    mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
-        ,'CategoricalVars',[2,3])
-    
-    txt = evalc('mdl');
-    txt=regexp(txt,'<strong>','split');
-    txt=cell2mat(txt);
-    txt=regexp(txt,'</strong>','split');
-    txt=cell2mat(txt);
-    
-    fprintf(fileID,'%s\n', txt);
+%     %Perform the glm for mean MI per mouse
+%     fprintf(1, ['glm for mean MI per mouse for PAC Theta/' PACnames{pacii} ' hippocampus\n'])
+%     fprintf(fileID, ['glm for mean MI per mouse for PAC Theta/' PACnames{pacii} ' hippocampus\n']);
+%     
+%     tbl = table(glm_mi_mm_hipp.data',glm_mi_mm_hipp.perCorr',glm_mi_mm_hipp.event',...
+%         'VariableNames',{'MI','perCorr','event'});
+%     mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
+%         ,'CategoricalVars',[2,3])
+%     
+%     txt = evalc('mdl');
+%     txt=regexp(txt,'<strong>','split');
+%     txt=cell2mat(txt);
+%     txt=regexp(txt,'</strong>','split');
+%     txt=cell2mat(txt);
+%     
+%     fprintf(fileID,'%s\n', txt);
     
     
     %Now plot the average PA variance for the hippocampus for each electrode calculated per mouse
@@ -367,7 +383,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     rand_offset=0.5;
     
     %Subtract the average for S+ proficient
-    %Get these MI values
+    %Get these PA values
     ref_PA=[];
     ii_PA=0;
     evNo=1;
@@ -392,6 +408,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
         if ~isempty(this_jj)
             if mouse_op==1
                 ref_PA(ii_PA+1:ii_PA+length(all_hippo(ii).handles_out.PA_values(this_jj).PA_var_per_mouse))=all_hippo(ii).handles_out.PA_values(this_jj).PA_var_per_mouse;
+                
                 ii_PA=ii_PA+length(all_hippo(ii).handles_out.PA_values(this_jj).PA_var_per_mouse);
             else
                 ii_PA=ii_PA+1;
@@ -403,6 +420,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     for evNo=1:2
         per_ii_PA=[];
+        unique_mouse_nos=[];
         for per_ii=2:-1:1
             
             grNo=1;
@@ -411,8 +429,11 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
             %Get these PA values
             these_PA=[];
             ii_PA=0;
+            these_mouse_nos=[];
             for ii=1:length(hippFileName)
                 this_jj=[];
+                these_mouse_no_per_op=T_mouse_no.mouse_no_per_op(T_mouse_no.odor_pair_no==ii);
+                these_mouse_no=T_mouse_no.mouse_no(T_mouse_no.odor_pair_no==ii);
                 for jj=1:all_hippo(ii).handles_out.PA_ii
                     if all_hippo(ii).handles_out.PA_values(jj).pacii==pacii
                         if all_hippo(ii).handles_out.PA_values(jj).evNo==evNo
@@ -430,6 +451,12 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 if ~isempty(this_jj)
                     if mouse_op==1
                         these_PA(ii_PA+1:ii_PA+length(all_hippo(ii).handles_out.PA_values(this_jj).PA_var_per_mouse))=all_hippo(ii).handles_out.PA_values(this_jj).PA_var_per_mouse;
+                        
+                        for ww=1:length(all_hippo(ii).handles_out.PA_values(this_jj).PA_var_per_mouse)
+                            this_nn=find(all_hippo(ii).handles_out.PA_values(this_jj).mouseNo(ww)==these_mouse_no_per_op);
+                            these_mouse_nos(ii_PA+ww)=these_mouse_no(this_nn);
+                        end
+                        
                         ii_PA=ii_PA+length(all_hippo(ii).handles_out.PA_values(this_jj).PA_var_per_mouse);
                     else
                         ii_PA=ii_PA+1;
@@ -437,6 +464,8 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                     end
                 end
             end
+            
+            unique_mouse_nos=unique([unique_mouse_nos these_mouse_nos]);
             
             these_PA=these_PA-mean(ref_PA);
             
@@ -481,7 +510,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                     glm_PA_mm_hipp.event(glm_ii_mm_hipp+1)=evNo;
                     glm_ii_mm_hipp=glm_ii_mm_hipp+1;
                     
-                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.8 0.8 0.8],'MarkerEdgeColor',[0.8 0.8 0.8],'Color',[0.8 0.8 0.8])
+                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
                     
                 end
             end
@@ -493,6 +522,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
             glm_PA_hipp.data(glm_ii+1:glm_ii+length(these_PA))=these_PA;
             glm_PA_hipp.perCorr(glm_ii+1:glm_ii+length(these_PA))=per_ii*ones(1,length(these_PA));
             glm_PA_hipp.event(glm_ii+1:glm_ii+length(these_PA))=evNo*ones(1,length(these_PA));
+            glm_PA_hipp.mouseNo(glm_ii+1:glm_ii+length(these_PA))=these_mouse_nos;
             glm_ii=glm_ii+length(these_PA);
             
             id_ii=id_ii+1;
@@ -510,7 +540,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
         
     end
     
-    title(['Delta PA variance per mouse per odor pair for PAC theta/' PACnames{pacii} ' hippocampus'])
+    title(['Delta PA variance per mouse per odor pair for PAC Theta ' PACnames{pacii} ' hippocampus'])
     
     
     
@@ -531,8 +561,8 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     ylabel('Delta PA variance')
     
     %Perform the glm
-    fprintf(1, ['glm for delta PA variance per mouse per odor pair for PAC theta' PACnames{pacii} ' hippocampus\n'])
-    fprintf(fileID, ['glm for delta PA variance per mouse per odor pair for PAC theta' PACnames{pacii} ' hippocampus\n']);
+    fprintf(1, ['glm for delta PA variance per mouse per odor pair for PAC Theta ' PACnames{pacii} ' hippocampus\n'])
+    fprintf(fileID, ['glm for delta PA variance per mouse per odor pair for PAC Theta ' PACnames{pacii} ' hippocampus\n']);
     
     tbl = table(glm_PA_hipp.data',glm_PA_hipp.perCorr',glm_PA_hipp.event',...
         'VariableNames',{'MI','perCorr','event'});
@@ -549,9 +579,27 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for delta PA variance per mouse per odor pair for PAC theta' PACnames{pacii} ' hippocampus\n'])
-    fprintf(fileID, ['\n\nRanksum or t-test p values for delta PA variance per mouse per odor pair for PAC theta' PACnames{pacii} ' hippocampus\n']);
+    fprintf(1, ['\n\nRanksum or t-test p values for delta PA variance per mouse per odor pair for PAC Theta ' PACnames{pacii} ' hippocampus\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for delta PA variance per mouse per odor pair for PAC Theta ' PACnames{pacii} ' hippocampus\n']);
     [output_data] = drgMutiRanksumorTtest(input_data,fileID);
+    
+    %Nested ANOVAN
+    %https://www.mathworks.com/matlabcentral/answers/491365-within-between-subjects-in-anovan
+    nesting=[0 0 0; ... % This line indicates that group factor is not nested in any other factor.
+         0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+%          0 0 0; ... % This line indicates that event is not nested in any other factor.
+         1 1 0];    % This line indicates that mouse_no (the last factor) is nested under group, perCorr and event
+                    % (the 1 in position 1 on the line indicates nesting under the first factor).
+    figNo=figNo+1;
+                     
+    [p anovanTbl stats]=anovan(glm_PA_hipp.data,{glm_PA_hipp.perCorr glm_PA_hipp.event glm_PA_hipp.mouseNo},...
+    'model','interaction',...
+    'nested',nesting,...
+    'varnames',{'naive_vs_proficient', 'rewarded_vs_unrewarded','mouse_no'});
+  
+    fprintf(fileID, ['\n\nNested ANOVAN for PA variance during odor per mouse per odor pair for '  PACnames{pacii} ' for hippocampus\n'])
+    drgWriteANOVANtbl(anovanTbl,fileID);
+    fprintf(fileID, '\n\n');
     
     %Perform the glm for mean PA per mouse
     fprintf(1, ['glm for PA variance per mouse for PAC Theta/' PACnames{pacii} ' hippocampus\n'])
@@ -562,13 +610,13 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     mdl = fitglm(tbl,'PA~perCorr+event+perCorr*event'...
         ,'CategoricalVars',[2,3])
     
-    txt = evalc('mdl');
-    txt=regexp(txt,'<strong>','split');
-    txt=cell2mat(txt);
-    txt=regexp(txt,'</strong>','split');
-    txt=cell2mat(txt);
-    
-    fprintf(fileID,'%s\n', txt);
+%     txt = evalc('mdl');
+%     txt=regexp(txt,'<strong>','split');
+%     txt=cell2mat(txt);
+%     txt=regexp(txt,'</strong>','split');
+%     txt=cell2mat(txt);
+%     
+%     fprintf(fileID,'%s\n', txt);
     
     %Now plot the average MI for prefrontal  calculated per mouse per odorant
     %pair
@@ -611,6 +659,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     for evNo=1:2
         per_ii_mi=[];
+        unique_mouse_nos=[];
         for per_ii=2:-1:1
             
             grNo=1;
@@ -619,6 +668,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             %Get these MI values
             these_mi=[];
+            these_mouse_nos=[];
             ii_mi=0;
             for ii=1:length(hippFileName)
                 this_jj=[];
@@ -639,6 +689,12 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 if ~isempty(this_jj)
                     if mouse_op==1
                         these_mi(ii_mi+1:ii_mi+length(all_pre(ii).handles_out.mi_values(this_jj).MI_per_mouse))=all_pre(ii).handles_out.mi_values(this_jj).MI_per_mouse;
+                        
+                        for ww=1:length(all_pre(ii).handles_out.mi_values(this_jj).MI_per_mouse)
+                            this_nn=find(all_pre(ii).handles_out.mi_values(this_jj).mouseNo(ww)==these_mouse_no_per_op);
+                            these_mouse_nos(ii_mi+ww)=these_mouse_no(this_nn);
+                        end
+                        
                         ii_mi=ii_mi+length(all_pre(ii).handles_out.mi_values(this_jj).MI_per_mouse);
                     else
                         ii_mi=ii_mi+1;
@@ -689,7 +745,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                     glm_mi_mm_pre.event(glm_ii_mm_pre+1)=evNo;
                     glm_ii_mm_pre=glm_ii_mm_pre+1;
                     
-                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.8 0.8 0.8],'MarkerEdgeColor',[0.8 0.8 0.8],'Color',[0.8 0.8 0.8])
+                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
                     
                 end
             end
@@ -701,6 +757,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
             glm_mi_pre.brain_region(glm_ii+1:glm_ii+length(these_mi))=2*ones(1,length(these_mi));
             glm_mi_pre.perCorr(glm_ii+1:glm_ii+length(these_mi))=per_ii*ones(1,length(these_mi));
             glm_mi_pre.event(glm_ii+1:glm_ii+length(these_mi))=evNo*ones(1,length(these_mi));
+            glm_mi_pre.mouseNo(glm_ii+1:glm_ii+length(these_mi))=these_mouse_nos;
             glm_ii=glm_ii+length(these_mi);
             
             id_ii=id_ii+1;
@@ -720,7 +777,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
         
     end
     
-    title(['Average MI per mouse per odor pair for PAC theta/' PACnames{pacii} ' prefrontal'])
+    title(['Average MI per mouse per odor pair for PAC Theta ' PACnames{pacii} ' prefrontal'])
     
     
     %Annotations identifying groups
@@ -737,15 +794,13 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     xticks([1 2 4 5])
     xticklabels({'nS+', 'pS+','nS-', 'pS-'})
     
-    yticks([0 0.01 0.02])
-    
-    ylim([0 0.02])
+    ylim([0 0.03])
     
     ylabel('Modulation Index')
     
     %Perform the glm
-    fprintf(1, ['glm for average MI per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n'])
-    fprintf(fileID, ['glm for average MI per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n']);
+    fprintf(1, ['glm for average MI per mouse per odor pair for PAC Theta' PACnames{pacii} ' prefrontal\n'])
+    fprintf(fileID, ['glm for average MI per mouse per odor pair for PAC Theta' PACnames{pacii} ' prefrontal\n']);
     
     tbl = table(glm_mi_pre.data',glm_mi_pre.perCorr',glm_mi_pre.event',...
         'VariableNames',{'MI','perCorr','event'});
@@ -762,26 +817,44 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for average MI per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n'])
-    fprintf(fileID, ['\n\nRanksum or t-test p values for average MI per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n']);
+    fprintf(1, ['\n\nRanksum or t-test p values for average MI per mouse per odor pair for PAC Theta' PACnames{pacii} ' prefrontal\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for average MI per mouse per odor pair for PAC Theta' PACnames{pacii} ' prefrontal\n']);
     [output_data] = drgMutiRanksumorTtest(input_data,fileID);
     
-    %Perform the glm for mean MI per mouse
-    fprintf(1, ['glm for mean MI per mouse for PAC Theta/' PACnames{pacii} ' prefrontal\n'])
-    fprintf(fileID, ['glm for mean MI per mouse for PAC Theta/' PACnames{pacii} ' prefrontal\n']);
+    %Nested ANOVAN
+    %https://www.mathworks.com/matlabcentral/answers/491365-within-between-subjects-in-anovan
+    nesting=[0 0 0; ... % This line indicates that group factor is not nested in any other factor.
+         0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+%          0 0 0; ... % This line indicates that event is not nested in any other factor.
+         1 1 0];    % This line indicates that mouse_no (the last factor) is nested under group, perCorr and event
+                    % (the 1 in position 1 on the line indicates nesting under the first factor).
+    figNo=figNo+1;
+                     
+    [p anovanTbl stats]=anovan(glm_mi_pre.data,{glm_mi_pre.perCorr glm_mi_pre.event glm_mi_pre.mouseNo},...
+    'model','interaction',...
+    'nested',nesting,...
+    'varnames',{'naive_vs_proficient', 'rewarded_vs_unrewarded','mouse_no'});
+  
+    fprintf(fileID, ['\n\nNested ANOVAN for MI during odor per mouse per odor pair for '  PACnames{pacii} ' for prefrontal\n']);
+    drgWriteANOVANtbl(anovanTbl,fileID);
+    fprintf(fileID, '\n\n');
     
-    tbl = table(glm_mi_mm_pre.data',glm_mi_mm_pre.perCorr',glm_mi_mm_pre.event',...
-        'VariableNames',{'MI','perCorr','event'});
-    mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
-        ,'CategoricalVars',[2,3])  %Perform the glm for mean MI per mouse
-    
-    txt = evalc('mdl');
-    txt=regexp(txt,'<strong>','split');
-    txt=cell2mat(txt);
-    txt=regexp(txt,'</strong>','split');
-    txt=cell2mat(txt);
-    
-    fprintf(fileID,'%s\n', txt);
+%     %Perform the glm for mean MI per mouse
+%     fprintf(1, ['glm for mean MI per mouse for PAC Theta/' PACnames{pacii} ' prefrontal\n'])
+%     fprintf(fileID, ['glm for mean MI per mouse for PAC Theta/' PACnames{pacii} ' prefrontal\n']);
+%     
+%     tbl = table(glm_mi_mm_pre.data',glm_mi_mm_pre.perCorr',glm_mi_mm_pre.event',...
+%         'VariableNames',{'MI','perCorr','event'});
+%     mdl = fitglm(tbl,'MI~perCorr+event+perCorr*event'...
+%         ,'CategoricalVars',[2,3])  %Perform the glm for mean MI per mouse
+%     
+%     txt = evalc('mdl');
+%     txt=regexp(txt,'<strong>','split');
+%     txt=cell2mat(txt);
+%     txt=regexp(txt,'</strong>','split');
+%     txt=cell2mat(txt);
+%     
+%     fprintf(fileID,'%s\n', txt);
     
     
     %Now plot the average PA variance for prefrontal calculated per mouse per
@@ -857,7 +930,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     end
     
     for evNo=1:2
-        
+        unique_mouse_nos=[];
         for per_ii=2:-1:1
             
             grNo=1;
@@ -869,6 +942,8 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
             ii_PA=0;
             for ii=1:length(hippFileName)
                 this_jj=[];
+                these_mouse_no_per_op=T_mouse_no.mouse_no_per_op(T_mouse_no.odor_pair_no==ii);
+                these_mouse_no=T_mouse_no.mouse_no(T_mouse_no.odor_pair_no==ii);
                 for jj=1:all_pre(ii).handles_out.PA_ii
                     if all_pre(ii).handles_out.PA_values(jj).pacii==pacii
                         if all_pre(ii).handles_out.PA_values(jj).evNo==evNo
@@ -886,6 +961,12 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 if ~isempty(this_jj)
                     if mouse_op==1
                         these_PA(ii_PA+1:ii_PA+length(all_pre(ii).handles_out.PA_values(this_jj).PA_var_per_mouse))=all_pre(ii).handles_out.PA_values(this_jj).PA_var_per_mouse;
+                        
+                        for ww=1:length(all_pre(ii).handles_out.PA_values(this_jj).PA_var_per_mouse)
+                            this_nn=find(all_pre(ii).handles_out.PA_values(this_jj).mouseNo(ww)==these_mouse_no_per_op);
+                            these_mouse_nos(ii_PA+ww)=these_mouse_no(this_nn);
+                        end
+                        
                         ii_PA=ii_PA+length(all_pre(ii).handles_out.PA_values(this_jj).PA_var_per_mouse);
                     else
                         ii_PA=ii_PA+1;
@@ -937,7 +1018,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                     glm_PA_mm_pre.event(glm_ii_mm_pre+1)=evNo;
                     glm_ii_mm_pre=glm_ii_mm_pre+1;
                     
-                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.8 0.8 0.8],'MarkerEdgeColor',[0.8 0.8 0.8],'Color',[0.8 0.8 0.8])
+                    plot([bar_offset-1 bar_offset],[this_mouse_mean2 this_mouse_mean1],'-ok','MarkerSize',6,'LineWidth',1,'MarkerFaceColor',[0.6 0.6 0.6],'MarkerEdgeColor',[0.6 0.6 0.6],'Color',[0.6 0.6 0.6])
                     
                 end
             end
@@ -951,6 +1032,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
             glm_PA_pre.perCorr(glm_ii+1:glm_ii+length(these_PA))=per_ii*ones(1,length(these_PA));
             glm_PA_pre.brain_region(glm_ii+1:glm_ii+length(these_mi))=2*ones(1,length(these_mi));
             glm_PA_pre.event(glm_ii+1:glm_ii+length(these_PA))=evNo*ones(1,length(these_PA));
+            glm_PA_pre.mouseNo(glm_ii+1:glm_ii+length(these_PA))=these_mouse_nos;
             glm_ii=glm_ii+length(these_PA);
             
             id_ii=id_ii+1;
@@ -973,7 +1055,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     plot([0 6],[0 0],'-k','LineWidth',2)
     xlim([0 6])
     
-    title(['Delta PA variance per mouse per odor pair for PAC theta/' PACnames{pacii} ' prefrontal'])
+    title(['Delta PA variance per mouse per odor pair for PAC Theta ' PACnames{pacii} ' prefrontal'])
     
     
     
@@ -996,8 +1078,8 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     %Perform the glm
     
-    fprintf(1, ['glm for delta PA variance per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n'])
-    fprintf(fileID, ['glm for delta PA variance per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n']);
+    fprintf(1, ['glm for delta PA variance per mouse per odor pair for PAC Theta' PACnames{pacii} ' prefrontal\n'])
+    fprintf(fileID, ['glm for delta PA variance per mouse per odor pair for PAC Theta' PACnames{pacii} ' prefrontal\n']);
     
     tbl = table(glm_PA_pre.data',glm_PA_pre.perCorr',glm_PA_pre.event',...
         'VariableNames',{'MI','perCorr','event'});
@@ -1015,30 +1097,48 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     %Do the ranksum/t-test
     
-    fprintf(1, ['\n\nRanksum or t-test p values for delta PA variance per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n'])
-    fprintf(fileID, ['\n\nRanksum or t-test p values for delta PA variance per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n']);
+    fprintf(1, ['\n\nRanksum or t-test p values for delta PA variance per mouse per odor pair for PAC Theta' PACnames{pacii} ' prefrontal\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for delta PA variance per mouse per odor pair for PAC Theta' PACnames{pacii} ' prefrontal\n']);
     [output_data] = drgMutiRanksumorTtest(input_data,fileID);
     
-    %Perform the glm for mean PA per mouse
-    fprintf(1, ['glm for PA variance per mouse for PAC Theta/' PACnames{pacii} ' prefrontal\n'])
-    fprintf(fileID, ['glm for PA variance per mouse for PAC Theta/' PACnames{pacii} ' prefrontal\n']);
+    %Nested ANOVAN
+    %https://www.mathworks.com/matlabcentral/answers/491365-within-between-subjects-in-anovan
+    nesting=[0 0 0; ... % This line indicates that group factor is not nested in any other factor.
+         0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+%          0 0 0; ... % This line indicates that event is not nested in any other factor.
+         1 1 0];    % This line indicates that mouse_no (the last factor) is nested under group, perCorr and event
+                    % (the 1 in position 1 on the line indicates nesting under the first factor).
+    figNo=figNo+1;
+                     
+    [p anovanTbl stats]=anovan(glm_PA_pre.data,{glm_PA_pre.perCorr glm_PA_pre.event glm_PA_pre.mouseNo},...
+    'model','interaction',...
+    'nested',nesting,...
+    'varnames',{'naive_vs_proficient', 'rewarded_vs_unrewarded','mouse_no'});
+  
+    fprintf(fileID, ['\n\nNested ANOVAN for PA variance during odor per mouse per odor pair for '  PACnames{pacii} ' for prefrontal\n']);
+    drgWriteANOVANtbl(anovanTbl,fileID);
+    fprintf(fileID, '\n\n');
     
-    tbl = table(glm_PA_mm_pre.data',glm_PA_mm_pre.perCorr',glm_PA_mm_pre.event',...
-        'VariableNames',{'PA','perCorr','event'});
-    mdl = fitglm(tbl,'PA~perCorr+event+perCorr*event'...
-        ,'CategoricalVars',[2,3])
-    
-    txt = evalc('mdl');
-    txt=regexp(txt,'<strong>','split');
-    txt=cell2mat(txt);
-    txt=regexp(txt,'</strong>','split');
-    txt=cell2mat(txt);
-    
-    fprintf(fileID,'%s\n', txt);
+%     %Perform the glm for mean PA per mouse
+%     fprintf(1, ['glm for PA variance per mouse for PAC Theta/' PACnames{pacii} ' prefrontal\n'])
+%     fprintf(fileID, ['glm for PA variance per mouse for PAC Theta/' PACnames{pacii} ' prefrontal\n']);
+%     
+%     tbl = table(glm_PA_mm_pre.data',glm_PA_mm_pre.perCorr',glm_PA_mm_pre.event',...
+%         'VariableNames',{'PA','perCorr','event'});
+%     mdl = fitglm(tbl,'PA~perCorr+event+perCorr*event'...
+%         ,'CategoricalVars',[2,3])
+%     
+%     txt = evalc('mdl');
+%     txt=regexp(txt,'<strong>','split');
+%     txt=cell2mat(txt);
+%     txt=regexp(txt,'</strong>','split');
+%     txt=cell2mat(txt);
+%     
+%     fprintf(fileID,'%s\n', txt);
     
     %Perform the glm mi for prefrontal and hippocampus
-    fprintf(1, ['glm for average MI per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal and hippocampus\n'])
-    fprintf(fileID, ['glm for average MI per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal and hippocampus\n']);
+    fprintf(1, ['glm for average MI per mouse per odor pair for PAC Theta' PACnames{pacii} ' prefrontal and hippocampus\n'])
+    fprintf(fileID, ['glm for average MI per mouse per odor pair for PAC Theta' PACnames{pacii} ' prefrontal and hippocampus\n']);
     
     tbl = table(glm_mi_pre.data',glm_mi_pre.perCorr',glm_mi_pre.event',...
         'VariableNames',{'MI','perCorr','event'});
@@ -1054,8 +1154,8 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     fprintf(fileID,'%s\n', txt);
     
     %Perform the glm PA for both brain regions
-    fprintf(1, ['glm for delta PA variance per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal and hippocampus\n'])
-    fprintf(fileID, ['glm for delta PA variance per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal and hippocampus\n']);
+    fprintf(1, ['glm for delta PA variance per mouse per odor pair for PAC Theta ' PACnames{pacii} ' prefrontal and hippocampus\n'])
+    fprintf(fileID, ['glm for delta PA variance per mouse per odor pair for PAC Theta ' PACnames{pacii} ' prefrontal and hippocampus\n']);
     
     tbl = table(glm_PA_both.data',glm_PA_both.brain_region',glm_PA_both.perCorr',glm_PA_both.event',...
         'VariableNames',{'PA','brain_region','perCorr','event'});

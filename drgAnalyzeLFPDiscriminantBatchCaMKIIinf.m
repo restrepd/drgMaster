@@ -1,4 +1,4 @@
-function drgAnalyzeLFPDiscriminantBatchCaMKIIGrp
+function drgAnalyzeLFPDiscriminantBatchCaMKIIinf
 %Analyzes the linear discriminant analysis performed by drgLFPDiscriminantBatch
 %Takes as a in input the 'Discriminant_*.mat' output file from drgLFPDiscriminantBatch
 %Performs an analysis of the timecourse for percent correct for LDA and for
@@ -10,7 +10,7 @@ close all
 clear all
 
 
-
+ 
 t_odor_arrival=0.1;
 
 which_display=3;
@@ -58,7 +58,12 @@ AUC_to=2.5;
 
 %Plot average percent correct for the LDA for peak and trough for
 %wavelet power referenced to PAC phase
-t=handles_out.t_power;
+
+%Note that I am hard setting this one
+dt_tPRP=0.03333;
+t=[-2:dt_tPRP:5];
+
+% t=handles_out.t_power;
 pcorr_out=[];
 lick_out=[];
 

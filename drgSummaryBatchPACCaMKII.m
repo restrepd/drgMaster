@@ -31,7 +31,7 @@ evTypeLabels{2}='S-';
 
 % %Location of files
 % PathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/LFPPAC drgAnalysisBatchLFPCaMKII case 19 output/'
-% 
+%
 % %Hippocampus
 % hippFileName{1}='CaMKIIacetoLFPPACall121319_hippoPAC6figures.mat';
 % hippFileName{2}='CaMKIIethylbenLFPPACal222019_hippoPAC6figuresonly.mat';
@@ -41,7 +41,7 @@ evTypeLabels{2}='S-';
 % hippFileName{6}='CaMKIIpointzero1propylaceLFPPACall11620_hippoPAConlyfigures.mat';
 % hippFileName{7}='CaMKIIpzz1ethylaceLFPPACall121119_hippoPAConlyfigures.mat';
 % hippFileName{8}='CaMKIIpzz1propylaceLFPPACall121919_hippoPAConly6figures.mat';
-% 
+%
 % %Prefrontal
 % preFileName{1}='CaMKIIacetoLFPPACall121319_prefrontPAC6figures.mat';
 % preFileName{2}='CaMKIIethylbenLFPPACal222019_prefrontPAC6figuresonly.mat';
@@ -54,7 +54,7 @@ evTypeLabels{2}='S-';
 
 
 % PathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/LFPPAC drgAnalysisBatchLFPCaMKII case 19 output take 2/';
-% 
+%
 % %Hippocampus
 % hippFileName{1}='CaMKIIacetoLFPPACall121319_hippocampusLFP2.mat';
 % hippFileName{2}='CaMKIIethylbenLFPPACal222019_hippocampusLFP2.mat';
@@ -64,7 +64,7 @@ evTypeLabels{2}='S-';
 % hippFileName{6}='CaMKIIpointzero1propylaceLFPPACall11620_hippocampusLFP2.mat';
 % hippFileName{7}='CaMKIIpzz1ethylaceLFPPACall10719_hippocampusLFP2.mat';
 % hippFileName{8}='CaMKIIpzz1propylaceLFPPACall121919_hippocampusLFP2.mat';
-% 
+%
 % %Prefrontal
 % preFileName{1}='CaMKIIacetoLFPPACall121319_prefrontalLFP2.mat';
 % preFileName{2}='CaMKIIethylbenLFPPACal222019_prefrontalLFP2.mat';
@@ -78,6 +78,9 @@ evTypeLabels{2}='S-';
 
 %Location of files for proficient 80-100
 PathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/LFPPAC drgAnalysisBatchLFPCaMKII case 19 output take 2 80/';
+
+%Text file for statistical output
+fileID = fopen([PathName 'drgSummaryBatchPACCaMKIIstats.txt'],'w');
 
 %Hippocampus
 hippFileName{1}='CaMKIIacetoLFPPACall121319_hippocampusLFP80.mat';
@@ -105,8 +108,8 @@ preFileName{8}='CaMKIIpzz1propylaceLFPPACall121919_prefrontalLFP80.mat';
 all_hippo=[];
 
 for ii=1:length(hippFileName)
-   load([PathName hippFileName{ii}]) 
-   all_hippo(ii).handles_out=handles_out;
+    load([PathName hippFileName{ii}])
+    all_hippo(ii).handles_out=handles_out;
 end
 
 figNo=0;
@@ -148,7 +151,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
         for per_ii=2:-1:1
             
             for grNo=1:3
-
+                
                 bar_offset = bar_offset + 1;
                 
                 %Get these MI values
@@ -190,15 +193,15 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                         bar(bar_offset,mean(these_mi),'y','LineWidth', 3,'EdgeColor','none')
                 end
                 
-
+                
                 %Violin plot
                 
                 [mean_out, CIout]=drgViolinPoint(these_mi,edges,bar_offset,rand_offset,'k','k',3);
                 
-%                 CI = bootci(1000, {@mean, these_mi},'type','cper');
-%                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-%                 plot(bar_offset*ones(1,length(these_mi)),these_mi,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-%                 
+                %                 CI = bootci(1000, {@mean, these_mi},'type','cper');
+                %                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                %                 plot(bar_offset*ones(1,length(these_mi)),these_mi,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                %
                 
                 %                                 %Save data for glm and ranksum
                 
@@ -212,17 +215,17 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 input_data(id_ii).data=these_mi;
                 input_data(id_ii).description=[group_legend{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
                 
-
+                
             end
             bar_offset = bar_offset + 1;
-
+            
         end
         
         bar_offset = bar_offset + 1;
     end
     
     title(['Average MI for each electrode calculated per mouse per odor pair for PAC theta/' PACnames{pacii} ' hippocampus'])
-
+    
     xticks([1 2 3 5 6 7 10 11 12 14 15 16])
     xticklabels({'nwtS+', 'nHS+', 'nKOS+', 'pwtS+', 'pHS+', 'pKOS+', 'nwtS-', 'nHS-', 'nKOS-', 'pwtS-', 'pHS-', 'pKOS-'})
     
@@ -232,17 +235,27 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     %Perform the glm
     fprintf(1, ['glm for average MI for each electrode calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' hippocampus\n'])
+    fprintf(fileID, ['glm for average MI for each electrode calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' hippocampus\n']);
     
     fprintf(1, ['\n\nglm for MI for Theta/' PACnames{pacii} '\n'])
     tbl = table(glm_mi.data',glm_mi.group',glm_mi.perCorr',glm_mi.event',...
-        'VariableNames',{'MI','group','perCorr','event'});
-    mdl = fitglm(tbl,'MI~group+perCorr+event+perCorr*group*event'...
+        'VariableNames',{'MI','genotype','naive_vs_proficient','sp_vs_sm'});
+    mdl = fitglm(tbl,'MI~genotype+naive_vs_proficient+sp_vs_sm+genotype*naive_vs_proficient*sp_vs_sm'...
         ,'CategoricalVars',[2,3,4])
     
+    txt = evalc('mdl');
+    txt=regexp(txt,'<strong>','split');
+    txt=cell2mat(txt);
+    txt=regexp(txt,'</strong>','split');
+    txt=cell2mat(txt);
+    
+    fprintf(fileID,'%s\n', txt);
     
     %Do the ranksum/t-test
     fprintf(1, ['\n\nRanksum or t-test p values for average MI for each electrode calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' hippocampus\n'])
-    [output_data] = drgMutiRanksumorTtest(input_data);
+    fprintf(fileID, ['\n\nRanksum or t-test p values for average MI for each electrode calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' hippocampus\n']);
+    
+    [output_data] = drgMutiRanksumorTtest(input_data, fileID);
     
     pffft=1;
     
@@ -364,15 +377,15 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                         bar(bar_offset,mean(these_PA),'y','LineWidth', 3,'EdgeColor','none')
                 end
                 
-
+                
                 %Violin plot
                 
                 [mean_out, CIout]=drgViolinPoint(these_PA,edges,bar_offset,rand_offset,'k','k',3);
                 
                 
-%                 CI = bootci(1000, {@mean, these_PA},'type','cper');
-%                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-%                 plot(bar_offset*ones(1,length(these_PA)),these_PA,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                %                 CI = bootci(1000, {@mean, these_PA},'type','cper');
+                %                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                %                 plot(bar_offset*ones(1,length(these_PA)),these_PA,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
                 
                 %                                 %Save data for glm and ranksum
                 
@@ -386,19 +399,19 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 input_data(id_ii).data=these_PA;
                 input_data(id_ii).description=[group_legend{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
                 
-
+                
             end
             bar_offset = bar_offset + 1;
-
+            
         end
         bar_offset = bar_offset + 1;
-  
+        
     end
     
     title(['Average delta PA variance  calculated per mouse per odor pair for PAC theta/' PACnames{pacii} ' hippocampus'])
     
-   
-
+    
+    
     xticks([1 2 3 5 6 7 10 11 12 14 15 16])
     xticklabels({'nwtS+', 'nHS+', 'nKOS+', 'pwtS+', 'pHS+', 'pKOS+', 'nwtS-', 'nHS-', 'nKOS-', 'pwtS-', 'pHS-', 'pKOS-'})
     
@@ -407,6 +420,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     %Perform the glm
     fprintf(1, ['glm for average PA variance calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' hippocampus\n'])
+    fprintf(fileID, ['glm for average PA variance calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' hippocampus\n']);
     
     fprintf(1, ['\n\nglm for PA variance for Theta/' PACnames{pacii} '\n'])
     tbl = table(glm_PA.data',glm_PA.group',glm_PA.perCorr',glm_PA.event',...
@@ -414,10 +428,18 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     mdl = fitglm(tbl,'MI~group+perCorr+event+perCorr*group*event'...
         ,'CategoricalVars',[2,3,4])
     
+    txt = evalc('mdl');
+    txt=regexp(txt,'<strong>','split');
+    txt=cell2mat(txt);
+    txt=regexp(txt,'</strong>','split');
+    txt=cell2mat(txt);
+    
+    fprintf(fileID,'%s\n', txt);
     
     %Do the ranksum/t-test
     fprintf(1, ['\n\nRanksum or t-test p values for average PA variance calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' hippocampus\n'])
-    [output_data] = drgMutiRanksumorTtest(input_data);
+    fprintf(fileID, ['\n\nRanksum or t-test p values for average PA variance calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' hippocampus\n']);
+    [output_data] = drgMutiRanksumorTtest(input_data, fileID);
     
     pffft=1;
     
@@ -431,8 +453,8 @@ end
 all_pre=[];
 
 for ii=1:length(preFileName)
-   load([PathName preFileName{ii}]) 
-   all_pre(ii).handles_out=handles_out;
+    load([PathName preFileName{ii}])
+    all_pre(ii).handles_out=handles_out;
 end
 
 
@@ -514,15 +536,15 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                         bar(bar_offset,mean(these_mi),'y','LineWidth', 3,'EdgeColor','none')
                 end
                 
-
+                
                 %Violin plot
                 
                 [mean_out, CIout]=drgViolinPoint(these_mi,edges,bar_offset,rand_offset,'k','k',3);
                 
-%                 CI = bootci(1000, {@mean, these_mi},'type','cper');
-%                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-%                 plot(bar_offset*ones(1,length(these_mi)),these_mi,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-%                 
+                %                 CI = bootci(1000, {@mean, these_mi},'type','cper');
+                %                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                %                 plot(bar_offset*ones(1,length(these_mi)),these_mi,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                %
                 
                 %                                 %Save data for glm and ranksum
                 
@@ -536,13 +558,13 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 input_data(id_ii).data=these_mi;
                 input_data(id_ii).description=[group_legend{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
                 
-
+                
             end
             bar_offset = bar_offset + 1;
-
+            
         end
         bar_offset = bar_offset + 1;
-  
+        
     end
     
     title(['Average MI calculated per mouse per odor pair for PAC theta/' PACnames{pacii} ' prefrontal'])
@@ -555,7 +577,8 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     ylim([0 0.03])
     
     %Perform the glm
-    fprintf(1, ['glm for average MI for each electrode calculated per mouse for PAC theta' PACnames{pacii} ' prefrontal\n'])
+    fprintf(1, ['glm for average MI for each electrode calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n'])
+    fprintf(fileID, ['glm for average MI for each electrode calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n']);
     
     fprintf(1, ['\n\nglm for MI for Theta/' PACnames{pacii} '\n'])
     tbl = table(glm_mi.data',glm_mi.group',glm_mi.perCorr',glm_mi.event',...
@@ -564,9 +587,20 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
         ,'CategoricalVars',[2,3,4])
     
     
+    txt = evalc('mdl');
+    txt=regexp(txt,'<strong>','split');
+    txt=cell2mat(txt);
+    txt=regexp(txt,'</strong>','split');
+    txt=cell2mat(txt);
+    
+    fprintf(fileID,'%s\n', txt);
+    
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for average MI for each electrode calculated per mouse for PAC theta' PACnames{pacii} ' prefrontal\n'])
-    [output_data] = drgMutiRanksumorTtest(input_data);
+    fprintf(1, ['\n\nRanksum or t-test p values for average MI for each electrode calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for average MI for each electrode calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n']);
+    
+    
+    [output_data] = drgMutiRanksumorTtest(input_data, fileID);
     
     
 end
@@ -593,7 +627,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     end
     hFig=figure(figNo);
     
-   ax=gca;ax.LineWidth=3;
+    ax=gca;ax.LineWidth=3;
     
     set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
     hold on
@@ -645,7 +679,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
             
             for grNo=1:3
                 bar_offset = bar_offset +1;
-          
+                
                 
                 %Get these MI values
                 these_PA=[];
@@ -678,7 +712,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 end
                 
                 these_PA=these_PA-mean(ref_PA);
-                 
+                
                 switch grNo
                     case 1
                         bar(bar_offset,mean(these_PA),'g','LineWidth', 3,'EdgeColor','none')
@@ -688,15 +722,15 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                         bar(bar_offset,mean(these_PA),'y','LineWidth', 3,'EdgeColor','none')
                 end
                 
-
+                
                 %Violin plot
                 
                 [mean_out, CIout]=drgViolinPoint(these_PA,edges,bar_offset,rand_offset,'k','k',3);
-%                 
-%                 CI = bootci(1000, {@mean, these_PA},'type','cper');
-%                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
-%                 plot(bar_offset*ones(1,length(these_PA)),these_PA,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-%                 
+                %
+                %                 CI = bootci(1000, {@mean, these_PA},'type','cper');
+                %                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
+                %                 plot(bar_offset*ones(1,length(these_PA)),these_PA,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
+                %
                 %                                 %Save data for glm and ranksum
                 
                 glm_PA.data(glm_ii+1:glm_ii+length(these_PA))=these_PA;
@@ -709,19 +743,19 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
                 input_data(id_ii).data=these_PA;
                 input_data(id_ii).description=[group_legend{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
                 
-
+                
             end
             bar_offset = bar_offset + 1;
-
+            
         end
         bar_offset = bar_offset + 1;
-  
+        
     end
     
     title(['Average delta PA variance calculated per mouse per odor pair for PAC theta/' PACnames{pacii} ' prefrontal'])
     
-   
-
+    
+    
     xticks([1 2 3 5 6 7 10 11 12 14 15 16])
     xticklabels({'nwtS+', 'nHS+', 'nKOS+', 'pwtS+', 'pHS+', 'pKOS+', 'nwtS-', 'nHS-', 'nKOS-', 'pwtS-', 'pHS-', 'pKOS-'})
     
@@ -730,6 +764,7 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     
     %Perform the glm
     fprintf(1, ['glm for average PA variance calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n'])
+    fprintf(fileID, ['glm for average PA variance calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n']);
     
     fprintf(1, ['\n\nglm for delta PA variance for Theta/' PACnames{pacii} '\n'])
     tbl = table(glm_PA.data',glm_PA.group',glm_PA.perCorr',glm_PA.event',...
@@ -737,11 +772,22 @@ for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
     mdl = fitglm(tbl,'MI~group+perCorr+event+perCorr*group*event'...
         ,'CategoricalVars',[2,3,4])
     
+    txt = evalc('mdl');
+    txt=regexp(txt,'<strong>','split');
+    txt=cell2mat(txt);
+    txt=regexp(txt,'</strong>','split');
+    txt=cell2mat(txt);
+    
+    fprintf(fileID,'%s\n', txt);
     
     %Do the ranksum/t-test
     fprintf(1, ['\n\nRanksum or t-test p values for delta PA variance calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n'])
-    [output_data] = drgMutiRanksumorTtest(input_data);
+    fprintf(fileID, ['\n\nRanksum or t-test p values for delta PA variance calculated per mouse per odor pair for PAC theta' PACnames{pacii} ' prefrontal\n']);
+    
+    [output_data] = drgMutiRanksumorTtest(input_data, fileID);
     
     
 end
+
+fclose(fileID)
 pffft=1;

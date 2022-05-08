@@ -106,7 +106,7 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     id_ii=0;
     input_data=[];
     
-    %Now plot for the hippocampus the peak zPRP per mouse per odorant pair for S+ and S-
+    %Now plot for the hippocampus the peak ztPRP per mouse per odorant pair for S+ and S-
     for per_ii=2:-1:1
         
         grNo=1;
@@ -190,6 +190,7 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         glm_PRP_hipp.perCorr(glm_ii_hipp+1:glm_ii_hipp+length(these_sp_data))=per_ii*ones(1,length(these_sp_data));
         glm_PRP_hipp.event(glm_ii_hipp+1:glm_ii_hipp+length(these_sp_data))=ones(1,length(these_sp_data));
         glm_PRP_hipp.peak(glm_ii_hipp+1:glm_ii_hipp+length(these_sp_data))=ones(1,length(these_sp_data));
+        glm_PRP_hipp.mouse_no(glm_ii_hipp+1:glm_ii_hipp+length(these_sp_data))=these_mouse_nos;
         glm_ii_hipp=glm_ii_hipp+length(these_sp_data);
         
         id_ii=id_ii+1;
@@ -203,20 +204,21 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         glm_PRP_hipp.perCorr(glm_ii_hipp+1:glm_ii_hipp+length(these_sm_data))=per_ii*ones(1,length(these_sm_data));
         glm_PRP_hipp.event(glm_ii_hipp+1:glm_ii_hipp+length(these_sm_data))=zeros(1,length(these_sm_data));
         glm_PRP_hipp.peak(glm_ii_hipp+1:glm_ii_hipp+length(these_sm_data))=ones(1,length(these_sm_data));
+        glm_PRP_hipp.mouse_no(glm_ii_hipp+1:glm_ii_hipp+length(these_sm_data))=these_mouse_nos;
         glm_ii_hipp=glm_ii_hipp+length(these_sm_data);
         
         id_ii=id_ii+1;
         input_data(id_ii).data=these_sm_data;
         input_data(id_ii).description=['Peak S- ' prof_naive_leg{per_ii}];
         
-        title(['Peak zPRP for' bandwidth_names{pacii} ' ' prof_naive_leg{per_ii} ' hippocampus'])
+        title(['Peak ztPRP for' bandwidth_names{pacii} ' ' prof_naive_leg{per_ii} ' hippocampus'])
         
         xlabel('Time(sec)')
-        ylabel('zPRP')
+        ylabel('ztPRP')
         ylim([-2 1.3])
     end
     
-    %Now plot for the hippocampus the trough zPRP per mouse per odorant pair for S+ and S-
+    %Now plot for the hippocampus the trough ztPRP per mouse per odorant pair for S+ and S-
     for per_ii=2:-1:1
         
         grNo=1;
@@ -226,6 +228,8 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         all_SpPRPtimecourse_trough=[];
         ii_PRP=0;
         for ii=1:length(hippFileName)
+                these_mouse_no_per_op=T_mouse_no.mouse_no_per_op(T_mouse_no.odor_pair_no==ii);
+            these_mouse_no=T_mouse_no.mouse_no(T_mouse_no.odor_pair_no==ii);
             these_jjs=[];
             for jj=1:all_hippo(ii).handles_out.RP_ii
                 if all_hippo(ii).handles_out.RPtimecourse(jj).pacii==pacii
@@ -241,6 +245,8 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
                     ii_PRP=ii_PRP+1;
                     all_SmPRPtimecourse_trough(ii_PRP,:)=all_hippo(ii).handles_out.RPtimecourse(these_jjs(jj)).meanSmPRPtimecourse_trough;
                     all_SpPRPtimecourse_trough(ii_PRP,:)=all_hippo(ii).handles_out.RPtimecourse(these_jjs(jj)).meanSpPRPtimecourse_trough;
+                    this_nn=find(all_hippo(ii).handles_out.RPtimecourse(these_jjs(jj)).mouseNo==these_mouse_no_per_op);
+                    these_mouse_nos(ii_PRP)=these_mouse_no(this_nn);
                 end
             end
         end
@@ -294,12 +300,14 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         glm_PRP_hipp.data(glm_ii_hipp+1:glm_ii_hipp+length(these_sp_data))=these_sp_data;
         glm_PRP_hipp.perCorr(glm_ii_hipp+1:glm_ii_hipp+length(these_sp_data))=per_ii*ones(1,length(these_sp_data));
         glm_PRP_hipp.event(glm_ii_hipp+1:glm_ii_hipp+length(these_sp_data))=ones(1,length(these_sp_data));
+        glm_PRP_hipp.mouse_no(glm_ii_hipp+1:glm_ii_hipp+length(these_sp_data))=these_mouse_nos;
         glm_PRP_hipp.peak(glm_ii_hipp+1:glm_ii_hipp+length(these_sp_data))=zeros(1,length(these_sp_data));
+        
         glm_ii_hipp=glm_ii_hipp+length(these_sp_data);
         
         id_ii=id_ii+1;
         input_data(id_ii).data=these_sp_data;
-        input_data(id_ii).description=['Peak S+ ' prof_naive_leg{per_ii}];
+        input_data(id_ii).description=['Trough S+ ' prof_naive_leg{per_ii}];
         
         %S-
         these_sm_data=zeros(1,size(all_SmPRPtimecourse_trough,1));
@@ -308,26 +316,27 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         glm_PRP_hipp.perCorr(glm_ii_hipp+1:glm_ii_hipp+length(these_sm_data))=per_ii*ones(1,length(these_sm_data));
         glm_PRP_hipp.event(glm_ii_hipp+1:glm_ii_hipp+length(these_sm_data))=zeros(1,length(these_sm_data));
         glm_PRP_hipp.peak(glm_ii_hipp+1:glm_ii_hipp+length(these_sm_data))=zeros(1,length(these_sm_data));
+        glm_PRP_hipp.mouse_no(glm_ii_hipp+1:glm_ii_hipp+length(these_sm_data))=these_mouse_nos;
         glm_ii_hipp=glm_ii_hipp+length(these_sm_data);
         
         id_ii=id_ii+1;
         input_data(id_ii).data=these_sm_data;
-        input_data(id_ii).description=['Peak S- ' prof_naive_leg{per_ii}];
+        input_data(id_ii).description=['Trough S- ' prof_naive_leg{per_ii}];
         
-        title(['Trough zPRP for' bandwidth_names{pacii} ' ' prof_naive_leg{per_ii} ' hippocampus'])
+        title(['Trough ztPRP for' bandwidth_names{pacii} ' ' prof_naive_leg{per_ii} ' hippocampus'])
         
         xlabel('Time(sec)')
-        ylabel('zPRP')
+        ylabel('ztPRP')
         ylim([-2 1.3])
     end
     
     %Perform the glm
-    fprintf(1, ['glm for zPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' for hippocampus\n'])
-    fprintf(fileID, ['glm for zPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' for hippocampus\n']);
+    fprintf(1, ['glm for ztPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' for hippocampus\n'])
+    fprintf(fileID, ['glm for ztPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' for hippocampus\n']);
     
     tbl = table(glm_PRP_hipp.data',glm_PRP_hipp.perCorr',glm_PRP_hipp.event',glm_PRP_hipp.peak',...
-        'VariableNames',{'zPRP','naive_vs_proficient','sp_vs_sm','peak_vs_trough'});
-    mdl = fitglm(tbl,'zPRP~naive_vs_proficient+sp_vs_sm+peak_vs_trough+naive_vs_proficient*sp_vs_sm*peak_vs_trough'...
+        'VariableNames',{'ztPRP','naive_vs_proficient','sp_vs_sm','peak_vs_trough'});
+    mdl = fitglm(tbl,'ztPRP~naive_vs_proficient+sp_vs_sm+peak_vs_trough+naive_vs_proficient*sp_vs_sm*peak_vs_trough'...
         ,'CategoricalVars',[2,3,4])
     
     
@@ -340,13 +349,29 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     fprintf(fileID,'%s\n', txt);
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for zPRP during odor per mouse per odor pair for ' bandwidth_names{pacii} ' hippocampus\n'])
-    fprintf(fileID, ['\n\nRanksum or t-test p values for zPRP during odor per mouse per odor pair for ' bandwidth_names{pacii} ' hippocampus\n']);
+    fprintf(1, ['\n\nRanksum or t-test p values for ztPRP during odor per mouse per odor pair for ' bandwidth_names{pacii} ' for hippocampus\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for ztPRP during odor per mouse per odor pair for ' bandwidth_names{pacii} ' for hippocampus\n']);
     
-    try
+   
     [output_data] = drgMutiRanksumorTtest(input_data, fileID);
-    catch
-    end
+  
+    %Nested ANOVAN
+    %https://www.mathworks.com/matlabcentral/answers/491365-within-between-subjects-in-anovan
+    nesting=[0 0 0 0; ... % This line indicates that group factor is not nested in any other factor.
+         0 0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+         0 0 0 0; ... % This line indicates that event is not nested in any other factor.
+         1 1 1 0];    % This line indicates that mouse_no (the last factor) is nested under group, perCorr and event
+                    % (the 1 in position 1 on the line indicates nesting under the first factor).
+    figureNo=figureNo+1;
+                     
+    [p anovanTbl stats]=anovan(glm_PRP_hipp.data,{glm_PRP_hipp.perCorr glm_PRP_hipp.event glm_PRP_hipp.peak glm_PRP_hipp.mouse_no},...
+    'model','interaction',...
+    'nested',nesting,...
+    'varnames',{'naive_vs_proficient', 'sp_vs_sm','peak_vs_trough','mouse_no'});
+  
+    fprintf(fileID, ['\n\nNested ANOVAN for for ztPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' for hippocampus\n'])
+    drgWriteANOVANtbl(anovanTbl,fileID);
+    fprintf(fileID, '\n\n');
     
 end
 
@@ -1067,7 +1092,7 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     
 end
 
-%Now plot zPRP for prefrontal
+%Now plot ztPRP for prefrontal
 for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     
     
@@ -1077,7 +1102,7 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     id_ii=0;
     input_data=[];
     
-    %Now plot for prefrontal the peak zPRP per mouse per odorant pair for S+ and S-
+    %Now plot for prefrontal the peak ztPRP per mouse per odorant pair for S+ and S-
     for per_ii=2:-1:1
         
         grNo=1;
@@ -1180,14 +1205,14 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         input_data(id_ii).data=these_sm_data;
         input_data(id_ii).description=['Peak S- ' prof_naive_leg{per_ii}];
         
-        title(['Peak zPRP for' bandwidth_names{pacii} ' ' prof_naive_leg{per_ii} ' prefrontal'])
+        title(['Peak ztPRP for' bandwidth_names{pacii} ' ' prof_naive_leg{per_ii} ' prefrontal'])
         
         xlabel('Time(sec)')
-        ylabel('zPRP')
+        ylabel('ztPRP')
         ylim([-2 1.3])
     end
     
-    %Now plot for prefrontal the trough zPRP per mouse per odorant pair for S+ and S-
+    %Now plot for prefrontal the trough ztPRP per mouse per odorant pair for S+ and S-
     for per_ii=2:-1:1
         
         grNo=1;
@@ -1270,7 +1295,7 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         
         id_ii=id_ii+1;
         input_data(id_ii).data=these_sp_data;
-        input_data(id_ii).description=['Peak S+ ' prof_naive_leg{per_ii}];
+        input_data(id_ii).description=['Trough S+ ' prof_naive_leg{per_ii}];
         
         %S-
         these_sm_data=zeros(1,size(all_SmPRPtimecourse_trough,1));
@@ -1283,22 +1308,22 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
         
         id_ii=id_ii+1;
         input_data(id_ii).data=these_sm_data;
-        input_data(id_ii).description=['Peak S- ' prof_naive_leg{per_ii}];
+        input_data(id_ii).description=['Trough S- ' prof_naive_leg{per_ii}];
         
-        title(['Trough zPRP for' bandwidth_names{pacii} ' ' prof_naive_leg{per_ii} ' prefrontal'])
+        title(['Trough ztPRP for' bandwidth_names{pacii} ' ' prof_naive_leg{per_ii} ' prefrontal'])
         
         xlabel('Time(sec)')
-        ylabel('zPRP')
+        ylabel('ztPRP')
         ylim([-2 1.3])
     end
     
     %Perform the glm
-    fprintf(1, ['glm for zPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' prefrontal\n'])
-    fprintf(fileID, ['glm for zPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' prefrontal\n']);
+    fprintf(1, ['glm for ztPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' prefrontal\n'])
+    fprintf(fileID, ['glm for ztPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' prefrontal\n']);
     
     tbl = table(glm_PRP_pre.data',glm_PRP_pre.perCorr',glm_PRP_pre.event',glm_PRP_pre.peak',...
-        'VariableNames',{'zPRP','naive_vs_proficient','sm_vs_sp','peak_vs_trough'});
-    mdl = fitglm(tbl,'zPRP~naive_vs_proficient+sm_vs_sp+peak_vs_trough+naive_vs_proficient*sm_vs_sp*peak_vs_trough'...
+        'VariableNames',{'ztPRP','naive_vs_proficient','sm_vs_sp','peak_vs_trough'});
+    mdl = fitglm(tbl,'ztPRP~naive_vs_proficient+sm_vs_sp+peak_vs_trough+naive_vs_proficient*sm_vs_sp*peak_vs_trough'...
         ,'CategoricalVars',[2,3,4])
     
     
@@ -1311,14 +1336,29 @@ for pacii=[1 2]    %for amplitude bandwidths (beta, high gamma)
     fprintf(fileID,'%s\n', txt);
     
     %Do the ranksum/t-test
-    fprintf(1, ['\n\nRanksum or t-test p values for zPRPe per mouse per odor pair for ' bandwidth_names{pacii} ' prefrontal\n'])
-    fprintf(fileID, ['\n\nRanksum or t-test p values for zPRPe per mouse per odor pair for ' bandwidth_names{pacii} ' prefrontal\n']);
+    fprintf(1, ['\n\nRanksum or t-test p values for ztPRP per mouse per odor pair for ' bandwidth_names{pacii} ' prefrontal\n'])
+    fprintf(fileID, ['\n\nRanksum or t-test p values for ztPRP per mouse per odor pair for ' bandwidth_names{pacii} ' prefrontal\n']);
     
-    try
+ 
     [output_data] = drgMutiRanksumorTtest(input_data, fileID);
-    catch
-    end
-    
+ 
+    %Nested ANOVAN
+    %https://www.mathworks.com/matlabcentral/answers/491365-within-between-subjects-in-anovan
+    nesting=[0 0 0 0; ... % This line indicates that group factor is not nested in any other factor.
+         0 0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+         0 0 0 0; ... % This line indicates that event is not nested in any other factor.
+         1 1 1 0];    % This line indicates that mouse_no (the last factor) is nested under group, perCorr and event
+                    % (the 1 in position 1 on the line indicates nesting under the first factor).
+    figureNo=figureNo+1;
+                     
+    [p anovanTbl stats]=anovan(glm_PRP_hipp.data,{glm_PRP_hipp.perCorr glm_PRP_hipp.event glm_PRP_hipp.peak glm_PRP_hipp.mouse_no},...
+    'model','interaction',...
+    'nested',nesting,...
+    'varnames',{'naive_vs_proficient', 'sp_vs_sm','peak_vs_trough','mouse_no'});
+  
+    fprintf(fileID, ['\n\nNested ANOVAN for for ztPRP during odor per mouse per odor pair for '  bandwidth_names{pacii} ' prefrontal\n'])
+    drgWriteANOVANtbl(anovanTbl,fileID);
+    fprintf(fileID, '\n\n');
 end
 
 %Now plot the p value timecourses for proficient mice for prefrontal
