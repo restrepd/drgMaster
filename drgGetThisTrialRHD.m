@@ -139,6 +139,10 @@ try
     
     %Enter the four votage inputes: shiff, lick, photodiode and laser trigger
     data_this_trial(:,18:21)=board_adc_data(1:4,:)';
+    szadc=size(board_adc_data);
+    if szadc(1)==5
+       data_this_trial(:,21)=board_adc_data(5,:)'; 
+    end
     
     data_this_trial(:,22)=digital_input;
 catch

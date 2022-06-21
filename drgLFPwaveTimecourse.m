@@ -232,6 +232,7 @@ if handles.drgb.PAC.no_trials>0
     
     
     %Place lick per trial
+    try
     if calculate_lick==1
         ntrs_out=0;
         n_lpw_out=0;
@@ -337,6 +338,8 @@ if handles.drgb.PAC.no_trials>0
             end
         end
         
+    end
+    catch
     end
     
 %     fprintf(1, 'The rest of the code = %d\n',toc-start_toc)

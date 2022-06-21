@@ -65,4 +65,6 @@ switch handles.analysisNoOsc
         drgLFPimgcohspectShTimecourse(handles);
     case 31
         drgLFPimgcohDeltaallPairs(handles);
+    case 32 
+        drgClosedLoop(handles);
 end

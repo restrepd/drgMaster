@@ -13,7 +13,10 @@ freq=f';
 %Get max and min
 if handles.subtractRef==0
     log_P_timecourse=zeros(length(f),length(t));
-    log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse),1);
+    this_logLFP=[];
+    this_logLFP=mean(10*log10(all_Power_timecourse),1);
+    log_P_timecourse(:,:)=this_logLFP(1,1:length(f),1:length(t));
+%     log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse),1);
     if handles.autoscale==1
         maxLogP=prctile(log_P_timecourse(:),99);
         minLogP=prctile(log_P_timecourse(:),1);

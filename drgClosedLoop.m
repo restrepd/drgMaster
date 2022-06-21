@@ -1,7 +1,12 @@
-function handles=drgThetaAmpPhaseTrialRange(handles)
+function handles=drgClosedLoop(handles)
 
 %Generates a trial per trial phase histogram
 odorOn=2;
+
+% laser_method=1 for data acquired with DT9812
+% laser_method=2 for data acquired with Arduino UNO
+
+laser_method=2;
 
 %Note that if event 5 exists the phase is referenced to event 5 (splus
 %or non-match). Ohterwise phase is referenced to itself
@@ -75,7 +80,7 @@ for trNo=firstTr:lastTr
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
          
         if excludeTrial==0
-             
+              
             trials_attempted=trials_attempted+1;
             [LFPlow, trialNo, can_read1] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
             %This excludes flat lick recordings
@@ -86,7 +91,21 @@ for trNo=firstTr:lastTr
             end
             [LFPhigh, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
              
-            if (can_read1==1)&(can_read2==1)
+            %Read the laser
+            switch laser_method
+                case 1
+                    laserLFPNo=18;
+                case 2
+                    laserLFPNo=21;
+            end
+            
+            [LFPlaser, trialNo, can_read3] = drgGetTrialLFPData(handles, laserLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
+            
+            if (can_read1==1)&(can_read2==1)&(can_read3==1)
+                
+                if trNo>75
+                    pffft=1;
+                end
                 
                 no_trials=no_trials+1;
                 
@@ -112,13 +131,20 @@ for trNo=firstTr:lastTr
                 end
                 perCorr_per_histo(no_trials)=50;
                
-                if handles.peakLFPNo==18
-                    %This is the sniff
-                    [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase, phase_histo, theta_wave]=drgGetThetaAmpPhaseSniff(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
-                else
-                    [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase,...
-                        phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env]...
-                        =drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
+                switch laser_method
+                    case 1
+                        if handles.peakLFPNo==18
+                            %This is the sniff
+                            [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase, phase_histo, theta_wave]=drgGetThetaAmpPhaseSniff(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
+                        else
+                            [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase,...
+                                phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env]...
+                                =drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
+                        end
+                    case 2
+                        [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase,...
+                            phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env]...
+                            =drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
                 end
 
                 out_times=out_times+handles.time_start+handles.time_pad;
@@ -162,6 +188,110 @@ for trNo=firstTr:lastTr
                         end
                     end
                 end
+                 
+                %Now figure out the number and phase of laser pulses
+                
+              
+                
+                switch laser_method
+                    
+                    case 1
+                        dt_all_pulses=40;
+                        dt_down=10;
+                        dt_next_pulse=27;
+                        at_end=0;
+                        ii=1;
+                        handles.drgb.PAC.laser(no_trials).laser_times=[];
+                        handles.drgb.PAC.laser(no_trials).laser_phase=[];
+                        ii_laser=0;
+                        thisLFPlaser=LFPlaser(pad_time*Fs:pad_time*Fs+out_times_env(end)*Fs-1);
+                        Fs_out_times_env=1/(out_times_env(2)-out_times_env(1));
+                        dec_factor=floor(Fs/Fs_out_times_env);
+                        thisLFPlaser_dec=decimate(thisLFPlaser,dec_factor);
+                        
+                        if thisLFPlaser_dec(1)>1
+                            this_laser_down_jj=find(thisLFPlaser_dec(ii:end)<1,1,'first');
+                            ii=ii+this_laser_down_jj;
+                        end
+%                         figure(11)
+%                         plot(thisLFPlaser_dec)
+%                         figure(12)
+%                         plot(decanglethetaLFP)
+                        while at_end==0
+                            this_laser_jj=find(thisLFPlaser_dec(ii:end)>1,1,'first');
+                            if ~isempty(this_laser_jj)
+                                
+                                if (ii+this_laser_jj-1 +dt_all_pulses) < length(out_times_env)
+                                    if (thisLFPlaser_dec(ii+this_laser_jj-1+dt_down)<1)&(thisLFPlaser_dec(ii+this_laser_jj-1+dt_next_pulse)>1)
+                                        %This is a double pulse
+                                        ii_laser=ii_laser+1;
+                                        ii_out=(ii+this_laser_jj-1);
+                                        handles.drgb.PAC.laser(no_trials).laser_times(ii_laser)=out_times_env(ii_out);
+                                        handles.drgb.PAC.laser(no_trials).laser_phase(ii_laser)=decanglethetaLFP(ii_out);
+                                        
+                                    end
+                                    
+                                    
+                                    ii=ii+this_laser_jj-1+dt_all_pulses;
+                                    
+                                else
+                                    at_end=1;
+                                end
+                            else
+                                at_end=1;
+                            end
+                        end
+                    case 2
+                        
+                        if trNo>33
+                            pffft=1;
+                        end
+                        
+                        dt_down=10;
+                        dt_next_pulse=27;
+                        at_end=0;
+                        ii=1;
+                        handles.drgb.PAC.laser(no_trials).laser_times=[];
+                        handles.drgb.PAC.laser(no_trials).laser_phase=[];
+                        ii_laser=0;
+                        handles.drgb.PAC.laser(no_trials).ii_laser=0;
+                        thisLFPlaser=LFPlaser(pad_time*Fs:pad_time*Fs+out_times_env(end)*Fs-1);
+                        Fs_out_times_env=1/(out_times_env(2)-out_times_env(1));
+                        dec_factor=floor(Fs/Fs_out_times_env);
+                        thisLFPlaser_dec=decimate(thisLFPlaser,dec_factor);
+                         
+                        if thisLFPlaser_dec(1)>1
+                            this_laser_down_jj=find(thisLFPlaser_dec(ii:end)<1,1,'first');
+                            ii=ii+this_laser_down_jj;
+                        end
+%                         figure(11)
+%                         plot(thisLFPlaser_dec)
+%                         figure(12)
+%                         plot(decanglethetaLFP)
+                        while at_end==0
+                            this_laser_jj=find(thisLFPlaser_dec(ii:end)>1,1,'first');
+                            if ~isempty(this_laser_jj)
+                                
+                                if (ii+this_laser_jj-1 +dt_next_pulse) < length(out_times_env)
+                                    
+                                   
+                                    ii_laser=ii_laser+1;
+                                    ii_out=(ii+this_laser_jj-1);
+                                    handles.drgb.PAC.laser(no_trials).ii_laser=ii_laser;
+                                    handles.drgb.PAC.laser(no_trials).laser_times(ii_laser)=out_times_env(ii_out);
+                                    handles.drgb.PAC.laser(no_trials).laser_phase(ii_laser)=decanglethetaLFP(ii_out);
+     
+                                    ii=ii+this_laser_jj-1+dt_next_pulse;
+                                    
+                                else
+                                    at_end=1;
+                                end
+                            else
+                                at_end=1;
+                            end
+                        end
+                end
+                
             else
                 if handles.displayData==1
                     fprintf(1, ['Trial No %d, event No %d, LFP could not be read\n'], trNo,evNo);
@@ -318,7 +448,7 @@ if ~isempty(spm)
                 at_end=1;
             end
         end
-         
+        
         for ii_t=1:length(t)
             if t(ii_t)<=troughAmp_times(1)
                 troughPower(trNum,ii_t)=10*log10((troughAmp(1)^2)/2);
@@ -594,7 +724,55 @@ if ~isempty(spm)
             title('Peak angle')
         end
         
+        all_laser_phase=[];
+        laser_pulse_no=[];
+        for trNo=1:no_trials
+            all_laser_phase=[all_laser_phase handles.drgb.PAC.laser(trNo).laser_phase];
+            laser_pulse_no(trNo)=handles.drgb.PAC.laser(trNo).ii_laser;
+        end
         
+        
+         try
+            close 9
+        catch
+        end
+        
+        hFig9 = figure(9);
+        set(hFig9, 'units','normalized','position',[.59 .05 .35 .35])
+        
+        if length(all_laser_phase)>0
+            polarhistogram(all_laser_phase+pi,12)
+            title('Laser phase')
+        end
+        
+         try
+            close 10
+        catch
+        end
+        
+        hFig10 = figure(10);
+        set(hFig10, 'units','normalized','position',[.22 .05 .35 .35])
+        
+        if length(all_laser_phase)>0
+            plot((180*all_laser_phase/pi)+180,'.k')
+            title('Laser phase')
+            ylabel('phase')
+        end
+        
+         
+         try
+            close 11
+        catch
+        end
+        
+        hFig11 = figure(11);
+        set(hFig11, 'units','normalized','position',[.0 .05 .35 .35])
+        
+        if length(laser_pulse_no)>0
+            plot(laser_pulse_no,'ok')
+            title('Number of laser pulses')
+            ylabel('No')
+        end
         
         pffft=1;
     end
