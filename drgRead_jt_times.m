@@ -46,7 +46,7 @@ drg.end_pre=24;
 filNum=1;
 load([drg_directory jt_times_file])
 
- 
+   
 drg.noSessions=filNum;
 
 drg.draq_d=draq_d;
@@ -90,7 +90,7 @@ drg.session(filNum).trial_start=draq_d.t_trial;
 %Now add events
 %Adding events should be moved to drta and a patch program!
 
-
+ 
 %If there are Hit, CR, etc then add lick+ and lick-: L+ and L-
 if (~isempty(find(strcmp('Hit',drg.session(filNum).eventlabels), 1)))||...
         (~isempty(find(strcmp('FA',drg.session(filNum).eventlabels), 1)))||...

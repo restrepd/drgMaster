@@ -1,4 +1,4 @@
-function handles=drgThetaAmpPhaseTrialRange(handles)
+function handles=drgThetaAmpPhasesTrialRange(handles)
 
 %Generates a trial per trial phase histogram
 odorOn=2;
@@ -31,6 +31,8 @@ handles.drgb.PAC.all_phase_histo=[];
 handles.drgb.PAC.all_theta_wave=[];
 handles.drgb.PAC.perCorr=[];
 handles.drgb.PAC.which_event=[];
+
+peakAngles=[];
 
 %Enter trials
 firstTr=handles.trialNo;
@@ -111,16 +113,17 @@ for trNo=firstTr:lastTr
                     handles.drgb.PAC.delta_t_trial(no_trials)=handles.drg.session(sessionNo).trial_start(trNo)-handles.drg.session(sessionNo).trial_start(trNo-1);
                 end
                 perCorr_per_histo(no_trials)=50;
-               
-                if handles.peakLFPNo==18
-                    %This is the sniff
-                    [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase, phase_histo, theta_wave]=drgGetThetaAmpPhaseSniff(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
-                else
-                    [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase,...
-                        phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env]...
-                        =drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
-                end
-
+                
+                %                 if handles.peakLFPNo==18
+                %                     %This is the sniff
+                %                     [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase, phase_histo, theta_wave]=drgGetThetaAmpPhaseSniff(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
+                %                 else
+                [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), these_peakAngles, mod_indx(no_trials), phase,...
+                    phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env]...
+                    =drgGetThetaAmpPhases(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
+                %                 end
+                
+                peakAngles=[peakAngles these_peakAngles];
                 out_times=out_times+handles.time_start+handles.time_pad;
                 
                 %Save the output
@@ -591,79 +594,28 @@ if ~isempty(spm)
         
         if no_encoding_trials>0
             polarhistogram(pi*peakAngle/180,12)
-            title('Peak angle')
+            title('Peak angle per trial')
         end
         
-        peak_phase=pi*peakAngle/180;
+%         peak_phase=pi*peakAngle/180;
+%         save([handles.fullName(1:end-7) 'phase.mat'],'peak_phase')
+        
+        try
+            close 6
+        catch
+        end
+        
+        hFig6 = figure(6);
+        set(hFig5, 'units','normalized','position',[.59 .05 .35 .35])
+        
+        if no_encoding_trials>0
+            polarhistogram(180+180*peakAngles/pi,12)
+            title('Peak angles')
+        end
+        
+        peak_phase=180+180*peakAngles/pi;
         save([handles.fullName(1:end-7) 'phase.mat'],'peak_phase')
         
-        %For the complex odor grant 2022
-
-%         %Plot a bar graph for MI before and during laser
-%         try
-%             close 10
-%         catch
-%         end
-% 
-%         hFig10 = figure(10);
-%         ax=gca;ax.LineWidth=3;
-%         set(hFig10, 'units','normalized','position',[.22 .05 .35 .35])
-% 
-%         hold on
-% 
-%         edges=[0:0.0005:0.01];
-%         rand_offset=0.8;
-% 
-% 
-%         bar_offset=1;
-%         bar(bar_offset,mean(conv_mod_indx(1:40)),'FaceColor',[150/255,150/255,150/255],'LineWidth', 3,'EdgeColor','none')
-%         [mean_out, CIout]=drgViolinPoint(conv_mod_indx(1:40)...
-%             ,edges,bar_offset,rand_offset,'k','k',3);
-% 
-%         bar_offset=2;
-%         bar(bar_offset,mean(conv_mod_indx(41:end)),'FaceColor',[150/255,150/255,150/255],'LineWidth', 3,'EdgeColor','none')
-%         [mean_out, CIout]=drgViolinPoint(conv_mod_indx(41:end)...
-%             ,edges,bar_offset,rand_offset,'k','k',3);
-% 
-% 
-%         ylabel('Modulation index')
-%         title('Modulation index')
-% 
-%         [h,p]=ttest2(conv_mod_indx(1:40),conv_mod_indx(41:end))
-% 
-%         %Plot a bar graph for peakAngle before and during laser
-%         try
-%             close 11
-%         catch
-%         end
-% 
-%         hFig11 = figure(11);
-%         ax=gca;ax.LineWidth=3;
-%         set(hFig11, 'units','normalized','position',[.22 .05 .35 .35])
-% 
-%         hold on
-% 
-%         edges=[0:20:360];
-%         rand_offset=0.8;
-% 
-% 
-%         bar_offset=1;
-%         bar(bar_offset,mean(peakAngle(1:40)),'FaceColor',[150/255,150/255,150/255],'LineWidth', 3,'EdgeColor','none')
-%         [mean_out, CIout]=drgViolinPoint(peakAngle(1:40)...
-%             ,edges,bar_offset,rand_offset,'k','k',3);
-% 
-%         bar_offset=2;
-%         bar(bar_offset,mean(peakAngle(41:end)),'FaceColor',[150/255,150/255,150/255],'LineWidth', 3,'EdgeColor','none')
-%         [mean_out, CIout]=drgViolinPoint(peakAngle(41:end)...
-%             ,edges,bar_offset,rand_offset,'k','k',3);
-% 
-% 
-%         ylabel('Peak angle')
-%         title('Peak angle')
-% 
-%         p=circ_wwtest(pi*peakAngle(1:40)/180, pi*peakAngle(41:end)/180)
-% 
-
         pffft=1;
     end
 end

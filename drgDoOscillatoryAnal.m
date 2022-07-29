@@ -67,4 +67,6 @@ switch handles.analysisNoOsc
         drgLFPimgcohDeltaallPairs(handles);
     case 32 
         drgClosedLoop(handles);
+    case 33
+        drgThetaAmpPhasesTrialRange(handles);
 end

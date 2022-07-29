@@ -50,7 +50,7 @@ hippPathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/Imaginary coher
 % FileName{8}='CaMKIIpzz1propylacecohe02092021_out.mat';
 
 
-FileName{1}='CaMKIIAPEBimgcohe01222022_out80.mat';
+FileName{1}='CaMKIIAPEBimgcohe01222022_out80.mat';fopen
 FileName{2}='spm_LFP_EBAP_imgcoh01282022_out80.mat';
 FileName{3}='CaMKIIPAEAimagcohe01112022_out80';
 FileName{4}='CaMKIIEAPAimagcohe01072022_out80.mat';

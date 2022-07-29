@@ -8,6 +8,62 @@ odorOn=2;
 
 laser_method=2;
 
+all_Power_timecourse=[];
+
+%Parameters for laser power
+sessionNo=handles.sessionNo;
+Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
+
+%LFP power parameters
+handles.LFPPowerSpectrumLowF=4;
+handles.LFPPowerSpectrumHighF=95;
+
+handles.no_lfp_bands=4;
+
+%Theta
+handles.lowF(1)=6;
+handles.highF(1)=14;
+
+%Beta
+handles.lowF(2)=15;
+handles.highF(2)=30;
+
+%Low gamma
+handles.lowF(3)=35;
+handles.highF(3)=55;
+
+%High gamma
+handles.lowF(4)=65;
+handles.highF(4)=95;
+
+handles.f_label{1}='Theta';
+handles.f_label{2}='Beta';
+handles.f_label{3}='Low gamma';
+handles.f_label{4}='High gamma';
+
+
+dec_n=fix(handles.drg.session(sessionNo).draq_p.ActualRate/1000);
+
+%Setup the wavelet scales
+%   scales = helperCWTTimeFreqVector(minfreq,maxfreq,f0,dt,NumVoices)
+%   f0 - center frequency of the wavelet in cycles/unit time
+%   dt - sampling interval
+%   NumVoices - number of voices per octave
+
+NumVoices=5;
+minfreq=handles.LFPPowerSpectrumLowF;
+maxfreq=handles.LFPPowerSpectrumHighF;
+dt=1/Fs;
+f0=5/(2*pi);
+
+a0 = 2^(1/NumVoices);
+minscale = f0/(maxfreq*dt);
+maxscale = f0/(minfreq*dt);
+minscale = floor(NumVoices*log2(minscale));
+maxscale = ceil(NumVoices*log2(maxscale));
+scales = a0.^(minscale:maxscale).*dt;
+
+
 %Note that if event 5 exists the phase is referenced to event 5 (splus
 %or non-match). Ohterwise phase is referenced to itself
 if length(handles.drg.session(1).events)>=5
@@ -16,8 +72,8 @@ else
     splus=handles.evTypeNo;
 end
 
-sessionNo=handles.sessionNo;
-Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
+
+
 lowF1=handles.peakLowF;
 lowF2=handles.peakHighF;
 highF1=handles.burstLowF;
@@ -103,9 +159,6 @@ for trNo=firstTr:lastTr
             
             if (can_read1==1)&(can_read2==1)&(can_read3==1)
                 
-                if trNo>75
-                    pffft=1;
-                end
                 
                 no_trials=no_trials+1;
                 
@@ -268,6 +321,7 @@ for trNo=firstTr:lastTr
 %                         plot(thisLFPlaser_dec)
 %                         figure(12)
 %                         plot(decanglethetaLFP)
+                        laser_times=[];
                         while at_end==0
                             this_laser_jj=find(thisLFPlaser_dec(ii:end)>1,1,'first');
                             if ~isempty(this_laser_jj)
@@ -278,7 +332,8 @@ for trNo=firstTr:lastTr
                                     ii_laser=ii_laser+1;
                                     ii_out=(ii+this_laser_jj-1);
                                     handles.drgb.PAC.laser(no_trials).ii_laser=ii_laser;
-                                    handles.drgb.PAC.laser(no_trials).laser_times(ii_laser)=out_times_env(ii_out);
+                                    handles.drgb.PAC.laser(no_trials).laser_times(ii_laser)=out_times_env(ii_out)+handles.time_start+handles.time_pad;
+                                    laser_times(ii_laser)=out_times_env(ii_out);
                                     handles.drgb.PAC.laser(no_trials).laser_phase(ii_laser)=decanglethetaLFP(ii_out);
      
                                     ii=ii+this_laser_jj-1+dt_next_pulse;
@@ -291,6 +346,78 @@ for trNo=firstTr:lastTr
                             end
                         end
                 end
+                
+                pffft=1;
+                
+
+              
+                
+                
+                  
+                %Now do the wavelet transform
+                handles.peakLowF=handles.LFPPowerSpectrumLowF;
+                handles.peakHighF=handles.LFPPowerSpectrumHighF;
+                handles.burstLowF=handles.LFPPowerSpectrumLowF;
+                handles.burstHighF=handles.LFPPowerSpectrumHighF;
+                
+                [LFP, trialNo, can_read] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, handles.time_start, handles.time_end);
+            
+                handles.peakLowF=lowF1;
+                handles.peakHighF=lowF2;
+                handles.burstLowF=highF1;
+                handles.burstHighF=highF2;
+                
+                decLFP=decimate(LFP,dec_n);
+                decFs=Fs/dec_n;
+                
+                cwtLFP = cwtft({detrend(double(decLFP)),1/decFs},'wavelet','morl','scales',scales);
+                Prev=abs(cwtLFP.cfs).^2;
+                P=Prev(end:-1:1,:);
+                DT=1/decFs;
+                t = 0:DT:(numel(decLFP)*DT)-DT;
+                frev=cwtLFP.frequencies;
+                f=frev(end:-1:1);
+
+                all_times=t+handles.time_start;
+%                 out_times=all_times(:,(all_times>=handles.time_start+handles.time_pad)&(all_times<=handles.time_end-handles.time_pad));
+                ii_from=find(all_times>=handles.time_start+handles.time_pad,1,'first');
+                this_all_Power_timecourse(1:length(f),1:length(out_times_env))=P(:,ii_from:ii_from+length(out_times_env)-1);
+                this_LFP(1,1:length(out_times_env))=decLFP(:,ii_from:ii_from+length(out_times_env)-1);
+                all_Power_timecourse(no_trials,1:length(f),1:length(out_times_env))=this_all_Power_timecourse;
+                handles.drgb.PAC.laser(no_trials).all_Power_timecourse=this_all_Power_timecourse;
+                handles.drgb.PAC.laser(no_trials).out_times=out_times_env;
+                if handles.subtractRef==1
+                    P_ref=[];
+                    P_ref=P(:,(all_times>=handles.startRef+handles.time_pad)&(all_times<=handles.endRef-handles.time_pad));
+                    all_Power_ref(no_trials,1:length(f))=mean(P_ref,2);
+                end
+                
+                %Now pull out the laser-referenced power windows
+%                 dt_window=0.2; %Seconds for laser window
+%                 dt_window_ii=ceil(dt_window/(out_times_env(2)-out_times_env(1)));
+%                 half_dt_window_ii=ceil(dt_window_ii/2);
+                dt_before=0.01;
+                ii_dt_before=ceil(dt_before/(out_times_env(2)-out_times_env(1)));
+                dt_after=0.02;
+                ii_dt_after=ceil(dt_after/(out_times_env(2)-out_times_env(1)));
+                dt_window_ii=ii_dt_before+ii_dt_after+1;
+                ii_ref=2;
+                
+                for ii_l=1:length(laser_times)
+                    [min_dt,min_ii]=min(abs(laser_times(ii_l)-out_times_env));
+                    if (min_ii>ii_dt_before)&(min_ii+ii_dt_after<length(out_times_env))
+                        length_snips=size(this_all_Power_timecourse(:,min_ii-ii_dt_before:min_ii+ii_dt_after),2);
+                        handles.drgb.PAC.laser(no_trials).power_snips(ii_l).all_Power_timecourse_snip=this_all_Power_timecourse(:,min_ii-ii_dt_before:min_ii+ii_dt_after);
+                        handles.drgb.PAC.laser(no_trials).power_snips(ii_l).LFP_snip=this_LFP(1,min_ii-ii_dt_before:min_ii+ii_dt_after);
+                        handles.drgb.PAC.laser(no_trials).power_snips(ii_l).snip_calculated=1;
+                    else
+                        handles.drgb.PAC.laser(no_trials).power_snips(ii_l).all_Power_timecourse_snip=[];
+                        handles.drgb.PAC.laser(no_trials).power_snips(ii_l).LFP_snip=[];
+                        handles.drgb.PAC.laser(no_trials).power_snips(ii_l).snip_calculated=0;
+                    end
+                end
+                
+                
                 
             else
                 if handles.displayData==1
@@ -738,6 +865,7 @@ if ~isempty(spm)
         end
         
         hFig9 = figure(9);
+        ax=gca;ax.LineWidth=3;
         set(hFig9, 'units','normalized','position',[.59 .05 .35 .35])
         
         if length(all_laser_phase)>0
@@ -751,6 +879,7 @@ if ~isempty(spm)
         end
         
         hFig10 = figure(10);
+        ax=gca;ax.LineWidth=3;
         set(hFig10, 'units','normalized','position',[.22 .05 .35 .35])
         
         if length(all_laser_phase)>0
@@ -759,6 +888,8 @@ if ~isempty(spm)
             ylabel('phase')
         end
         
+        laser_phase=(180*all_laser_phase/pi)+180;
+        save([handles.fullName(1:end-7) 'laser.mat'],'laser_phase')
          
          try
             close 11
@@ -774,7 +905,315 @@ if ~isempty(spm)
             ylabel('No')
         end
         
-        pffft=1;
+        %Show a pseudocolor of the average power timecourse
+        
+        %Timecourse doing average after log
+        freq=f;
+        t_apt=out_times_env;
+        if handles.subtractRef==0
+            log_P_timecourse=zeros(length(freq),length(t_apt));
+            log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse),1);
+            
+            %Per trial power plot
+            log_P_per_trial_timecourse=zeros(length(freq)*trialNo,length(t_apt));
+            y_shift=0;
+            log_P_snip_per_trial_timecourse_sub=[];
+            ii_snip_sub=0;
+            
+            for trialNo=1:length(no_trials)
+                this_log_P_timecourse=zeros(length(freq),length(t_apt));
+                this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trialNo,:,:));
+                log_P_per_trial_timecourse(y_shift+1:y_shift+length(freq),:)=this_log_P_timecourse;
+                shifted_freq(1,y_shift+1:y_shift+length(freq))=freq+(trialNo-1)*freq(end);
+                y_shift=y_shift+length(freq);
+                
+                 for ii_snips=1:length(handles.drgb.PAC.laser(trialNo).power_snips)
+                    if (handles.drgb.PAC.laser(trialNo).power_snips(ii_snips).snip_calculated==1)
+                        this_Power_timecourse_snip=handles.drgb.PAC.laser(trialNo).power_snips(ii_snips).all_Power_timecourse_snip;
+                        this_log_P_snip_timecourse(:,:)=10*log10(this_Power_timecourse_snip);
+                        ii_snip_sub=ii_snip_sub+1;
+                        log_P_snip_per_trial_timecourse_sub(ii_snip_sub,:,:)=this_log_P_snip_timecourse;
+                    end
+                end
+            end
+            
+            if handles.autoscale==1
+                maxLogPper=prctile(log_P_timecourse(:),99);
+                minLogPper=prctile(log_P_timecourse(:),1);
+                %Note: Diego added this on purpose to limit the range to 10 dB
+                %This results in emphasizing changes in the top 10 dB
+                if maxLogPper-minLogPper>12
+                    minLogPper=maxLogPper-12;
+                end
+            else
+                maxLogPper=handles.maxLogP;
+                minLogPper=handles.minLogP;
+            end
+        else
+            log_P_timecourse=zeros(length(freq),length(t_apt));
+            log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse),1);
+            log_P_timecourse_ref=zeros(length(freq),length(t_apt));
+            log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref),1)',1,length(t_apt));
+            
+            %Per trial power plot
+            log_P_per_trial_timecourse_sub=zeros(length(freq)*length(no_trials),length(t_apt));
+            log_P_snip_per_trial_timecourse_sub=[];
+            LFP_snip_per_trial_timecourse=[];
+            logP_trials=[];
+            ii_snip_sub=0;
+            
+            y_shift=0;
+            sy_shift=0;
+            shifted_freq=[];
+            for trialNo=1:no_trials
+                this_log_P_timecourse=zeros(length(freq),length(t_apt));
+                this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trialNo,:,:));
+                this_log_P_timecourse_ref=zeros(length(freq),length(t_apt));
+                this_log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref(trialNo,:)),1)',1,length(t_apt));
+                this_log_P_timecourse_ref_snip=[];
+                this_log_P_timecourse_ref_snip(:,:)=repmat(mean(10*log10(all_Power_ref(trialNo,:)),1)',1,dt_window_ii);
+                log_P_per_trial_timecourse_sub(y_shift+1:y_shift+length(freq),:)=this_log_P_timecourse-this_log_P_timecourse_ref;
+                shifted_freq(1,y_shift+1:y_shift+length(freq))=freq+(trialNo-1)*freq(end);
+                y_shift=y_shift+length(freq);
+                
+                for ii_snips=1:length(handles.drgb.PAC.laser(trialNo).power_snips)
+                    if handles.drgb.PAC.laser(trialNo).power_snips(ii_snips).snip_calculated==1
+                        this_Power_timecourse_snip=handles.drgb.PAC.laser(trialNo).power_snips(ii_snips).all_Power_timecourse_snip;
+                        this_log_P_snip_timecourse(:,:)=10*log10(this_Power_timecourse_snip);
+                        ii_snip_sub=ii_snip_sub+1;
+                        log_P_snip_per_trial_timecourse_sub(ii_snip_sub,:,:)=this_log_P_snip_timecourse-this_log_P_timecourse_ref_snip;
+                        LFP_snip_per_trial_timecourse(ii_snip_sub,:)=handles.drgb.PAC.laser(trialNo).power_snips(ii_snips).LFP_snip;
+                        logP_trials(ii_snip_sub)=trialNo;
+                    end
+                end
+            end
+            
+            max_delta=16;
+            if handles.autoscale==1
+                
+                deltaLogP=log_P_timecourse'-log_P_timecourse_ref';
+                maxLogPper=prctile(deltaLogP(:),99);
+                minLogPper=prctile(deltaLogP(:),1);
+                %Note: Diego added this on purpose to limit the range to 10 dB
+                %This results in emphasizing changes in the top 10 dB
+                if maxLogPper-minLogPper>max_delta
+                    minLogPper=maxLogPper-max_delta;
+                end
+                
+            else
+                maxLogPper=handles.maxLogP;
+                minLogPper=handles.minLogP;
+            end
+        end
+        
+        %Plot the average wavelet power timecourse
+        figNo=12;
+        
+        figNo=figNo+1;
+        try
+            close(figNo)
+        catch
+        end
+        
+        %Plot the timecourse
+        hFig = figure(figNo);
+        set(hFig, 'units','normalized','position',[.07 .05 .75 .3])
+        if handles.subtractRef==0
+            drg_pcolor(repmat(t_apt,length(freq),1)',repmat(freq,length(t_apt),1),log_P_timecourse')
+        else
+            %pcolor(repmat(t,length(f),1)',repmat(f,length(t),1),10*log10(P_timecourse')-10*log10(P_timecourse_ref'))
+            drg_pcolor(repmat(t_apt,length(freq),1)',repmat(freq,length(t_apt),1),log_P_timecourse'-log_P_timecourse_ref')
+            %imagesc(t,f,10*log10(P_timecourse')-10*log10(P_timecourse_ref'))
+        end
+        
+        colormap fire
+        shading interp
+        caxis([minLogPper maxLogPper]);
+        xlabel('Time (sec)')
+        ylabel('Frequency (Hz)');
+        title(['Power (dB, wavelet) timecourse ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
+        
+        
+        
+        %Show a pseudocolor of average the laser snips
+        figNo=13;
+        
+        figNo=figNo+1;
+        try
+            close(figNo)
+        catch
+        end
+        
+        avg_log_P_snip_per_trial_timecourse_sub=zeros(size(log_P_snip_per_trial_timecourse_sub,2),size(log_P_snip_per_trial_timecourse_sub,3));
+        avg_log_P_snip_per_trial_timecourse_sub(:,:)=mean(log_P_snip_per_trial_timecourse_sub,1);
+        t_snips=[0:out_times_env(2)-out_times_env(1):dt_before+dt_after]-dt_before;
+        t_snips=[t_snips t_snips(end)+out_times_env(2)-out_times_env(1)];
+        
+        %Plot the timecourse
+        hFig = figure(figNo);
+        set(hFig, 'units','normalized','position',[.07 .05 .3 .3])
+         
+        %pcolor(repmat(t,length(f),1)',repmat(f,length(t),1),10*log10(P_timecourse')-10*log10(P_timecourse_ref'))
+        time_length=size(avg_log_P_snip_per_trial_timecourse_sub,2);
+        if time_length<length(t_snips)
+            t_snips=t_snips(1:time_length);
+        end
+        drg_pcolor(repmat(t_snips,length(freq),1)',repmat(freq,length(t_snips),1),avg_log_P_snip_per_trial_timecourse_sub')
+        %imagesc(t,f,10*log10(P_timecourse')-10*log10(P_timecourse_ref'))
+        
+        
+        colormap fire
+        shading interp
+        caxis([minLogPper maxLogPper]);
+        xlabel('Time (sec)')
+        ylabel('Frequency (Hz)');
+        title(['Laser-referenced power (dB, wavelet) timecourse ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
+        
+        %Plot the laser-referenced power for each bandwidth
+         figNo=14;
+         
+         figNo=figNo+1;
+         try
+             close(figNo)
+         catch
+         end
+         
+         hFig = figure(figNo);
+         set(hFig, 'units','normalized','position',[.07 .05 .4 .4])
+         
+      
+          
+         for ii_bw=1:length(handles.lowF)
+             subplot(2,2,ii_bw)
+             hold on
+             this_bw_log_P_snip_per_trial_timecourse_sub=zeros(size(log_P_snip_per_trial_timecourse_sub,1),size(log_P_snip_per_trial_timecourse_sub,3));
+             this_bw_log_P_snip_per_trial_timecourse_sub(:,:)=mean(log_P_snip_per_trial_timecourse_sub(:,(f>=handles.lowF(ii_bw))&(f>=handles.highF(ii_bw)),:),2);
+             mean_this_bw_log_P_snip_per_trial_timecourse_sub=mean(this_bw_log_P_snip_per_trial_timecourse_sub(:,ii_dt_before-ii_ref:ii_dt_before+ii_ref),2);
+             this_bw_log_P_snip_per_trial_timecourse_sub(:,:)=this_bw_log_P_snip_per_trial_timecourse_sub(:,:)-repmat(mean_this_bw_log_P_snip_per_trial_timecourse_sub,1,size(this_bw_log_P_snip_per_trial_timecourse_sub,2));
+             CIsp = bootci(1000, @mean, this_bw_log_P_snip_per_trial_timecourse_sub);
+             meansp=mean(this_bw_log_P_snip_per_trial_timecourse_sub,1);
+             CIsp(1,:)=meansp-CIsp(1,:);
+             CIsp(2,:)=CIsp(2,:)-meansp;
+
+             [hlsp, hpsp] = boundedline(t_snips',mean(this_bw_log_P_snip_per_trial_timecourse_sub,1)', CIsp', 'cmap',[80/255 194/255 255/255]);
+
+             this_yl=ylim;
+
+             plot([0 0],this_yl)
+
+             %              plot(t_snips',this_bw_log_P_snip_per_trial_timecourse_sub','-k')
+
+             title(handles.f_label{ii_bw})
+             xlabel('Time (sec)')
+             ylabel('dB')
+         end
+
+         %Plot the laser-referenced LFP
+         figNo=15;
+
+         figNo=figNo+1;
+         try
+             close(figNo)
+         catch
+         end
+
+         hFig = figure(figNo);
+         set(hFig, 'units','normalized','position',[.07 .05 .4 .4])
+
+
+
+         mean_LFP_snip_per_trial_timecourse=mean(LFP_snip_per_trial_timecourse(:,ii_dt_before-ii_ref:ii_dt_before+ii_ref),2);
+         LFP_snip_per_trial_timecourse(:,:)=LFP_snip_per_trial_timecourse(:,:)-repmat(mean_LFP_snip_per_trial_timecourse,1,size(this_bw_log_P_snip_per_trial_timecourse_sub,2));
+            
+
+         hold on
+         
+         CIsp = bootci(1000, @mean, LFP_snip_per_trial_timecourse);
+         meansp=mean(LFP_snip_per_trial_timecourse,1);
+         CIsp(1,:)=meansp-CIsp(1,:);
+         CIsp(2,:)=CIsp(2,:)-meansp;
+
+         [hlsp, hpsp] = boundedline(t_snips',mean(LFP_snip_per_trial_timecourse,1)', CIsp', 'cmap',[80/255 194/255 255/255]);
+
+         this_yl=ylim;
+
+         plot([0 0],this_yl)
+
+         %              plot(t_snips',this_bw_log_P_snip_per_trial_timecourse_sub','-k')
+
+         title('Laser-referenced LFP')
+         xlabel('Time (sec)')
+         ylabel('uV')
+
+
+         try
+             close 17
+         catch
+         end
+
+         hFig2 = figure(17);
+         ax=gca;ax.LineWidth=3;
+         set(hFig10, 'units','normalized','position',[.22 .05 .35 .35])
+
+         %Now plot the mean theta waveform
+         shadedErrorBar(phase,mean(all_theta_wave,1),std(all_theta_wave,0,1),'-b')
+         xlim([0 360])
+         title('Mean low frequency waveform')
+         xlabel('Degrees')
+
+%          %Plot the laser-referenced power for one bandwidth for the grant
+%          figNo=17;
+% 
+%          figNo=figNo+1;
+%          try
+%              close(figNo)
+%          catch
+%          end
+% 
+%          hFig = figure(figNo);
+%          ax=gca;ax.LineWidth=3;
+%          set(hFig10, 'units','normalized','position',[.22 .05 .35 .35])
+% 
+%          hold on
+% 
+%          ii_bw=4;
+% 
+%          hold on
+%          this_bw_log_P_snip_per_trial_timecourse_sub=zeros(size(log_P_snip_per_trial_timecourse_sub,1),size(log_P_snip_per_trial_timecourse_sub,3));
+%          this_bw_log_P_snip_per_trial_timecourse_sub(:,:)=mean(log_P_snip_per_trial_timecourse_sub(:,(f>=handles.lowF(ii_bw))&(f>=handles.highF(ii_bw)),:),2);
+%          mean_this_bw_log_P_snip_per_trial_timecourse_sub=mean(this_bw_log_P_snip_per_trial_timecourse_sub(:,ii_dt_before-ii_ref:ii_dt_before+ii_ref),2);
+%          this_bw_log_P_snip_per_trial_timecourse_sub(:,:)=this_bw_log_P_snip_per_trial_timecourse_sub(:,:)-repmat(mean_this_bw_log_P_snip_per_trial_timecourse_sub,1,size(this_bw_log_P_snip_per_trial_timecourse_sub,2));
+% 
+%          %Plot before laser
+%          pre_bw_log_P_snip_per_trial_timecourse_sub=this_bw_log_P_snip_per_trial_timecourse_sub((logP_trials>=20)&(logP_trials<=40),:);
+%          CIsp = bootci(1000, @mean, pre_bw_log_P_snip_per_trial_timecourse_sub);
+%          meansp=mean(pre_bw_log_P_snip_per_trial_timecourse_sub,1);
+%          CIsp(1,:)=meansp-CIsp(1,:);
+%          CIsp(2,:)=CIsp(2,:)-meansp;
+% 
+%          [hlsp, hpsp] = boundedline(t_snips',mean(pre_bw_log_P_snip_per_trial_timecourse_sub,1)', CIsp', 'cmap',[0/255 0/255 0/255]);
+% 
+%          %Plot after laser
+%          post_bw_log_P_snip_per_trial_timecourse_sub=this_bw_log_P_snip_per_trial_timecourse_sub((logP_trials>=42)&(logP_trials<=80),:);
+%          CIsp = bootci(1000, @mean, post_bw_log_P_snip_per_trial_timecourse_sub);
+%          meansp=mean(post_bw_log_P_snip_per_trial_timecourse_sub,1);
+%          CIsp(1,:)=meansp-CIsp(1,:);
+%          CIsp(2,:)=CIsp(2,:)-meansp;
+% 
+%          [hlsp, hpsp] = boundedline(t_snips',mean(post_bw_log_P_snip_per_trial_timecourse_sub,1)', CIsp', 'cmap',[80/255 194/255 255/255]);
+% 
+%          this_yl=ylim;
+% 
+%          plot([0 0],this_yl)
+% 
+%          %              plot(t_snips',this_bw_log_P_snip_per_trial_timecourse_sub','-k')
+% 
+%          title(handles.f_label{ii_bw})
+%          xlabel('Time (sec)')
+%          ylabel('dB')
+%  
+
+         pffft=1;
     end
 end
 

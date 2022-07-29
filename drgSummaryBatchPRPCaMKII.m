@@ -98,6 +98,14 @@ hippFileName{8}='spm_LFP_pzz1propylwavephasepower071220_hippocampusLFP80.mat';
 % prePathName='F:\Datos summary CaMKII111720\PRP drgAnalysisBatchLFPCaMKII case 24 output for summary\';
 prePathName='/Users/restrepd/Documents/Projects/CaMKII_analysis/PRP drgAnalysisBatchLFPCaMKII case 24 output for 80/';
 
+%Load the table of mouse numbers
+mouse_no_table='/Users/restrepd/Documents/Projects/CaMKII_analysis/Reply_to_reviewers/camkii_mice_per_odor_pair_for_PRP.xlsx';
+T_mouse_no = readtable(mouse_no_table);
+
+%Text file for statistical output
+fileID = fopen([prePathName 'drgSummaryBatchPRPCaMKIIstats.txt'],'w');
+
+
 % %Prefrontal
 % preFileName{1}='spm_LFP_acetowavephasepower32620_prefrontPRPnew.mat';
 % preFileName{2}='spm_LFP_acetowavephasepower32620_prefrontPRPnewpropyl.mat';
@@ -150,66 +158,77 @@ rand_offset=0.5;
 
 for peak=0:1
     for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
-        
+
         glm_PRP=[];
         glm_ii=0;
-        
+
         id_ii=0;
         input_data=[];
-        
+
         %Plot the average
         figNo = figNo +1;
-        
+
         try
             close(figNo)
         catch
         end
         hFig=figure(figNo);
-        
+
         ax=gca;ax.LineWidth=3;
-        
+
         set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
         hold on
-        
+
         bar_lab_loc=[];
         no_ev_labels=0;
         ii_gr_included=0;
         bar_offset = 0;
-        
-       
-        
+
+
+
         for evNo=1:2
-            
+            per_ii_mi=[];
+            unique_mouse_nos=[];
+
             for per_ii=2:-1:1
-                
+
                 for grNo=1:3
-                    
+
                     bar_offset = bar_offset + 1;
-                    
-                    %Get these MI values
+
+                    %Get these PRP values
                     these_PRP=[];
+                    these_mouse_nos=[];
                     ii_PRP=0;
                     for ii=1:length(hippFileName)
                         this_jj=[];
+                        these_mouse_no_per_op=T_mouse_no.mouse_no_per_op(T_mouse_no.odor_pair_no==ii);
+                        these_mouse_no=T_mouse_no.mouse_no(T_mouse_no.odor_pair_no==ii);
                         for jj=1:all_hippo(ii).handles_out.PRP_ii
                             %                             fprintf(1, ['peak = %d\n'],all_hippo(ii).handles_out.PRP_values(jj).peak)
                             if all_hippo(ii).handles_out.PRP_values(jj).pacii==pacii
                                 if all_hippo(ii).handles_out.PRP_values(jj).evNo==evNo
                                     if all_hippo(ii).handles_out.PRP_values(jj).per_ii==per_ii
                                         if all_hippo(ii).handles_out.PRP_values(jj).peak==peak
-                                            
+
                                             if all_hippo(ii).handles_out.PRP_values(jj).groupNo==grNo
                                                 this_jj=jj;
                                             end
                                         end
                                     end
-                                    
+
                                 end
                             end
                         end
                         if ~isempty(this_jj)
                             if mouse_op==1
                                 these_PRP(ii_PRP+1:ii_PRP+length(all_hippo(ii).handles_out.PRP_values(this_jj).PRP_per_mouse))=all_hippo(ii).handles_out.PRP_values(this_jj).PRP_per_mouse;
+
+                                for ww=1:length(all_hippo(ii).handles_out.PRP_values(this_jj).PRP_per_mouse)
+                                    this_nn=find(all_hippo(ii).handles_out.PRP_values(this_jj).mouseNo(ww)==these_mouse_no_per_op);
+                                    these_mouse_nos(ii_PRP+ww)=these_mouse_no(this_nn);
+                                end
+
                                 ii_PRP=ii_PRP+length(all_hippo(ii).handles_out.PRP_values(this_jj).PRP_per_mouse);
                             else
                                 ii_PRP=ii_PRP+1;
@@ -217,8 +236,11 @@ for peak=0:1
                             end
                         end
                     end
-                    
-                    
+
+                    per_ii_PRP(per_ii).these_mi=these_PRP;
+                    per_ii_PRP(per_ii).these_mouse_nos=these_mouse_nos;
+                    unique_mouse_nos=unique([unique_mouse_nos these_mouse_nos]);
+
                     switch grNo
                         case 1
                             bar(bar_offset,mean(these_PRP),'g','LineWidth', 3,'EdgeColor','none')
@@ -227,64 +249,93 @@ for peak=0:1
                         case 3
                             bar(bar_offset,mean(these_PRP),'y','LineWidth', 3,'EdgeColor','none')
                     end
-                    
-                    
+
+
                     %Violin plot
-                    
+
                     [mean_out, CIout]=drgViolinPoint(these_PRP,edges,bar_offset,rand_offset,'k','k',3);
-                    
+
                     %                     CI = bootci(1000, {@mean, these_PRP},'type','cper');
                     %                     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
                     %                     plot(bar_offset*ones(1,length(these_PRP)),these_PRP,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
                     %
-                    
+
                     %                                 %Save data for glm and ranksum
-                    
+
                     glm_PRP.data(glm_ii+1:glm_ii+length(these_PRP))=these_PRP;
                     glm_PRP.group(glm_ii+1:glm_ii+length(these_PRP))=grNo*ones(1,length(these_PRP));
                     glm_PRP.perCorr(glm_ii+1:glm_ii+length(these_PRP))=per_ii*ones(1,length(these_PRP));
                     glm_PRP.event(glm_ii+1:glm_ii+length(these_PRP))=evNo*ones(1,length(these_PRP));
+                    glm_PRP.mouseNo(glm_ii+1:glm_ii+length(these_PRP))=these_mouse_nos;
                     glm_ii=glm_ii+length(these_PRP);
-                    
+
                     id_ii=id_ii+1;
                     input_data(id_ii).data=these_PRP;
                     input_data(id_ii).description=[group_legend{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
-                    
-                    
+
+
                 end
                 bar_offset = bar_offset + 1;
-                
+
             end
             bar_offset = bar_offset + 1;
-            
+
         end
-        
+
         title(['Average PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' theta/' PACnames{pacii} ' hippocampus'])
-        
-        
+
+
         xticks([1 2 3 5 6 7 10 11 12 14 15 16])
         xticklabels({'nwtS+', 'nHS+', 'nKOS+', 'pwtS+', 'pHS+', 'pKOS+', 'nwtS-', 'nHS-', 'nKOS-', 'pwtS-', 'pHS-', 'pKOS-'})
-        
+
         ylim([-15 10])
-        
+
         ylabel('PRP')
-        
-        
+
+
         %Perform the glm
         fprintf(1, ['glm for average PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' theta' PACnames{pacii} ' hippocampus\n'])
-        
+        fprintf(fileID, ['glm for average PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' theta' PACnames{pacii} ' hippocampus\n']);
+
+
         fprintf(1, ['\n\nglm for PRP for Theta/' PACnames{pacii} '\n'])
         tbl = table(glm_PRP.data',glm_PRP.group',glm_PRP.perCorr',glm_PRP.event',...
             'VariableNames',{'MI','group','naive_vs_proficient','sp_vs_sm'});
         mdl = fitglm(tbl,'MI~group+naive_vs_proficient+sp_vs_sm+naive_vs_proficient*group*sp_vs_sm'...
             ,'CategoricalVars',[2,3,4])
-        
-        
+
+        txt = evalc('mdl');
+        txt=regexp(txt,'<strong>','split');
+        txt=cell2mat(txt);
+        txt=regexp(txt,'</strong>','split');
+        txt=cell2mat(txt);
+
+        fprintf(fileID,'%s\n', txt);
+
         %Do the ranksum/t-test
         fprintf(1, ['\n\nRanksum or t-test p values for average PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' theta' PACnames{pacii} ' hippocampus\n'])
-        [output_data] = drgMutiRanksumorTtest(input_data);
-        
-        
+        fprintf(fileID, ['\n\nRanksum or t-test p values for average PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' theta' PACnames{pacii} ' hippocampus\n']);
+
+        [output_data] = drgMutiRanksumorTtest(input_data,fileID);
+
+        %Nested ANOVAN
+        %https://www.mathworks.com/matlabcentral/answers/491365-within-between-subjects-in-anovan
+        nesting=[0 0 0 0; ... % This line indicates that group factor is not nested in any other factor.
+            0 0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+            0 0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+            %          0 0 0; ... % This line indicates that event is not nested in any other factor.
+            1 1 1 0];    % This line indicates that mouse_no (the last factor) is nested under group, perCorr and event
+        % (the 1 in position 1 on the line indicates nesting under the first factor).
+        figNo=figNo+1;
+
+        [p anovanTbl stats]=anovan(glm_PRP.data,{glm_PRP.group,glm_PRP.perCorr glm_PRP.event glm_PRP.mouseNo},...
+            'model','interaction',...
+            'nested',nesting,...
+            'varnames',{'genotype','naive_vs_proficient', 'rewarded_vs_unrewarded','mouse_no'});
+
+        fprintf(fileID, ['\n\nNested ANOVAN for average PRP calculated per mouse per odor pair for '  PACnames{pacii} ' for hippocampus\n'])
+        drgWriteANOVANtbl(anovanTbl,fileID);
+        fprintf(fileID, '\n\n');
     end
 end
 
@@ -295,43 +346,43 @@ rand_offset=0.5;
 
 for peak=0:1
     for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
-        
+
         glm_AUC=[];
         glm_ii=0;
-        
+
         id_ii=0;
         input_data=[];
-        
+
         %Plot the average
         figNo = figNo +1;
-        
+
         try
             close(figNo)
         catch
         end
         hFig=figure(figNo);
-        
+
         %             try
         %                 close(figNo+pacii)
         %             catch
         %             end
         %             hFig=figure(figNo+pacii);
-        
+
         set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
         hold on
-        
+
         bar_lab_loc=[];
         no_ev_labels=0;
         ii_gr_included=0;
         bar_offset = 0;
-        
+
         %     for evNo=1:2
-        
+
         for per_ii=2:-1:1
-            
+
             for grNo=1:3
                 bar_offset = bar_offset +1;
-                
+
                 %                         if sum(eventType==3)>0
                 %                             bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(2-evNo);
                 %                         else
@@ -340,7 +391,7 @@ for peak=0:1
                 %
                 %                         these_offsets(per_ii)=bar_offset;
                 bar_offset = bar_offset + 1;
-                
+
                 %Get these MI values
                 these_AUC=[];
                 ii_AUC=0;
@@ -356,14 +407,14 @@ for peak=0:1
                                 end
                             end
                         end
-                        
+
                     end
                     if ~isempty(this_jj)
                         ii_AUC=ii_AUC+1;
                         these_AUC(ii_AUC)=all_hippo(ii).handles_out.AUC_values(this_jj).AUC;
                     end
                 end
-                
+
                 switch grNo
                     case 1
                         bar(bar_offset,mean(these_AUC),'g','LineWidth', 3,'EdgeColor','none')
@@ -372,71 +423,71 @@ for peak=0:1
                     case 3
                         bar(bar_offset,mean(these_AUC),'y','LineWidth', 3,'EdgeColor','none')
                 end
-                
-                
+
+
                 %Violin plot
-                
+
                 %                 [mean_out, CIout]=drgViolinPoint(these_AUC,edges,bar_offset,rand_offset,'k','k',1);
                 CI = bootci(1000, {@mean, these_AUC},'type','cper');
                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
                 plot(bar_offset*ones(1,length(these_AUC)),these_AUC,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-                
+
                 %                                 %Save data for glm and ranksum
-                
+
                 glm_AUC.data(glm_ii+1:glm_ii+length(these_AUC))=these_AUC;
                 glm_AUC.group(glm_ii+1:glm_ii+length(these_AUC))=grNo*ones(1,length(these_AUC));
                 glm_AUC.perCorr(glm_ii+1:glm_ii+length(these_AUC))=per_ii*ones(1,length(these_AUC));
                 glm_AUC.event(glm_ii+1:glm_ii+length(these_AUC))=evNo*ones(1,length(these_AUC));
                 glm_ii=glm_ii+length(these_AUC);
-                
+
                 id_ii=id_ii+1;
                 input_data(id_ii).data=these_AUC;
                 input_data(id_ii).description=[group_legend{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
-                
-                
+
+
             end
             bar_offset = bar_offset + 2;
-            
+
         end
         bar_offset = bar_offset + 3;
-        
+
         %     end
-        
+
         title(['Average PRP auROC for each electrode calculated per mouse for ' peak_label{peak+1} ' theta/' PACnames{pacii} ' hippocampus'])
-        
-        
+
+
         %Annotations identifying groups
         x_interval=0.8/ii_gr_included;
         for ii=1:ii_gr_included
             annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
         end
-        
+
         %Proficient/Naive annotations
         annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
         annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
-        
-        
+
+
         xticks([2 4 6 10 12 14 21 23 25 29 31 33])
         xticklabels({'nwtS+', 'nHS+', 'nKOS+', 'pwtS+', 'pHS+', 'pKOS+', 'nwtS-', 'nHS-', 'nKOS-', 'pwtS-', 'pHS-', 'pKOS-'})
-        
+
         ylim([0 0.5])
         ylabel('auROC')
-        
+
         %Perform the glm
         fprintf(1, ['glm for average PRP auROC for each electrode calculated per mouse for ' peak_label{peak+1} ' theta' PACnames{pacii} ' hippocampus\n'])
-        
+
         fprintf(1, ['\n\nglm for auROC for Theta/' PACnames{pacii} '\n'])
         tbl = table(glm_AUC.data',glm_AUC.group',glm_AUC.perCorr',glm_AUC.event',...
             'VariableNames',{'MI','group','perCorr','event'});
         mdl = fitglm(tbl,'MI~group+perCorr+event+perCorr*group*event'...
             ,'CategoricalVars',[2,3,4])
-        
-        
+
+
         %Do the ranksum/t-test
         fprintf(1, ['\n\nRanksum or t-test p values for average PRP auROC for each electrode calculated per mouse for ' peak_label{peak+1} ' theta' PACnames{pacii} ' hippocampus\n'])
         [output_data] = drgMutiRanksumorTtest(input_data);
-        
-        
+
+
     end
 end
 
@@ -461,43 +512,45 @@ rand_offset=0.5;
 
 for peak=0:1
     for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
-        
+
         glm_PRP=[];
         glm_ii=0;
-        
+
         id_ii=0;
         input_data=[];
-        
+
         %Plot the average
         figNo = figNo +1;
-        
+
         try
             close(figNo)
         catch
         end
         hFig=figure(figNo);
-        
+
         ax=gca;ax.LineWidth=3;
-        
+
         set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
         hold on
-        
+
         bar_lab_loc=[];
         no_ev_labels=0;
         ii_gr_included=0;
         bar_offset = 0;
-        
-        
+
+
         for evNo=1:2
-            
+            per_ii_PRP=[];
+            unique_mouse_nos=[];
             for per_ii=2:-1:1
-                
+
                 for grNo=1:3
                     bar_offset = bar_offset +1;
-                    
-                    
+
+
                     %Get these MI values
                     these_PRP=[];
+                    these_mouse_nos=[];
                     ii_PRP=0;
                     for ii=1:length(hippFileName)
                         this_jj=[];
@@ -511,14 +564,22 @@ for peak=0:1
                                             end
                                         end
                                     end
-                                    
+
                                 end
                             end
-                            
+
                         end
                         if ~isempty(this_jj)
                             if mouse_op==1
                                 these_PRP(ii_PRP+1:ii_PRP+length(all_pre(ii).handles_out.PRP_values(this_jj).PRP_per_mouse))=all_pre(ii).handles_out.PRP_values(this_jj).PRP_per_mouse;
+
+                                for ww=1:length(all_hippo(ii).handles_out.PRP_values(this_jj).PRP_per_mouse)
+                                    this_nn=find(all_hippo(ii).handles_out.PRP_values(this_jj).mouseNo(ww)==these_mouse_no_per_op);
+                                    if ~isempty(this_nn)
+                                        these_mouse_nos(ii_PRP+ww)=these_mouse_no(this_nn);
+                                    end
+                                end
+
                                 ii_PRP=ii_PRP+length(all_pre(ii).handles_out.PRP_values(this_jj).PRP_per_mouse);
                             else
                                 ii_PRP=ii_PRP+1;
@@ -526,8 +587,12 @@ for peak=0:1
                             end
                         end
                     end
-                    
-        
+
+
+                    per_ii_PRP(per_ii).these_PRP=these_PRP;
+                    per_ii_PRP(per_ii).these_mouse_nos=these_mouse_nos;
+                    unique_mouse_nos=unique([unique_mouse_nos these_mouse_nos]);
+
                     switch grNo
                         case 1
                             bar(bar_offset,mean(these_PRP),'g','LineWidth', 3,'EdgeColor','none')
@@ -536,67 +601,96 @@ for peak=0:1
                         case 3
                             bar(bar_offset,mean(these_PRP),'y','LineWidth', 3,'EdgeColor','none')
                     end
-                    
-                    
+
+
                     %Violin plot
-                    
+
                     [mean_out, CIout]=drgViolinPoint(these_PRP,edges,bar_offset,rand_offset,'k','k',3);
-                    
+
                     %                     CI = bootci(1000, {@mean, these_PRP},'type','cper');
                     %                     plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
                     %                     plot(bar_offset*ones(1,length(these_PRP)),these_PRP,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
                     %
-                    
+
                     %                                 %Save data for glm and ranksum
-                    
+
                     glm_PRP.data(glm_ii+1:glm_ii+length(these_PRP))=these_PRP;
                     glm_PRP.group(glm_ii+1:glm_ii+length(these_PRP))=grNo*ones(1,length(these_PRP));
                     glm_PRP.perCorr(glm_ii+1:glm_ii+length(these_PRP))=per_ii*ones(1,length(these_PRP));
                     glm_PRP.event(glm_ii+1:glm_ii+length(these_PRP))=evNo*ones(1,length(these_PRP));
+                    glm_PRP.mouseNo(glm_ii+1:glm_ii+length(these_PRP))=these_mouse_nos;
                     glm_ii=glm_ii+length(these_PRP);
-                    
+
                     id_ii=id_ii+1;
                     input_data(id_ii).data=these_PRP;
                     input_data(id_ii).description=[group_legend{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
-                    
-                    
+
+
                 end
                 bar_offset = bar_offset + 1;
-                
+
             end
             bar_offset = bar_offset + 1;
-            
+
         end
-        
+
         title(['Average PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' theta/' PACnames{pacii} ' prefrontal'])
-        
-        
-        
-        
+
+
+
+
         xticks([1 2 3 5 6 7 10 11 12 14 15 16])
         xticklabels({'nwtS+', 'nHS+', 'nKOS+', 'pwtS+', 'pHS+', 'pKOS+', 'nwtS-', 'nHS-', 'nKOS-', 'pwtS-', 'pHS-', 'pKOS-'})
-        
+
         ylim([-15 10])
-        
-        
+
+
         ylabel('PRP')
         ylim([-15 10])
-        
+
         %Perform the glm
         fprintf(1, ['glm for average PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' theta' PACnames{pacii} ' prefrontal\n'])
-        
+        fprintf(fileID, ['glm for average PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' theta' PACnames{pacii} ' prefrontal\n']);
+
+
         fprintf(1, ['\n\nglm for PRP for Theta/' PACnames{pacii} '\n'])
         tbl = table(glm_PRP.data',glm_PRP.group',glm_PRP.perCorr',glm_PRP.event',...
             'VariableNames',{'MI','group','perCorr','event'});
         mdl = fitglm(tbl,'MI~group+perCorr+event+perCorr*group*event'...
             ,'CategoricalVars',[2,3,4])
-        
-        
+
+        txt = evalc('mdl');
+        txt=regexp(txt,'<strong>','split');
+        txt=cell2mat(txt);
+        txt=regexp(txt,'</strong>','split');
+        txt=cell2mat(txt);
+
+        fprintf(fileID,'%s\n', txt);
+
         %Do the ranksum/t-test
-        fprintf(1, ['\n\nRanksum or t-test p values for average PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' PAC theta' PACnames{pacii} ' prefrontal\n'])
-        [output_data] = drgMutiRanksumorTtest(input_data);
-        
-        
+        fprintf(1, ['\n\nRanksum or t-test p values for average PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' theta' PACnames{pacii} ' prefrontal\n'])
+        fprintf(fileID, ['\n\nRanksum or t-test p values for average PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' theta' PACnames{pacii} ' prefrontal\n']);
+
+        [output_data] = drgMutiRanksumorTtest(input_data, fileID);
+
+        %Nested ANOVAN
+        %https://www.mathworks.com/matlabcentral/answers/491365-within-between-subjects-in-anovan
+        nesting=[0 0 0 0; ... % This line indicates that group factor is not nested in any other factor.
+            0 0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+            0 0 0 0; ... % This line indicates that perCorr is not nested in any other factor.
+            %          0 0 0; ... % This line indicates that event is not nested in any other factor.
+            1 1 1 0];    % This line indicates that mouse_no (the last factor) is nested under group, perCorr and event
+        % (the 1 in position 1 on the line indicates nesting under the first factor).
+        figNo=figNo+1;
+
+        [p anovanTbl stats]=anovan(glm_PRP.data,{glm_PRP.group,glm_PRP.perCorr glm_PRP.event glm_PRP.mouseNo},...
+            'model','interaction',...
+            'nested',nesting,...
+            'varnames',{'genotype','naive_vs_proficient', 'rewarded_vs_unrewarded','mouse_no'});
+
+        fprintf(fileID, ['\n\nNested ANOVAN for average PRP calculated per mouse per odor pair for '  PACnames{pacii} ' for prefrontal\n'])
+        drgWriteANOVANtbl(anovanTbl,fileID);
+        fprintf(fileID, '\n\n');
     end
 end
 
@@ -607,43 +701,43 @@ rand_offset=0.5;
 
 for peak=0:1
     for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
-        
+
         glm_AUC=[];
         glm_ii=0;
-        
+
         id_ii=0;
         input_data=[];
-        
+
         %Plot the average
         figNo = figNo +1;
-        
+
         try
             close(figNo)
         catch
         end
         hFig=figure(figNo);
-        
+
         %             try
         %                 close(figNo+pacii)
         %             catch
         %             end
         %             hFig=figure(figNo+pacii);
-        
+
         set(hFig, 'units','normalized','position',[.1 .5 .7 .4])
         hold on
-        
+
         bar_lab_loc=[];
         no_ev_labels=0;
         ii_gr_included=0;
         bar_offset = 0;
-        
+
         %     for evNo=1:2
-        
+
         for per_ii=2:-1:1
-            
+
             for grNo=1:3
                 bar_offset = bar_offset +1;
-                
+
                 %                         if sum(eventType==3)>0
                 %                             bar_offset=(grNo-1)*(3.5*length(eventType))+(2-(per_ii-1))+3*(2-evNo);
                 %                         else
@@ -652,7 +746,7 @@ for peak=0:1
                 %
                 %                         these_offsets(per_ii)=bar_offset;
                 bar_offset = bar_offset + 1;
-                
+
                 %Get these MI values
                 these_AUC=[];
                 ii_AUC=0;
@@ -668,17 +762,17 @@ for peak=0:1
                                     end
                                 end
                             end
-                            
+
                             %                             end
                         end
-                        
+
                     end
                     if ~isempty(this_jj)
                         ii_AUC=ii_AUC+1;
                         these_AUC(ii_AUC)=all_pre(ii).handles_out.AUC_values(this_jj).AUC;
                     end
                 end
-                
+
                 switch grNo
                     case 1
                         bar(bar_offset,mean(these_AUC),'g','LineWidth', 3,'EdgeColor','none')
@@ -687,72 +781,72 @@ for peak=0:1
                     case 3
                         bar(bar_offset,mean(these_AUC),'y','LineWidth', 3,'EdgeColor','none')
                 end
-                
-                
+
+
                 %Violin plot
-                
+
                 %                 [mean_out, CIout]=drgViolinPoint(these_AUC,edges,bar_offset,rand_offset,'k','k',1);
                 CI = bootci(1000, {@mean, these_AUC},'type','cper');
                 plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
                 plot(bar_offset*ones(1,length(these_AUC)),these_AUC,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-                
+
                 %                                 %Save data for glm and ranksum
-                
+
                 glm_AUC.data(glm_ii+1:glm_ii+length(these_AUC))=these_AUC;
                 glm_AUC.group(glm_ii+1:glm_ii+length(these_AUC))=grNo*ones(1,length(these_AUC));
                 glm_AUC.perCorr(glm_ii+1:glm_ii+length(these_AUC))=per_ii*ones(1,length(these_AUC));
                 glm_AUC.event(glm_ii+1:glm_ii+length(these_AUC))=evNo*ones(1,length(these_AUC));
                 glm_ii=glm_ii+length(these_AUC);
-                
+
                 id_ii=id_ii+1;
                 input_data(id_ii).data=these_AUC;
                 input_data(id_ii).description=[group_legend{grNo} ' ' evTypeLabels{evNo} ' ' prof_naive_leg{per_ii}];
-                
-                
+
+
             end
             bar_offset = bar_offset + 2;
-            
+
         end
         bar_offset = bar_offset + 3;
-        
+
         %     end
-        
+
         title(['Average PRP auROC for each electrode calculated per mouse for ' peak_label{peak+1} ' theta/' PACnames{pacii} ' prefrontal'])
-        
-        
+
+
         %Annotations identifying groups
         x_interval=0.8/ii_gr_included;
         for ii=1:ii_gr_included
             annotation('textbox',[0.7*x_interval+x_interval*(ii-1) 0.7 0.3 0.1],'String',handles_drgb.drgbchoices.group_no_names{ groups_included(ii)},'FitBoxToText','on');
         end
-        
+
         %Proficient/Naive annotations
         annotation('textbox',[0.15 0.8 0.3 0.1],'String','Proficient','FitBoxToText','on','Color','r','LineStyle','none');
         annotation('textbox',[0.15 0.75 0.3 0.1],'String','Naive','FitBoxToText','on','Color','b','LineStyle','none');
-        
-        
+
+
         xticks([2 4 6 10 12 14 21 23 25 29 31 33])
         xticklabels({'nwtS+', 'nHS+', 'nKOS+', 'pwtS+', 'pHS+', 'pKOS+', 'nwtS-', 'nHS-', 'nKOS-', 'pwtS-', 'pHS-', 'pKOS-'})
-        
+
         ylim([0 0.5])
-        
+
         ylabel('auROC')
-        
+
         %Perform the glm
         fprintf(1, ['glm for average PRP auROC for each electrode calculated per mouse for ' peak_label{peak+1} ' theta' PACnames{pacii} ' prefrontal\n'])
-        
+
         fprintf(1, ['\n\nglm for PRP auROC for Theta/' PACnames{pacii} '\n'])
         tbl = table(glm_AUC.data',glm_AUC.group',glm_AUC.perCorr',glm_AUC.event',...
             'VariableNames',{'MI','group','perCorr','event'});
         mdl = fitglm(tbl,'MI~group+perCorr+event+perCorr*group*event'...
             ,'CategoricalVars',[2,3,4])
-        
-        
+
+
         %Do the ranksum/t-test
         fprintf(1, ['\n\nRanksum or t-test p values for average PA variance for each electrode calculated per mouse for ' peak_label{peak+1} ' theta' PACnames{pacii} ' prefrontal\n'])
         [output_data] = drgMutiRanksumorTtest(input_data);
-        
-        
+
+
     end
 end
 
@@ -763,22 +857,22 @@ all_slopes=[];
 
 for peak=0:1
     for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
-        
-        
+
+
         for grNo=1:3
             all_hipp_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP=[];
             all_pre_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP=[];
         end
-        
+
         for evNo=1:2
-            
+
             for per_ii=2:-1:1
 
                 for grNo=1:3
-                    
-                     all_slopes.peak(peak+1).pacii(pacii).group(grNo).slope=[];
-                     all_slopes.peak(peak+1).pacii(pacii).group(grNo).rho=[];
-                    
+
+                    all_slopes.peak(peak+1).pacii(pacii).group(grNo).slope=[];
+                    all_slopes.peak(peak+1).pacii(pacii).group(grNo).rho=[];
+
                     %Get these MI values
                     these_PRP_hipp=[];
                     ii_PRP_hipp=0;
@@ -792,17 +886,17 @@ for peak=0:1
                                 if all_hippo(ii).handles_out.PRP_values(jj).evNo==evNo
                                     if all_hippo(ii).handles_out.PRP_values(jj).per_ii==per_ii
                                         if all_hippo(ii).handles_out.PRP_values(jj).peak==peak
-                                            
+
                                             if all_hippo(ii).handles_out.PRP_values(jj).groupNo==grNo
                                                 this_jj_hipp=jj;
                                             end
                                         end
                                     end
-                                    
+
                                 end
                             end
                         end
-                        
+
                         this_jj_pre=[];
                         for jj=1:all_pre(ii).handles_out.PRP_ii
                             if all_pre(ii).handles_out.PRP_values(jj).pacii==pacii
@@ -814,12 +908,12 @@ for peak=0:1
                                             end
                                         end
                                     end
-                                    
+
                                 end
                             end
-                            
+
                         end
-                        
+
                         if (~isempty(this_jj_hipp))&(~isempty(this_jj_pre))
                             if length(all_hippo(ii).handles_out.PRP_values(this_jj_hipp).PRP_per_mouse)==length(all_pre(ii).handles_out.PRP_values(this_jj_pre).PRP_per_mouse)
                                 these_PRP_hipp(ii_PRP_hipp+1:ii_PRP_hipp+length(all_hippo(ii).handles_out.PRP_values(this_jj_hipp).PRP_per_mouse))=all_hippo(ii).handles_out.PRP_values(this_jj_hipp).PRP_per_mouse;
@@ -830,102 +924,102 @@ for peak=0:1
                                 pffft=1;
                             end
                         end
-                        
+
                         x=these_PRP_hipp';
                         y=these_PRP_pre';
-                        
+
                         %Fit a line
                         c = polyfit(x,y,1);
-                        
+
                         all_slopes.peak(peak+1).pacii(pacii).group(grNo).slope = [all_slopes.peak(peak+1).pacii(pacii).group(grNo).slope c(1)];
-                        
+
                         [rho,pval]=corr(x,y);
-                        
+
                         all_slopes.peak(peak+1).pacii(pacii).group(grNo).rho = [all_slopes.peak(peak+1).pacii(pacii).group(grNo).rho rho];
-                        
+
                     end
-                    
+
                     all_hipp_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP=[all_hipp_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP these_PRP_hipp];
                     all_pre_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP=[all_pre_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP these_PRP_pre];
-                    
-                    
+
+
 
                 end
-                
-                
+
+
             end
-            
-            
+
+
         end
-        
-        
-        
+
+
+
     end
 end
 
 %Plot the correlation between delta PRP of hippocampus vs prefrontal
 for peak=0:1
     for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
-        
+
         %Plot the average
         figNo = figNo +1;
-        
+
         try
             close(figNo)
         catch
         end
         hFig=figure(figNo);
-        
+
         %             try
         %                 close(figNo+pacii)
         %             catch
         %             end
         %             hFig=figure(figNo+pacii);
-        
+
         set(hFig, 'units','normalized','position',[.1 .5 .3 .4])
         hold on
-        
+
         for grNo=1:3
-            
+
             x=all_hipp_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP';
             y=all_pre_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP';
             [rho,pval]=corr(x,y);
-            
+
             %Fit a line
             c = polyfit(x,y,1);
             % Display evaluated equation y = m*x + b
             disp(['Equation is y = ' num2str(c(1)) '*x + ' num2str(c(2))])
             % Evaluate fit equation using polyval
             y_est = polyval(c,[-15 10]);
-           
-            
+
+
             fprintf(1, ['rho = %d, p value = %d for ' peak_label{peak+1} ' theta' PACnames{pacii} ' ' group_legend{grNo} '\n\n'],rho,pval)
-   
+
             switch grNo
                 case 1
                     plot(all_hipp_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP,all_pre_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP,'og')
-                     % Add trend line to plot
+                    % Add trend line to plot
                     plot([-15 10],y_est,'g-','LineWidth',2)
                 case 2
                     plot(all_hipp_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP,all_pre_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP,'ob')
-                     % Add trend line to plot
+                    % Add trend line to plot
                     plot([-15 10],y_est,'b-','LineWidth',2)
                 case 3
                     plot(all_hipp_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP,all_pre_PRP.peak(peak+1).pacii(pacii).group(grNo).PRP,'oy')
-                     % Add trend line to plot
+                    % Add trend line to plot
                     plot([-15 10],y_est,'y-','LineWidth',2)
             end
-            
-          
+
+
         end
-        
+
         title(['delta PRP calculated per mouse per odor pair for ' peak_label{peak+1} ' theta/' PACnames{pacii}])
-        
-        
-        
+
+
+
         xlim([-15 10])
         ylim([-15 10])
-        
+
         ylabel('Prefrontal delta PRP')
         ylabel('Hippocampal delta PRP')
     end
@@ -935,30 +1029,30 @@ end
 %Plot the slope of the relationship between delta PRP of hippocampus vs prefrontal
 for peak=0:1
     for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
-        
+
         %Plot the average
         figNo = figNo +1;
-        
+
         try
             close(figNo)
         catch
         end
         hFig=figure(figNo);
-        
+
         %             try
         %                 close(figNo+pacii)
         %             catch
         %             end
         %             hFig=figure(figNo+pacii);
-        
+
         set(hFig, 'units','normalized','position',[.1 .5 .3 .4])
         hold on
         bar_offset=0;
-        
+
         for grNo=1:3
-            
+
             these_slopes=all_slopes.peak(peak+1).pacii(pacii).group(grNo).slope;
-            
+
             switch grNo
                 case 1
                     bar(bar_offset,mean(these_slopes),'g','LineWidth', 3,'EdgeColor','none')
@@ -967,49 +1061,51 @@ for peak=0:1
                 case 3
                     bar(bar_offset,mean(these_slopes),'y','LineWidth', 3,'EdgeColor','none')
             end
-            
+
             CI = bootci(1000, {@mean, these_slopes'},'type','cper');
             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
             plot(bar_offset*ones(1,length(these_slopes)),these_slopes,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-            
+
             bar_offset=bar_offset+1;
         end
-        
+
         title(['Slope for ' peak_label{peak+1} ' theta/' PACnames{pacii}])
-        
+
         ylabel('Slope')
-        
+
     end
 end
-% 
-% 
+
+fclose(fileID)
+%
+%
 % %Plot the rho of the relationship between delta PRP of hippocampus vs prefrontal
 % for peak=0:1
 %     for pacii=[1 3]    %for amplitude bandwidths (beta, low gamma, high gamma)
-%         
+%
 %         %Plot the average
 %         figNo = figNo +1;
-%         
+%
 %         try
 %             close(figNo)
 %         catch
 %         end
 %         hFig=figure(figNo);
-%         
+%
 %         %             try
 %         %                 close(figNo+pacii)
 %         %             catch
 %         %             end
 %         %             hFig=figure(figNo+pacii);
-%         
+%
 %         set(hFig, 'units','normalized','position',[.1 .5 .3 .4])
 %         hold on
 %         bar_offset=0;
-%         
+%
 %         for grNo=1:3
-%             
+%
 %             these_rhos=all_slopes.peak(peak+1).pacii(pacii).group(grNo).rho;
-%             
+%
 %             switch grNo
 %                 case 1
 %                     bar(bar_offset,mean(these_rhos),'g','LineWidth', 3,'EdgeColor','none')
@@ -1018,17 +1114,17 @@ end
 %                 case 3
 %                     bar(bar_offset,mean(these_rhos),'y','LineWidth', 3,'EdgeColor','none')
 %             end
-%             
+%
 %             CI = bootci(1000, {@mean, these_rhos'},'type','cper');
 %             plot([bar_offset bar_offset],CI,'-k','LineWidth',3)
 %             plot(bar_offset*ones(1,length(these_rhos)),these_rhos,'o','MarkerFaceColor', [0.7 0.7 0.7],'MarkerEdgeColor',[0 0 0],'MarkerSize',5)
-%             
+%
 %             bar_offset=bar_offset+1;
 %         end
-%         
+%
 %         title(['Rho for ' peak_label{peak+1} ' theta/' PACnames{pacii}])
-%         
+%
 %         ylabel('Slope')
-%         
+%
 %     end
 % end
