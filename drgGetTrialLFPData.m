@@ -1,4 +1,4 @@
-function [dataforch,trialNo,can_read] = drgGetTrialLFPData(handles, lfpElectrode, evNo, evTypeNo, time_start, time_end)
+function [dataforch,trialNo,can_read, t_offset] = drgGetTrialLFPData(handles, lfpElectrode, evNo, evTypeNo, time_start, time_end)
 %This function either extracts the LFP data from drg.data_dg
 %or generates simulated data with specific theta/gamma oscillations
 %evNo is the event number for the evTypeNo
@@ -23,6 +23,7 @@ sessionNo=handles.sessionNo;
 LFPtheta=[];
 LFPtheta2=[];
 LFPbursts=[];
+t_offset=0;
  
 try
 %     trialNo=find(handles.drg.session(sessionNo).trial_start<handles.drg.session(sessionNo).events(evTypeNo).times(evNo),1,'last');
@@ -66,6 +67,7 @@ try
         *handles.drg.draq_p.ActualRate+1);
     
     dataforch=[];
+   
     if ii_to<=length(data)
         if (ii_from<1)
             %The data was not long enough
@@ -75,9 +77,15 @@ try
             dataforch=data(ii_from:ii_to);
         end
     else
-        %data is too short
-        can_read=0;
-        dataforch=[data(ii_from:end);zeros(ii_to-length(data)+1,1)];
+        if (ii_from<1)
+            %read all data
+            dataforch=data;
+            t_offset=-ii_from/handles.drg.draq_p.ActualRate;
+        else
+            %data is too short
+            can_read=0;
+            dataforch=[data(ii_from:end);zeros(ii_to-length(data)+1,1)];
+        end
     end
     
     if (testLFP==0)

@@ -124,7 +124,7 @@ for trNo=firstTr:lastTr
                 all_Power_timecourse(no_trials,1:length(f),1:length(out_times))=Pout(:,:);
                 all_Power(no_trials,1:length(f))=mean(Pout,2);
                 if handles.subtractRef==1
-                    P_ref=[];
+                    P_ref=[]; 
                     P_ref=P(:,(all_times>=handles.startRef+handles.time_pad)&(all_times<=handles.endRef-handles.time_pad));
                     all_Power_ref(no_trials,1:length(f))=mean(P_ref,2);
                 end

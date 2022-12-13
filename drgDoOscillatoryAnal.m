@@ -69,4 +69,6 @@ switch handles.analysisNoOsc
         drgClosedLoop(handles);
     case 33
         drgThetaAmpPhasesTrialRange(handles);
+    case 34
+        drgLFPwaveSpectrogram(handles);
 end

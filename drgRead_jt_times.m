@@ -200,7 +200,7 @@ drg.session(filNum).draq_d=draq_d;
 numUnits=0;
 
 switch drg.session(filNum).dgordra
-    case {1,4}
+    case {1}
         %this is dra or Plexon
         drg.draq_p.no_chans=16;
         drg.session(filNum).noUnits=0;

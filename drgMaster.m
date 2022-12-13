@@ -110,6 +110,7 @@ handles.smallest_inter_lick_interval=0.02;  %Note: this is used to reject "lick"
 handles.peakAngle_for_power=100;
 handles.use_peakAngle=0;
 handles.troughAngle_for_power=200;
+handles.wave_freq=200;
 
 % Update handles structure
 guidata(hObject, handles);
@@ -869,11 +870,13 @@ handles.lastTrialNo=handles.drg.session(handles.sessionNo).noTrials;
 set(handles.whichLastTrial,'String',num2str(handles.lastTrialNo))
 
 String{1}='None';
-for nUn=1:handles.drg.session(handles.sessionNo).noUnits
-    if handles.drg.unit(nUn).SingleUnit==1
-        String{nUn}=[handles.drg.unit(nUn).ch_un ' SU']; 
-    else
-        String{nUn}=[handles.drg.unit(nUn).ch_un ' MU']; 
+if isfield(handles.drg.session(handles.sessionNo),'noUnits')
+    for nUn=1:handles.drg.session(handles.sessionNo).noUnits
+        if handles.drg.unit(nUn).SingleUnit==1
+            String{nUn}=[handles.drg.unit(nUn).ch_un ' SU'];
+        else
+            String{nUn}=[handles.drg.unit(nUn).ch_un ' MU'];
+        end
     end
 end
 set(handles.whichUnit,'String',String);
