@@ -111,6 +111,7 @@ handles.peakAngle_for_power=100;
 handles.use_peakAngle=0;
 handles.troughAngle_for_power=200;
 handles.wave_freq=200;
+handles.upload_edf=0;
 
 % Update handles structure
 guidata(hObject, handles);
@@ -881,6 +882,14 @@ if isfield(handles.drg.session(handles.sessionNo),'noUnits')
 end
 set(handles.whichUnit,'String',String);
 set(handles.whichUnitNo2,'String',String);
+
+if handles.drg.session(1).draq_p.dgordra==4
+    if handles.upload_edf==0
+        edfmat_filename=[handles.drg.drta_p.fullName(1:end-4) '_edf.mat'];
+        handles.ptr_file=matfile(edfmat_filename);
+    end
+end
+
 % Update the handles structure
 guidata(hObject, handles);
 

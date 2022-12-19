@@ -1,16 +1,20 @@
-function [out_t,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPwavePowerForThisEvTypeNo(handles)
+function [out_t,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event, is_not_moving]=drgGetLFPwavePowerForThisEvTypeNo(handles)
 
 %Generates a trial per trial phase histogram
 odorOn=2;
 sessionNo=handles.sessionNo;
 Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
 dec_n=fix(handles.drg.session(sessionNo).draq_p.ActualRate/1000);
-freq=handles.burstLowF:(handles.burstHighF-handles.burstLowF)/100:handles.burstHighF;
+% freq=handles.burstLowF:(handles.burstHighF-handles.burstLowF)/100:handles.burstHighF;
 
 window=round(handles.window*handles.drg.draq_p.ActualRate);
 noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate);
 
-
+if ~isfield(handles,'drgbchoices')
+    movement_threshold=20000000000;
+else
+    movement_threshold=handles.drgbchoices.movement_threshold;
+end
 
 %Enter trials
 firstTr=handles.trialNo;
@@ -25,6 +29,7 @@ all_Power_timecourse=[];
 this_trialNo=[];
 perCorr_pertr=[];
 which_event=[];
+is_not_moving=[];
 
 %Setup the wavelet scales
 %   scales = helperCWTTimeFreqVector(minfreq,maxfreq,f0,dt,NumVoices)
@@ -110,7 +115,7 @@ for trNo=firstTr:lastTr
                 
                 no_trials=no_trials+1;
                 this_trialNo(no_trials)=trNo;
-                
+                 
                 
                 if handles.displayData==1
                     fprintf(1, ['drgGetLFPwavePowerForThisEvTypeNo trial No %d, event No %d, processed trial no %d\n'], trNo,evNo,no_trials);
@@ -123,6 +128,8 @@ for trNo=firstTr:lastTr
                 Pout(:,:)=P(:,(all_times>=handles.time_start+handles.time_pad)&(all_times<=handles.time_end-handles.time_pad));
                 all_Power_timecourse(no_trials,1:length(f),1:length(out_times))=Pout(:,:);
                 all_Power(no_trials,1:length(f))=mean(Pout,2);
+                is_not_moving(no_trials,1:length(out_times))=(abs(decLFP((all_times>=handles.time_start+handles.time_pad)&(all_times<=handles.time_end-handles.time_pad)))<movement_threshold);
+                
                 if handles.subtractRef==1
                     P_ref=[]; 
                     P_ref=P(:,(all_times>=handles.startRef+handles.time_pad)&(all_times<=handles.endRef-handles.time_pad));

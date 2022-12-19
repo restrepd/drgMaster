@@ -16,7 +16,7 @@ else
 end
  
 % start_toc=toc;
-[t_apt,freq,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo,t_offset]=drgGetLFPwavePowerForThisEvTypeNo(handles);
+[t_apt,freq,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPwavePowerForThisEvTypeNo(handles);
 % fprintf(1, 'dt for drgGetLFPwavePowerForThisEvTypeNo = %d\n',toc-start_toc)
 
 if handles.displayData==1
@@ -132,6 +132,33 @@ if handles.displayData==1
         shading interp
         ax=gca;
         set(ax,'XTickLabel','')
+
+        %Plot the dependence on frequency
+        figNo=figNo+1;
+        hFig = figure(figNo);
+        set(hFig, 'units','normalized','position',[.1 .1 .4 .4])
+        hold on
+
+
+        this_mean_dbWB=zeros(1,length(freq));
+        this_mean_dbWB(1,:)=mean(log_P_timecourse',1);
+
+        try
+            CI=[];
+            CI = bootci(1000, {@mean, log_P_timecourse'})';
+            CI(:,1)= this_mean_dbWB'-CI(:,1);
+            CI(:,2)=CI(:,2)- this_mean_dbWB';
+
+
+            [hlCR, hpCR] = boundedline(freq',this_mean_dbWB', CI, 'b');
+        catch
+            plot(freq',this_mean_dbWB', 'b');
+        end
+
+
+        title('Wavelet power spectrum')
+        xlabel('Frequency (Hz)')
+        ylabel('dB')
 
 
     end
