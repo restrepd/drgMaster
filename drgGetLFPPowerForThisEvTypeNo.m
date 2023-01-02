@@ -71,8 +71,9 @@ for trNo=firstTr:lastTr
                 max_t=handles.time_end-handles.time_pad;
             end
             
-            
+           
             [LFP, trialNo, can_read] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
+            
             
             if (can_read==1)
                 
@@ -83,6 +84,8 @@ for trNo=firstTr:lastTr
                 
                 
                 [S,f,t,P]=spectrogram(detrend(double(LFP)),window,noverlap,freq,handles.drg.session(handles.sessionNo).draq_p.ActualRate);
+                
+
                 
                 no_trials=no_trials+1;
                 this_trialNo(no_trials)=trNo;
@@ -136,7 +139,6 @@ for trNo=firstTr:lastTr
                         end
                     end
                 end
-                
             end
         end
     else

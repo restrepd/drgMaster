@@ -1,5 +1,7 @@
-
 function drgDisplayBatchMultiDayLFP
+
+close all
+clear all
 
 [FileName,PathName] = uigetfile({'*.mat'},'Select the .mat file with power analysis');
 fprintf(1, ['\ndrgDisplayBatchMultiDayLFP run for ' FileName '\n\n']);
@@ -13,7 +15,20 @@ f_label{3}='Beta';
 f_label{4}='Gamma_low';
 f_label{5}='Gamma_high';
 
-einf=edfinfo(handlespf.drg.drta_p.fullName);
+use_einf=0;
+
+einfSignalLabels=[];
+if use_einf==1
+    einf=edfinfo([PathName handlespf.drg.drta_p.FileName(1:end-3) 'edf']);
+    for chNo=1:4
+        einfSignalLabels{chNo}=einf.SignalLabels{chNo};
+    end
+else
+    einfSignalLabels{1}='Hippocampus left';
+    einfSignalLabels{2}='Olfactory bulb';
+    einfSignalLabels{3}='Cortex';
+    einfSignalLabels{1}='Hippocampus right';
+end
 
 %Plot the data
 figNo=0;
@@ -32,7 +47,7 @@ for chNo=1:4
 
     hFig = figure(figNo);
     set(hFig, 'units','normalized','position',[.07 .05 .45 .75])
-    sgtitle(['Power for ' einf.SignalLabels{chNo}])
+    sgtitle(['Power for ' einfSignalLabels{chNo}])
     for ii_plot=1:5
         subplot(5,1,ii_plot)
         this_mean_dB_power=zeros(1,size(mean_dB_power,2));
@@ -90,7 +105,7 @@ for chNo=1:4
 
     hFig = figure(figNo);
     set(hFig, 'units','normalized','position',[.07 .05 .45 .75])
-    sgtitle(['Delta power subtracted for ' einf.SignalLabels{chNo}])
+    sgtitle(['Delta power subtracted for ' einfSignalLabels{chNo}])
     for ii_plot=2:5
         subplot(4,1,ii_plot-1)
         this_mean_dB_power=zeros(1,size(mean_dB_power,2));
