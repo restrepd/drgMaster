@@ -30,6 +30,10 @@ f_label{5}='Gamma high';
 
 sec_per_LFP_point=9;
 
+fig_xlim=[80 240];
+fig_ylim=[-3.5 5];
+override_lims=0;
+
 is_c57=1;
 
 if is_c57==1
@@ -74,8 +78,10 @@ else
     FileNames.mouse(2).date{1}='11/07/2022';
     FileNames.mouse(2).FileName{2}='Restrepo T032_2_2022-11-14_09_30_19_export_ov0p5_fft.mat';
     FileNames.mouse(2).date{2}='11/14/2022';
-    FileNames.mouse(2).FileName{3}='Restrepo T032_4_2022-11-28_08_23_38_export_ov0p5_fft.mat';
-    FileNames.mouse(2).date{3}='11/28/2022';
+    FileNames.mouse(2).FileName{3}='Restrepo T032_3_2022-11-21_08_24_04_export_ov0p5_fft.mat';
+    FileNames.mouse(2).date{3}='11/21/2022';
+    FileNames.mouse(2).FileName{4}='Restrepo T032_4_2022-11-28_08_23_38_export_ov0p5_fft.mat';
+    FileNames.mouse(2).date{4}='11/28/2022';
     group(2)=2;
     FileNames.mouse(2).treatment_start=[104.9 189.6 329.6];
 
@@ -109,6 +115,7 @@ for mouseNo=1:length(FileNames.mouse)
     LFP.mice(mouseNo).t_night_off=[];
  
     ii_night=0;
+    ii_delta=0;
     while t< t_hours(end)
 
         if ii_night==8
@@ -127,7 +134,25 @@ for mouseNo=1:length(FileNames.mouse)
                 LFP.mice(mouseNo).t_night_off(ii_night)=t_hours(end);
             end
 
+            
             t=t+delta_t_night_end;
+
+            %Do the delta night - day calculations
+            if ii_night>=2
+                ii_delta=ii_delta+1;
+                for chNo=1:4
+                    for ii_plot=1:5
+                        this_mean_dB_power=zeros(1,size(all_mean_dB_power,2));
+                        this_mean_dB_power(1,:)=all_mean_dB_power(ii_plot,:,chNo);
+                        t_night_start=LFP.mice(mouseNo).t_night_on(ii_night);
+                        t_night_end=LFP.mice(mouseNo).t_night_off(ii_night);
+                        t_day_start=LFP.mice(mouseNo).t_night_off(ii_night-1);
+                        t_day_end=LFP.mice(mouseNo).t_night_on(ii_night);
+                        LFP.ch(chNo).bandwidth(ii_plot).mouse(mouseNo).deltadBtimepoint(ii_delta).delta_dB_power_night_day=mean(this_mean_dB_power((t_hours>=t_night_start)&(t_hours<=t_night_end)))-...
+                            mean(this_mean_dB_power((t_hours>=t_day_start)&(t_hours<=t_day_end)));
+                    end
+                end
+            end
 
         else
             %This is the day
@@ -195,8 +220,14 @@ for chNo=1:4
                     end
                     conv_this_mean_dB_power=conv_this_mean_dB_power-dB_zero;
                     skip_conv_this_mean_dB_power=conv_this_mean_dB_power(skip_ii+1:end-skip_ii);
-                    min_dB=prctile(skip_conv_this_mean_dB_power,this_per)-0.1*(prctile(skip_conv_this_mean_dB_power,100-this_per)-prctile(skip_conv_this_mean_dB_power,this_per));
-                    max_dB=prctile(skip_conv_this_mean_dB_power,100-this_per)+0.1*(prctile(skip_conv_this_mean_dB_power,100-this_per)-prctile(skip_conv_this_mean_dB_power,this_per));
+
+                    if override_lims==0
+                        min_dB=prctile(skip_conv_this_mean_dB_power,this_per)-0.1*(prctile(skip_conv_this_mean_dB_power,100-this_per)-prctile(skip_conv_this_mean_dB_power,this_per));
+                        max_dB=prctile(skip_conv_this_mean_dB_power,100-this_per)+0.1*(prctile(skip_conv_this_mean_dB_power,100-this_per)-prctile(skip_conv_this_mean_dB_power,this_per));
+                    else
+                        min_dB=fig_ylim(1);
+                        max_dB=fig_ylim(2);
+                    end
 
                     %Plot dB power
                     t_hours=LFP.mice(mouseNo).t_hours;
@@ -233,8 +264,141 @@ for chNo=1:4
 
             if mouse_here==1
                 ylim([min_dB max_dB])
+                if override_lims==1
+                    xlim([fig_xlim])
+                end
                 ylabel('dB')
                 xlabel('time (hrs)')
+            end
+        end
+
+
+    end
+end
+
+%Plot delta dB bar graphs
+
+
+%Plot dB per bandwidth
+%The dB timecourse will be convolved with a Gaussian
+for chNo=1:4
+
+    for ii_plot=1:5
+
+        figNo=figNo+1;
+        try
+            close(figNo)
+        catch
+        end
+   
+        hFig = figure(figNo);
+        set(hFig, 'units','normalized','position',[.07 .05 .7 .7])
+        hold on
+
+        sgtitle(['Delta night/day power for ' einfSignalLabels{chNo} ' ' f_label{ii_plot}])
+
+        for grNo=1:max(group)
+
+            subplot(max(group),1,grNo)
+            hold on
+
+            mouse_here=0;
+            for mouseNo=1:length(LFP.ch(chNo).bandwidth(ii_plot).mouse)
+                if group(mouseNo)==grNo
+                    
+                    for ii_delta=1:length(LFP.ch(chNo).bandwidth(ii_plot).mouse(mouseNo).deltadBtimepoint)
+                        bar(ii_delta+1,LFP.ch(chNo).bandwidth(ii_plot).mouse(mouseNo).deltadBtimepoint(ii_delta).delta_dB_power_night_day,'b')
+                    end
+                    
+                    
+                    %Place a vertical bar at start of treatment
+                    for ts_ii=1:length(FileNames.mouse(mouseNo).treatment_start)
+                        treatment_start=FileNames.mouse(mouseNo).treatment_start(ts_ii)/24 +0.2;
+                        plot([treatment_start treatment_start], [-4 4],'-r','LineWidth',3)
+                    end
+
+
+                end
+
+            end
+
+
+         
+            title(group_name{grNo})
+
+            if mouse_here==1
+                ylim([-4 4])
+           
+                ylabel('delta dB')
+                xlabel('night number')
+            end
+        end
+
+
+    end
+end
+
+%Plot normalized delta dB
+%Plot delta dB bar graphs
+
+
+%Plot dB per bandwidth
+%The dB timecourse will be convolved with a Gaussian
+for chNo=1:4
+
+    for ii_plot=1:5
+
+        figNo=figNo+1;
+        try
+            close(figNo)
+        catch
+        end
+   
+        hFig = figure(figNo);
+        set(hFig, 'units','normalized','position',[.07 .05 .7 .7])
+        hold on
+
+        sgtitle(['Normalized delta night/day power for ' einfSignalLabels{chNo} ' ' f_label{ii_plot}])
+
+        for grNo=1:max(group)
+
+            subplot(max(group),1,grNo)
+            hold on
+
+            mouse_here=0;
+            for mouseNo=1:length(LFP.ch(chNo).bandwidth(ii_plot).mouse)
+                if group(mouseNo)==grNo
+                    
+                    all_deltas=[];
+                    for ii_delta=1:length(LFP.ch(chNo).bandwidth(ii_plot).mouse(mouseNo).deltadBtimepoint)
+                        all_deltas=[all_deltas LFP.ch(chNo).bandwidth(ii_plot).mouse(mouseNo).deltadBtimepoint(ii_delta).delta_dB_power_night_day];
+                        
+                    end
+                    all_deltas=all_deltas/mean(all_deltas(3:5));
+                    for ii_delta=1:length(LFP.ch(chNo).bandwidth(ii_plot).mouse(mouseNo).deltadBtimepoint)
+                        bar(ii_delta+1,all_deltas(ii_delta),'b')
+                    end
+
+                    %Place a vertical bar at start of treatment
+                    for ts_ii=1:length(FileNames.mouse(mouseNo).treatment_start)
+                        treatment_start=FileNames.mouse(mouseNo).treatment_start(ts_ii)/24 +0.2;
+                        plot([treatment_start treatment_start], [0 2],'-r','LineWidth',3)
+                    end
+
+
+                end
+
+            end
+
+
+         
+            title(group_name{grNo})
+
+            if mouse_here==1
+                ylim([0 2])
+           
+                ylabel('Normalized delta dB')
+                xlabel('night number')
             end
         end
 

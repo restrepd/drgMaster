@@ -8,9 +8,10 @@ sessionNo=handles.drg.unit(handles.unitNo).sessionNo;
 firstTr=handles.trialNo;
 lastTr=handles.lastTrialNo;
 
-bin_size=(0.006/0.05)*handles.corr_window;
+
 auto_width=handles.corr_window;
-nobins=floor(2*(auto_width/bin_size));
+nobins=21;
+bin_size=2*handles.corr_window/nobins;
 delta_times=[-auto_width+bin_size/2:bin_size:auto_width-bin_size/2];
 noTrials=0;
 spike_times=[];
@@ -57,10 +58,10 @@ for trNo=firstTr:lastTr
                 for spk=1:length(these_spike_times2)
                     
                     deltat=these_spike_times2(spk)-these_spike_times(spkref);
-                    if abs(deltat)<auto_width
+                    if abs(deltat)<auto_width+bin_size/2
                         %The interspike interval is within auto_width
                         synch_spikes(noTrials)=synch_spikes(noTrials)+1;
-                        this_bin=fix(deltat/bin_size)+floor(auto_width/bin_size)+1;
+                        this_bin=find((delta_times-(bin_size/2)<=deltat)&(delta_times+(bin_size/2)>deltat));
                         if (this_bin>0)&(this_bin<=nobins) 
                             Auto(1,this_bin)=Auto(1,this_bin)+1;
                         end
@@ -80,7 +81,7 @@ for trNo=firstTr:lastTr
                         deltat=shuf_spike_times2(spk)-shuf_spike_times(spkref);
                         if abs(deltat)<auto_width
                             synch_spikes_sh(noTrials)=synch_spikes_sh(noTrials)+1;
-                            this_bin=fix(deltat/bin_size)+floor(auto_width/bin_size);
+                            this_bin=find((delta_times-(bin_size/2)<=deltat)&(delta_times+(bin_size/2)>deltat));
                             if (this_bin>0)&(this_bin<=nobins)
                                 shAuto(1,this_bin)=shAuto(1,this_bin)+1;
                             end
@@ -169,3 +170,5 @@ if handles.save_drgb==1
     handles.drgb.corrpair(handles.drgb.corrpair_no).partner_u_Lratio=handles.drg.unit(handles.unitNo2).Lratio;
     
 end
+ 
+pffft=1;
