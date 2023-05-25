@@ -139,9 +139,9 @@ if handles.displayData==1
         set(hFig, 'units','normalized','position',[.1 .1 .4 .4])
         hold on
 
-
+        f=freq
         this_mean_dbWB=zeros(1,length(freq));
-        this_mean_dbWB(1,:)=mean(log_P_timecourse',1);
+        this_mean_dbWB(1,:)=mean(log_P_timecourse',1)
 
         try
             CI=[];
@@ -154,13 +154,13 @@ if handles.displayData==1
         catch
             plot(freq',this_mean_dbWB', 'b');
         end
-
+ 
 
         title('Wavelet power spectrum')
         xlabel('Frequency (Hz)')
         ylabel('dB')
 
-
+        
     end
 end
 
