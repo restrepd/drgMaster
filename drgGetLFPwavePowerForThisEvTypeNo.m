@@ -7,15 +7,15 @@ Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
 dec_n=fix(handles.drg.session(sessionNo).draq_p.ActualRate/1000);
 % freq=handles.burstLowF:(handles.burstHighF-handles.burstLowF)/100:handles.burstHighF;
 
-window=round(handles.window*handles.drg.draq_p.ActualRate);
-noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate);
+% window=round(handles.window*handles.drg.draq_p.ActualRate);
+% noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate);
 
 if ~isfield(handles,'drgbchoices')
     movement_threshold=20000000000;
 else
     movement_threshold=handles.drgbchoices.movement_threshold;
 end
-
+ 
 %Enter trials
 firstTr=handles.trialNo;
 lastTr=handles.lastTrialNo;
@@ -66,7 +66,7 @@ for trNo=firstTr:lastTr
      
     if evNo~=-1
         
-        
+         
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
         
         if excludeTrial==0
@@ -123,7 +123,7 @@ for trNo=firstTr:lastTr
                 
                 
                 
-                all_times=t+min_t;
+                all_times=t+min_t++handles.time_pad;
                 out_times=all_times(:,(all_times>=handles.time_start+handles.time_pad)&(all_times<=handles.time_end-handles.time_pad));
                 Pout(:,:)=P(:,(all_times>=handles.time_start+handles.time_pad)&(all_times<=handles.time_end-handles.time_pad));
                 all_Power_timecourse(no_trials,1:length(f),1:length(out_times))=Pout(:,:);

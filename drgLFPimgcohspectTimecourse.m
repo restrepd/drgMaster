@@ -19,13 +19,15 @@ end
 if minCxy==maxCxy
     minCxy=maxCxy-0.01;
 end
+figNo=0;
 
 %Plot the timecourse
+figNo=figNo+1;
 try
-    close(1)
+    close(figNo)
 catch
 end
-hFig1 = figure(1);
+hFig1 = figure(figNo);
 set(hFig1, 'units','normalized','position',[.07 .1 .75 .3])
 
 
@@ -39,13 +41,13 @@ xlabel('Time (sec)')
 ylabel('Frequency (Hz)');
 title(['Coherence timecourse ' handles.drg.session(1).draq_d.eventlabels{handles.evTypeNo}])
 
+figNo=figNo+1;
 try
-    close 2
+    close(figNo)
 catch
 end
-
-hFig2 = figure(2);
-set(hFig2, 'units','normalized','position',[.83 .1 .05 .3])
+hFig1 = figure(figNo);
+set(hFig1, 'units','normalized','position',[.83 .1 .05 .3])
 
 prain=[minCxy:(maxCxy-minCxy)/99:maxCxy];
 drg_pcolor(repmat([1:10],100,1)',repmat(prain,10,1),repmat(prain,10,1))
@@ -57,17 +59,33 @@ set(ax,'XTickLabel','')
 
 %This code is here for Daniels' Figure 1
 %Plot the timecourse
+figNo=figNo+1;
 try
-    close(3)
+    close(figNo)
 catch
 end
-hFig3 = figure(3);
-set(hFig3, 'units','normalized','position',[.07 .45 .55 .3])
+hFig1 = figure(figNo);
+set(hFig1, 'units','normalized','position',[.07 .45 .55 .3])
 plot(t',mean(Cxy_timecourse((f>=6)&(f<=14),1:length(t)))','-k','LineWidth',3)
 ylim([-1 1])
 xlabel('Time (sec)')
 ylabel('Coherence')
 title('Theta imaginary coherence')
+
+%This code is here for Daniels' Figure 1
+%Plot the timecourse
+figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+hFig1 = figure(figNo);
+set(hFig1, 'units','normalized','position',[.07 .45 .55 .3])
+plot(t',mean(Cxy_timecourse(:,1:length(t)))','-k','LineWidth',3)
+ylim([-1 1])
+xlabel('Time (sec)')
+ylabel('Coherence')
+title('Imaginary coherence for user settings')
 
 %Do a plot of pre-odor vs post-odor if the user chose -2 to 5
 t_pre=[-2 0];
@@ -78,12 +96,13 @@ ii_rank=0;
 input_data=[];
 
 if (sum((t>=t_pre(1))&(t<=t_pre(2)))>5)&(sum((t>=t_post(1))&(t<=t_post(2)))>5)
-    try
-        close(4)
-    catch
-    end
-    hFig4 = figure(4);
-    set(hFig4, 'units','normalized','position',[.07 .7 .15 .3])
+    figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+hFig1 = figure(figNo);
+    set(hFig1, 'units','normalized','position',[.07 .7 .15 .3])
     
     ax=gca;ax.LineWidth=3;
     

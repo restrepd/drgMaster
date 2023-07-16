@@ -1,11 +1,21 @@
-function handles=drgLFPwaveSpectrogram(handles)
+function handles=drgLFPwaveSpectrogramRefOtherTrial(handles)
 %Generates a timecourse of the LFP power in decibels 10*log10(Power)
 
 % tic
 
 % first_toc=toc;
 
+firstTr=handles.trialNo;
+lastTr=handles.lastTrialNo;
 
+refTrialRange=[1 18];
+optoTrialRange=[26 26];
+% optoTrialRange=[19 33];
+% optoTrialRange=[1 18];
+
+
+handles.lastTrialNo=max([max(refTrialRange) max(optoTrialRange)]);
+handles.trialNo=min([min(refTrialRange) min(optoTrialRange)]);
 
 handles.drgb.PACwave=[];
 handles.drgb.lickStuff=[];
@@ -16,10 +26,11 @@ else
     %The default is to calculate the licks
     calculate_lick=1;
 end
- 
+
 % start_toc=toc;
 [t_apt,freq,all_Power,all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPwavePowerForThisEvTypeNo(handles);
 % fprintf(1, 'dt for drgGetLFPwavePowerForThisEvTypeNo = %d\n',toc-start_toc)
+
 
 if handles.displayData==1
     if ~isempty(this_trialNo)
@@ -28,19 +39,9 @@ if handles.displayData==1
         %Get max and min
         if handles.subtractRef==0
             log_P_timecourse=zeros(length(freq),length(t_apt));
-            log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse),1);
+            log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse(optoTrialRange(1):optoTrialRange(2),:,:)),1);
 
-            %Per trial power plot
-            log_P_per_trial_timecourse=zeros(length(freq)*length(this_trialNo),length(t_apt));
-            y_shift=0;
-            for trialNo=1:length(this_trialNo)
-                this_log_P_timecourse=zeros(length(freq),length(t_apt));
-                this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trialNo,:,:));
-                log_P_per_trial_timecourse(y_shift+1:y_shift+length(freq),:)=this_log_P_timecourse;
-                shifted_freq(1,y_shift+1:y_shift+length(freq))=freq+(trialNo-1)*freq(end);
-                y_shift=y_shift+length(freq);
-            end
-
+         
             if handles.autoscale==1
                 maxLogPper=prctile(log_P_timecourse(:),99);
                 minLogPper=prctile(log_P_timecourse(:),1);
@@ -55,25 +56,14 @@ if handles.displayData==1
             end
         else
             log_P_timecourse=zeros(length(freq),length(t_apt));
-            log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse),1);
+            log_P_timecourse(:,:)=mean(10*log10(all_Power_timecourse(optoTrialRange(1):optoTrialRange(2),:,:)),1);
+
+            this_log_P_timecourse_ref=zeros(length(freq),length(t_apt));
+            this_log_P_timecourse_ref(:,:)=mean(10*log10(all_Power_timecourse(refTrialRange(1):refTrialRange(2),:,:)),1);
             log_P_timecourse_ref=zeros(length(freq),length(t_apt));
-            log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref),1)',1,length(t_apt));
-
-            %Per trial power plot
-            log_P_per_trial_timecourse_sub=zeros(length(freq)*length(this_trialNo),length(t_apt));
-            y_shift=0;
-            sy_shift=0;
-            shifted_freq=[];
-            for trialNo=1:length(this_trialNo)
-                this_log_P_timecourse=zeros(length(freq),length(t_apt));
-                this_log_P_timecourse(:,:)=10*log10(all_Power_timecourse(trialNo,:,:));
-                this_log_P_timecourse_ref=zeros(length(freq),length(t_apt));
-                this_log_P_timecourse_ref(:,:)=repmat(mean(10*log10(all_Power_ref(trialNo,:)),1)',1,length(t_apt));
-                log_P_per_trial_timecourse_sub(y_shift+1:y_shift+length(freq),:)=this_log_P_timecourse-this_log_P_timecourse_ref;
-                shifted_freq(1,y_shift+1:y_shift+length(freq))=freq+(trialNo-1)*freq(end);
-                y_shift=y_shift+length(freq);
-            end
-
+            log_P_timecourse_ref(:,:)=repmat(mean((this_log_P_timecourse_ref'),1)',1,length(t_apt));
+  
+  
             max_delta=16;
             if handles.autoscale==1
 
@@ -168,15 +158,19 @@ if handles.displayData==1
         catch
             plot(freq',this_mean_dbWB', 'k');
         end
- 
+
 
         title('Wavelet power spectrum')
         xlabel('Frequency (Hz)')
         ylabel('dB')
 
-        
+
     end
 end
+
+%Reaset first and last trials
+handles.trialNo=firstTr;
+handles.lastTrialNo=lastTr;
 
 pfft=1;
 

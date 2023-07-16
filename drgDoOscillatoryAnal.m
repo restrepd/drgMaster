@@ -70,5 +70,6 @@ switch handles.analysisNoOsc
     case 33
         drgThetaAmpPhasesTrialRange(handles);
     case 34
-        drgLFPwaveSpectrogram(handles);
+%         drgLFPwaveSpectrogram(handles);
+         drgLFPwaveSpectrogramRefOtherTrial(handles);
 end

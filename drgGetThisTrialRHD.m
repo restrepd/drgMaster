@@ -129,22 +129,35 @@ else
 end
 
 try
-    %Enter the digital input channel
-    digital_input=board_dig_in_data(1,:)+2*board_dig_in_data(2,:)+4*board_dig_in_data(3,:)...
-        +8*board_dig_in_data(4,:)+16*board_dig_in_data(5,:)+32*board_dig_in_data(6,:)...
-        +64*board_dig_in_data(7,:);
+    value_per_bit=[1 2 4 8 16 32 64];
+    digital_input=board_dig_in_data(1,:);
+    for ii_bit=2:size(board_dig_in_data,1)
+        digital_input=digital_input+value_per_bit(ii_bit)*board_dig_in_data(ii_bit,:);
+    end
+    data_this_trial(:,22)=digital_input;
+catch
+end
+
+try
+%     %Enter the digital input channel
+%     digital_input=board_dig_in_data(1,:)+2*board_dig_in_data(2,:)+4*board_dig_in_data(3,:)...
+%         +8*board_dig_in_data(4,:)+16*board_dig_in_data(5,:)+32*board_dig_in_data(6,:)...
+%         +64*board_dig_in_data(7,:);
     
     %Enter the trigger (bit 8)
     data_this_trial(:,17)=1000*board_dig_in_data(8,:);
-    
-    %Enter the four votage inputes: shiff, lick, photodiode and laser trigger
+catch
+end
+   
+try
+    %Enter the four votage inputs: shiff, lick, photodiode and laser trigger
     data_this_trial(:,18:21)=board_adc_data(1:4,:)';
     szadc=size(board_adc_data);
     if szadc(1)==5
        data_this_trial(:,21)=board_adc_data(5,:)'; 
     end
     
-    data_this_trial(:,22)=digital_input;
+    
 catch
 end
 
