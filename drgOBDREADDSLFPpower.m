@@ -1,4 +1,4 @@
-function handles_out=drgOBChr2LFPpower(handles_choices)
+function handles_out=drgOBDREADDSLFPpower(handles_choices)
 %drgOBChr2LFPpower 
 %provides power analysis for Joe's ChR2 runs
 
@@ -6,11 +6,14 @@ if exist('handles_choices')==0
     clear all
     close all
 
-    handles.peakLFPNo=9;%This is the LFP number that will be processed
-    electrode_label='Right OB';
+%     handles.peakLFPNo=9;%This is the LFP number that will be processed
+%     electrode_label='Right OB';
+
+     handles.peakLFPNo=1;%This is the LFP number that will be processed
+    electrode_label='Right CA1';
 
     % handles.peakLFPNo=[1 8 9 16];
-    show_f_bandwidth=[35 45];
+    show_f_bandwidth=[65 95];
 
 
     
@@ -19,13 +22,23 @@ if exist('handles_choices')==0
     handles.burstHighF=100;
 
     %Load file
-    [jtFileName,jtPathName] = uigetfile('jt_times*.mat','Select jt_times file to open');
-    handles.jtfullName=[jtPathName,jtFileName];
-    handles.jtFileName=jtFileName;
-    handles.jtPathName=jtPathName;
+    jtPathNames{1}='/Users/restrepd/Documents/Projects/Joe_OB_to_hippo/CNO/20231213_Siegfried_C5957_DREADD_n2_NewCNO_Pre_During_2mg_kg_2-Undecanone/20231213_Siegfried_C5957_DREADD_n2_NewCNO_Pre_231213_105533/'
+    jtFileNames{1}='jt_times_20231213_Siegfried_C5957_DREADD_n2_NewCNO_Pre_231213_105533.mat';
+    jtPathNames{2}='/Users/restrepd/Documents/Projects/Joe_OB_to_hippo/CNO/20231213_Siegfried_C5957_DREADD_n2_NewCNO_Pre_During_2mg_kg_2-Undecanone/20231213_Siegfried_C5957_DREADD_n2_NewCNO_2mg_kg_2-Undecanone_231213_111424/'
+    jtFileNames{2}='jt_times_20231213_Siegfried_C5957_DREADD_n2_NewCNO_2mg_kg_2-Undecanone_231213_111424.mat';
 
-handles.showData=1;
-    
+
+% 
+%     [jtFileName,jtPathName] = uigetfile('jt_times*.mat','Select jt_times file to open');
+%     handles.jtfullName=[jtPathName,jtFileName];
+    handles.jtFileNames=jtFileNames;
+    handles.jtPathNames=jtPathNames;
+
+    handles.showData=1;
+
+    ii_laser_start=60*5;
+    ii_laser_end=60*65;
+
 else
     %Use this if the file is called by another function
     show_f_bandwidth=[35 45];
@@ -42,9 +55,9 @@ else
 
         %Load file
 
-    handles.jtfullName=[jtPathName,jtFileName];
-    handles.jtFileName=jtFileName;
-    handles.jtPathName=jtPathName;
+%     handles.jtfullName=[jtPathName,jtFileName];
+    handles.jtFileNames=jtFileNames;
+    handles.jtPathNames=jtPathNames;
   
 end
 
@@ -52,11 +65,11 @@ handles_out=[];
 
 handles.displayData=1;
 
-cd(jtPathName(1:end-1))
-try
-    mkdir('figures')
-catch
-end
+
+% try
+%     mkdir('figures')
+% catch
+% end
 
 %Initialize handles
 handles.sessionNo=1;
@@ -90,58 +103,80 @@ handles.endRef=0.2;
 handles.time_pad=0.2;
 
 
-
-
-
-drgRead_jt_times(jtPathName,jtFileName)
-FileName=[jtFileName(10:end-4) '_drg.mat'];
-handles.fullName=[jtPathName,FileName];
-load(handles.fullName);
-handles.drg=drg;
-handles.drg.drta_p.fullName=[jtPathName,handles.drg.drta_p.FileName];
-
-handles.trialNo=1;
-handles.lastTrialNo=handles.drg.drta_p.trialNo;
-dec_n=fix(handles.drg.session(sessionNo).draq_p.ActualRate/1000);
-
-% handles=drgLFPwaveSpectrogramRefOtherTrial(handles);
-
-%First figure out when the laser input and camera coverage takes place
+%Initialize variables
 digital_LFPNo=22;
 dec_camera=[];
 dec_laser=[];
 bit_camera=[];
 bit_laser=[];
-for trNo=1:handles.lastTrialNo
-    [digital_input, trialNo, can_read] = drgGetTrialLFPData(handles, digital_LFPNo, trNo, handles.evTypeNo, handles.time_start, handles.time_end);
-    bit_camera=bitget(uint16(digital_input), 1, 'uint16');
-    bit_laser=bitget(uint16(digital_input), 2, 'uint16');
-    dec_camera=[dec_camera decimate(double(bit_camera(1:180000)),dec_n)];
-    dec_laser=[dec_laser decimate(double(bit_laser(1:180000)),dec_n)];
-end
+max_time_bins=120*60;
 
-
-
-[out_t,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event, is_not_moving]=drgGetLFPwavePowerForThisEvTypeNo(handles);
-
-%Now decimate the power further to 1 per sec
+%Decimate the power further to 1 per sec
 mean_window=1; %window to average in seconds
 
-log_P_timecourse=zeros(length(f),handles.lastTrialNo*size(all_Power_timecourse,3)/(mean_window*1000));
 ii_t=0;
-for trNo=1:handles.lastTrialNo
-    for ii_window=1:size(all_Power_timecourse,3)/1000
-        ii_t=ii_t+1;
-        this_mean_logP=zeros(length(f),1);
-        ii_from=(ii_window-1)*mean_window*1000+1;
-        ii_to=ii_window*mean_window*1000;
-        this_mean_logP(:,1)=mean(10*log10(all_Power_timecourse(trNo,:,ii_from:ii_to)),3);
-        log_P_timecourse(:,ii_t)=this_mean_logP;
+
+
+for fileNo=1:length(jtFileNames)
+
+    jtPathName=jtPathNames{fileNo};
+    jtFileName=jtFileNames{fileNo};
+    cd(jtPathName(1:end-1))
+
+    drgRead_jt_times(jtPathName,jtFileName)
+    FileName=[jtFileName(10:end-4) '_drg.mat'];
+    handles.fullName=[jtPathName,FileName];
+    load(handles.fullName);
+    handles.drg=drg;
+    handles.drg.drta_p.fullName=[jtPathName,handles.drg.drta_p.FileName];
+
+    handles.trialNo=1;
+    handles.lastTrialNo=handles.drg.drta_p.trialNo;
+    dec_n=fix(handles.drg.session(sessionNo).draq_p.ActualRate/1000);
+
+    % handles=drgLFPwaveSpectrogramRefOtherTrial(handles);
+
+    %First figure out when the laser input and camera coverage takes place
+
+    for trNo=1:handles.lastTrialNo
+        [digital_input, trialNo, can_read] = drgGetTrialLFPData(handles, digital_LFPNo, trNo, handles.evTypeNo, handles.time_start, handles.time_end);
+        bit_camera=bitget(uint16(digital_input), 1, 'uint16');
+        bit_laser=bitget(uint16(digital_input), 2, 'uint16');
+        dec_camera=[dec_camera decimate(double(bit_camera(1:180000)),dec_n)];
+        dec_laser=[dec_laser decimate(double(bit_laser(1:180000)),dec_n)];
+    end
+
+
+
+    [out_t,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event, is_not_moving]=drgGetLFPwavePowerForThisEvTypeNo(handles);
+
+    
+    if fileNo==1
+        log_P_timecourse=zeros(length(f),max_time_bins);
+    end
+
+    for trNo=1:handles.lastTrialNo
+        for ii_window=1:size(all_Power_timecourse,3)/1000
+            ii_t=ii_t+1;
+            this_mean_logP=zeros(length(f),1);
+            ii_from=(ii_window-1)*mean_window*1000+1;
+            ii_to=ii_window*mean_window*1000;
+            this_mean_logP(:,1)=mean(10*log10(all_Power_timecourse(trNo,:,ii_from:ii_to)),3);
+            log_P_timecourse(:,ii_t)=this_mean_logP;
+        end
+    end
+    if fileNo==1
+        ii_laser_start=ii_t;
+    end
+    ii_t=ii_t+180;
+     if fileNo==1
+        ii_laser_end=ii_t;
     end
 end
+% 
+% ii_laser_start=floor(find(dec_laser>0.5,1,'first')/(1000*mean_window));
+% ii_laser_end=ceil(find(dec_laser>0.5,1,'last')/(1000*mean_window));
 
-ii_laser_start=floor(find(dec_laser>0.5,1,'first')/(1000*mean_window));
-ii_laser_end=ceil(find(dec_laser>0.5,1,'last')/(1000*mean_window));
 
 
 %Subtract reference
@@ -268,7 +303,7 @@ if handles.showData==1
     plot([time(ii_laser_start) time(ii_laser_start)],[this_ylim(1) this_ylim(2)],'-k','LineWidth',2)
     plot([time(ii_laser_end) time(ii_laser_end)],[this_ylim(1) this_ylim(2)],'-k','LineWidth',2)
 
-    title(['Wavelet power timecourse for bandwidth from ' num2str(show_f_bandwidth(1)) ' to ' num2str(show_f_bandwidth(2)) ' Hz'])
+    title([electrode_label ' Wavelet power timecourse for bandwidth from ' num2str(show_f_bandwidth(1)) ' to ' num2str(show_f_bandwidth(2)) ' Hz'])
     xlabel('Time (sec)')
     ylabel('dB')
    
