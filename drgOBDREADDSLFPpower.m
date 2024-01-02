@@ -6,17 +6,20 @@ if exist('handles_choices')==0
     clear all
     close all
 
-%     handles.peakLFPNo=9;%This is the LFP number that will be processed
-%     electrode_label='Right OB';
+    %     handles.peakLFPNo=9;%This is the LFP number that will be processed
+    %     electrode_label='Right OB';
 
-     handles.peakLFPNo=1;%This is the LFP number that will be processed
-    electrode_label='Right CA1';
+%     handles.peakLFPNo=1;%This is the LFP number that will be processed
+%     electrode_label='Right CA1';
+
+    handles.peakLFPNo=8;%This is the LFP number that will be processed
+    electrode_label='Left CA1';
 
     % handles.peakLFPNo=[1 8 9 16];
     show_f_bandwidth=[65 95];
 
 
-    
+
   
     handles.burstLowF=1;
     handles.burstHighF=100;
@@ -77,7 +80,7 @@ sessionNo=1;
 handles.unitNo=1;
 handles.evTypeNo=1; %This is event 1 in continuous
 handles.notch60=1;
-handles.subtractRef=1; %Subtract the mean reference power?
+handles.subtractRef=0; %Subtract the mean reference power?
 handles.data_vs_simulate=0;
 
 handles.autoscale=1;

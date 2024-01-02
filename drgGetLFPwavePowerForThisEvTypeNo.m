@@ -65,7 +65,7 @@ for trNo=firstTr:lastTr
     evNo = drgFindEvNo(handles,trNo,sessionNo);
      
     if evNo~=-1
-        
+         
          
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
         

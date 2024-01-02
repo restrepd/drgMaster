@@ -1,4 +1,6 @@
-function [meanVectorLength, meanVectorAngle, peakAngle, MI_Tort, phase, phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env]=drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins,method)
+function [meanVectorLength, meanVectorAngle, peakAngle, MI_Tort, phase, phase_histo, theta_wave, ...
+    meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env...
+    ,troughAngle]=drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins,method)
 %Generates the phase histogram for the envelope and pac
 %function [pac_value, mod_indx, phase, phase_histo, theta_wave]=drgGetThetaAmpPhase(LFP,Fs,lowF1,lowF2,highF1,highF2,time_pad,no_bins)
  
@@ -88,6 +90,8 @@ theta_wave(no_bins+1)=theta_wave(1);
 phase_histo=phase_histo/sum_env;
 [max_hist peak_bin]=max(phase_histo);
 peakAngle=phase(peak_bin);
+[min_hist trough_bin]=min(phase_histo);
+troughAngle=phase(trough_bin);
 
 %Calculate the modulation index defined by Tort et al J Neurophysiol 104: 1195?1210, 2010
 %Note that the pvalue for Tort et al is the same as phase_histo
