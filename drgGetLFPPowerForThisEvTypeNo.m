@@ -1,4 +1,4 @@
-function [out_times,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event, is_not_moving]=drgGetLFPPowerForThisEvTypeNo(handles)
+function [out_times,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPPowerForThisEvTypeNo(handles)
 
 %Generates a trial per trial phase histogram
 odorOn=2;
@@ -9,11 +9,6 @@ freq=handles.burstLowF:(handles.burstHighF-handles.burstLowF)/100:handles.burstH
 window=round(handles.window*handles.drg.draq_p.ActualRate);
 noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate);
 
-if ~isfield(handles,'drgbchoices')
-    movement_threshold=20000000000;
-else
-    movement_threshold=handles.drgbchoices.movement_threshold;
-end
 
 
 %Enter trials
@@ -71,9 +66,8 @@ for trNo=firstTr:lastTr
                 max_t=handles.time_end-handles.time_pad;
             end
             
-           
-            [LFP, trialNo, can_read] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
             
+            [LFP, trialNo, can_read] = drgGetTrialLFPData(handles, handles.peakLFPNo, evNo, handles.evTypeNo, min_t, max_t);
             
             if (can_read==1)
                 
@@ -85,8 +79,6 @@ for trNo=firstTr:lastTr
                 
                 [S,f,t,P]=spectrogram(detrend(double(LFP)),window,noverlap,freq,handles.drg.session(handles.sessionNo).draq_p.ActualRate);
                 
-
-                
                 no_trials=no_trials+1;
                 this_trialNo(no_trials)=trNo;
                 
@@ -94,8 +86,6 @@ for trNo=firstTr:lastTr
                 out_times=times((times>=handles.time_start+handles.time_pad)&(times<=handles.time_end-handles.time_pad));
                 all_Power_timecourse(no_trials,1:length(f),1:length(out_times))=P(:,(times>=handles.time_start+handles.time_pad)&(times<=handles.time_end-handles.time_pad));
                 all_Power(no_trials,1:length(f))=mean(P((times>=handles.time_start+handles.time_pad)&(times<=handles.time_end-handles.time_pad)),2);
-                is_not_moving(no_trials,1:length(LFP))=(abs(LFP)<movement_threshold);
-                
                 if handles.subtractRef==1
                     P_ref=[];
                     P_ref=P(:,(times>=handles.startRef+handles.time_pad)&(times<=handles.endRef-handles.time_pad));
@@ -131,14 +121,18 @@ for trNo=firstTr:lastTr
                                 end
                             otherwise
                                 %OdorOn is the reference event
-                                if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
-                                    which_event(evTypeNo,no_trials)=1;
-                                else
-                                    which_event(evTypeNo,no_trials)=0;
+                                which_event(evTypeNo,no_trials)=0;
+                                if length(handles.drg.session(1).events)>=handles.drgbchoices.evTypeNos(evTypeNo)
+                                    if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
+                                        which_event(evTypeNo,no_trials)=1;
+                                    else
+                                        which_event(evTypeNo,no_trials)=0;
+                                    end
                                 end
                         end
                     end
                 end
+                
             end
         end
     else
@@ -187,9 +181,7 @@ if ntr~=no_trials
             end
             all_Power_timecourse(ntr,:,:)=old_all_Power_timecourse(trNo,:,:);
             all_Power(ntr,:)=old_all_Power(trNo,:);
-            if handles.subtractRef==1
             all_Power_ref(ntr,:)=old_all_Power_ref(trNo,:);
-            end
             this_trialNo(1,ntr)=old_this_trialNo(1,trNo);
             perCorr_pertr(1,ntr)=old_perCorr_pertr(1,trNo);
         end

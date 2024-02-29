@@ -1,21 +1,17 @@
-function [out_t,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event, is_not_moving]=drgGetLFPwavePowerForThisEvTypeNo(handles)
+function [out_t,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPwavePowerForThisEvTypeNo(handles)
 
 %Generates a trial per trial phase histogram
 odorOn=2;
 sessionNo=handles.sessionNo;
 Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
 dec_n=fix(handles.drg.session(sessionNo).draq_p.ActualRate/1000);
-% freq=handles.burstLowF:(handles.burstHighF-handles.burstLowF)/100:handles.burstHighF;
+freq=handles.burstLowF:(handles.burstHighF-handles.burstLowF)/100:handles.burstHighF;
 
-% window=round(handles.window*handles.drg.draq_p.ActualRate);
-% noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate);
+window=round(handles.window*handles.drg.draq_p.ActualRate);
+noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate);
 
-if ~isfield(handles,'drgbchoices')
-    movement_threshold=20000000000;
-else
-    movement_threshold=handles.drgbchoices.movement_threshold;
-end
- 
+
+
 %Enter trials
 firstTr=handles.trialNo;
 lastTr=handles.lastTrialNo;
@@ -29,7 +25,6 @@ all_Power_timecourse=[];
 this_trialNo=[];
 perCorr_pertr=[];
 which_event=[];
-is_not_moving=[];
 
 %Setup the wavelet scales
 %   scales = helperCWTTimeFreqVector(minfreq,maxfreq,f0,dt,NumVoices)
@@ -65,8 +60,8 @@ for trNo=firstTr:lastTr
     evNo = drgFindEvNo(handles,trNo,sessionNo);
      
     if evNo~=-1
-         
-         
+        
+        
         excludeTrial=drgExcludeTrialLFP(handles.drg,handles.peakLFPNo,handles.drg.session(sessionNo).events(handles.evTypeNo).times(evNo),sessionNo);
         
         if excludeTrial==0
@@ -115,7 +110,7 @@ for trNo=firstTr:lastTr
                 
                 no_trials=no_trials+1;
                 this_trialNo(no_trials)=trNo;
-                 
+                
                 
                 if handles.displayData==1
                     fprintf(1, ['drgGetLFPwavePowerForThisEvTypeNo trial No %d, event No %d, processed trial no %d\n'], trNo,evNo,no_trials);
@@ -123,15 +118,13 @@ for trNo=firstTr:lastTr
                 
                 
                 
-                all_times=t+min_t++handles.time_pad;
+                all_times=t+min_t;
                 out_times=all_times(:,(all_times>=handles.time_start+handles.time_pad)&(all_times<=handles.time_end-handles.time_pad));
                 Pout(:,:)=P(:,(all_times>=handles.time_start+handles.time_pad)&(all_times<=handles.time_end-handles.time_pad));
                 all_Power_timecourse(no_trials,1:length(f),1:length(out_times))=Pout(:,:);
                 all_Power(no_trials,1:length(f))=mean(Pout,2);
-                is_not_moving(no_trials,1:length(out_times))=(abs(decLFP((all_times>=handles.time_start+handles.time_pad)&(all_times<=handles.time_end-handles.time_pad)))<movement_threshold);
-                
                 if handles.subtractRef==1
-                    P_ref=[]; 
+                    P_ref=[];
                     P_ref=P(:,(all_times>=handles.startRef+handles.time_pad)&(all_times<=handles.endRef-handles.time_pad));
                     all_Power_ref(no_trials,1:length(f))=mean(P_ref,2);
                 end
@@ -165,10 +158,13 @@ for trNo=firstTr:lastTr
                                 end
                             otherwise
                                 %OdorOn is the reference event
-                                if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
-                                    which_event(evTypeNo,no_trials)=1;
-                                else
-                                    which_event(evTypeNo,no_trials)=0;
+                                which_event(evTypeNo,no_trials)=0;
+                                if length(handles.drg.session(1).events)>=handles.drgbchoices.evTypeNos(evTypeNo)
+                                    if sum(handles.drg.session(1).events(handles.drgbchoices.evTypeNos(evTypeNo)).times==handles.drg.session(1).events(handles.drgbchoices.referenceEvent).times(evNo))>0
+                                        which_event(evTypeNo,no_trials)=1;
+                                    else
+                                        which_event(evTypeNo,no_trials)=0;
+                                    end
                                 end
                         end
                     end

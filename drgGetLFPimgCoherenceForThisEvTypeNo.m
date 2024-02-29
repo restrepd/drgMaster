@@ -56,8 +56,9 @@ no_excluded=0;
 
 for trNo=firstTr:lastTr
     
+      
     if handles.save_drgb==0
-        trialNo=trNo
+        fprintf(1, ['Trial No %d imaginary coherence processed\n'], trNo);
     end
     
     evNo = drgFindEvNo(handles,trNo,sessionNo);

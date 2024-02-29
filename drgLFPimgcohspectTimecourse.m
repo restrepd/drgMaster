@@ -1,8 +1,9 @@
 function drgLFPimgcohspectTimecourse(handles)
 %Generates a timecourse of the imaginary coherence between two LFP channels
 
+tic
 [t,f, all_Cxy_timecourse, this_trialNo]=drgGetLFPimgCoherenceForThisEvTypeNo(handles);
-
+toc
 
 freq=f';
 
@@ -15,11 +16,11 @@ else
     maxCxy=handles.maxLogP;
     minCxy=handles.minLogP;
 end
-
+ 
 if minCxy==maxCxy
     minCxy=maxCxy-0.01;
 end
-figNo=0;
+figNo=0; 
 
 %Plot the timecourse
 figNo=figNo+1;
@@ -70,7 +71,23 @@ plot(t',mean(Cxy_timecourse((f>=6)&(f<=14),1:length(t)))','-k','LineWidth',3)
 ylim([-1 1])
 xlabel('Time (sec)')
 ylabel('Coherence')
-title('Theta imaginary coherence')
+title('Theta imaginary coherence within trial')
+
+%Plot the timecourse per trial
+figNo=figNo+1;
+try
+    close(figNo)
+catch
+end
+hFig1 = figure(figNo);
+set(hFig1, 'units','normalized','position',[.07 .45 .55 .3])
+per_trialCxy=mean(mean(all_Cxy_timecourse,3),2);
+time=[1:length(per_trialCxy)]*9;
+plot(time,per_trialCxy,'-k','LineWidth',3)
+ylim([-1 1])
+xlabel('Time (sec)')
+ylabel('Coherence')
+title('Theta imaginary coherence per trial')
 
 %This code is here for Daniels' Figure 1
 %Plot the timecourse

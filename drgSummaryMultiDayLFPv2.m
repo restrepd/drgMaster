@@ -11,11 +11,11 @@ conv_window=1; %convolution window to smooth REM/NREM changes during sleep, I us
 v=ones(1,conv_window)/conv_window;
 
 %Below enter information for each file
-PathName='/Users/restrepd/Documents/Projects/Multi day LFP/';
+PathName='/Users/restrepd/Documents/Projects/Multi day LFP/Exosomes/ExosomeData/';
  
-group_name{1}='Vehicle';
+group_name{1}='Mock';
 group_name{2}='VZV treated';
-group_name{3}='Mock';
+group_name{3}='Vehicle';
 
 einfSignalLabels{1}='Hippocampus left';
 einfSignalLabels{2}='Olfactory bulb';
@@ -30,56 +30,91 @@ f_label{5}='Gamma high';
 
 sec_per_LFP_point=9;
 
-is_c57=1;
+% groupNo=2;
+% switch groupNo
+%     case 2
 
-if is_c57==1
-
-    %C57
-    FileNames.mouse(1).FileName{1}='Restrepo C031_2022-10-26_10_00_14_export_ov0p5_fft.mat';
-    FileNames.mouse(1).date{1}='10/26/2022';
-    FileNames.mouse(1).FileName{2}='Restrepo C031_2_2022-11-03_11_22_23_export_ov0p5_fft.mat';
-    FileNames.mouse(1).date{2}='11/03/2022';
+    %Mock
+    FileNames.mouse(1).FileName{1}='1_Nagel_482493_2023-08-04_12_16_15_export_ov0p5_fft.mat';
+    FileNames.mouse(1).date{1}='08/04/2023';
+    FileNames.mouse(1).FileName{2}='1_Nagel_482493_2023-08-11_08_38_54_export_ov0p5_fft.mat';
+    FileNames.mouse(1).date{2}='08/11/2023';
+    FileNames.mouse(1).FileName{3}='1_Nagel_482493_2023-08-18_10_08_04_2023-08-18_13_07_37_export_ov0p5_fft.mat';
+    FileNames.mouse(1).date{3}='08/18/2023';
     group(1)=1;
     FileNames.mouse(1).treatment_start=[152 152+24 152+48];
 
-    FileNames.mouse(2).FileName{1}='Restrepo T034_2022-10-26_10_00_29_export_ov0p5_fft.mat';
-    FileNames.mouse(2).date{1}='10/26/2022';
-    FileNames.mouse(2).FileName{2}='Restrepo T034_2_2022-11-03_11_35_29_export_ov0p5_fft.mat';
-    FileNames.mouse(2).date{2}='11/03/2022';
-    group(2)=2;
+    FileNames.mouse(2).FileName{1}='5_Nagel_479633_2023-08-04_12_17_12_export_ov0p5_fft';
+    FileNames.mouse(2).date{1}='08/04/2022';
+    FileNames.mouse(2).FileName{2}='5_Nagel_479633_2023-08-11_08_39_27_export_ov0p5_fft';
+    FileNames.mouse(2).date{2}='08/11/2022';
+    FileNames.mouse(2).FileName{3}='5_Nagel_479633_2023-08-18_10_48_41_2023-08-18_13_29_15_export_ov0p5_fft.mat';
+    FileNames.mouse(2).date{3}='08/18/2022';
+    group(2)=1;
     FileNames.mouse(2).treatment_start=[152 152+24 152+48];
 
-    FileNames.mouse(3).FileName{1}='Restrepo T035_2022-10-26_10_00_19_export_ov0p5_fft.mat';
-    FileNames.mouse(3).date{1}='10/26/2022';
-    FileNames.mouse(3).FileName{2}='Restrepo T035_2_2022-11-03_11_27_21_export_ov0p5_fft.mat';
-    FileNames.mouse(3).date{2}='11/03/2022';
-    group(3)=3;
+   FileNames.mouse(3).FileName{1}='5_Nagel_479633_2023-08-04_12_17_12_export_ov0p5_fft';
+    FileNames.mouse(3).date{1}='08/04/2022';
+    FileNames.mouse(3).FileName{2}='5_Nagel_479633_2023-08-11_08_39_27_export_ov0p5_fft';
+    FileNames.mouse(3).date{2}='08/11/2022';
+    FileNames.mouse(3).FileName{3}='5_Nagel_479633_2023-08-18_10_48_41_2023-08-18_13_29_15_export_ov0p5_fft.mat';
+    FileNames.mouse(3).date{3}='08/18/2022';
+    group(3)=1;
     FileNames.mouse(3).treatment_start=[152 152+24 152+48];
 
-else
+    %VZV
+    FileNames.mouse(4).FileName{1}='3_Nagel_479632_2023-08-04_12_17_00_export_ov0p5_fft.mat';
+    FileNames.mouse(4).date{1}='08/04/2023';
+    FileNames.mouse(4).FileName{2}='3_Nagel_479632_2023-08-11_08_39_19_export_ov0p5_fft.mat';
+    FileNames.mouse(4).date{2}='08/11/2023';
+    FileNames.mouse(4).FileName{3}='3_Nagel_479632_2023-08-18_10_30_20_2023-08-18_13_21_34_export_ov0p5_fft.mat';
+    FileNames.mouse(4).date{3}='08/18/2023';
+    group(4)=2;
+    FileNames.mouse(4).treatment_start=[152 152+24 152+48];
 
-    %5xFAD
-    FileNames.mouse(1).FileName{1}='Restrepo T022_2022-11-07_09_18_56_export_ov0p5_fft.mat';
-    FileNames.mouse(1).date{1}='11/07/2022';
-    FileNames.mouse(1).FileName{2}='Restrepo T022_2_2022-11-14_09_30_26_export_ov0p5_fft.mat';
-    FileNames.mouse(1).date{2}='11/14/2022';
-    FileNames.mouse(1).FileName{3}='Restrepo T022_3_2022-11-21_08_24_12_export_ov0p5_fft.mat';
-    FileNames.mouse(1).date{3}='11/21/2022';
-    FileNames.mouse(1).FileName{4}='Restrepo T022_4_2022-11-28_08_23_45_export_ov0p5_fft.mat';
-    FileNames.mouse(1).date{4}='11/28/2022';
-    group(1)=3;
-    FileNames.mouse(1).treatment_start=[104.9 189.6 329.6];
+    FileNames.mouse(5).FileName{1}='6_Nagel_482875_2023-08-04_12_01_34_export_ov0p5_fft.mat';
+    FileNames.mouse(5).date{1}='08/04/2022';
+    FileNames.mouse(5).FileName{2}='6_Nagel_482875_2023-08-11_08_04_export_ov0p5_fft.mat';
+    FileNames.mouse(5).date{2}='08/11/2022';
+    FileNames.mouse(5).FileName{3}='6_Nagel_482875_2023-08-18_11_02_01_2023-08-18_13_39_16_export_ov0p5_fft.mat';
+    FileNames.mouse(5).date{3}='08/18/2022';
+    group(5)=2;
+    FileNames.mouse(5).treatment_start=[152 152+24 152+48];
 
-    FileNames.mouse(2).FileName{1}='T032 22-11-07 export_ov0p5_fft.mat';
-    FileNames.mouse(2).date{1}='11/07/2022';
-    FileNames.mouse(2).FileName{2}='Restrepo T032_2_2022-11-14_09_30_19_export_ov0p5_fft.mat';
-    FileNames.mouse(2).date{2}='11/14/2022';
-    FileNames.mouse(2).FileName{3}='Restrepo T032_4_2022-11-28_08_23_38_export_ov0p5_fft.mat';
-    FileNames.mouse(2).date{3}='11/28/2022';
-    group(2)=2;
-    FileNames.mouse(2).treatment_start=[104.9 189.6 329.6];
+    FileNames.mouse(6).FileName{1}='6_Nagel_482875_2023-08-04_12_01_34_export_ov0p5_fft.mat';
+    FileNames.mouse(6).date{1}='08/04/2022';
+    FileNames.mouse(6).FileName{2}='6_Nagel_482875_2023-08-11_08_04_export_ov0p5_fft.mat';
+    FileNames.mouse(6).date{2}='08/11/2022';
+    FileNames.mouse(6).FileName{3}='6_Nagel_482875_2023-08-18_11_02_01_2023-08-18_13_39_16_export_ov0p5_fft.mat';
+    FileNames.mouse(6).date{3}='08/18/2022';
+    group(6)=2;
+    FileNames.mouse(6).treatment_start=[152 152+24 152+48];
 
-end
+%     case 3
+% 
+% 
+%     %5xFAD
+%     FileNames.mouse(1).FileName{1}='Restrepo T022_2022-11-07_09_18_56_export_ov0p5_fft.mat';
+%     FileNames.mouse(1).date{1}='11/07/2022';
+%     FileNames.mouse(1).FileName{2}='Restrepo T022_2_2022-11-14_09_30_26_export_ov0p5_fft.mat';
+%     FileNames.mouse(1).date{2}='11/14/2022';
+%     FileNames.mouse(1).FileName{3}='Restrepo T022_3_2022-11-21_08_24_12_export_ov0p5_fft.mat';
+%     FileNames.mouse(1).date{3}='11/21/2022';
+%     FileNames.mouse(1).FileName{4}='Restrepo T022_4_2022-11-28_08_23_45_export_ov0p5_fft.mat';
+%     FileNames.mouse(1).date{4}='11/28/2022';
+%     group(1)=3;
+%     FileNames.mouse(1).treatment_start=[104.9 189.6 329.6];
+% 
+%     FileNames.mouse(2).FileName{1}='T032 22-11-07 export_ov0p5_fft.mat';
+%     FileNames.mouse(2).date{1}='11/07/2022';
+%     FileNames.mouse(2).FileName{2}='Restrepo T032_2_2022-11-14_09_30_19_export_ov0p5_fft.mat';
+%     FileNames.mouse(2).date{2}='11/14/2022';
+%     FileNames.mouse(2).FileName{3}='Restrepo T032_4_2022-11-28_08_23_38_export_ov0p5_fft.mat';
+%     FileNames.mouse(2).date{3}='11/28/2022';
+%     group(2)=2;
+%     FileNames.mouse(2).treatment_start=[104.9 189.6 329.6];
+% 
+% end
 
 %Now process the data
 LFPs=[];
@@ -189,7 +224,8 @@ for chNo=1:4
                     %Zero dB by subtracting the average of the day before
                     t_zero_start=LFP.mice(mouseNo).t_night_off(floor(treatment_start/24)-1);
                     t_zero_end=LFP.mice(mouseNo).t_night_on(floor(treatment_start/24));
-                    dB_zero=mean(conv_this_mean_dB_power((t_hours>=t_zero_start)&(t_hours<=t_zero_end)));
+                    % dB_zero=mean(conv_this_mean_dB_power((t_hours>=t_zero_start)&(t_hours<=t_zero_end)));
+                    dB_zero=0;
                     if isnan(dB_zero)
                         dB_zero=0;
                     end

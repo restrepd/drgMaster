@@ -6,8 +6,16 @@ if exist('handles_choices')==0
     clear all
     close all
 
-    handles.peakLFPNo=9;%This is the LFP number that will be processed
-    electrode_label='Right OB';
+    % handles.peakLFPNo=9;%This is the LFP number that will be processed
+    % electrode_label='Right OB';
+
+    handles.peakLFPNo=1;%This is the LFP number that will be processed
+    electrode_label='Right HP';
+
+    %1 Right hippocampus
+    %8 Left hippocampus
+    %9 Right olfactory bulb
+    %16 Left olfactory bulb
 
     % handles.peakLFPNo=[1 8 9 16];
     show_f_bandwidth=[35 45];
@@ -18,13 +26,27 @@ if exist('handles_choices')==0
     handles.burstLowF=1;
     handles.burstHighF=100;
 
+    handles.window=1; %This is the FFT window in sec  %Tort is 1 sec, old DR 0.37
+    handles.noverlap=handles.window*0.9; 
+
     %Load file
-    [jtFileName,jtPathName] = uigetfile('jt_times*.mat','Select jt_times file to open');
+    % [jtFileName,jtPathName] = uigetfile('jt_times*.mat','Select jt_times file to open');
+
+
+    jtPathName='/Volumes/Diego HD/Joe/Optogenetics/5xFADvsWT_1_hour_treatmentVsnone/Curley_WT_Treated/20240206_WT_Curley_Tx_2/20240206_WT_Curley_Tx_2_240206_120854/';
+    jtFileName='jt_times_20240206_WT_Curley_Tx_2_240206_120854.mat';
+
     handles.jtfullName=[jtPathName,jtFileName];
+
     handles.jtFileName=jtFileName;
     handles.jtPathName=jtPathName;
 
-handles.showData=1;
+    handles.showData=1;
+
+    %Note that if the laser signal is not found these values are used
+    min_laser_start=5;
+    min_laser_end=65;
+    min_exp_end=70;
     
 else
     %Use this if the file is called by another function
@@ -122,12 +144,12 @@ end
 
 
 
-[out_t,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event, is_not_moving]=drgGetLFPwavePowerForThisEvTypeNo(handles);
+[out_t,f,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPwavePowerForThisEvTypeNo(handles);
 
 %Now decimate the power further to 1 per sec
 mean_window=1; %window to average in seconds
 
-log_P_timecourse=zeros(length(f),handles.lastTrialNo*size(all_Power_timecourse,3)/(mean_window*1000));
+log_P_timecourse=zeros(length(f),ceil(handles.lastTrialNo*size(all_Power_timecourse,3)/(mean_window*1000)));
 ii_t=0;
 for trNo=1:handles.lastTrialNo
     for ii_window=1:size(all_Power_timecourse,3)/1000
@@ -141,7 +163,13 @@ for trNo=1:handles.lastTrialNo
 end
 
 ii_laser_start=floor(find(dec_laser>0.5,1,'first')/(1000*mean_window));
+if isempty(ii_laser_start)
+    ii_laser_start=(min_laser_start/min_exp_end)*ceil(handles.lastTrialNo*size(all_Power_timecourse,3)/(mean_window*1000));
+end
 ii_laser_end=ceil(find(dec_laser>0.5,1,'last')/(1000*mean_window));
+if isempty(ii_laser_end)
+    ii_laser_end=(min_laser_end/min_exp_end)*ceil(handles.lastTrialNo*size(all_Power_timecourse,3)/(mean_window*1000));
+end
 
 
 %Subtract reference
@@ -185,7 +213,7 @@ if handles.showData==1
     set(hFig, 'units','normalized','position',[.07 .5 .75 .3])
 
     drg_pcolor(repmat(time,length(f),1)',repmat(f,length(time),1),log_P_timecourse')
- 
+  
     colormap fire
     shading interp
     caxis([minLogPper maxLogPper]);

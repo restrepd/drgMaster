@@ -1,22 +1,31 @@
-function handles_out=drgOBDREADDSLFPpower(handles_choices)
+function handles_out=drgOBtoHIP_LFPpower(handles)
 %drgOBChr2LFPpower 
 %provides power analysis for Joe's ChR2 runs
 
-if exist('handles_choices')==0
+if exist('handles')==0
     clear all
     close all
 
     %     handles.peakLFPNo=9;%This is the LFP number that will be processed
     %     electrode_label='Right OB';
 
-%     handles.peakLFPNo=1;%This is the LFP number that will be processed
-%     electrode_label='Right CA1';
+    %     handles.peakLFPNo=1;%This is the LFP number that will be processed
+    %     electrode_label='Right CA1';
 
-    handles.peakLFPNo=1;%This is the LFP number that will be processed
-    electrode_label='Right HP';
+    handles.peakLFPNo=9;%This is the LFP number that will be processed
+    handles.electrode_label{1}='Right HIP';
+    handles.electrode_label{8}='Left HIP';
+    handles.electrode_label{9}='Right OB';
+    handles.electrode_label{16}='Left OB';
+    electrode_label=handles.electrode_label{handles.peakLFPNo};
+
+    %1 Right hippocampus
+    %8 Left hippocampus
+    %9 Right olfactory bulb
+    %16 Left olfactory bulb
 
     % handles.peakLFPNo=[1 8 9 16];
-    show_f_bandwidth=[35 45];
+   
 
 
     handles.window=1; %This is the FFT window in sec  %Tort is 1 sec, old DR 0.37
@@ -26,59 +35,39 @@ if exist('handles_choices')==0
     handles.burstHighF=100;
 
     %Load file
-    % jtPathNames{1}='/Users/restrepd/Documents/Projects/Joe_OB_to_hippo/CNO/20231213_Siegfried_C5957_DREADD_n2_NewCNO_Pre_During_2mg_kg_2-Undecanone/20231213_Siegfried_C5957_DREADD_n2_NewCNO_Pre_231213_105533/'
-    % jtFileNames{1}='jt_times_20231213_Siegfried_C5957_DREADD_n2_NewCNO_Pre_231213_105533.mat';
-    % jtPathNames{2}='/Users/restrepd/Documents/Projects/Joe_OB_to_hippo/CNO/20231213_Siegfried_C5957_DREADD_n2_NewCNO_Pre_During_2mg_kg_2-Undecanone/20231213_Siegfried_C5957_DREADD_n2_NewCNO_2mg_kg_2-Undecanone_231213_111424/'
-    % jtFileNames{2}='jt_times_20231213_Siegfried_C5957_DREADD_n2_NewCNO_2mg_kg_2-Undecanone_231213_111424.mat';
+    % handles.jtPathNames{1}='/Users/restrepd/Documents/Projects/Joe_OB_to_hippo/CNO/20231213_Siegfried_C5957_DREADD_n2_NewCNO_Pre_During_2mg_kg_2-Undecanone/20231213_Siegfried_C5957_DREADD_n2_NewCNO_Pre_231213_105533/'
+    % handles.jtFileNames{1}='jt_times_20231213_Siegfried_C5957_DREADD_n2_NewCNO_Pre_231213_105533.mat';
+    % handles.jtPathNames{2}='/Users/restrepd/Documents/Projects/Joe_OB_to_hippo/CNO/20231213_Siegfried_C5957_DREADD_n2_NewCNO_Pre_During_2mg_kg_2-Undecanone/20231213_Siegfried_C5957_DREADD_n2_NewCNO_2mg_kg_2-Undecanone_231213_111424/'
+    % handles.jtFileNames{2}='jt_times_20231213_Siegfried_C5957_DREADD_n2_NewCNO_2mg_kg_2-Undecanone_231213_111424.mat';
     % 
-    % ii_laser_start=770;
-    % ii_laser_end=5700;
+    % handles.ii_laser_start=770;
+    % handles.ii_laser_end=5700;
 
-   jtPathNames{1}='/Volumes/Diego HD/Joe/Optogenetics/5xFADvsWT_1_hour_treatmentVsnone/Curley_WT_Treated/20240206_WT_Curley_Tx_2/20240206_WT_Curley_Tx_2_240206_120854/';
-   jtFileNames{1}='jt_times_20240206_WT_Curley_Tx_2_240206_120854.mat';
+   % handles.jtPathNames{1}='/Volumes/Diego HD/Joe/Optogenetics/5xFADvsWT_1_hour_treatmentVsnone/Curley_WT_Treated/20240206_WT_Curley_Tx_2/20240206_WT_Curley_Tx_2_240206_120854/';
+   % handles.jtFileNames{1}='jt_times_20240206_WT_Curley_Tx_2_240206_120854.mat';
 
-    ii_laser_start=250;
-    ii_laser_end=3500;
+    handles.ii_laser_start=250;
+    handles.ii_laser_end=3500;
 
 % 
-%     [jtFileName,jtPathName] = uigetfile('jt_times*.mat','Select jt_times file to open');
-%     handles.jtfullName=[jtPathName,jtFileName];
-    handles.jtFileNames=jtFileNames;
-    handles.jtPathNames=jtPathNames;
+    [jtFileName,jtPathName] = uigetfile('jt_times*.mat','Select jt_times file to open');
+    handles.jtfullName=[jtPathName,jtFileName];
+
+    handles.jtPathNames{1}=jtPathName;
+    handles.jtFileNames{1}=jtFileName;
 
     handles.showData=1;
-
-  
-
-
-else
-    %Use this if the file is called by another function
-    show_f_bandwidth=[35 45];
-    jtFileName=handles_choices.jtFileName;
-    jtPathName=handles_choices.jtPathName;
-    electrode_label=handles_choices.electrode_label;
-    handles.peakLFPNo=handles_choices.peakLFPNo;%This is the LFP number that will be processed
-    % handles.peakLFPNo=[1 8 9 16];
- 
-   
-    handles.burstLowF=handles_choices.burstLowF;
-    handles.burstHighF=handles_choices.burstHighF;
-    handles.showData=0;
-
-        %Load file
-
-%     handles.jtfullName=[jtPathName,jtFileName];
-    handles.jtFileNames=jtFileNames;
-    handles.jtPathNames=jtPathNames;
   
 end
+
+show_f_bandwidth=[35 45];
 
 handles_out=[];
 
 handles.displayData=1;
 
 
-cd(jtPathNames{1}(1:end-1))
+cd(handles.jtPathNames{1}(1:end-1))
 try
     mkdir('figures')
 catch
@@ -130,10 +119,10 @@ mean_window=1; %window to average in seconds
 ii_t=0;
 file_starts=[];
 
-for fileNo=1:length(jtFileNames)
+for fileNo=1:length(handles.jtFileNames)
 
-    jtPathName=jtPathNames{fileNo};
-    jtFileName=jtFileNames{fileNo};
+    jtPathName=handles.jtPathNames{fileNo};
+    jtFileName=handles.jtFileNames{fileNo};
     jtfullName=[jtPathName,jtFileName];
     file_info = dir(jtfullName);
         if fileNo==1
@@ -188,28 +177,28 @@ for fileNo=1:length(jtFileNames)
             log_P_timecourse(:,ii_t+round(ii_t_file))=this_mean_logP;
         end
     end
-    % ii_laser_start=floor(find(dec_laser>0.5,1,'first')/(1000*mean_window));
-    % if isempty(ii_laser_start)
-    %     ii_laser_start=(min_laser_start/min_exp_end)*ceil(handles.lastTrialNo*size(all_Power_timecourse,3)/(mean_window*1000));
+    % handles.ii_laser_start=floor(find(dec_laser>0.5,1,'first')/(1000*mean_window));
+    % if isempty(handles.ii_laser_start)
+    %     handles.ii_laser_start=(min_laser_start/min_exp_end)*ceil(handles.lastTrialNo*size(all_Power_timecourse,3)/(mean_window*1000));
     % end
-    % ii_laser_end=ceil(find(dec_laser>0.5,1,'last')/(1000*mean_window));
-    % if isempty(ii_laser_end)
-    %     ii_laser_end=(min_laser_end/min_exp_end)*ceil(handles.lastTrialNo*size(all_Power_timecourse,3)/(mean_window*1000));
+    % handles.ii_laser_end=ceil(find(dec_laser>0.5,1,'last')/(1000*mean_window));
+    % if isempty(handles.ii_laser_end)
+    %     handles.ii_laser_end=(min_laser_end/min_exp_end)*ceil(handles.lastTrialNo*size(all_Power_timecourse,3)/(mean_window*1000));
     % end
 end
 log_P_timecourse=log_P_timecourse(:,1:ii_t+round(ii_t_file));
 
 %Subtract reference
 this_mean_reference_logP=zeros(length(f),1);
-this_mean_reference_logP(:,1)=mean(log_P_timecourse(:,1:ii_laser_start-1),2);
+this_mean_reference_logP(:,1)=mean(log_P_timecourse(:,1:handles.ii_laser_start-1),2);
 log_P_timecourse_ref=repmat(this_mean_reference_logP,1,size(log_P_timecourse,2));
 log_P_timecourse=log_P_timecourse-log_P_timecourse_ref;
 time=[mean_window:mean_window:mean_window*size(log_P_timecourse,2)]/60;
 
 handles_out.log_P_timecourse=log_P_timecourse;
 handles_out.time=time;
-handles_out.ii_laser_start=ii_laser_start;
-handles_out.ii_laser_end=ii_laser_end;
+handles_out.handles.ii_laser_start=handles.ii_laser_start;
+handles_out.handles.ii_laser_end=handles.ii_laser_end;
 handles_out.f=f;
 
 if handles.showData==1
@@ -246,12 +235,12 @@ if handles.showData==1
     caxis([minLogPper maxLogPper]);
 
     hold on 
-%     plot([time(ii_laser_start) time(ii_laser_start)],[f(1) f(end)],'-k','LineWidth',2)
-%     plot([time(ii_laser_end) time(ii_laser_end)],[f(1) f(end)],'-k','LineWidth',2)
+%     plot([time(handles.ii_laser_start) time(handles.ii_laser_start)],[f(1) f(end)],'-k','LineWidth',2)
+%     plot([time(handles.ii_laser_end) time(handles.ii_laser_end)],[f(1) f(end)],'-k','LineWidth',2)
 
     xlabel('Time (min)')
     ylabel('Frequency (Hz)');
-    title(['Wavelet power (dB) ' electrode_label ' ' jtFileName])
+    title(['Wavelet power (dB) ' handles.electrode_label{handles.peakLFPNo} ' ' jtFileName])
 
     fig_file_name=[jtPathName 'figures/spectrogram' num2str(handles.peakLFPNo) '.fig'];
     savefig(fig_file_name)
@@ -283,22 +272,22 @@ if handles.showData==1
     hold on
 
     CI=[];
-    CI = bootci(1000, {@mean, log_P_timecourse(:,1:ii_laser_start)'})';
-    CI(:,1)= mean(log_P_timecourse(:,1:ii_laser_start)')'-CI(:,1);
-    CI(:,2)=CI(:,2)- mean(log_P_timecourse(:,1:ii_laser_start)')';
-    [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse(:,1:ii_laser_start)'), CI, 'b');
+    CI = bootci(1000, {@mean, log_P_timecourse(:,1:handles.ii_laser_start)'})';
+    CI(:,1)= mean(log_P_timecourse(:,1:handles.ii_laser_start)')'-CI(:,1);
+    CI(:,2)=CI(:,2)- mean(log_P_timecourse(:,1:handles.ii_laser_start)')';
+    [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse(:,1:handles.ii_laser_start)'), CI, 'b');
 
     CI=[];
-    CI = bootci(1000, {@mean, log_P_timecourse(:,ii_laser_end:end)'})';
-    CI(:,1)= mean(log_P_timecourse(:,ii_laser_end:end)')'-CI(:,1);
-    CI(:,2)=CI(:,2)- mean(log_P_timecourse(:,ii_laser_end:end)')';
-    [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse(:,ii_laser_end:end)')', CI, 'c');
+    CI = bootci(1000, {@mean, log_P_timecourse(:,handles.ii_laser_end:end)'})';
+    CI(:,1)= mean(log_P_timecourse(:,handles.ii_laser_end:end)')'-CI(:,1);
+    CI(:,2)=CI(:,2)- mean(log_P_timecourse(:,handles.ii_laser_end:end)')';
+    [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse(:,handles.ii_laser_end:end)')', CI, 'c');
 
     CI=[];
-    CI = bootci(1000, {@mean, log_P_timecourse(:,ii_laser_start:ii_laser_end)'})';
-    CI(:,1)= mean(log_P_timecourse(:,ii_laser_start:ii_laser_end)')'-CI(:,1);
-    CI(:,2)=CI(:,2)- mean(log_P_timecourse(:,ii_laser_start:ii_laser_end)')';
-    [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse(:,ii_laser_start:ii_laser_end)')', CI, 'm');
+    CI = bootci(1000, {@mean, log_P_timecourse(:,handles.ii_laser_start:handles.ii_laser_end)'})';
+    CI(:,1)= mean(log_P_timecourse(:,handles.ii_laser_start:handles.ii_laser_end)')'-CI(:,1);
+    CI(:,2)=CI(:,2)- mean(log_P_timecourse(:,handles.ii_laser_start:handles.ii_laser_end)')';
+    [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse(:,handles.ii_laser_start:handles.ii_laser_end)')', CI, 'm');
 
     ylim([-10 20])
     this_ylim=ylim;
@@ -324,10 +313,10 @@ if handles.showData==1
     ylim([-10 20])
     this_ylim=ylim;
     hold on
-    plot([time(ii_laser_start) time(ii_laser_start)],[this_ylim(1) this_ylim(2)],'-k','LineWidth',2)
-    plot([time(ii_laser_end) time(ii_laser_end)],[this_ylim(1) this_ylim(2)],'-k','LineWidth',2)
+    plot([time(handles.ii_laser_start) time(handles.ii_laser_start)],[this_ylim(1) this_ylim(2)],'-k','LineWidth',2)
+    plot([time(handles.ii_laser_end) time(handles.ii_laser_end)],[this_ylim(1) this_ylim(2)],'-k','LineWidth',2)
 
-    title([electrode_label ' Wavelet power timecourse for bandwidth from ' num2str(show_f_bandwidth(1)) ' to ' num2str(show_f_bandwidth(2)) ' Hz'])
+    title([handles.electrode_label{handles.peakLFPNo} ' Wavelet power timecourse for bandwidth from ' num2str(show_f_bandwidth(1)) ' to ' num2str(show_f_bandwidth(2)) ' Hz'])
     xlabel('Time (min)')
     ylabel('dB')
    

@@ -9,13 +9,15 @@ function [out_times,freq,all_Cxy_timecourse, trial_numbers, perCorr_pertr, which
 %Cxy(f) is a function of frequency with values between 0 and 1 that 
 %indicates how well x corresponds to y at each frequency.
 
+dec_fact=40;
+
 odorOn=2;
 sessionNo=handles.sessionNo;
-Fs=handles.drg.session(sessionNo).draq_p.ActualRate;
+Fs=(handles.drg.session(sessionNo).draq_p.ActualRate/dec_fact); %Note that I decimate by dec_fact
 freq=handles.burstLowF:(handles.burstHighF-handles.burstLowF)/100:handles.burstHighF;
 
-window=round(handles.window*handles.drg.draq_p.ActualRate); 
-noverlap=round(handles.noverlap*handles.drg.draq_p.ActualRate); 
+window=round(handles.window*(handles.drg.draq_p.ActualRate/dec_fact)); 
+noverlap=round(handles.noverlap*(handles.drg.draq_p.ActualRate/dec_fact)); 
 
 
 
@@ -36,7 +38,7 @@ no_excluded=0;
 for trNo=firstTr:lastTr
     
     if handles.save_drgb==0
-        trialNo=trNo
+        fprintf(1, ['Trial No %d coherence processed\n'], trNo);
     end
     
     evNo = drgFindEvNo(handles,trNo,sessionNo);
@@ -59,7 +61,8 @@ for trNo=firstTr:lastTr
             [LFP2, trialNo, can_read2] = drgGetTrialLFPData(handles, handles.burstLFPNo, evNo, handles.evTypeNo, min_t, max_t);
             
             if (can_read1==1)&(can_read2==1)
-                
+                LFP1=decimate(LFP1,dec_fact);
+                LFP2=decimate(LFP2,dec_fact);
                 
                 %Get coherence spectrogram
                 %Estimate Cxy
@@ -72,14 +75,23 @@ for trNo=firstTr:lastTr
                 Cxy=zeros(length(freq),no_time_points);
                 tCxy=zeros(no_time_points,1);
                 %while current_ii+window<length(LFP1)
+                % parCxy=[];
+                % for no_Cxys=1:no_time_points
+                %     parCxy(no_Cxys).Cxy=[];
+                % end
+                
                 for no_Cxys=1:no_time_points
                     current_ii=(no_Cxys-1)*(window-noverlap);
-                    tCxy(no_Cxys,1)=(current_ii+window/2)/handles.drg.session(handles.sessionNo).draq_p.ActualRate;
+                    tCxy(no_Cxys,1)=(current_ii+window/2)/(handles.drg.session(handles.sessionNo).draq_p.ActualRate/dec_fact);
                     [thisCxy,fCxy] = mscohere(LFP1(current_ii+1:current_ii+window),LFP2(current_ii+1:current_ii+window),hann(window/2),noverlap/2,freq,handles.drg.session(handles.sessionNo).draq_p.ActualRate,'mimo');
                     Cxy(1:length(freq),no_Cxys)=thisCxy';
+                    % parCxy(no_Cxys).Cxy=thisCxy';
                     %                     current_ii=current_ii+window-noverlap;
                 end
-                
+
+                % for no_Cxys=1:no_time_points
+                %     Cxy(1:length(freq),no_Cxys)=parCxy(no_Cxys).Cxy;
+                % end
                 %                 mesh(tCxy,fCxy,Cxy)
                 %                 view(2)
                 %                 axis tight

@@ -100,7 +100,7 @@ if all_files_present==1
     no_files=handles.drgbchoices.no_files;
 
     parfor filNum=first_file:no_files
-        %     for filNum=first_file:no_files
+%             for filNum=first_file:no_files
         %         try
 
         file_no=filNum
@@ -606,6 +606,8 @@ if all_files_present==1
                 end
                 
                 %Save this temp file
+                 fprintf(1, 'File number: %d\n',filNum);
+
                 drgSavePar([handlespf.drgb.outPathName tempDirName '/'],this_jt(10:end),lfp_per_file(filNum),filNum)
                 
                 
