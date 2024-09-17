@@ -25,6 +25,7 @@ handles.drgb.PAC.no_trials=0;
 handles.drgb.PAC.meanVectorLength=[];
 handles.drgb.PAC.meanVectorAngle=[];
 handles.drgb.PAC.peakAngle=[];
+handles.drgb.PAC.troughAngle=[];
 handles.drgb.PAC.mod_indx=[];
 handles.drgb.PAC.this_trialNo=[];
 handles.drgb.PAC.all_phase_histo=[];
@@ -66,6 +67,8 @@ which_event=[];
 all_out_time_PAChisto=[];
 spm=[];
 trials_attempted=0;
+peakAngle=[];
+troughAngle=[];
  
 for trNo=firstTr:lastTr
      
@@ -117,7 +120,7 @@ for trNo=firstTr:lastTr
                     [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase, phase_histo, theta_wave]=drgGetThetaAmpPhaseSniff(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
                 else
                     [meanVectorLength(no_trials), meanVectorAngle(no_trials), peakAngle(no_trials), mod_indx(no_trials), phase,...
-                        phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env]...
+                        phase_histo, theta_wave, meanPeakAngle, out_times, out_phase, out_time_PAChisto, decLFPgenv, decanglethetaLFP, out_times_env, troughAngle(no_trials)]...
                         =drgGetThetaAmpPhase(LFPlow,LFPhigh,Fs,lowF1,lowF2,highF1,highF2,pad_time,n_phase_bins,handles.which_method);
                 end
 
@@ -128,6 +131,7 @@ for trNo=firstTr:lastTr
                 handles.drgb.PAC.meanVectorLength(no_trials)=meanVectorLength(no_trials);
                 handles.drgb.PAC.meanVectorAngle(no_trials)=meanVectorAngle(no_trials);
                 handles.drgb.PAC.peakAngle(no_trials)=peakAngle(no_trials);
+                handles.drgb.PAC.troughAngle(no_trials)=troughAngle(no_trials);
                 handles.drgb.PAC.mod_indx(no_trials)=mod_indx(no_trials);
                 handles.drgb.PAC.all_phase_histo(no_trials,1:n_phase_bins+1)=phase_histo;
                 handles.drgb.PAC.all_theta_wave(no_trials,1:n_phase_bins+1)=theta_wave;
@@ -216,14 +220,18 @@ if ~isempty(spm)
             handles.drgb.PAC.peakAngleForPower=phase(max_ii);
             if handles.displayData==1
                 handles.peakAngle_for_power=phase(max_ii);
-                set(handles.set_peakAngle,'String',num2str(phase(max_ii)));
+                if isfield(handles,'set_peakAngle')==1
+                    set(handles.set_peakAngle,'String',num2str(phase(max_ii)));
+                end
             end
             [min_hist min_ii]=min(mean(enc_phase_histo));
             meanTroughAngle=(phase(min_ii)*(pi/180))-pi;
             handles.drgb.PAC.troughAngleForPower=phase(min_ii);
             if handles.displayData==1
                 handles.troughAngle_for_power=phase(min_ii);
-                set(handles.set_troughAngle,'String',num2str(phase(min_ii)));
+                if isfield(handles,'set_troughAngle')
+                    set(handles.set_troughAngle,'String',num2str(phase(min_ii)));
+                end
             end
         else
             handles.peakAngle_for_power=str2num(get(handles.set_peakAngle,'String'));

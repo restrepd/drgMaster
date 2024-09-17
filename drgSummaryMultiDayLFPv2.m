@@ -115,7 +115,7 @@ sec_per_LFP_point=9;
 %     FileNames.mouse(2).treatment_start=[104.9 189.6 329.6];
 % 
 % end
-
+ 
 %Now process the data
 LFPs=[];
   

@@ -64,9 +64,10 @@ if all_files_present==1
     %Show spectrograms per mouse per electrode
     these_mice=unique(handles.mouse_no);
     figNo=0;
-    for mouseNo=1:length(these_mice)
+    for mouseNo=these_mice
         %Find the files for this mouse
         these_files=[];
+        
         for fileNo=1:handles.no_files
             if handles.mouse_no(fileNo)==mouseNo
                 %Does this file exist?
@@ -75,6 +76,7 @@ if all_files_present==1
                 FileName_out=['OBtoHIPLFP_' this_filename(11:end)];
                 if exist([PathName_out FileName_out])~=0
                     these_files=[these_files fileNo];
+                    groupNo=handles.group_no(fileNo);
                 end
             end
         end
@@ -137,6 +139,7 @@ if all_files_present==1
                 ylabel('Frequency (Hz)');
                 title([handles.MouseName{mouseNo} ' ' handles.electrode_label{handles.peakLFPNo(ii_electrode)} ' session No ' num2str(sessionNo)])
             end
+            sgtitle([handles.MouseName{mouseNo} ' ' handles.group_label{groupNo}])
 
             figNo=figNo+1;
             try
@@ -196,17 +199,17 @@ if all_files_present==1
             ylim([-5 20])
             xlim([0 6])
             if ii_bw==1
-                text(3,12,badwidth_names{1},'Color',our_colors(1).color)
-                text(3,14,badwidth_names{2},'Color',our_colors(2).color)
-                text(3,16,badwidth_names{3},'Color',our_colors(3).color)
-                text(3,18,badwidth_names{4},'Color',our_colors(4).color)
+                text(3,12,handles.electrode_label{handles.peakLFPNo(1)},'Color',our_colors(1).color)
+                text(3,14,handles.electrode_label{handles.peakLFPNo(2)},'Color',our_colors(2).color)
+                text(3,16,handles.electrode_label{handles.peakLFPNo(3)},'Color',our_colors(3).color)
+                text(3,18,handles.electrode_label{handles.peakLFPNo(4)},'Color',our_colors(4).color)
             end
             xlabel('Day')
             ylabel('dB');
-            title([handles.MouseName{mouseNo} ' ' badwidth_names(ii_bw)])
+            title([badwidth_names(ii_bw)])
 
         end
-
+        sgtitle([handles.MouseName{mouseNo} ' ' handles.group_label{groupNo}])
 
     end
 

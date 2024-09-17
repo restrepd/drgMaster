@@ -12,7 +12,7 @@ if exist('handles')==0
     %     handles.peakLFPNo=1;%This is the LFP number that will be processed
     %     electrode_label='Right CA1';
 
-    handles.peakLFPNo=9;%This is the LFP number that will be processed
+    handles.peakLFPNo=8;%This is the LFP number that will be processed
     handles.electrode_label{1}='Right HIP';
     handles.electrode_label{8}='Left HIP';
     handles.electrode_label{9}='Right OB';
@@ -43,18 +43,30 @@ if exist('handles')==0
     % handles.ii_laser_start=770;
     % handles.ii_laser_end=5700;
 
-   % handles.jtPathNames{1}='/Volumes/Diego HD/Joe/Optogenetics/5xFADvsWT_1_hour_treatmentVsnone/Curley_WT_Treated/20240206_WT_Curley_Tx_2/20240206_WT_Curley_Tx_2_240206_120854/';
-   % handles.jtFileNames{1}='jt_times_20240206_WT_Curley_Tx_2_240206_120854.mat';
+    %Used for the grant ChR2 WT
+    % handles.jtPathNames{1}='/Volumes/Diego HD/Joe/Optogenetics/5xFADvsWT_1_hour_treatmentVsnone/Curley_WT_Treated/20240206_WT_Curley_Tx_2/20240206_WT_Curley_Tx_2_240206_120854/';
+    % handles.jtFileNames{1}='jt_times_20240206_WT_Curley_Tx_2_240206_120854.mat';
 
-    handles.ii_laser_start=250;
-    handles.ii_laser_end=3500;
+    % %Used for the grant no ChR2 WT
+    % handles.jtPathNames{1}='/Volumes/Diego HD/Joe/022824_ChR2WT_withLaser_240228_085402/';
+    % handles.jtFileNames{1}='jt_times_022824_ChR2WT_withLaser_240228_085402.mat';
 
-% 
-    [jtFileName,jtPathName] = uigetfile('jt_times*.mat','Select jt_times file to open');
-    handles.jtfullName=[jtPathName,jtFileName];
+    % handles.ii_laser_start=250;
+    % handles.ii_laser_end=3500;
 
-    handles.jtPathNames{1}=jtPathName;
-    handles.jtFileNames{1}=jtFileName;
+    %Joe closed loop
+    handles.jtPathNames{1}='/Users/restrepd/Documents/Projects/Closed loop/Joe_ClosedLoop/20240306_Donatello_Closed_Loop_Test_withBandPass_4_240306_112305/';
+    handles.jtFileNames{1}='jt_times_20240306_Donatello_Closed_Loop_Test_withBandPass_4_240306_112305.mat';
+
+    handles.ii_laser_start=34*9;
+    handles.ii_laser_end=59*9;
+
+%If you want the program to ask you for files use this code
+    % [jtFileName,jtPathName] = uigetfile('jt_times*.mat','Select jt_times file to open');
+    % handles.jtfullName=[jtPathName,jtFileName];
+    % 
+    % handles.jtPathNames{1}=jtPathName;
+    % handles.jtFileNames{1}=jtFileName;
 
     handles.showData=1;
   
@@ -192,6 +204,8 @@ log_P_timecourse=log_P_timecourse(:,1:ii_t+round(ii_t_file));
 this_mean_reference_logP=zeros(length(f),1);
 this_mean_reference_logP(:,1)=mean(log_P_timecourse(:,1:handles.ii_laser_start-1),2);
 log_P_timecourse_ref=repmat(this_mean_reference_logP,1,size(log_P_timecourse,2));
+
+log_P_timecourse_no_sub=log_P_timecourse;
 log_P_timecourse=log_P_timecourse-log_P_timecourse_ref;
 time=[mean_window:mean_window:mean_window*size(log_P_timecourse,2)]/60;
 
@@ -277,11 +291,11 @@ if handles.showData==1
     CI(:,2)=CI(:,2)- mean(log_P_timecourse(:,1:handles.ii_laser_start)')';
     [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse(:,1:handles.ii_laser_start)'), CI, 'b');
 
-    CI=[];
-    CI = bootci(1000, {@mean, log_P_timecourse(:,handles.ii_laser_end:end)'})';
-    CI(:,1)= mean(log_P_timecourse(:,handles.ii_laser_end:end)')'-CI(:,1);
-    CI(:,2)=CI(:,2)- mean(log_P_timecourse(:,handles.ii_laser_end:end)')';
-    [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse(:,handles.ii_laser_end:end)')', CI, 'c');
+    % CI=[];
+    % CI = bootci(1000, {@mean, log_P_timecourse(:,handles.ii_laser_end:end)'})';
+    % CI(:,1)= mean(log_P_timecourse(:,handles.ii_laser_end:end)')'-CI(:,1);
+    % CI(:,2)=CI(:,2)- mean(log_P_timecourse(:,handles.ii_laser_end:end)')';
+    % [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse(:,handles.ii_laser_end:end)')', CI, 'c');
 
     CI=[];
     CI = bootci(1000, {@mean, log_P_timecourse(:,handles.ii_laser_start:handles.ii_laser_end)'})';
@@ -289,10 +303,45 @@ if handles.showData==1
     CI(:,2)=CI(:,2)- mean(log_P_timecourse(:,handles.ii_laser_start:handles.ii_laser_end)')';
     [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse(:,handles.ii_laser_start:handles.ii_laser_end)')', CI, 'm');
 
-    ylim([-10 20])
+    ylim([-3 5])
     this_ylim=ylim;
 
     title('Wavelet power spectrum, blue=before, magenta=laser on, cyan=after')
+    xlabel('Frequency (Hz)')
+    ylabel('dB')
+
+    %Plot the dependence on frequency before, during and after laser
+    figNo=figNo+1;
+    try
+        close(figNo)
+    catch
+    end
+    hFig = figure(figNo);
+    set(hFig, 'units','normalized','position',[.07 .15 .25 .25])
+    hold on
+
+    CI=[];
+    CI = bootci(1000, {@mean, log_P_timecourse_no_sub(:,1:handles.ii_laser_start)'})';
+    CI(:,1)= mean(log_P_timecourse_no_sub(:,1:handles.ii_laser_start)')'-CI(:,1);
+    CI(:,2)=CI(:,2)- mean(log_P_timecourse_no_sub(:,1:handles.ii_laser_start)')';
+    [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse_no_sub(:,1:handles.ii_laser_start)'), CI, 'b');
+
+    CI=[];
+    CI = bootci(1000, {@mean, log_P_timecourse_no_sub(:,handles.ii_laser_end:end)'})';
+    CI(:,1)= mean(log_P_timecourse_no_sub(:,handles.ii_laser_end:end)')'-CI(:,1);
+    CI(:,2)=CI(:,2)- mean(log_P_timecourse_no_sub(:,handles.ii_laser_end:end)')';
+    [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse_no_sub(:,handles.ii_laser_end:end)')', CI, 'c');
+
+    CI=[];
+    CI = bootci(1000, {@mean, log_P_timecourse_no_sub(:,handles.ii_laser_start:handles.ii_laser_end)'})';
+    CI(:,1)= mean(log_P_timecourse_no_sub(:,handles.ii_laser_start:handles.ii_laser_end)')'-CI(:,1);
+    CI(:,2)=CI(:,2)- mean(log_P_timecourse_no_sub(:,handles.ii_laser_start:handles.ii_laser_end)')';
+    [hlCR, hpCR] = boundedline(f',mean(log_P_timecourse_no_sub(:,handles.ii_laser_start:handles.ii_laser_end)')', CI, 'm');
+
+    % ylim([-10 20])
+    % this_ylim=ylim;
+
+    title('Wavelet power spectrum (no subtraction), blue=before, magenta=laser on, cyan=after')
     xlabel('Frequency (Hz)')
     ylabel('dB')
 
