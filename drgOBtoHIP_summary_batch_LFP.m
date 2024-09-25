@@ -48,7 +48,7 @@ for filNum=first_file:handles.no_files
     end
 
     if exist([jtPathName jtFileName])==0
-        fprintf(1, ['Program will be terminated because file No %d, ' jtPathName jtFileName ' does not exist\n'],filNum);
+        fprintf(1, ['Program will be terminated because file No %d, does not exist\n'],filNum);
         all_files_present=0;
     end
 
