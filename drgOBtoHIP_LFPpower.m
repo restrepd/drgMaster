@@ -12,7 +12,7 @@ if exist('handles')==0
     %     handles.peakLFPNo=1;%This is the LFP number that will be processed
     %     electrode_label='Right CA1';
 
-    handles.peakLFPNo=8;%This is the LFP number that will be processed
+    handles.peakLFPNo=9;%This is the LFP number that will be processed
     handles.electrode_label{1}='Right HIP';
     handles.electrode_label{8}='Left HIP';
     handles.electrode_label{9}='Right OB';
@@ -55,13 +55,22 @@ if exist('handles')==0
     % handles.ii_laser_end=3500;
 
     %Joe closed loop
-    handles.jtPathNames{1}='/Users/restrepd/Documents/Projects/Closed loop/Joe_ClosedLoop/20240306_Donatello_Closed_Loop_Test_withBandPass_4_240306_112305/';
-    handles.jtFileNames{1}='jt_times_20240306_Donatello_Closed_Loop_Test_withBandPass_4_240306_112305.mat';
+    % handles.jtPathNames{1}='/Users/restrepd/Documents/Projects/Closed loop/Joe_ClosedLoop/20240306_Donatello_Closed_Loop_Test_withBandPass_4_240306_112305/';
+    % handles.jtFileNames{1}='jt_times_20240306_Donatello_Closed_Loop_Test_withBandPass_4_240306_112305.mat';
 
-    handles.ii_laser_start=34*9;
-    handles.ii_laser_end=59*9;
+    %Lyra day 1
+    handles.jtPathNames{1}='/Volumes/Diego Mac Drive/5xFADvsWT_1_hour_treatmentVsnone/N_4/Lyra 5xFAD WT Tx/20240819_Lyra_Day1_Tx/20240819_Lyra_Day1_Tx_1_240819_094218/';
+    handles.jtFileNames{1}='jt_times_20240819_Lyra_Day1_Tx_1_240819_094218.mat';
 
-%If you want the program to ask you for files use this code
+  
+
+    handles.laser_start_time=5; %Start time in minutes
+    handles.laser_end_time=65; %Start time in minutes
+
+    handles.ii_laser_start=60*handles.laser_start_time;
+    handles.ii_laser_end=60*handles.laser_end_time;
+
+    %If you want the program to ask you for files use this code
     % [jtFileName,jtPathName] = uigetfile('jt_times*.mat','Select jt_times file to open');
     % handles.jtfullName=[jtPathName,jtFileName];
     % 
@@ -72,9 +81,19 @@ if exist('handles')==0
   
 end
 
-show_f_bandwidth=[35 45];
-
 handles_out=[];
+
+show_f_bandwidth=[35 45];
+before_f=[22 27];
+after_f=[50 57];
+dt_per_trial=9;
+mean_window=1; %window to average in seconds
+
+handles_out.show_f_bandwidth=show_f_bandwidth;
+handles_out.before_f=before_f;
+handles_out.after_f=after_f;
+handles_out.dt_per_trial=dt_per_trial;
+handles_out.mean_window=mean_window;
 
 handles.displayData=1;
 
@@ -108,7 +127,7 @@ handles.burstLFPNo=handles.peakLFPNo;
 %These times are set so that the entire trial is processed
 %These settings read 9 sec
 handles.time_start=-3.2-0.2;
-handles.time_end=(9-3.2)+0.2;
+handles.time_end=(dt_per_trial-3.2)+0.2;
 
 %This reference is not used here
 handles.startRef=-2.2;
@@ -126,7 +145,7 @@ bit_laser=[];
 max_time_bins=120*60;
 
 %Decimate the power further to 1 per sec
-mean_window=1; %window to average in seconds
+
 
 ii_t=0;
 file_starts=[];
@@ -177,7 +196,7 @@ for fileNo=1:length(handles.jtFileNames)
     ii_t_file=file_starts(fileNo);
     ii_t=0;
     for trNo=1:handles.lastTrialNo
-        for ii_window=1:9
+        for ii_window=1:dt_per_trial
             ii_t=ii_t+1;
             this_mean_logP=zeros(length(f),1);
             ii_from=(ii_window-1)*mean_window*1000+1;
@@ -366,6 +385,44 @@ if handles.showData==1
     plot([time(handles.ii_laser_end) time(handles.ii_laser_end)],[this_ylim(1) this_ylim(2)],'-k','LineWidth',2)
 
     title([handles.electrode_label{handles.peakLFPNo} ' Wavelet power timecourse for bandwidth from ' num2str(show_f_bandwidth(1)) ' to ' num2str(show_f_bandwidth(2)) ' Hz'])
+    xlabel('Time (min)')
+    ylabel('dB')
+
+    %Now show the timecourse for the 40 Hz peak
+    figNo=figNo+1;
+    try
+        close(figNo)
+    catch
+    end
+    hFig = figure(figNo);
+    set(hFig, 'units','normalized','position',[.37 .15 .25 .25])
+    hold on
+
+    this_log_P_timecourse=zeros(1,size(log_P_timecourse,2));
+    this_log_P_timecourse(1,:)=mean(log_P_timecourse((f>=show_f_bandwidth(1))&(f<=show_f_bandwidth(2)),:));
+    f_b=mean(f((f>=show_f_bandwidth(1))&(f<=show_f_bandwidth(2))));
+    this_log_P_bef_timecourse=zeros(1,size(log_P_timecourse,2));
+    this_log_P_bef_timecourse(1,:)=mean(log_P_timecourse((f>=before_f(1))&(f<=before_f(2)),:));
+    bef_f=mean(f((f>=before_f(1))&(f<=before_f(2))));
+    this_log_P_af_timecourse=zeros(1,size(log_P_timecourse,2));
+    this_log_P_af_timecourse(1,:)=mean(log_P_timecourse((f>=after_f(1))&(f<=after_f(2)),:));
+    af_f=mean(f((f>=after_f(1))&(f<=after_f(2))));
+    
+
+    slope=(this_log_P_af_timecourse-this_log_P_bef_timecourse)/(af_f-bef_f);
+    this_peak_log_P_af_timecourse=zeros(1,size(log_P_timecourse,2));
+
+    this_peak_log_P_af_timecourse=this_log_P_timecourse-(this_log_P_bef_timecourse+slope*(f_b-bef_f));
+
+    plot(time, this_peak_log_P_af_timecourse,'-k')
+
+    ylim([-10 20])
+    this_ylim=ylim;
+    hold on
+    plot([time(handles.ii_laser_start) time(handles.ii_laser_start)],[this_ylim(1) this_ylim(2)],'-k','LineWidth',2)
+    plot([time(handles.ii_laser_end) time(handles.ii_laser_end)],[this_ylim(1) this_ylim(2)],'-k','LineWidth',2)
+
+    title([handles.electrode_label{handles.peakLFPNo} ' Wavelet delta power timecourse for bandwidth from ' num2str(show_f_bandwidth(1)) ' to ' num2str(show_f_bandwidth(2)) ' Hz'])
     xlabel('Time (min)')
     ylabel('dB')
    

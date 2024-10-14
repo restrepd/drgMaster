@@ -633,7 +633,7 @@ no_units=drg.noUnits;
 if spikes_processed==0
    drg.unit(1).sessionNo=1; 
 end
-
+ 
 %Save drg
 save([drg.drg_directory drg.drg_output_file],'drg','-v7.3')
 

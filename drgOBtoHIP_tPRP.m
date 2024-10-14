@@ -11,20 +11,19 @@ if exist('handles_choices')==0
 
     %     handles.peakLFPNo=1;%This is the LFP number that will be processed
     %     electrode_label='Right CA1';
-
-    handles.peakLFPNo=16;%This is the LFP number that will be processed
-    handles.electrode_label{1}='Right HIP';
-    handles.electrode_label{8}='Left HIP';
-    handles.electrode_label{9}='Right OB';
-    handles.electrode_label{16}='Left OB';
-    electrode_label=handles.electrode_label{handles.peakLFPNo};
+    handles.overwrite_files=1;
+    handles.peakLFPNo=9;%This is the LFP number that will be processed
+    % handles.electrode_label{1}='Right HIP';
+    % handles.electrode_label{8}='Left HIP';
+    % handles.electrode_label{9}='Right OB';
+    % handles.electrode_label{16}='Left OB';
 
     %Choices for PAC frequency bandwidth
-    handles.peakLowF=1;         %peak is the reference low frequency, usuallyy 6-14 Hz (theta) 
-    handles.peakHighF=3;
+    handles.peakLowF=6;         %peak is the reference low frequency, usuallyy 6-14 Hz (theta) 
+    handles.peakHighF=14;
 
-    handles.burstLowF=30;       %burst is the power bandwidth (e.g. 65-95 Hz is high gamma)
-    handles.burstHighF=50;
+    handles.burstLowF=35;       %burst is the power bandwidth (e.g. 65-95 Hz is high gamma)
+    handles.burstHighF=45;
 
     % handles.peakLFPNo=1;%This is the LFP number that will be processed
     % electrode_label='Left CA1';
@@ -32,7 +31,7 @@ if exist('handles_choices')==0
     prefix_save_file='prp_hgt'; %Always use prp_
 
     % handles.peakLFPNo=[1 8 9 16];
-    show_f_bandwidth=[35 55];
+    % show_f_bandwidth=[35 55];
 
   
 
@@ -73,17 +72,20 @@ if exist('handles_choices')==0
     % handles.jtPathNames{1}='/Users/restrepd/Documents/Projects/Closed loop/Joe_ClosedLoop/20240306_Donatello_Closed_Loop_Test_withBandPass_4_240306_112305/';
     % handles.jtFileNames{1}='jt_times_20240306_Donatello_Closed_Loop_Test_withBandPass_4_240306_112305.mat';
 
-     handles.jtPathNames{1}='/Users/restrepd/Documents/Projects/Joe_OB_to_hippo/5xFADvsWT_1_hour_treatmentVsnone/N_1/Curley_WT_Treated/20240205_WT_Curley_Tx_1/20240205_WT_Curley_Tx_1_240205_101405/';
-    handles.jtFileNames{1}='jt_times_20240205_WT_Curley_Tx_1_240205_101405.mat';
+    %  handles.jtPathNames{1}='/Users/restrepd/Documents/Projects/Joe_OB_to_hippo/5xFADvsWT_1_hour_treatmentVsnone/N_1/Curley_WT_Treated/20240205_WT_Curley_Tx_1/20240205_WT_Curley_Tx_1_240205_101405/';
+    % handles.jtFileNames{1}='jt_times_20240205_WT_Curley_Tx_1_240205_101405.mat';
 
-    handles.ii_laser_start=34*9;
-    handles.ii_laser_end=59*9;
+    %Lyra day 1
+    handles.jtPathNames{1}='/Volumes/Diego Mac Drive/5xFADvsWT_1_hour_treatmentVsnone/N_4/Lyra 5xFAD WT Tx/20240819_Lyra_Day1_Tx/20240819_Lyra_Day1_Tx_1_240819_094218/';
+    handles.jtFileNames{1}='jt_times_20240819_Lyra_Day1_Tx_1_240819_094218.mat';
+
+
 
 else
     %Use this if the file is called by another function
-    show_f_bandwidth=[35 45];
-    jtFileName=handles_choices.jtFileName;
-    jtPathName=handles_choices.jtPathName;
+    % show_f_bandwidth=[35 45];
+    handles.jtFileNames=handles_choices.jtFileNames;
+    handles.jtPathNames=handles_choices.jtPathNames;
     electrode_label=handles_choices.electrode_label;
     handles.peakLFPNo=handles_choices.peakLFPNo;%This is the LFP number that will be processed
     % handles.peakLFPNo=[1 8 9 16];
@@ -91,15 +93,36 @@ else
    
     handles.burstLowF=handles_choices.burstLowF;
     handles.burstHighF=handles_choices.burstHighF;
+    handles.peakLowF=handles_choices.peakLowF;
+    handles.peakHighF=handles_choices.peakHighF;
     handles.showData=0;
 
-        %Load file
+    handles.n_phase_bins=handles_choices.n_phase_bins;
+
+    handles.which_method=handles_choices.which_method;
+    handles.save_drgb=handles_choices.save_drgb;
+    handles.use_peakAngle=handles_choices.use_peakAngle;
+
+    handles.window=handles_choices.window; %This is the FFT window in sec
+    handles.noverlap=handles_choices.noverlap;
+
+    %Load file
 
 %     handles.jtfullName=[jtPathName,jtFileName];
     % handles.jtFileNames=jtFileNames;
     % handles.jtPathNames=jtPathNames;
-  
+    handles.laser_start_time=5;
 end
+
+handles.laser_start_time=5;
+handles.ii_laser_start=34*9;
+handles.ii_laser_end=59*9;
+
+handles.electrode_label{1}='Right HIP';
+handles.electrode_label{8}='Left HIP';
+handles.electrode_label{9}='Right OB';
+handles.electrode_label{16}='Left OB';
+electrode_label=handles.electrode_label{handles.peakLFPNo};
 
 handles_out=[];
 
@@ -174,325 +197,326 @@ time=[];
 tNum_all=0;
 ii_start_per_file=[];
 ii_end_per_file=[];
-for fileNo=1:length(handles.jtFileNames)
 
-    jtPathName=handles.jtPathNames{fileNo};
-    jtFileName=handles.jtFileNames{fileNo};
-    cd(jtPathName(1:end-1))
+fileNo=1;
 
-    drgRead_jt_times(jtPathName,jtFileName)
-    FileName=[jtFileName(10:end-4) '_drg.mat'];
-    handles.fullName=[jtPathName,FileName];
-    load(handles.fullName);
-    handles.drg=drg;
-    handles.drg.drta_p.fullName=[jtPathName,handles.drg.drta_p.FileName];
+jtPathName=handles.jtPathNames{fileNo};
+jtFileName=handles.jtFileNames{fileNo};
+cd(jtPathName(1:end-1))
 
-    handles.trialNo=1;
-    handles.lastTrialNo=handles.drg.drta_p.trialNo;
-    dec_n=fix(handles.drg.session(sessionNo).draq_p.ActualRate/1000);
+drgRead_jt_times(jtPathName,jtFileName)
+FileName=[jtFileName(10:end-4) '_drg.mat'];
+handles.fullName=[jtPathName,FileName];
+load(handles.fullName);
+handles.drg=drg;
+handles.drg.drta_p.fullName=[jtPathName,handles.drg.drta_p.FileName];
 
-    % handles=drgLFPwaveSpectrogramRefOtherTrial(handles);
+handles.trialNo=1;
+handles.lastTrialNo=handles.drg.drta_p.trialNo;
+dec_n=fix(handles.drg.session(sessionNo).draq_p.ActualRate/1000);
 
-    %First figure out when the laser input and camera coverage takes place
+% handles=drgLFPwaveSpectrogramRefOtherTrial(handles);
 
-    for trNo=1:handles.lastTrialNo
-        [digital_input, trialNo, can_read] = drgGetTrialLFPData(handles, digital_LFPNo, trNo, handles.evTypeNo, handles.time_start, handles.time_end);
-        bit_camera=bitget(uint16(digital_input), 1, 'uint16');
-        bit_laser=bitget(uint16(digital_input), 2, 'uint16');
-        dec_camera=[dec_camera decimate(double(bit_camera(1:180000)),dec_n)];
-        dec_laser=[dec_laser decimate(double(bit_laser(1:180000)),dec_n)];
-    end
+%First figure out when the laser input and camera coverage takes place
 
-
-
-    [t_apt,freq,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPwavePowerForThisEvTypeNo(handles);
-
-    handles.drgb.PACwave.trialNos_PRP=this_trialNo;
-    dt=handles.dt_tPRP;
-    t_pac=[handles.time_start+handles.time_pad:dt:handles.time_end-handles.time_pad];
-
-    %Get PAC
-    % start_toc=toc;
-    handles=drgThetaAmpPhaseTrialRange(handles);
+for trNo=1:handles.lastTrialNo
+    [digital_input, trialNo, can_read] = drgGetTrialLFPData(handles, digital_LFPNo, trNo, handles.evTypeNo, handles.time_start, handles.time_end);
+    bit_camera=bitget(uint16(digital_input), 1, 'uint16');
+    bit_laser=bitget(uint16(digital_input), 2, 'uint16');
+    dec_camera=[dec_camera decimate(double(bit_camera(1:180000)),dec_n)];
+    dec_laser=[dec_laser decimate(double(bit_laser(1:180000)),dec_n)];
+end
 
 
-    %Calculate a circ_mean peak angle
-    no_conv_points=21;
-    rad_meanPeakAngleConv=zeros(1,length(handles.drgb.PAC.peakAngle));
 
-    rad_meanPeakAngle=pi*(handles.drgb.PAC.peakAngle-180)/180;
-    %First half of the conv window
-    rad_meanPeakAngleConv(1:((no_conv_points-1)/2))=circ_mean(rad_meanPeakAngle(1:((no_conv_points-1)/2))');
+[t_apt,freq,all_Power, all_Power_ref, all_Power_timecourse, this_trialNo, perCorr_pertr, which_event]=drgGetLFPwavePowerForThisEvTypeNo(handles);
 
-    %Last half of the conv window
-    rad_meanPeakAngleConv(end-((no_conv_points-1)/2)+1:end)=circ_mean(rad_meanPeakAngle(end-((no_conv_points-1)/2)+1:end)');
+handles.drgb.PACwave.trialNos_PRP=this_trialNo;
+dt=handles.dt_tPRP;
+t_pac=[handles.time_start+handles.time_pad:dt:handles.time_end-handles.time_pad];
 
-    for ii=((no_conv_points-1)/2)+1:length(rad_meanPeakAngle)-((no_conv_points-1)/2)
-        rad_meanPeakAngleConv(ii)=circ_mean(rad_meanPeakAngle(1,ii-((no_conv_points-1)/2):ii+((no_conv_points-1)/2))');
-    end
-
-    handles.drgb.PAC.meanPeakAngle_conv=(180/pi)*rad_meanPeakAngleConv+180;
- 
-    %Calculate a circ_mean trough angle
-    rad_meanTroughAngleConv=zeros(1,length(handles.drgb.PAC.troughAngle));
-
-    rad_meanTroughAngle=pi*(handles.drgb.PAC.troughAngle-180)/180;
-    %First half of the conv window
-    rad_meanTroughAngleConv(1:((no_conv_points-1)/2))=circ_mean(rad_meanTroughAngle(1:((no_conv_points-1)/2))');
-
-    %Last half of the conv window
-    rad_meanTroughAngleConv(end-((no_conv_points-1)/2)+1:end)=circ_mean(rad_meanTroughAngle(end-((no_conv_points-1)/2)+1:end)');
-
-    for ii=((no_conv_points-1)/2)+1:length(rad_meanTroughAngle)-((no_conv_points-1)/2)
-        rad_meanTroughAngleConv(ii)=circ_mean(rad_meanTroughAngle(1,ii-((no_conv_points-1)/2):ii+((no_conv_points-1)/2))');
-    end
-
-    handles.drgb.PAC.meanTroughAngle_conv=(180/pi)*rad_meanTroughAngleConv+180;
-
-    handles_out.mod_indx=[handles_out.mod_indx handles.drgb.PAC.mod_indx];
-    handles_out.all_phase_histo=[handles_out.all_phase_histo; handles.drgb.PAC.all_phase_histo];
-    handles_out.out_times_env=handles.drgb.PAC.out_times_env;
-    handles_out.phase=handles.drgb.PAC.phase;
-    handles_out.peakAngle=[handles_out.peakAngle handles.drgb.PAC.peakAngle];
-    handles_out.troughAngle=[handles_out.troughAngle handles.drgb.PAC.troughAngle];
-    handles_out.peakAngle_conv=[handles_out.peakAngle_conv handles.drgb.PAC.meanPeakAngle_conv];
-    handles_out.troughAngle_conv=[handles_out.troughAngle_conv handles.drgb.PAC.meanTroughAngle_conv];
-    handles_out.peakPowerPAC=[handles_out.peakPowerPAC handles.drgb.PAC.meanPeakPower];
-    handles_out.troughPowerPAC=[handles_out.troughPowerPAC handles.drgb.PAC.meanTroughPower];
-    handles_out.all_theta_wave=[handles_out.all_theta_wave; handles.drgb.PAC.all_theta_wave];
-
-    if fileNo==1
-        ii_start_per_file(fileNo)=1;
-    else
-        ii_start_per_file(fileNo)=ii_end_per_file(fileNo-1)+1;
-    end
-    ii_end_per_file(fileNo)=length(handles_out.peakPowerPAC);
-
-    % fprintf(1, 'drgThetaAmpPhaseTrialRange = %d\n',toc-start_toc)
-
-    % start_toc=toc;
-    handles.drgb.PACwave.trialNos_PAC=handles.drgb.PAC.this_trialNo;
-    %If there was a problem with signal saturation for this LFP the number of
-    %trials is zero, and we should skip further analysis
-
-    if handles.drgb.PAC.no_trials>0
-        %Please note that more trials are excluded from the PAC analysis than from
-        %the lick analysis
-
-        %Find the wavelet power at the peak and trough
-        %     dt=handles.window-handles.noverlap;
-
-        handles.drgb.PACwave.t_pac=t_pac;
-        peakPower=zeros(handles.drgb.PAC.no_trials,length(t_pac));
-        allPower=zeros(handles.drgb.PAC.no_trials,length(t_pac));
-        %Find the value of gamma power at each point
-        out_times_env=handles.drgb.PAC.out_times_env;
-        out_times_env=out_times_env+handles.time_start+handles.time_pad;
-        % meanPeakAngle=(handles.drgb.PAC.peakAngleForPower*(pi/180))-pi;
-        % meanTroughAngle=(handles.drgb.PAC.troughAngleForPower*(pi/180))-pi;
+%Get PAC
+% start_toc=toc;
+handles=drgThetaAmpPhaseTrialRange(handles);
 
 
-        %Find peak wavelet power
-        max_t_points=ceil(20*(t_apt(end)-t_apt(1)));
-        % ii_start_per_file(fileNo)=tNum_all+1;
+%Calculate a circ_mean peak angle
+no_conv_points=21;
+rad_meanPeakAngleConv=zeros(1,length(handles.drgb.PAC.peakAngle));
 
-        %Find trough power
-        troughPower=zeros(handles.drgb.PAC.no_trials,length(t_pac));
+rad_meanPeakAngle=pi*(handles.drgb.PAC.peakAngle-180)/180;
+%First half of the conv window
+rad_meanPeakAngleConv(1:((no_conv_points-1)/2))=circ_mean(rad_meanPeakAngle(1:((no_conv_points-1)/2))');
 
-        for trNum=1:handles.drgb.PAC.no_trials
+%Last half of the conv window
+rad_meanPeakAngleConv(end-((no_conv_points-1)/2)+1:end)=circ_mean(rad_meanPeakAngle(end-((no_conv_points-1)/2)+1:end)');
 
-            tNum_all=tNum_all+1;
+for ii=((no_conv_points-1)/2)+1:length(rad_meanPeakAngle)-((no_conv_points-1)/2)
+    rad_meanPeakAngleConv(ii)=circ_mean(rad_meanPeakAngle(1,ii-((no_conv_points-1)/2):ii+((no_conv_points-1)/2))');
+end
+
+handles.drgb.PAC.meanPeakAngle_conv=(180/pi)*rad_meanPeakAngleConv+180;
+
+%Calculate a circ_mean trough angle
+rad_meanTroughAngleConv=zeros(1,length(handles.drgb.PAC.troughAngle));
+
+rad_meanTroughAngle=pi*(handles.drgb.PAC.troughAngle-180)/180;
+%First half of the conv window
+rad_meanTroughAngleConv(1:((no_conv_points-1)/2))=circ_mean(rad_meanTroughAngle(1:((no_conv_points-1)/2))');
+
+%Last half of the conv window
+rad_meanTroughAngleConv(end-((no_conv_points-1)/2)+1:end)=circ_mean(rad_meanTroughAngle(end-((no_conv_points-1)/2)+1:end)');
+
+for ii=((no_conv_points-1)/2)+1:length(rad_meanTroughAngle)-((no_conv_points-1)/2)
+    rad_meanTroughAngleConv(ii)=circ_mean(rad_meanTroughAngle(1,ii-((no_conv_points-1)/2):ii+((no_conv_points-1)/2))');
+end
+
+handles.drgb.PAC.meanTroughAngle_conv=(180/pi)*rad_meanTroughAngleConv+180;
+
+handles_out.mod_indx=[handles_out.mod_indx handles.drgb.PAC.mod_indx];
+handles_out.all_phase_histo=[handles_out.all_phase_histo; handles.drgb.PAC.all_phase_histo];
+handles_out.out_times_env=handles.drgb.PAC.out_times_env;
+handles_out.phase=handles.drgb.PAC.phase;
+handles_out.peakAngle=[handles_out.peakAngle handles.drgb.PAC.peakAngle];
+handles_out.troughAngle=[handles_out.troughAngle handles.drgb.PAC.troughAngle];
+handles_out.peakAngle_conv=[handles_out.peakAngle_conv handles.drgb.PAC.meanPeakAngle_conv];
+handles_out.troughAngle_conv=[handles_out.troughAngle_conv handles.drgb.PAC.meanTroughAngle_conv];
+handles_out.peakPowerPAC=[handles_out.peakPowerPAC handles.drgb.PAC.meanPeakPower];
+handles_out.troughPowerPAC=[handles_out.troughPowerPAC handles.drgb.PAC.meanTroughPower];
+handles_out.all_theta_wave=[handles_out.all_theta_wave; handles.drgb.PAC.all_theta_wave];
+
+if fileNo==1
+    ii_start_per_file(fileNo)=1;
+else
+    ii_start_per_file(fileNo)=ii_end_per_file(fileNo-1)+1;
+end
+ii_end_per_file(fileNo)=length(handles_out.peakPowerPAC);
+
+% fprintf(1, 'drgThetaAmpPhaseTrialRange = %d\n',toc-start_toc)
+
+% start_toc=toc;
+handles.drgb.PACwave.trialNos_PAC=handles.drgb.PAC.this_trialNo;
+%If there was a problem with signal saturation for this LFP the number of
+%trials is zero, and we should skip further analysis
+
+if handles.drgb.PAC.no_trials>0
+    %Please note that more trials are excluded from the PAC analysis than from
+    %the lick analysis
+
+    %Find the wavelet power at the peak and trough
+    %     dt=handles.window-handles.noverlap;
+
+    handles.drgb.PACwave.t_pac=t_pac;
+    peakPower=zeros(handles.drgb.PAC.no_trials,length(t_pac));
+    allPower=zeros(handles.drgb.PAC.no_trials,length(t_pac));
+    %Find the value of gamma power at each point
+    out_times_env=handles.drgb.PAC.out_times_env;
+    out_times_env=out_times_env+handles.time_start+handles.time_pad;
+    % meanPeakAngle=(handles.drgb.PAC.peakAngleForPower*(pi/180))-pi;
+    % meanTroughAngle=(handles.drgb.PAC.troughAngleForPower*(pi/180))-pi;
 
 
-            if tNum_all==1
-                time(1)=0;
-            else
-                time(tNum_all)=time(tNum_all-1)+handles.delta_trial;
-            end
+    %Find peak wavelet power
+    max_t_points=ceil(20*(t_apt(end)-t_apt(1)));
+    % ii_start_per_file(fileNo)=tNum_all+1;
 
-            if (trNum==1)&(fileNo==2)
-                time(tNum_all)=time(tNum_all)+handles.delta_trial*4*60/9;
-            end
+    %Find trough power
+    troughPower=zeros(handles.drgb.PAC.no_trials,length(t_pac));
 
-            this_peakPower=zeros(1,max_t_points);
-            this_peakPower_spectrum=zeros(max_t_points,length(freq));
-            this_peakPower_times=zeros(1,max_t_points);
+    for trNum=1:handles.drgb.PAC.no_trials
 
-            ii=1;
-            jj=0;
-            at_end=0;
-            this_angleTetaLFP=handles.drgb.PAC.PACtimecourse(trNum).decanglethetaLFP;
-            %         this_LFPenv=handles.drgb.PAC.PACtimecourse(trNum).decLFPgenv;
-
-            this_meanPeakAngle_conv=(handles.drgb.PAC.meanPeakAngle_conv(trNum)-180)*(pi/180);
-
-            while at_end==0
-                ii_next=find(this_angleTetaLFP(ii:end)>=this_meanPeakAngle_conv,1,'first');
-                if (~isempty(ii_next))&(ii+ii_next-1<=length(t_apt))&(ii+ii_next-1<=length(out_times_env))
-                    jj=jj+1;
-                    this_peakPower(jj)=mean(10*log10(all_Power_timecourse(trNum,:,ii+ii_next-1)),2);
-                    % this_peakPower_spectrum(jj,:)=10*log10(all_Power_timecourse(trNum,:,ii+ii_next-1));
-                    this_peakPower_times(jj)=out_times_env(ii+ii_next-1);
-                    ii=ii+ii_next;
-                    ii_next=find(this_angleTetaLFP(ii:end)<this_meanPeakAngle_conv,1,'first');
-                    if ~isempty(ii_next)
-                        ii=ii+ii_next;
-                    else
-                        at_end=1;
-                    end
-
-                else
-                    at_end=1;
-                end
-            end
+        tNum_all=tNum_all+1;
 
 
-            this_peakPower=this_peakPower(1,1:jj);
-            % this_peakPower_spectrum=this_peakPower_spectrum(1:jj,:);
-            this_peakPower_times=this_peakPower_times(1,1:jj);
-
-            handles.drgb.PACwave.PACtimecourse(tNum_all).Power_per_peak=this_peakPower;
-            handles.drgb.PACwave.PACtimecourse(tNum_all).peakPower_times=this_peakPower_times;
-            handles_out.mean_peakPower(tNum_all)=mean(this_peakPower);
-
-
-%             %         d_t_pac=t_pac(2)-t_pac(1);
-% 
-%             for ii_t=1:length(t_pac)
-%                 if t_pac(ii_t)<=this_peakPower_times(1)
-%                     peakPower(trNum,ii_t)=this_peakPower(1);
-%                     %this_peakPower_t_pac(ii_t)=this_peakPower(1);
-%                 else
-%                     if t_pac(ii_t)>=this_peakPower_times(end)
-%                         peakPower(trNum,ii_t)=this_peakPower(end);
-%                         %this_peakPower_t_pac(ii_t)=this_peakPower(end);
-%                     else
-%                         ii_pt=find(this_peakPower_times>=t_pac(ii_t),1,'first');
-%                         peakPower(trNum,ii_t)=this_peakPower(ii_pt-1)+(t_pac(ii_t)-this_peakPower_times(ii_pt-1))*((this_peakPower(ii_pt)-this_peakPower(ii_pt-1))/(this_peakPower_times(ii_pt)-this_peakPower_times(ii_pt-1)));
-%                     end
-%                 end
-%             end
-% 
-% %             if handles.subtractRef==1
-% %                 peakPower(trNum,:)=peakPower(trNum,:)-mean(peakPower(trNum,(t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
-% %             end
-% 
-%             handles.drgb.PACwave.peakPowerSpectrum(tNum_all,:)=mean(this_peakPower_spectrum,1);
-%             handles.drgb.PACwave.PACtimecourse(tNum_all).peakPower=peakPower(trNum,:);
-%             handles.drgb.PACwave.meanPeakPower(tNum_all)=mean(peakPower(trNum,:),2);
-
-            %Calculate the power timecourse
-            this_all_Power=zeros(1,length(t_pac));
-            this_all_Power(1)=mean(mean(10*log10(all_Power_timecourse(trNum,:,t_apt<t_pac(1)+(dt/2))),2));
-            this_all_Power(end)=mean(mean(10*log10(all_Power_timecourse(trNum,:,t_apt>t_pac(end)-(dt/2))),2));
-            for ii=2:length(t_pac)-1
-                this_all_Power(ii)=mean(mean(10*log10(all_Power_timecourse(trNum,:,(t_apt<t_pac(ii)+(dt/2))&(t_apt<t_pac(ii)+(dt/2)))),2));
-            end
-
-%             if handles.subtractRef==1
-%                 this_all_Power=this_all_Power-mean(this_all_Power((t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
-%             end
-
-            handles.drgb.PACwave.PACtimecourse(tNum_all).allPower=this_all_Power;
-            allPower(trNum,:)=this_all_Power;
-
-        % end
-        % ii_end_per_file(fileNo)=tNum_all;
-        % 
-        % 
-        % for trNum=1:handles.drgb.PAC.no_trials
-
-            this_troughPower=zeros(1,max_t_points);
-            % this_troughPower_spectrum=zeros(max_t_points,length(freq));
-            this_troughPower_times=zeros(1,max_t_points);
-
-            handles.drgb.PACwave.PACtimecourse(tNum_all).Power_per_trough=this_troughPower;
-            handles.drgb.PACwave.PACtimecourse(tNum_all).troughPower_times=this_troughPower_times;
-
-            ii=1;
-            jj=0;
-            at_end=0;
-            this_angleTetaLFP=handles.drgb.PAC.PACtimecourse(trNum).decanglethetaLFP;
-            %         this_LFPenv=handles.drgb.PAC.PACtimecourse(trNum).decLFPgenv;
-
-            this_meanTroughAngle_conv=(handles.drgb.PAC.meanTroughAngle_conv(trNum)-180)*(pi/180);
-
-            while at_end==0
-                ii_next=find(this_angleTetaLFP(ii:end)>=this_meanTroughAngle_conv,1,'first');
-                if (~isempty(ii_next))&(ii+ii_next-1<=length(t_apt))&(ii+ii_next-1<=length(out_times_env))
-                    jj=jj+1;
-                    this_troughPower(jj)=mean(10*log10(all_Power_timecourse(trNum,:,ii+ii_next-1)),2);
-                    % this_troughPower_spectrum(jj,:)=10*log10(all_Power_timecourse(trNum,:,ii+ii_next-1));
-                    this_troughPower_times(jj)=out_times_env(ii+ii_next-1);
-                    ii=ii+ii_next;
-                    ii_next=find(this_angleTetaLFP(ii:end)<this_meanTroughAngle_conv,1,'first');
-                    if ~isempty(ii_next)
-                        ii=ii+ii_next;
-                    else
-                        at_end=1;
-                    end
-                else
-                    at_end=1;
-                end
-            end
-
-            this_troughPower=this_troughPower(1,1:jj);
-            % this_troughPower_spectrum=this_troughPower_spectrum(1:jj,:);
-            this_troughPower_times=this_troughPower_times(1,1:jj);
-
-            handles.drgb.PACwave.PACtimecourse(tNum_all).Power_per_trough=this_troughPower;
-            handles.drgb.PACwave.PACtimecourse(tNum_all).troughPower_times=this_troughPower_times;
-            handles_out.mean_troughPower(tNum_all)=mean(this_troughPower);
-
-            % for ii_t=1:length(t_pac)
-            %     if t_pac(ii_t)<=this_troughPower_times(1)
-            %         troughPower(trNum,ii_t)=this_troughPower(1);
-            %         %this_troughPower_t_pac(ii_t)=this_troughPower(1);
-            %     else
-            %         if t_pac(ii_t)>=this_troughPower_times(end)
-            %             troughPower(trNum,ii_t)=this_troughPower(end);
-            %             %this_troughPower_t_pac(ii_t)=this_troughPower(end);
-            %         else
-            %             ii_pt=find(this_troughPower_times>=t_pac(ii_t),1,'first');
-            %             troughPower(trNum,ii_t)=this_troughPower(ii_pt-1)+(t_pac(ii_t)-this_troughPower_times(ii_pt-1))*((this_troughPower(ii_pt)-this_troughPower(ii_pt-1))/(this_troughPower_times(ii_pt)-this_troughPower_times(ii_pt-1)));
-            %         end
-            %     end
-            % end
-
-%             if handles.subtractRef==1
-%                 troughPower(trNum,:)=troughPower(trNum,:)-mean(troughPower(trNum,(t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
-%             end
-
-            % handles.drgb.PACwave.troughPowerSpectrum(tNum_all,:)=mean(this_troughPower_spectrum,1);
-            % handles.drgb.PACwave.PACtimecourse(tNum_all).troughPower=troughPower(trNum,:);
-            % handles.drgb.PACwave.meanTroughPower(tNum_all)=mean(troughPower(trNum,:),2);
+        if tNum_all==1
+            time(1)=0;
+        else
+            time(tNum_all)=time(tNum_all-1)+handles.delta_trial;
         end
 
+        if (trNum==1)&(fileNo==2)
+            time(tNum_all)=time(tNum_all)+handles.delta_trial*4*60/9;
+        end
+
+        this_peakPower=zeros(1,max_t_points);
+        this_peakPower_spectrum=zeros(max_t_points,length(freq));
+        this_peakPower_times=zeros(1,max_t_points);
+
+        ii=1;
+        jj=0;
+        at_end=0;
+        this_angleTetaLFP=handles.drgb.PAC.PACtimecourse(trNum).decanglethetaLFP;
+        %         this_LFPenv=handles.drgb.PAC.PACtimecourse(trNum).decLFPgenv;
+
+        this_meanPeakAngle_conv=(handles.drgb.PAC.meanPeakAngle_conv(trNum)-180)*(pi/180);
+
+        while at_end==0
+            ii_next=find(this_angleTetaLFP(ii:end)>=this_meanPeakAngle_conv,1,'first');
+            if (~isempty(ii_next))&(ii+ii_next-1<=length(t_apt))&(ii+ii_next-1<=length(out_times_env))
+                jj=jj+1;
+                this_peakPower(jj)=mean(10*log10(all_Power_timecourse(trNum,:,ii+ii_next-1)),2);
+                % this_peakPower_spectrum(jj,:)=10*log10(all_Power_timecourse(trNum,:,ii+ii_next-1));
+                this_peakPower_times(jj)=out_times_env(ii+ii_next-1);
+                ii=ii+ii_next;
+                ii_next=find(this_angleTetaLFP(ii:end)<this_meanPeakAngle_conv,1,'first');
+                if ~isempty(ii_next)
+                    ii=ii+ii_next;
+                else
+                    at_end=1;
+                end
+
+            else
+                at_end=1;
+            end
+        end
+
+
+        this_peakPower=this_peakPower(1,1:jj);
+        % this_peakPower_spectrum=this_peakPower_spectrum(1:jj,:);
+        this_peakPower_times=this_peakPower_times(1,1:jj);
+
+        handles.drgb.PACwave.PACtimecourse(tNum_all).Power_per_peak=this_peakPower;
+        handles.drgb.PACwave.PACtimecourse(tNum_all).peakPower_times=this_peakPower_times;
+        handles_out.mean_peakPower(tNum_all)=mean(this_peakPower);
+
+
+        %             %         d_t_pac=t_pac(2)-t_pac(1);
+        %
+        %             for ii_t=1:length(t_pac)
+        %                 if t_pac(ii_t)<=this_peakPower_times(1)
+        %                     peakPower(trNum,ii_t)=this_peakPower(1);
+        %                     %this_peakPower_t_pac(ii_t)=this_peakPower(1);
+        %                 else
+        %                     if t_pac(ii_t)>=this_peakPower_times(end)
+        %                         peakPower(trNum,ii_t)=this_peakPower(end);
+        %                         %this_peakPower_t_pac(ii_t)=this_peakPower(end);
+        %                     else
+        %                         ii_pt=find(this_peakPower_times>=t_pac(ii_t),1,'first');
+        %                         peakPower(trNum,ii_t)=this_peakPower(ii_pt-1)+(t_pac(ii_t)-this_peakPower_times(ii_pt-1))*((this_peakPower(ii_pt)-this_peakPower(ii_pt-1))/(this_peakPower_times(ii_pt)-this_peakPower_times(ii_pt-1)));
+        %                     end
+        %                 end
+        %             end
+        %
+        % %             if handles.subtractRef==1
+        % %                 peakPower(trNum,:)=peakPower(trNum,:)-mean(peakPower(trNum,(t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
+        % %             end
+        %
+        %             handles.drgb.PACwave.peakPowerSpectrum(tNum_all,:)=mean(this_peakPower_spectrum,1);
+        %             handles.drgb.PACwave.PACtimecourse(tNum_all).peakPower=peakPower(trNum,:);
+        %             handles.drgb.PACwave.meanPeakPower(tNum_all)=mean(peakPower(trNum,:),2);
+
+        %Calculate the power timecourse
+        this_all_Power=zeros(1,length(t_pac));
+        this_all_Power(1)=mean(mean(10*log10(all_Power_timecourse(trNum,:,t_apt<t_pac(1)+(dt/2))),2));
+        this_all_Power(end)=mean(mean(10*log10(all_Power_timecourse(trNum,:,t_apt>t_pac(end)-(dt/2))),2));
+        for ii=2:length(t_pac)-1
+            this_all_Power(ii)=mean(mean(10*log10(all_Power_timecourse(trNum,:,(t_apt<t_pac(ii)+(dt/2))&(t_apt<t_pac(ii)+(dt/2)))),2));
+        end
+
+        %             if handles.subtractRef==1
+        %                 this_all_Power=this_all_Power-mean(this_all_Power((t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
+        %             end
+
+        handles.drgb.PACwave.PACtimecourse(tNum_all).allPower=this_all_Power;
+        allPower(trNum,:)=this_all_Power;
+
+        % end
         % ii_end_per_file(fileNo)=tNum_all;
-    end
+        %
+        %
+        % for trNum=1:handles.drgb.PAC.no_trials
 
-    % if fileNo==1
-    %     log_P_timecourse=zeros(length(f),max_time_bins);
-    % end
+        this_troughPower=zeros(1,max_t_points);
+        % this_troughPower_spectrum=zeros(max_t_points,length(freq));
+        this_troughPower_times=zeros(1,max_t_points);
 
-        % for trNo=1:handles.lastTrialNo
-        %     for ii_window=1:size(all_Power_timecourse,3)/1000
-        %         ii_t=ii_t+1;
-        %         this_mean_logP=zeros(length(f),1);
-        %         ii_from=(ii_window-1)*mean_window*1000+1;
-        %         ii_to=ii_window*mean_window*1000;
-        %         this_mean_logP(:,1)=mean(10*log10(all_Power_timecourse(trNo,:,ii_from:ii_to)),3);
-        %         log_P_timecourse(:,ii_t)=this_mean_logP;
+        handles.drgb.PACwave.PACtimecourse(tNum_all).Power_per_trough=this_troughPower;
+        handles.drgb.PACwave.PACtimecourse(tNum_all).troughPower_times=this_troughPower_times;
+
+        ii=1;
+        jj=0;
+        at_end=0;
+        this_angleTetaLFP=handles.drgb.PAC.PACtimecourse(trNum).decanglethetaLFP;
+        %         this_LFPenv=handles.drgb.PAC.PACtimecourse(trNum).decLFPgenv;
+
+        this_meanTroughAngle_conv=(handles.drgb.PAC.meanTroughAngle_conv(trNum)-180)*(pi/180);
+
+        while at_end==0
+            ii_next=find(this_angleTetaLFP(ii:end)>=this_meanTroughAngle_conv,1,'first');
+            if (~isempty(ii_next))&(ii+ii_next-1<=length(t_apt))&(ii+ii_next-1<=length(out_times_env))
+                jj=jj+1;
+                this_troughPower(jj)=mean(10*log10(all_Power_timecourse(trNum,:,ii+ii_next-1)),2);
+                % this_troughPower_spectrum(jj,:)=10*log10(all_Power_timecourse(trNum,:,ii+ii_next-1));
+                this_troughPower_times(jj)=out_times_env(ii+ii_next-1);
+                ii=ii+ii_next;
+                ii_next=find(this_angleTetaLFP(ii:end)<this_meanTroughAngle_conv,1,'first');
+                if ~isempty(ii_next)
+                    ii=ii+ii_next;
+                else
+                    at_end=1;
+                end
+            else
+                at_end=1;
+            end
+        end
+
+        this_troughPower=this_troughPower(1,1:jj);
+        % this_troughPower_spectrum=this_troughPower_spectrum(1:jj,:);
+        this_troughPower_times=this_troughPower_times(1,1:jj);
+
+        handles.drgb.PACwave.PACtimecourse(tNum_all).Power_per_trough=this_troughPower;
+        handles.drgb.PACwave.PACtimecourse(tNum_all).troughPower_times=this_troughPower_times;
+        handles_out.mean_troughPower(tNum_all)=mean(this_troughPower);
+
+        % for ii_t=1:length(t_pac)
+        %     if t_pac(ii_t)<=this_troughPower_times(1)
+        %         troughPower(trNum,ii_t)=this_troughPower(1);
+        %         %this_troughPower_t_pac(ii_t)=this_troughPower(1);
+        %     else
+        %         if t_pac(ii_t)>=this_troughPower_times(end)
+        %             troughPower(trNum,ii_t)=this_troughPower(end);
+        %             %this_troughPower_t_pac(ii_t)=this_troughPower(end);
+        %         else
+        %             ii_pt=find(this_troughPower_times>=t_pac(ii_t),1,'first');
+        %             troughPower(trNum,ii_t)=this_troughPower(ii_pt-1)+(t_pac(ii_t)-this_troughPower_times(ii_pt-1))*((this_troughPower(ii_pt)-this_troughPower(ii_pt-1))/(this_troughPower_times(ii_pt)-this_troughPower_times(ii_pt-1)));
+        %         end
         %     end
         % end
-        % if fileNo==1
-        %     ii_laser_start=ii_t;
-        % end
-        % ii_t=ii_t+180;
-        %  if fileNo==1
-        %     ii_laser_end=ii_t;
-        % end
+
+        %             if handles.subtractRef==1
+        %                 troughPower(trNum,:)=troughPower(trNum,:)-mean(troughPower(trNum,(t_pac>=handles.startRef+handles.time_pad)&(t_pac<=handles.endRef-handles.time_pad)));
+        %             end
+
+        % handles.drgb.PACwave.troughPowerSpectrum(tNum_all,:)=mean(this_troughPower_spectrum,1);
+        % handles.drgb.PACwave.PACtimecourse(tNum_all).troughPower=troughPower(trNum,:);
+        % handles.drgb.PACwave.meanTroughPower(tNum_all)=mean(troughPower(trNum,:),2);
+    end
+
+    % ii_end_per_file(fileNo)=tNum_all;
 end
+
+% if fileNo==1
+%     log_P_timecourse=zeros(length(f),max_time_bins);
+% end
+
+% for trNo=1:handles.lastTrialNo
+%     for ii_window=1:size(all_Power_timecourse,3)/1000
+%         ii_t=ii_t+1;
+%         this_mean_logP=zeros(length(f),1);
+%         ii_from=(ii_window-1)*mean_window*1000+1;
+%         ii_to=ii_window*mean_window*1000;
+%         this_mean_logP(:,1)=mean(10*log10(all_Power_timecourse(trNo,:,ii_from:ii_to)),3);
+%         log_P_timecourse(:,ii_t)=this_mean_logP;
+%     end
+% end
+% if fileNo==1
+%     ii_laser_start=ii_t;
+% end
+% ii_t=ii_t+180;
+%  if fileNo==1
+%     ii_laser_end=ii_t;
+% end
+
 %
 % ii_laser_start=floor(find(dec_laser>0.5,1,'first')/(1000*mean_window));
 % ii_laser_end=ceil(find(dec_laser>0.5,1,'last')/(1000*mean_window));
@@ -501,8 +525,8 @@ handles_out.time=time;
 handles_out.ii_start_per_file=ii_start_per_file;
 handles_out.ii_end_per_file=ii_end_per_file;
 
-save_base=handles.jtFileNames{1};
-save([handles.jtPathNames{1} prefix_save_file '_ch' num2str(handles.peakLFPNo), '_', save_base(9:end)],'handles','handles_out')
+% save_base=handles.jtFileNames{1};
+% save([handles.jtPathNames{1} prefix_save_file '_ch' num2str(handles.peakLFPNo), '_', save_base(9:end)],'handles','handles_out')
 
 % close all
 figNo=8;
@@ -550,8 +574,10 @@ hFig2 = figure(figNo);
 set(hFig2, 'units','normalized','position',[.25 .1 .4 .25])
 hold on
 
-reference_power=(   mean(handles_out.mean_troughPower(time<handles.ii_laser_start/60))  +...
-    mean(handles_out.mean_peakPower(time<handles.ii_laser_start/60)) )/2;
+reference_power=(   mean(handles_out.mean_troughPower(time<handles.laser_start_time))  +...
+    mean(handles_out.mean_peakPower(time<handles.laser_start_time)) )/2;
+
+
 meanTroughPower=handles_out.mean_troughPower-reference_power;
 meanPeakPower=handles_out.mean_peakPower-reference_power;
 
@@ -580,31 +606,31 @@ title(['Power (dB)  '])
 %     close(figNo)
 % catch
 % end
-% 
+%
 % hFig2 = figure(figNo);
 % set(hFig2, 'units','normalized','position',[.25 .1 .4 .25])
 % hold on
-% 
+%
 % reference_power=(mean(handles_out.troughPowerPAC(ii_start_per_file(1):ii_end_per_file(1)))+...
 %     mean(handles_out.peakPowerPAC(ii_start_per_file(1):ii_end_per_file(1))))/2;
 % meanTroughPower=handles_out.troughPowerPAC-reference_power;
 % meanPeakPower=handles_out.peakPowerPAC-reference_power;
-% 
+%
 % plot(time(ii_start_per_file(1):ii_end_per_file(1)),meanTroughPower(ii_start_per_file(1):ii_end_per_file(1)),'b-')
 % % plot(time(ii_start_per_file(2):ii_end_per_file(2)),meanTroughPower(ii_start_per_file(2):ii_end_per_file(2)),'b-')
-% 
+%
 % plot(time(ii_start_per_file(1):ii_end_per_file(1)),meanPeakPower(ii_start_per_file(1):ii_end_per_file(1)),'r-')
 % % plot(time(ii_start_per_file(2):ii_end_per_file(2)),meanPeakPower(ii_start_per_file(2):ii_end_per_file(2)),'r-')
-% 
+%
 % % plot([between_ii between_ii],theseyl,'-k','LineWidth',3)
-% 
+%
 % this_xl=xlim;
 % plot([this_xl],[0 0],'-k')
-% 
+%
 % xlabel('Time(min)')
 % ylabel('Peak power (dB)')
-% 
-% 
+%
+%
 % legend('Through','Peak')
 % title(['Power (dB, PAC calculated)  '])
 
