@@ -2,8 +2,6 @@ function drgOBtoHIP_batch_LFP(choiceBatchPathName,choiceFileName)
 %Note: fitcnet will not work in Matlab versions earlier than 2021a
 
 
-first_file=1;
-
 if nargin==0
     [choiceFileName,choiceBatchPathName] = uigetfile({'drgbChoicesOBtoHIP*.m'},'Select the .m file with all the choices for analysis');
 end
@@ -15,11 +13,10 @@ eval(['handles=' choiceFileName(1:end-2) ';'])
 handles.choiceFileName=choiceFileName;
 handles.choiceBatchPathName=choiceBatchPathName;
 
-new_no_files=handles.no_files;
-
 
 %Parallel batch processing for each file
 all_files_present=1;
+first_file=handles.first_file;
 for filNum=first_file:handles.no_files
      
     
@@ -46,22 +43,14 @@ if all_files_present==1
     
     
     %Process each file separately
-    at_end=0;
-    fileNo=0;
-    while at_end==0
+    for fileNo=first_file:handles.no_files
 
-        if fileNo+1>handles.no_files
-            at_end=1;
-        else
+
             %Process the next session
             first_toc=toc;
 
             handles_in=[];
 
-            fileNo=fileNo+1;
-
-           
-            
             handles_in.jtPathNames{1}=handles.PathName{fileNo};
             handles_in.jtFileNames{1}=handles.FileName{fileNo};
 
@@ -69,8 +58,8 @@ if all_files_present==1
             this_filename=handles.FileName{fileNo};
             handles.FileName_out=['OBtoHIPLFP_' this_filename(11:end)];
 
-            handles_in.ii_laser_start=handles.ii_laser_start(fileNo);
-            handles_in.ii_laser_end=handles.ii_laser_end(fileNo);
+            % handles_in.ii_laser_start=handles.ii_laser_start(fileNo);
+            % handles_in.ii_laser_end=handles.ii_laser_end(fileNo);
 
 
             
@@ -86,20 +75,20 @@ if all_files_present==1
 
 
             for ii_electrode=1:length(handles.peakLFPNo)
+                fprintf(1,'\n\nProcessing file No %d, electrode %d\n\n',fileNo,handles.peakLFPNo(ii_electrode));
                 handles_in.peakLFPNo=handles.peakLFPNo(ii_electrode);
-                handles_out.electorde(ii_electrode).handles_out=drgOBtoHIP_LFPpower(handles_in);
+                handles_out.electrode(ii_electrode).handles_out=drgOBtoHIP_LFPpowerv2(handles_in);
+                fprintf(1,'\n\nProcessed file No %d, electrode %d\n\n',fileNo,handles.peakLFPNo(ii_electrode));
             end
 
 
-            fprintf(1,'\n\nProcessing time for file No %d is %d hours\n',fileNo,(toc-first_toc)/(60*60));
+            fprintf(1,'\n\nProcessing time for file No %d is %d hours\n\n',fileNo,(toc-first_toc)/(60*60));
 
             %Save output file
             handles_out.handles=handles;
             save([handles.PathName_out handles.FileName_out],'handles_out','-v7.3')
-        end
+        
     end
-    
-   
     
     fprintf(1, 'Total processing time %d hours\n',toc/(60*60));
      

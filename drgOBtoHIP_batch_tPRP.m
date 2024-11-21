@@ -15,6 +15,11 @@ eval(['handles=' choiceFileName(1:end-2) ';'])
 handles.choiceFileName=choiceFileName;
 handles.choiceBatchPathName=choiceBatchPathName;
 
+if handles.is_sphgpu==1
+    addpath('/home/restrepd/Documents/MATLAB/drgMaster')
+    addpath('/home/restrepd/Documents/MATLAB/m new/CircStat2012a')
+end
+
 new_no_files=handles.no_files;
 
 
@@ -33,7 +38,7 @@ for filNum=first_file:handles.no_files
     end
      
     if exist([jtPathName jtFileName])==0
-        fprintf(1, ['Program will be terminated because file No %d, ' jtPathName jtFileName ' does not exist\n'],filNum);
+        fprintf(1, ['Program will be terminated because file No %d, ' jtFileName ' does not exist\n\n'],filNum);
         all_files_present=0;
     end
     

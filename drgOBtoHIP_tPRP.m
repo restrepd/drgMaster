@@ -28,7 +28,7 @@ if exist('handles_choices')==0
     % handles.peakLFPNo=1;%This is the LFP number that will be processed
     % electrode_label='Left CA1';
 
-    prefix_save_file='prp_hgt'; %Always use prp_
+    % prefix_save_file='prp_hgt'; %Always use prp_
 
     % handles.peakLFPNo=[1 8 9 16];
     % show_f_bandwidth=[35 55];
