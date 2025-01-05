@@ -29,6 +29,7 @@ try
 %     trialNo=find(handles.drg.session(sessionNo).trial_start<handles.drg.session(sessionNo).events(evTypeNo).times(evNo),1,'last');
     trialNo=drgFindTrNo(handles,evNo,sessionNo,evTypeNo);
 
+    data_allch=[];
     data_allch = drgGetThisTrial(handles,evNo,evTypeNo);
     
     % data_allch=zeros(floor(handles.drg.session(sessionNo).draq_p.ActualRate*handles.drg.session(sessionNo).draq_p.sec_per_trigger),handles.drg.session(sessionNo).draq_p.no_chans);

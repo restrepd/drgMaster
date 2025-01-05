@@ -71,7 +71,7 @@ peakAngle=[];
 troughAngle=[];
  
 for trNo=firstTr:lastTr
-     
+      
     evNo = drgFindEvNo(handles,trNo,sessionNo);
     
     if evNo~=-1

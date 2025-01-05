@@ -1,4 +1,4 @@
-function [mean_points CI_points] = drgViolinPoint(points,edges,x_val,rand_offset,which_color_mean,which_color_point,point_size)
+function [mean_points CI_points violin_x_val points] = drgViolinPoint(points,edges,x_val,rand_offset,which_color_mean,which_color_point,point_size)
 %This function plots a violin data 
 % 
 % points has the data to be plotted
@@ -28,6 +28,7 @@ mean_points=mean(points);
 
 %Plot CI
 CI_points=bootci(1000, @mean, points);
-plot([x_val x_val],CI_points,['-' which_color_mean],'LineWidth',3)
+% plot([x_val x_val],CI_points,['-' which_color_mean],'LineWidth',3)
+plot([x_val x_val],CI_points,'-','Color',which_color_mean,'LineWidth',3)
 
 pffft=1;
