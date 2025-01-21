@@ -56,14 +56,14 @@ t_laser_end=65*60;
 
 
 %You can choose which plots are shown
-these_plots_shown(1)=1; %delta peak tPRP bar graph for laser and post windows (minus pre)
+these_plots_shown(1)=0; %delta peak tPRP bar graph for laser and post windows (minus pre)
 these_plots_shown(2)=1; %delta peak tPRP bar graph for laser window (minus pre)
 these_plots_shown(3)=0; %delta trough tPRP bar graph for laser and post windows (minus pre)
 these_plots_shown(4)=1; %delta trough tPRP bar graph for laser window (minus pre)
 these_plots_shown(5)=0; %tPRP peak for each electrode and each time window
-these_plots_shown(6)=1; %tPRP peak for each electrode for laser window only
+these_plots_shown(6)=0; %tPRP peak for each electrode for laser window only
 these_plots_shown(7)=0; %tPRP trough for each electrode and each time window
-these_plots_shown(8)=1; %tPRP trough for each electrode for laser window only
+these_plots_shown(8)=0; %tPRP trough for each electrode for laser window only
 these_plots_shown(9)=0; %show modulation index for each electrode for each time window
 these_plots_shown(10)=1; %show modulation index for each electrode for each time window
 these_plots_shown(11)=0; %show modulation index as a function of session number for each electrode for only one time window
@@ -817,7 +817,7 @@ if all_files_present==1
 
 
 
-
+    
 
 
     edges=[10:5:80];
