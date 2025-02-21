@@ -5,7 +5,7 @@ function drgOBtoHIP_batch_tPRP(choiceBatchPathName,choiceFileName)
 
 
 if nargin==0
-    [choiceFileName,choiceBatchPathName] = uigetfile({'drgbChoicesOBtoHIP*.m'},'Select the .m file with all the choices for analysis');
+    [choiceFileName,choiceBatchPathName] = uigetfile({'drgbChoicesOBtoHIPtPRP*.m'},'Select the .m file with all the choices for analysis');
 end
 
 fprintf(1, ['\ndrgOBtoHIP_batch_LFP run for ' choiceFileName '\n\n']);
