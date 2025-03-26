@@ -1,4 +1,4 @@
-function drgOBtoHIP_summary_batch_exclude_tPRP(choiceBatchPathName,choiceFileName)
+function drgOBtoHIP_summary_batch_exclude_tPRP_V2(choiceBatchPathName,choiceFileName)
 %Note: fitcnet will not work in Matlab versions earlier than 2021a
 
 close all
@@ -36,15 +36,15 @@ our_colors(4).color=[1 1 0];
 %4 5xFAD Untreated
 
 
-group_label{1}='Mock';
-group_label{2}='VZV';
-group_label{3}='';
-group_label{4}='';
+group_label{1}='Mock T';
+group_label{2}='VZV T';
+%group_label{3}='5xFAD U';
+%group_label{2}='VZV T';
 
 genotype_label{1}='WT';
-genotype_label{2}='5xFAD';
+genotype_label{2}='WT';
 
-laser_label{1}='UT';
+laser_label{1}='T';
 laser_label{2}='T';
 
 time_window_labels = {'Laser', 'Post'}; % Add all your group labels here
@@ -60,7 +60,7 @@ these_plots_shown(1)=0; %delta peak tPRP bar graph for laser and post windows (m
 these_plots_shown(2)=1; %delta peak tPRP bar graph for laser window (minus pre)
 these_plots_shown(3)=0; %delta trough tPRP bar graph for laser and post windows (minus pre)
 these_plots_shown(4)=1; %delta trough tPRP bar graph for laser window (minus pre)
-these_plots_shown(5)=0; %tPRP peak for each electrode and each time window
+these_plots_shown(5)=1; %tPRP peak for each electrode and each time window
 these_plots_shown(6)=0; %tPRP peak for each electrode for laser window only
 these_plots_shown(7)=0; %tPRP trough for each electrode and each time window
 these_plots_shown(8)=0; %tPRP trough for each electrode for laser window only
@@ -261,8 +261,7 @@ if all_files_present==1
 
 
             xticks([0.5 3.5 6.5 9.5])
-            xticklabels({group_label{1}, group_label{2}....
-                ,group_label{3}, group_label{4}})
+            xticklabels({group_label{1}, group_label{2}})
 
 
             % ylim([0 0.03])
@@ -424,8 +423,7 @@ if all_files_present==1
 
 
             xticks([0 1 2 3])
-            xticklabels({group_label{1}, group_label{2}....
-                ,group_label{3}, group_label{4}})
+            xticklabels({group_label{1}, group_label{2}})
 
 
             % ylim([0 0.03])
@@ -612,8 +610,7 @@ if all_files_present==1
 
 
             xticks([0.5 3.5 6.5 9.5])
-            xticklabels({group_label{1}, group_label{2}....
-                ,group_label{3}, group_label{4}})
+            xticklabels({group_label{1}, group_label{2}})
 
 
             % ylim([0 0.03])
@@ -771,8 +768,7 @@ if all_files_present==1
 
 
             xticks([0 1 2 3])
-            xticklabels({group_label{1}, group_label{2}....
-                ,group_label{3}, group_label{4}})
+            xticklabels({group_label{1}, group_label{2}})
 
 
             % ylim([0 0.03])
@@ -995,8 +991,7 @@ if all_files_present==1
 
 
             xticks([1 5 9 13])
-            xticklabels({group_label{1}, group_label{2}....
-                ,group_label{3}, group_label{4}})
+            xticklabels({group_label{1}, group_label{2}})
 
 
             % ylim([0 0.03])
@@ -1163,8 +1158,7 @@ if all_files_present==1
 
 
             xticks([0 1 2 3])
-            xticklabels({group_label{1}, group_label{2}....
-                ,group_label{3}, group_label{4}})
+            xticklabels({group_label{1}, group_label{2}})
 
 
             % ylim([0 0.03])
@@ -1385,8 +1379,7 @@ if all_files_present==1
 
 
             xticks([1 5 9 13])
-            xticklabels({group_label{1}, group_label{2}....
-                ,group_label{3}, group_label{4}})
+            xticklabels({group_label{1}, group_label{2}})
 
 
             % ylim([0 0.03])
@@ -1557,8 +1550,7 @@ if all_files_present==1
 
 
             xticks([0 1 2 3])
-            xticklabels({group_label{1}, group_label{2}....
-                ,group_label{3}, group_label{4}})
+            xticklabels({group_label{1}, group_label{2}})
 
 
             % ylim([0 0.03])
@@ -1942,8 +1934,7 @@ if all_files_present==1
 
 
             xticks([1 5 9 13])
-            xticklabels({group_label{1}, group_label{2}....
-                ,group_label{3}, group_label{4}})
+            xticklabels({group_label{1}, group_label{2}})
 
 
             % ylim([0 0.03])
@@ -2172,8 +2163,7 @@ if all_files_present==1
 
 
             xticks([0 1 2 3])
-            xticklabels({group_label{1}, group_label{2}....
-                ,group_label{3}, group_label{4}})
+            xticklabels({group_label{1}, group_label{2}})
 
 
             % ylim([0 0.03])
@@ -2633,8 +2623,7 @@ if all_files_present==1
 
 
             xticks([1 5 9 13])
-            xticklabels({group_label{1}, group_label{2}....
-                ,group_label{3}, group_label{4}})
+            xticklabels({group_label{1}, group_label{2}})
 
 
             % ylim([0 0.03])
@@ -2801,8 +2790,7 @@ if all_files_present==1
 
 
             xticks([0 1 2 3])
-            xticklabels({group_label{1}, group_label{2}....
-                ,group_label{3}, group_label{4}})
+            xticklabels({group_label{1}, group_label{2}})
 
 
             % ylim([0 0.03])

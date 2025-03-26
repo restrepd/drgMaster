@@ -43,7 +43,7 @@ minscale = f0/(maxfreq*dt);
 maxscale = f0/(minfreq*dt);
 minscale = floor(NumVoices*log2(minscale));
 maxscale = ceil(NumVoices*log2(maxscale));
-scales = a0.^(minscale:maxscale).*dt;
+% scales = a0.^(minscale:maxscale).*dt;
 
 % notch60HzFilt = designfilt('bandstopiir','FilterOrder',2, ...
 %     'HalfPowerFrequency1',59,'HalfPowerFrequency2',61, ...
@@ -101,6 +101,8 @@ for trNo=firstTr:lastTr
                 decFs=Fs/dec_n;
                 
                 cwtLFP = cwtft({detrend(double(decLFP)),1/decFs},'wavelet','morl','scales',scales);
+                % [cwtLFP, f] = cwt(detrend(double(decLFP)), 'morl', decFs); We may have to
+                % update to this funciton
                 Prev=abs(cwtLFP.cfs).^2;
                 P=Prev(end:-1:1,:);
                 DT=1/decFs;
