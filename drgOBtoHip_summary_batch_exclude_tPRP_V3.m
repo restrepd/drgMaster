@@ -54,7 +54,7 @@ pre_post_label{1}='Pre';
 
 pre_post_label{2}='Post';
 
-week_group_label={'Exo Weeks 1&2','Exo Week 3','Poly dA:dT'}
+
 
 group_label{1}='Mock';
 
@@ -115,8 +115,11 @@ these_plots_shown(14)=1; %tPRP peak for pre-week 1 and post-week 4 only line 160
 these_plots_shown(15)=1; %tPRP trough for pre-week 1 and post-week 4 only
 
 % Define trials (weeks)
-trials = {'pre-week1', 'pre-week2', 'pre-week3', 'pre-week4', 'post-week1', 'post-week2', 'post-week3', 'post-week4'};
+% trials = {'pre-week1', 'pre-week2', 'pre-week3', 'pre-week4', 'post-week1', 'post-week2', 'post-week3', 'post-week4'}; %This was incorrect
+% week_group_label={'Exo Weeks 1&2','Exo Week 3','Poly dA:dT'}
 
+trials = {'pre-week1', 'post-week1', 'pre-week2', 'post-week2', 'pre-week3', 'post-week3', 'pre-week4', 'post-week4'};
+week_group_label={'Exo Week 1','Exo Week 2','Exo Week 3','Poly dA:dT'}
 
 %Diego has the choices file in /Users/restrepd/Documents/Projects/Joe_OB_to_hippo/5xFADvsWT_1_hour_treatmentVsnone
 
@@ -181,6 +184,27 @@ groups=unique(handles.group_no);
 % Graph 1 & 2: Delta Peak/Trough tPRP for HIP
 %--------------------------------------------------------------------------
 
+% %This is the order for plotting the data
+% %weeks 1 and 2 collapsed
+% these_trials(1).trials=[1 3]; %pre weeks 1&2
+% these_trials(2).trials=[2 4]; %post weeks 1&2
+% these_trials(3).trials=5; %pre week3
+% these_trials(4).trials=6; %post week3
+% these_trials(5).trials=7; %pre week4
+% these_trials(6).trials=8; %post week4
+
+%This is the order for plotting the data
+%weeks 1 and 2 collapsed
+these_trials(1).trials=1; %pre weeks 1
+these_trials(2).trials=2; %post weeks 1
+these_trials(3).trials=3; %pre week3
+these_trials(4).trials=4; %post week3
+these_trials(5).trials=5; %pre week3
+these_trials(6).trials=6; %post week3
+these_trials(7).trials=7; %pre week4
+these_trials(8).trials=8; %post week4
+
+
 %Do hippocampus
 ii_electrodes=[1 2]; %This HIP
 
@@ -193,12 +217,12 @@ hold on
 title(['Delta Peak tPRP by Trial - Hippocampus']);
 ylabel('Delta tPRP (dB)');
 
-these_trials(1).trials=[1 2];
-these_trials(2).trials=[5 6];
-these_trials(3).trials=3;
-these_trials(4).trials=7;
-these_trials(5).trials=4;
-these_trials(6).trials=8;
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
 
 x_pos=0;
 
@@ -208,8 +232,10 @@ glm_tPRP_ii=0;
 tPRP_data=[];
 ii_tPRP=0;
 
-for ii=1:2:5
+for ii=1:2:length(these_trials)-1
+    
     week_group=floor(ii/2)+1;
+
     for groupNo = 1:length(groups)
         % Collect data for this group and trial
         these_delta_tPRP_pre = [];
@@ -308,9 +334,12 @@ xticks([0 1 2 3 5 6 7 8 10 11 12 13]);
 xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post',...
     'Pre', 'Post', 'Pre', 'Post' });
 ylim([-8 7])
-text(-0.5, 5.5, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
-text(5, 5.5, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
-text(9.5, 5.5, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
+for ii=1:length(week_group_label)
+    text(-0.5+5*(ii-1), 5.5, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
+% text(-0.5, 5.5, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
+% text(5, 5.5, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
+% text(9.5, 5.5, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
 text(11,-4,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
 text(11,-5,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
 
@@ -335,12 +364,12 @@ hold on
 title(['Delta Trough tPRP by Trial - Hippocampus']);
 ylabel('Delta tPRP (dB)');
 
-these_trials(1).trials=[1 2];
-these_trials(2).trials=[5 6];
-these_trials(3).trials=3;
-these_trials(4).trials=7;
-these_trials(5).trials=4;
-these_trials(6).trials=8;
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
 
 x_pos=0;
 
@@ -350,7 +379,7 @@ glm_tPRP_ii=0;
 tPRP_data=[];
 ii_tPRP=0;
 
-for ii=1:2:5
+for ii=1:2:length(these_trials)-1
     week_group=floor(ii/2)+1;
     for groupNo = 1:length(groups)
         % Collect data for this group and trial
@@ -452,9 +481,9 @@ xticks([0 1 2 3 5 6 7 8 10 11 12 13]);
 xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post',...
     'Pre', 'Post', 'Pre', 'Post' });
 ylim([-8 7])
-text(-0.5, 5.5, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
-text(5, 5.5, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
-text(9.5, 5.5, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
+for ii=1:length(week_group_label)
+    text(-0.5+5*(ii-1), 5.5, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
 text(11,-4,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
 text(11,-5,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
 
@@ -482,12 +511,12 @@ hold on
 title(['Delta Peak tPRP by Trial - OB']);
 ylabel('Delta tPRP (dB)');
 
-these_trials(1).trials=[1 2];
-these_trials(2).trials=[5 6];
-these_trials(3).trials=3;
-these_trials(4).trials=7;
-these_trials(5).trials=4;
-these_trials(6).trials=8;
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
 
 x_pos=0;
 
@@ -496,8 +525,8 @@ glm_tPRP_ii=0;
 
 tPRP_data=[];
 ii_tPRP=0;
-
-for ii=1:2:5
+ 
+for ii=1:2:length(these_trials)-1
     week_group=floor(ii/2)+1;
     for groupNo = 1:length(groups)
         % Collect data for this group and trial
@@ -539,6 +568,9 @@ for ii=1:2:5
                             else
                                 %Post
                                 these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                                if (delta_tPRP>6)&(ii_indx>2)
+                                    pffft=1; %I will use this one as an example
+                                end
                             end
                         end
                     end
@@ -598,9 +630,9 @@ xticks([0 1 2 3 5 6 7 8 10 11 12 13]);
 xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post',...
     'Pre', 'Post', 'Pre', 'Post' });
 ylim([-6 12])
-text(-0.5, 10, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
-text(5, 10, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
-text(9.5, 10, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
+for ii=1:length(week_group_label)
+    text(-0.5+5*(ii-1), 10, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
 text(11,-2,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
 text(11,-3,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
 
@@ -626,12 +658,12 @@ hold on
 title(['Delta Trough tPRP by Trial - OB']);
 ylabel('Delta tPRP (dB)');
 
-these_trials(1).trials=[1 2];
-these_trials(2).trials=[5 6];
-these_trials(3).trials=3;
-these_trials(4).trials=7;
-these_trials(5).trials=4;
-these_trials(6).trials=8;
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
 
 x_pos=0;
 
@@ -642,7 +674,7 @@ tPRP_data=[];
 ii_tPRP=0;
 
 
-for ii=1:2:5
+for ii=1:2:length(these_trials)-1
     week_group=floor(ii/2)+1;
     for groupNo = 1:length(groups)
         % Collect data for this group and trial
@@ -744,9 +776,10 @@ xticks([0 1 2 3 5 6 7 8 10 11 12 13]);
 xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post',...
     'Pre', 'Post', 'Pre', 'Post' });
 ylim([-6 12])
-text(-0.5, 10, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
-text(5, 10, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
-text(9.5, 10, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
+
+for ii=1:length(week_group_label)
+    text(-0.5+5*(ii-1), 10, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
 text(11,-2,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
 text(11,-3,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
 
@@ -756,7 +789,7 @@ tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.pre_post',glm_tPRP.week',...
     'VariableNames',{'tPRP','group','pre_post','week'});
 mdl = fitglm(tbl,'tPRP~group+pre_post+week+group*pre_post*week'...
     ,'CategoricalVars',[2,3,4])
-
+ 
 
 fprintf(1, ['\n\nRanksum or t-test for trough delta tPRP olfactory bulb \n'])
  

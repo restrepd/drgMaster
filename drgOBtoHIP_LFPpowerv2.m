@@ -1,4 +1,4 @@
-function handles_out=drgOBtoHIP_LFPpower(handles)
+function handles_out=drgOBtoHIP_LFPpowerv2(handles)
 %drgOBChr2LFPpower 
 %provides power analysis for Joe's ChR2 runs
 
@@ -59,11 +59,15 @@ if exist('handles')==0
     % handles.jtFileNames{1}='jt_times_20240306_Donatello_Closed_Loop_Test_withBandPass_4_240306_112305.mat';
 
     %Lyra day 1
-    handles.jtPathNames{1}='/Volumes/Diego Mac Drive/5xFADvsWT_1_hour_treatmentVsnone/N_4/Lyra 5xFAD WT Tx/20240819_Lyra_Day1_Tx/20240819_Lyra_Day1_Tx_1_240819_094218/';
-    handles.jtFileNames{1}='jt_times_20240819_Lyra_Day1_Tx_1_240819_094218.mat';
+    % handles.jtPathNames{1}='/Volumes/Diego Mac Drive/5xFADvsWT_1_hour_treatmentVsnone/N_4/Lyra 5xFAD WT Tx/20240819_Lyra_Day1_Tx/20240819_Lyra_Day1_Tx_1_240819_094218/';
+    % handles.jtFileNames{1}='jt_times_20240819_Lyra_Day1_Tx_1_240819_094218.mat';
 
-  
-    % 
+    %Post week 2 202501117
+    %Lyra day 1
+    handles.jtPathNames{1}='/Users/restrepd/Documents/Projects/JoeV/Exosomes/20250117_Mouse4 VZV_250117_094111/';
+    handles.jtFileNames{1}='jt_times_20250117_Mouse4 VZV_250117_094111.mat';
+
+    %
     % handles.laser_start_time=5; %Start time in minutes
     % handles.laser_end_time=65; %Start time in minutes
     % 

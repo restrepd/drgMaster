@@ -43,7 +43,7 @@ minscale = f0/(maxfreq*dt);
 maxscale = f0/(minfreq*dt);
 minscale = floor(NumVoices*log2(minscale));
 maxscale = ceil(NumVoices*log2(maxscale));
-% scales = a0.^(minscale:maxscale).*dt;
+scales = a0.^(minscale:maxscale).*dt;
 
 % notch60HzFilt = designfilt('bandstopiir','FilterOrder',2, ...
 %     'HalfPowerFrequency1',59,'HalfPowerFrequency2',61, ...
