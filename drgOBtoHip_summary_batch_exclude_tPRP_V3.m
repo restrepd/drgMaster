@@ -128,7 +128,7 @@ if nargin==0
 [choiceFileName,choiceBatchPathName] = uigetfile({'drgbChoicesOBtoHIP*.m'},'Select the .m file with all the choices for analysis');
 
 end
-
+ 
 fprintf(1, ['\ndrgOBtoHIP_batch_tPRP run for ' choiceFileName '\n\n']);
 
 addpath(choiceBatchPathName)
@@ -185,6 +185,7 @@ groups=unique(handles.group_no);
 %--------------------------------------------------------------------------
 
 % %This is the order for plotting the data
+
 % %weeks 1 and 2 collapsed
 % these_trials(1).trials=[1 3]; %pre weeks 1&2
 % these_trials(2).trials=[2 4]; %post weeks 1&2
@@ -193,16 +194,17 @@ groups=unique(handles.group_no);
 % these_trials(5).trials=7; %pre week4
 % these_trials(6).trials=8; %post week4
 
-%This is the order for plotting the data
-%weeks 1 and 2 collapsed
-these_trials(1).trials=1; %pre weeks 1
-these_trials(2).trials=2; %post weeks 1
-these_trials(3).trials=3; %pre week3
-these_trials(4).trials=4; %post week3
+%Each week separate
+these_trials(1).trials=1; %pre week 1
+these_trials(2).trials=2; %post week 1
+these_trials(3).trials=3; %pre week2
+these_trials(4).trials=4; %post week2
 these_trials(5).trials=5; %pre week3
 these_trials(6).trials=6; %post week3
 these_trials(7).trials=7; %pre week4
 these_trials(8).trials=8; %post week4
+
+
 
 
 %Do hippocampus
@@ -792,7 +794,2389 @@ mdl = fitglm(tbl,'tPRP~group+pre_post+week+group*pre_post*week'...
  
 
 fprintf(1, ['\n\nRanksum or t-test for trough delta tPRP olfactory bulb \n'])
+
+
+%Plot only post for the first three weeks
+% these_trials(1).trials=1; %pre weeks 1
+these_trials=[];
+these_trials(1).trials=2; %post weeks 1
+% these_trials(3).trials=3; %pre week2
+these_trials(2).trials=4; %post week2
+% these_trials(5).trials=5; %pre week3
+these_trials(3).trials=6; %post week3
+% these_trials(7).trials=7; %pre week4
+% these_trials(8).trials=8; %post week4
+
+
+
+
+%Do hippocampus
+ii_electrodes=[1 2]; %This HIP
+
+%Peak
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Delta Peak tPRP by Trial - Hippocampus']);
+ylabel('Delta tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+
+per_week=[];
+
+for ii=1:length(these_trials)
+
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        ii_indx=ii;
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
  
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_peakPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse((time >= t_ref_end) & (time <= t_laser_end))) - ...
+                                mean(log_P_timecourse(time <= t_ref_end));
+
+                           
+                            these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                           
+                        end
+                    end
+                    % end
+                end
+            
+            end
+
+            if ii==3
+                if (groupNo==1)
+                    mean_under_null_hyporthesis=mean(these_delta_tPRP_post);
+                    sd1=std(these_delta_tPRP_post);
+                else
+                    sd2=std(these_delta_tPRP_post);
+                    mean_under_alternate_hyporthesis=mean(these_delta_tPRP_post);
+                end
+            end
+
+            per_week(ii).group(groupNo).these_delta_tPRP_post=these_delta_tPRP_post;
+
+            % Plotting
+            % bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+            % CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+            % plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+        % 
+        % x_pos=x_pos+1;
+ 
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        % for jj=1:length(these_delta_tPRP_pre)
+        %     plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+        %     plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+        %     plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        % end
+
+        x_pos=x_pos+1;
+        % 
+        % %Enter data for glm
+        % glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        % glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        % % glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        % glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        % glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        % glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=ii;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        % ii_tPRP=ii_tPRP+1;
+        % tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        % tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+ 
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} '  ' week_group_label{ii}];            
+
+    end
+    x_pos=x_pos+1;
+end 
+
+for ii=1:length(per_week(1).group(1).these_delta_tPRP_post)
+    for jj=1:3
+        plot(3*(jj-1),per_week(jj).group(1).these_delta_tPRP_post,'ok','MarkerSize',5,'MarkerFaceColor','k')
+    end
+
+    for jj=1:2
+        plot([3*(jj-1) 3*jj],[per_week(jj).group(1).these_delta_tPRP_post(ii) per_week(jj+1).group(1).these_delta_tPRP_post(ii)],'-','LineWidth',1,'Color',our_colors(1).color)
+    end
+end
+
+for ii=1:length(per_week(1).group(2).these_delta_tPRP_post)
+    for jj=1:3
+        plot(3*(jj-1)+1,per_week(jj).group(2).these_delta_tPRP_post,'ok','MarkerSize',5,'MarkerFaceColor','k')
+    end
+
+    for jj=1:2
+        plot([3*(jj-1)+1 3*jj+1],[per_week(jj).group(2).these_delta_tPRP_post(ii) per_week(jj+1).group(2).these_delta_tPRP_post(ii)],'-','LineWidth',1,'Color',our_colors(2).color)
+    end
+end
+
+xticks([0.5 3.5 6.5]);
+xticklabels({'Week 1', 'Week 2', 'Week 3'})
+ylim([-1 5])
+% for ii=1:3
+%     text(-0.5+3*(ii-1), 4.5, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+% end
+% text(-0.5, 5.5, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
+% text(5, 5.5, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
+% text(9.5, 5.5, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
+text(5,3,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(5,2.5,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for peak delta tPRP hippocampus\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','week'});
+mdl = fitglm(tbl,'tPRP~group+week+group*week'...
+    ,'CategoricalVars',[2,3])
+
+
+fprintf(1, ['\n\nRanksum or t-test for peak delta tPRP hippocampus \n'])
+%Now do the ranksums
+output_data = drgMutiRanksumorTtest(tPRP_data);
+
+%Calculate the sample size
+% Parameters
+mu0 = mean_under_null_hyporthesis; % Mean under null hypothesis
+if sd1>sd2
+    sigma = sd1; % Standard deviation
+else
+    sigma=sd2;
+end
+mu1 = mean_under_alternate_hyporthesis; % Mean under alternative hypothesis
+power = 0.80; % Desired power
+
+% Calculate required sample size
+n = sampsizepwr('t', [mu0 sigma], mu1, power);
+fprintf(1,['\nRequired sample size for peak delta tPRP hippocampus: ', num2str(n) '\n']);
+
+%Now do olfactory bulb
+ii_electrodes=[3 4]; %This OB
+
+%Peak
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Delta Peak tPRP by Trial - Olfactory bulb']);
+ylabel('Delta tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+
+per_week=[];
+
+for ii=1:length(these_trials)
+
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        ii_indx=ii;
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_peakPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse((time >= t_ref_end) & (time <= t_laser_end))) - ...
+                                mean(log_P_timecourse(time <= t_ref_end));
+
+                           
+                            these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                            if (delta_tPRP>5)&(ii==3)
+                                pfft=1;
+                            end
+                            if (groupNo==1)&(delta_tPRP>4)&(ii==1)
+                                pfft=1;
+                            end
+                        end
+                    end
+                    % end
+                end
+  
+            end
+            if ii==3
+                if (groupNo==1)
+                    mean_under_null_hyporthesis=mean(these_delta_tPRP_post);
+                    sd1=std(these_delta_tPRP_post);
+                else
+                    sd2=std(these_delta_tPRP_post);
+                    mean_under_alternate_hyporthesis=mean(these_delta_tPRP_post);
+                end
+            end
+
+            per_week(ii).group(groupNo).these_delta_tPRP_post=these_delta_tPRP_post;
+
+        % Plotting
+        % bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        % CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        % plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+        % 
+        % x_pos=x_pos+1;
+ 
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        % for jj=1:length(these_delta_tPRP_pre)
+        %     plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+        %     plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+        %     plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        % end
+
+        x_pos=x_pos+1;
+        % 
+        % %Enter data for glm
+        % glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        % glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        % % glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        % glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        % glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        % glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=ii;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        % ii_tPRP=ii_tPRP+1;
+        % tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        % tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+ 
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} '  ' week_group_label{ii}];            
+
+    end
+    x_pos=x_pos+1;
+end 
+
+for ii=1:length(per_week(1).group(1).these_delta_tPRP_post)
+    for jj=1:3
+        plot(3*(jj-1),per_week(jj).group(1).these_delta_tPRP_post,'ok','MarkerSize',5,'MarkerFaceColor','k')
+    end
+
+    for jj=1:2
+        plot([3*(jj-1) 3*jj],[per_week(jj).group(1).these_delta_tPRP_post(ii) per_week(jj+1).group(1).these_delta_tPRP_post(ii)],'-','LineWidth',1,'Color',our_colors(1).color)
+    end
+end
+
+for ii=1:length(per_week(1).group(2).these_delta_tPRP_post)
+    for jj=1:3
+        plot(3*(jj-1)+1,per_week(jj).group(2).these_delta_tPRP_post,'ok','MarkerSize',5,'MarkerFaceColor','k')
+    end
+
+    for jj=1:2
+        plot([3*(jj-1)+1 3*jj+1],[per_week(jj).group(2).these_delta_tPRP_post(ii) per_week(jj+1).group(2).these_delta_tPRP_post(ii)],'-','LineWidth',1,'Color',our_colors(2).color)
+    end
+end
+xticks([0.5 3.5 6.5]);
+xticklabels({'Week 1', 'Week 2', 'Week 3'})
+ylim([-1 8])
+% for ii=1:3
+%     text(-0.5+3*(ii-1), 8, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+% end
+% text(-0.5, 5.5, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
+% text(5, 5.5, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
+% text(9.5, 5.5, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
+text(-0.5,7,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(-0.5,6.5,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for peak delta tPRP olfactory bulb\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','week'});
+mdl = fitglm(tbl,'tPRP~group+week+group*week'...
+    ,'CategoricalVars',[2,3])
+
+
+fprintf(1, ['\n\nRanksum or t-test for peak delta tPRP olfactory bulb \n'])
+%Now do the ranksums
+output_data = drgMutiRanksumorTtest(tPRP_data);
+
+%Calculate the sample size
+% Parameters
+mu0 = mean_under_null_hyporthesis; % Mean under null hypothesis
+if sd1>sd2
+    sigma = sd1; % Standard deviation
+else
+    sigma=sd2;
+end
+mu1 = mean_under_alternate_hyporthesis; % Mean under alternative hypothesis
+power = 0.80; % Desired power
+
+% Calculate required sample size
+n = sampsizepwr('t', [mu0 sigma], mu1, power);
+fprintf(1,['\nRequired sample size for peak delta tPRP olfactory bulb: ', num2str(n) '\n']);
+
+ 
+
+
+
+%--------------------------------------------------------------------------
+% Graph 1 & 2: Pre Laser Peak/Trough tPRP for HIP
+%--------------------------------------------------------------------------
+
+% %This is the order for plotting the data
+
+% %weeks 1 and 2 collapsed
+% these_trials(1).trials=[1 3]; %pre weeks 1&2
+% these_trials(2).trials=[2 4]; %post weeks 1&2
+% these_trials(3).trials=5; %pre week3
+% these_trials(4).trials=6; %post week3
+% these_trials(5).trials=7; %pre week4
+% these_trials(6).trials=8; %post week4
+
+%Each week separate
+these_trials(1).trials=1; %pre week 1
+these_trials(2).trials=2; %post week 1
+these_trials(3).trials=3; %pre week2
+these_trials(4).trials=4; %post week2
+these_trials(5).trials=5; %pre week3
+these_trials(6).trials=6; %post week3
+these_trials(7).trials=7; %pre week4
+these_trials(8).trials=8; %post week4
+
+
+
+
+%Do hippocampus
+ii_electrodes=[1 2]; %This HIP
+
+%Peak
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Pre Laser Peak tPRP by Trial - Hippocampus']);
+ylabel('tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+
+for ii=1:2:length(these_trials)-1
+    
+    week_group=floor(ii/2)+1;
+
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        for ii_indx=ii:ii+1
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_peakPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse(time <= t_ref_end));
+
+                            if (sum(handles.session_no(fileNo) == these_trials(ii).trials)>0)
+                                %Pre
+                                these_delta_tPRP_pre = [these_delta_tPRP_pre, delta_tPRP];
+                            else
+                                %Post
+                                these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                            end
+                        end
+                    end
+                    % end
+                end
+            end
+        end
+
+        % Plotting
+        bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+        x_pos=x_pos+1;
+
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        for jj=1:length(these_delta_tPRP_pre)
+            plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        end
+
+        x_pos=x_pos+1;
+
+        %Enter data for glm
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Post  ' week_group_label{week_group}];            
+
+    end
+    x_pos=x_pos+1;
+end
+xticks([0 1 2 3 5 6 7 8 10 11 12 13]);
+xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post',...
+    'Pre', 'Post', 'Pre', 'Post' });
+% ylim([-8 7])
+for ii=1:length(week_group_label)
+    text(-0.5+5*(ii-1), 5.5, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
+% text(-0.5, 5.5, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
+% text(5, 5.5, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
+% text(9.5, 5.5, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
+text(11,-4,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(11,-5,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for peak pre laser tPRP hippocampus\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.pre_post',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','pre_post','week'});
+mdl = fitglm(tbl,'tPRP~group+pre_post+week+group*pre_post*week'...
+    ,'CategoricalVars',[2,3,4])
+
+
+fprintf(1, ['\n\nRanksum or t-test for peak delta tPRP hippocampus \n'])
+%Now do the ranksums
+output_data = drgMutiRanksumorTtest(tPRP_data);
+
+%Trough
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Pre Laser tPRP by Trial - Hippocampus']);
+ylabel('tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+
+for ii=1:2:length(these_trials)-1
+    week_group=floor(ii/2)+1;
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        for ii_indx=ii:ii+1
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_troughPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse(time <= t_ref_end));
+
+                            if (sum(handles.session_no(fileNo) == these_trials(ii).trials)>0)
+                                %Pre
+                                these_delta_tPRP_pre = [these_delta_tPRP_pre, delta_tPRP];
+                            else
+                                %Post
+                                these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                            end
+                        end
+                    end
+                    % end
+                end
+            end
+        end
+
+        % Plotting
+
+
+        bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+        x_pos=x_pos+1;
+
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        for jj=1:length(these_delta_tPRP_pre)
+            plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        end
+
+        x_pos=x_pos+1;
+
+            %Enter data for glm
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Post  ' week_group_label{week_group}]; 
+    end
+    x_pos=x_pos+1;
+end
+
+xticks([0 1 2 3 5 6 7 8 10 11 12 13]);
+xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post',...
+    'Pre', 'Post', 'Pre', 'Post' });
+% ylim([-8 7])
+for ii=1:length(week_group_label)
+    text(-0.5+5*(ii-1), 5.5, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
+text(11,-4,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(11,-5,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for trough delta tPRP hippocampus\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.pre_post',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','pre_post','week'});
+mdl = fitglm(tbl,'tPRP~group+pre_post+week+group*pre_post*week'...
+    ,'CategoricalVars',[2,3,4])
+
+
+fprintf(1, ['\n\nRanksum or t-test for trough delta tPRP hippocampus \n'])
+%Now do the ranksums
+output_data = drgMutiRanksumorTtest(tPRP_data);
+
+%Now do olfactory bulb
+ii_electrodes=[3 4]; %This OB
+
+%Peak
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Pre Laser Peak tPRP by Trial - OB']);
+ylabel('tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+ 
+for ii=1:2:length(these_trials)-1
+    week_group=floor(ii/2)+1;
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        for ii_indx=ii:ii+1
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_peakPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse(time <= t_ref_end));
+
+                            if (sum(handles.session_no(fileNo) == these_trials(ii).trials)>0)
+                                %Pre
+                                these_delta_tPRP_pre = [these_delta_tPRP_pre, delta_tPRP];
+                            else
+                                %Post
+                                these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                                if (delta_tPRP>6)&(ii_indx>2)
+                                    pffft=1; %I will use this one as an example
+                                end
+                            end
+                        end
+                    end
+                    % end
+                end
+            end
+        end
+
+        % Plotting
+
+
+        bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+        x_pos=x_pos+1;
+
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        for jj=1:length(these_delta_tPRP_pre)
+            plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        end
+
+        x_pos=x_pos+1;
+
+            %Enter data for glm
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Post  ' week_group_label{week_group}]; 
+    end
+    x_pos=x_pos+1;
+end
+xticks([0 1 2 3 5 6 7 8 10 11 12 13]);
+xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post',...
+    'Pre', 'Post', 'Pre', 'Post' });
+% ylim([-6 12])
+for ii=1:length(week_group_label)
+    text(-0.5+5*(ii-1), 10, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
+text(11,-2,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(11,-3,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for peak delta tPRP olfactory bulb\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.pre_post',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','pre_post','week'});
+mdl = fitglm(tbl,'tPRP~group+pre_post+week+group*pre_post*week'...
+    ,'CategoricalVars',[2,3,4])
+
+
+fprintf(1, ['\n\nRanksum or t-test for peak delta tPRP olfactory bulb \n'])
+
+%Now do the ranksums
+output_data = drgMutiRanksumorTtest(tPRP_data);
+
+%Trough
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Pre Laser Trough tPRP by Trial - OB']);
+ylabel('tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+
+
+for ii=1:2:length(these_trials)-1
+    week_group=floor(ii/2)+1;
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        for ii_indx=ii:ii+1
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_troughPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse(time <= t_ref_end));
+
+                            if (sum(handles.session_no(fileNo) == these_trials(ii).trials)>0)
+                                %Pre
+                                these_delta_tPRP_pre = [these_delta_tPRP_pre, delta_tPRP];
+                            else
+                                %Post
+                                these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                            end
+                        end
+                    end
+                    % end
+                end
+            end
+        end
+
+        % Plotting
+
+
+        bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+        x_pos=x_pos+1;
+
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        for jj=1:length(these_delta_tPRP_pre)
+            plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        end
+
+        x_pos=x_pos+1;
+
+        
+            %Enter data for glm
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Post  ' week_group_label{week_group}]; 
+    end
+    x_pos=x_pos+1;
+end
+xticks([0 1 2 3 5 6 7 8 10 11 12 13]);
+xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post',...
+    'Pre', 'Post', 'Pre', 'Post' });
+% ylim([-6 12])
+
+for ii=1:length(week_group_label)
+    text(-0.5+5*(ii-1), 10, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
+text(11,-2,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(11,-3,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for trough delta tPRP olfactory bulb\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.pre_post',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','pre_post','week'});
+mdl = fitglm(tbl,'tPRP~group+pre_post+week+group*pre_post*week'...
+    ,'CategoricalVars',[2,3,4])
+ 
+
+fprintf(1, ['\n\nRanksum or t-test for trough delta tPRP olfactory bulb \n'])
+
+
+%Plot only post for the first three weeks
+% these_trials(1).trials=1; %pre weeks 1
+these_trials=[];
+these_trials(1).trials=2; %post weeks 1
+% these_trials(3).trials=3; %pre week2
+these_trials(2).trials=4; %post week2
+% these_trials(5).trials=5; %pre week3
+these_trials(3).trials=6; %post week3
+% these_trials(7).trials=7; %pre week4
+% these_trials(8).trials=8; %post week4
+
+
+
+
+%Do hippocampus
+ii_electrodes=[1 2]; %This HIP
+
+%Peak
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Peak pre laser tPRP by Trial - Hippocampus']);
+ylabel('tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+
+per_week=[];
+
+for ii=1:length(these_trials)
+
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        ii_indx=ii;
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_peakPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse(time <= t_ref_end));
+
+                           
+                            these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                           
+                        end
+                    end
+                    % end
+                end
+            
+            end
+
+            per_week(ii).group(groupNo).these_delta_tPRP_post=these_delta_tPRP_post;
+
+             if ii==3
+                if (groupNo==1)
+                    mean_under_null_hyporthesis=mean(these_delta_tPRP_post);
+                    sd1=std(these_delta_tPRP_post);
+                else
+                    sd2=std(these_delta_tPRP_post);
+                    mean_under_alternate_hyporthesis=mean(these_delta_tPRP_post);
+                end
+            end
+        % Plotting
+        % bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        % CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        % plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+        % 
+        % x_pos=x_pos+1;
+ 
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        % for jj=1:length(these_delta_tPRP_pre)
+        %     plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+        %     plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+        %     plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        % end
+
+        x_pos=x_pos+1;
+        % 
+        % %Enter data for glm
+        % glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        % glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        % % glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        % glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        % glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        % glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=ii;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        % ii_tPRP=ii_tPRP+1;
+        % tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        % tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+ 
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} '  ' week_group_label{ii}];            
+
+    end
+    x_pos=x_pos+1;
+end 
+
+for ii=1:length(per_week(1).group(1).these_delta_tPRP_post)
+    for jj=1:3
+        plot(3*(jj-1),per_week(jj).group(1).these_delta_tPRP_post,'ok','MarkerSize',5,'MarkerFaceColor','k')
+    end
+
+    for jj=1:2
+        plot([3*(jj-1) 3*jj],[per_week(jj).group(1).these_delta_tPRP_post(ii) per_week(jj+1).group(1).these_delta_tPRP_post(ii)],'-','LineWidth',1,'Color',our_colors(1).color)
+    end
+end
+
+for ii=1:length(per_week(1).group(2).these_delta_tPRP_post)
+    for jj=1:3
+        plot(3*(jj-1)+1,per_week(jj).group(2).these_delta_tPRP_post,'ok','MarkerSize',5,'MarkerFaceColor','k')
+    end
+
+    for jj=1:2
+        plot([3*(jj-1)+1 3*jj+1],[per_week(jj).group(2).these_delta_tPRP_post(ii) per_week(jj+1).group(2).these_delta_tPRP_post(ii)],'-','LineWidth',1,'Color',our_colors(2).color)
+    end
+end
+
+xticks([0.5 3.5 6.5]);
+xticklabels({'Week 1', 'Week 2', 'Week 3'})
+ylim([0 70])
+% for ii=1:3
+%     text(-0.5+3*(ii-1), 65, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+% end
+% text(-0.5, 5.5, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
+% text(5, 5.5, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
+% text(9.5, 5.5, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
+text(7,60,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(7,65,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for peak pre laser tPRP hippocampus\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','week'});
+mdl = fitglm(tbl,'tPRP~group+week+group*week'...
+    ,'CategoricalVars',[2,3])
+
+
+fprintf(1, ['\n\nRanksum or t-test for peak delta tPRP hippocampus \n'])
+%Now do the ranksums
+output_data = drgMutiRanksumorTtest(tPRP_data);
+
+%Calculate the sample size
+% Parameters
+mu0 = mean_under_null_hyporthesis; % Mean under null hypothesis
+if sd1>sd2
+    sigma = sd1; % Standard deviation
+else
+    sigma=sd2;
+end
+mu1 = mean_under_alternate_hyporthesis; % Mean under alternative hypothesis
+power = 0.80; % Desired power
+
+% Calculate required sample size
+n = sampsizepwr('t', [mu0 sigma], mu1, power);
+fprintf(1,['\nRequired sample size for peak delta tPRP olfactory bulb: ', num2str(n) '\n']);
+
+%Now do olfactory bulb
+ii_electrodes=[3 4]; %This OB
+
+%Peak
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Pre laser Peak tPRP by Trial - Olfactory bulb']);
+ylabel('tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+
+per_week=[];
+
+for ii=1:length(these_trials)
+
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        ii_indx=ii;
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_peakPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse(time <= t_ref_end));
+
+                           
+                            these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                            if (delta_tPRP>5)&(ii==3)
+                                pfft=1;
+                            end
+                        end
+                    end
+                    % end
+                end
+            
+            end
+
+            per_week(ii).group(groupNo).these_delta_tPRP_post=these_delta_tPRP_post;
+
+             if ii==3
+                if (groupNo==1)
+                    mean_under_null_hyporthesis=mean(these_delta_tPRP_post);
+                    sd1=std(these_delta_tPRP_post);
+                else
+                    sd2=std(these_delta_tPRP_post);
+                    mean_under_alternate_hyporthesis=mean(these_delta_tPRP_post);
+                end
+            end
+        % Plotting
+        % bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        % CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        % plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+        % 
+        % x_pos=x_pos+1;
+ 
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        % for jj=1:length(these_delta_tPRP_pre)
+        %     plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+        %     plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+        %     plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        % end
+
+        x_pos=x_pos+1;
+        % 
+        % %Enter data for glm
+        % glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        % glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        % % glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        % glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        % glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        % glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=ii;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        % ii_tPRP=ii_tPRP+1;
+        % tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        % tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+ 
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} '  ' week_group_label{ii}];            
+
+    end
+    x_pos=x_pos+1;
+end 
+
+for ii=1:length(per_week(1).group(1).these_delta_tPRP_post)
+    for jj=1:3
+        plot(3*(jj-1),per_week(jj).group(1).these_delta_tPRP_post,'ok','MarkerSize',5,'MarkerFaceColor','k')
+    end
+
+    for jj=1:2
+        plot([3*(jj-1) 3*jj],[per_week(jj).group(1).these_delta_tPRP_post(ii) per_week(jj+1).group(1).these_delta_tPRP_post(ii)],'-','LineWidth',1,'Color',our_colors(1).color)
+    end
+end
+
+for ii=1:length(per_week(1).group(2).these_delta_tPRP_post)
+    for jj=1:3
+        plot(3*(jj-1)+1,per_week(jj).group(2).these_delta_tPRP_post,'ok','MarkerSize',5,'MarkerFaceColor','k')
+    end
+
+    for jj=1:2
+        plot([3*(jj-1)+1 3*jj+1],[per_week(jj).group(2).these_delta_tPRP_post(ii) per_week(jj+1).group(2).these_delta_tPRP_post(ii)],'-','LineWidth',1,'Color',our_colors(2).color)
+    end
+end
+xticks([0.5 3.5 6.5]);
+xticklabels({'Week 1', 'Week 2', 'Week 3'})
+ylim([0 70])
+% for ii=1:3
+%     text(-0.5+3*(ii-1), 65, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+% end
+% text(-0.5, 5.5, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
+% text(5, 5.5, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
+% text(9.5, 5.5, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
+text(7,60,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(7,65,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for pre laser peak tPRP olfactory bulb\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','week'});
+mdl = fitglm(tbl,'tPRP~group+week+group*week'...
+    ,'CategoricalVars',[2,3])
+
+
+fprintf(1, ['\n\nRanksum or t-test for peak delta tPRP olfactory bulb \n'])
+%Now do the ranksums
+output_data = drgMutiRanksumorTtest(tPRP_data);
+
+ %Calculate the sample size
+% Parameters
+mu0 = mean_under_null_hyporthesis; % Mean under null hypothesis
+if sd1>sd2
+    sigma = sd1; % Standard deviation
+else
+    sigma=sd2;
+end
+mu1 = mean_under_alternate_hyporthesis; % Mean under alternative hypothesis
+power = 0.80; % Desired power
+
+% Calculate required sample size
+n = sampsizepwr('t', [mu0 sigma], mu1, power);
+fprintf(1,['\nRequired sample size for peak delta tPRP olfactory bulb: ', num2str(n) '\n']);
+
+%--------------------------------------------------------------------------
+% Graph 1 & 2: Laser Peak/Trough tPRP for HIP
+%--------------------------------------------------------------------------
+
+% %This is the order for plotting the data
+
+% %weeks 1 and 2 collapsed
+% these_trials(1).trials=[1 3]; %pre weeks 1&2
+% these_trials(2).trials=[2 4]; %post weeks 1&2
+% these_trials(3).trials=5; %pre week3
+% these_trials(4).trials=6; %post week3
+% these_trials(5).trials=7; %pre week4
+% these_trials(6).trials=8; %post week4
+ 
+%Each week separate
+these_trials(1).trials=1; %pre week 1
+these_trials(2).trials=2; %post week 1
+these_trials(3).trials=3; %pre week2
+these_trials(4).trials=4; %post week2
+these_trials(5).trials=5; %pre week3
+these_trials(6).trials=6; %post week3
+these_trials(7).trials=7; %pre week4
+these_trials(8).trials=8; %post week4
+
+
+
+
+%Do hippocampus
+ii_electrodes=[1 2]; %This HIP
+
+%Peak
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Laser Peak tPRP by Trial - Hippocampus']);
+ylabel('tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+
+for ii=1:2:length(these_trials)-1
+    
+    week_group=floor(ii/2)+1;
+
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        for ii_indx=ii:ii+1
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_peakPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse((time >= t_ref_end) & (time <= t_laser_end)));
+
+                            if (sum(handles.session_no(fileNo) == these_trials(ii).trials)>0)
+                                %Pre
+                                these_delta_tPRP_pre = [these_delta_tPRP_pre, delta_tPRP];
+                            else
+                                %Post
+                                these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                            end
+                        end
+                    end
+                    % end
+                end
+            end
+        end
+
+        % Plotting
+        bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+        x_pos=x_pos+1;
+
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        for jj=1:length(these_delta_tPRP_pre)
+            plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        end
+
+        x_pos=x_pos+1;
+
+        %Enter data for glm
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Post  ' week_group_label{week_group}];            
+
+    end
+    x_pos=x_pos+1;
+end
+xticks([0 1 2 3 5 6 7 8 10 11 12 13]);
+xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post',...
+    'Pre', 'Post', 'Pre', 'Post' });
+% ylim([-8 7])
+for ii=1:length(week_group_label)
+    text(-0.5+5*(ii-1), 5.5, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
+% text(-0.5, 5.5, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
+% text(5, 5.5, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
+% text(9.5, 5.5, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
+text(11,-4,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(11,-5,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for peak pre laser tPRP hippocampus\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.pre_post',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','pre_post','week'});
+mdl = fitglm(tbl,'tPRP~group+pre_post+week+group*pre_post*week'...
+    ,'CategoricalVars',[2,3,4])
+
+
+fprintf(1, ['\n\nRanksum or t-test for peak delta tPRP hippocampus \n'])
+%Now do the ranksums
+output_data = drgMutiRanksumorTtest(tPRP_data);
+
+%Trough
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Laser tPRP by Trial - Hippocampus']);
+ylabel('tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+
+for ii=1:2:length(these_trials)-1
+    week_group=floor(ii/2)+1;
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        for ii_indx=ii:ii+1
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_troughPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse((time >= t_ref_end) & (time <= t_laser_end)));
+
+                            if (sum(handles.session_no(fileNo) == these_trials(ii).trials)>0)
+                                %Pre
+                                these_delta_tPRP_pre = [these_delta_tPRP_pre, delta_tPRP];
+                            else
+                                %Post
+                                these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                            end
+                        end
+                    end
+                    % end
+                end
+            end
+        end
+
+        % Plotting
+
+
+        bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+        x_pos=x_pos+1;
+
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        for jj=1:length(these_delta_tPRP_pre)
+            plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        end
+
+        x_pos=x_pos+1;
+
+            %Enter data for glm
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Post  ' week_group_label{week_group}]; 
+    end
+    x_pos=x_pos+1;
+end
+
+xticks([0 1 2 3 5 6 7 8 10 11 12 13]);
+xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post',...
+    'Pre', 'Post', 'Pre', 'Post' });
+% ylim([-8 7])
+for ii=1:length(week_group_label)
+    text(-0.5+5*(ii-1), 5.5, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
+text(11,-4,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(11,-5,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for trough delta tPRP hippocampus\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.pre_post',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','pre_post','week'});
+mdl = fitglm(tbl,'tPRP~group+pre_post+week+group*pre_post*week'...
+    ,'CategoricalVars',[2,3,4])
+
+
+fprintf(1, ['\n\nRanksum or t-test for trough delta tPRP hippocampus \n'])
+%Now do the ranksums
+output_data = drgMutiRanksumorTtest(tPRP_data);
+
+%Now do olfactory bulb
+ii_electrodes=[3 4]; %This OB
+
+%Peak
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Laser Peak tPRP by Trial - OB']);
+ylabel('tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+ 
+for ii=1:2:length(these_trials)-1
+    week_group=floor(ii/2)+1;
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        for ii_indx=ii:ii+1
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_peakPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse((time >= t_ref_end) & (time <= t_laser_end)));
+
+                            if (sum(handles.session_no(fileNo) == these_trials(ii).trials)>0)
+                                %Pre
+                                these_delta_tPRP_pre = [these_delta_tPRP_pre, delta_tPRP];
+                            else
+                                %Post
+                                these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                                if (delta_tPRP>6)&(ii_indx>2)
+                                    pffft=1; %I will use this one as an example
+                                end
+                            end
+                        end
+                    end
+                    % end
+                end
+            end
+        end
+
+        % Plotting
+
+
+        bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+        x_pos=x_pos+1;
+
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        for jj=1:length(these_delta_tPRP_pre)
+            plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        end
+
+        x_pos=x_pos+1;
+
+            %Enter data for glm
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Post  ' week_group_label{week_group}]; 
+    end
+    x_pos=x_pos+1;
+end
+xticks([0 1 2 3 5 6 7 8 10 11 12 13]);
+xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post',...
+    'Pre', 'Post', 'Pre', 'Post' });
+% ylim([-6 12])
+for ii=1:length(week_group_label)
+    text(-0.5+5*(ii-1), 10, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
+text(11,-2,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(11,-3,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for peak delta tPRP olfactory bulb\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.pre_post',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','pre_post','week'});
+mdl = fitglm(tbl,'tPRP~group+pre_post+week+group*pre_post*week'...
+    ,'CategoricalVars',[2,3,4])
+
+
+fprintf(1, ['\n\nRanksum or t-test for peak delta tPRP olfactory bulb \n'])
+
+%Now do the ranksums
+output_data = drgMutiRanksumorTtest(tPRP_data);
+
+%Trough
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Laser Trough tPRP by Trial - OB']);
+ylabel('tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+
+
+for ii=1:2:length(these_trials)-1
+    week_group=floor(ii/2)+1;
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        for ii_indx=ii:ii+1
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_troughPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse((time >= t_ref_end) & (time <= t_laser_end)));
+
+                            if (sum(handles.session_no(fileNo) == these_trials(ii).trials)>0)
+                                %Pre
+                                these_delta_tPRP_pre = [these_delta_tPRP_pre, delta_tPRP];
+                            else
+                                %Post
+                                these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                            end
+                        end
+                    end
+                    % end
+                end
+            end
+        end
+
+        % Plotting
+
+
+        bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+        x_pos=x_pos+1;
+
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        for jj=1:length(these_delta_tPRP_pre)
+            plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+            plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        end
+
+        x_pos=x_pos+1;
+
+        
+            %Enter data for glm
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=week_group;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Post  ' week_group_label{week_group}]; 
+    end
+    x_pos=x_pos+1;
+end
+xticks([0 1 2 3 5 6 7 8 10 11 12 13]);
+xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post',...
+    'Pre', 'Post', 'Pre', 'Post' });
+% ylim([-6 12])
+
+for ii=1:length(week_group_label)
+    text(-0.5+5*(ii-1), 10, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
+text(11,-2,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(11,-3,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for trough delta tPRP olfactory bulb\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.pre_post',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','pre_post','week'});
+mdl = fitglm(tbl,'tPRP~group+pre_post+week+group*pre_post*week'...
+    ,'CategoricalVars',[2,3,4])
+ 
+
+fprintf(1, ['\n\nRanksum or t-test for trough delta tPRP olfactory bulb \n'])
+
+
+%Plot only post for the first three weeks
+% these_trials(1).trials=1; %pre weeks 1
+these_trials=[];
+these_trials(1).trials=2; %post weeks 1
+% these_trials(3).trials=3; %pre week2
+these_trials(2).trials=4; %post week2
+% these_trials(5).trials=5; %pre week3
+these_trials(3).trials=6; %post week3
+% these_trials(7).trials=7; %pre week4
+% these_trials(8).trials=8; %post week4
+
+
+
+
+%Do hippocampus
+ii_electrodes=[1 2]; %This HIP
+
+%Peak
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Peak laser tPRP by Trial - Hippocampus']);
+ylabel('tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+
+per_week=[];
+
+for ii=1:length(these_trials)
+
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        ii_indx=ii;
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_peakPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse((time >= t_ref_end) & (time <= t_laser_end)));
+
+                           
+                            these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                           
+                        end
+                    end
+                    % end
+                end
+            
+            end
+
+            per_week(ii).group(groupNo).these_delta_tPRP_post=these_delta_tPRP_post;
+
+        % Plotting
+        % bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        % CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        % plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+        % 
+        % x_pos=x_pos+1;
+ 
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        % for jj=1:length(these_delta_tPRP_pre)
+        %     plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+        %     plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+        %     plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        % end
+
+        x_pos=x_pos+1;
+        % 
+        % %Enter data for glm
+        % glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        % glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        % % glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        % glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        % glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        % glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=ii;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        % ii_tPRP=ii_tPRP+1;
+        % tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        % tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+ 
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} '  ' week_group_label{ii}];            
+
+    end
+    x_pos=x_pos+1;
+end 
+
+for ii=1:length(per_week(1).group(1).these_delta_tPRP_post)
+    for jj=1:3
+        plot(3*(jj-1),per_week(jj).group(1).these_delta_tPRP_post,'ok','MarkerSize',5,'MarkerFaceColor','k')
+    end
+
+    for jj=1:2
+        plot([3*(jj-1) 3*jj],[per_week(jj).group(1).these_delta_tPRP_post(ii) per_week(jj+1).group(1).these_delta_tPRP_post(ii)],'-','LineWidth',1,'Color',our_colors(1).color)
+    end
+end
+
+for ii=1:length(per_week(1).group(2).these_delta_tPRP_post)
+    for jj=1:3
+        plot(3*(jj-1)+1,per_week(jj).group(2).these_delta_tPRP_post,'ok','MarkerSize',5,'MarkerFaceColor','k')
+    end
+
+    for jj=1:2
+        plot([3*(jj-1)+1 3*jj+1],[per_week(jj).group(2).these_delta_tPRP_post(ii) per_week(jj+1).group(2).these_delta_tPRP_post(ii)],'-','LineWidth',1,'Color',our_colors(2).color)
+    end
+end
+
+xticks([0 1 2 3 5 6 7 ]);
+xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post'})
+% ylim([-1 5])
+for ii=1:3
+    text(-0.5+3*(ii-1), 4.5, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
+% text(-0.5, 5.5, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
+% text(5, 5.5, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
+% text(9.5, 5.5, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
+text(5,3,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(5,2.5,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for peak pre laser tPRP hippocampus\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','week'});
+mdl = fitglm(tbl,'tPRP~group+week+group*week'...
+    ,'CategoricalVars',[2,3])
+
+
+fprintf(1, ['\n\nRanksum or t-test for peak delta tPRP hippocampus \n'])
+%Now do the ranksums
+output_data = drgMutiRanksumorTtest(tPRP_data);
+
+%Now do olfactory bulb
+ii_electrodes=[3 4]; %This OB
+
+%Peak
+figNo = figNo + 1;
+hFig = figure(figNo);
+set(hFig, 'units', 'normalized', 'position', [.1 .1 .4 .4]); % Adjust figure size
+hold on
+
+title(['Laser Peak tPRP by Trial - Olfactory bulb']);
+ylabel('tPRP (dB)');
+
+% these_trials(1).trials=[1 2];
+% these_trials(2).trials=[5 6];
+% these_trials(3).trials=3;
+% these_trials(4).trials=7;
+% these_trials(5).trials=4;
+% these_trials(6).trials=8;
+
+x_pos=0;
+
+glm_tPRP=[];
+glm_tPRP_ii=0;
+
+tPRP_data=[];
+ii_tPRP=0;
+
+per_week=[];
+
+for ii=1:length(these_trials)
+
+    for groupNo = 1:length(groups)
+        % Collect data for this group and trial
+        these_delta_tPRP_pre = [];
+        these_delta_tPRP_post = [];
+
+        ii_indx=ii;
+            for fileNo = 1:handles.no_files
+                if (handles.group_no(fileNo) == groupNo)&(sum(handles.session_no(fileNo) == these_trials(ii_indx).trials)>0)
+
+                    %  %Check if this file contains the appropriate week number
+                    %  file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                    %
+                    % %Skip files from the wrong week
+                    %  if file_week_number ~= week_number
+                    %      continue;
+                    %  end
+
+                    this_filename = handles.FileName{fileNo};
+                    FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
+ 
+                    % if exist([PathName_out FileName_out], 'file') %Take out
+                    load([PathName_out FileName_out]);
+
+                    for ii_electrode=ii_electrodes
+                        add_electrode = (sum(handles.file(fileNo).exclude_electrodes==actual_electrode(ii_electrode))==0);
+
+                        if add_electrode
+                            log_P_timecourse = handles_out.electrode(ii_electrode).handles_out.mean_peakPower;
+                            time = handles_out.electrode(ii_electrode).handles_out.time;
+
+                            % Calculate delta tPRP (Laser - Pre)
+                            delta_tPRP = mean(log_P_timecourse((time >= t_ref_end) & (time <= t_laser_end)));
+
+                           
+                            these_delta_tPRP_post = [these_delta_tPRP_post, delta_tPRP];
+                            if (delta_tPRP>5)&(ii==3)
+                                pfft=1;
+                            end
+                        end
+                    end
+                    % end
+                end
+            
+            end
+
+            per_week(ii).group(groupNo).these_delta_tPRP_post=these_delta_tPRP_post;
+
+        % Plotting
+        % bar(x_pos, mean(these_delta_tPRP_pre), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        % CI_points=bootci(1000, @mean, these_delta_tPRP_pre);
+        % plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+        % 
+        % x_pos=x_pos+1;
+ 
+
+        bar(x_pos, mean(these_delta_tPRP_post), 0.8, 'FaceColor', our_colors(groupNo).color, 'EdgeColor', 'none'); % Use group color
+        CI_points=bootci(1000, @mean, these_delta_tPRP_post);
+        plot([x_pos x_pos],CI_points,'-k','LineWidth',3)
+
+
+        % for jj=1:length(these_delta_tPRP_pre)
+        %     plot(x_pos-1,these_delta_tPRP_pre(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+        %     plot(x_pos,these_delta_tPRP_post(jj),'ok','MarkerSize',5,'MarkerFaceColor','k')
+        %     plot([x_pos-1 x_pos],[these_delta_tPRP_pre(jj) these_delta_tPRP_post(jj)],'-k','LineWidth',1)
+        % end
+
+        x_pos=x_pos+1;
+        % 
+        % %Enter data for glm
+        % glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=these_delta_tPRP_pre;
+        % glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=groupNo;
+        % % glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=1;
+        % glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_pre))=week_group;
+        % glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_pre);
+
+        glm_tPRP.data(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=these_delta_tPRP_post;
+        glm_tPRP.group(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=groupNo;
+        % glm_tPRP.pre_post(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=2;
+        glm_tPRP.week(glm_tPRP_ii+1:glm_tPRP_ii+length(these_delta_tPRP_post))=ii;
+        glm_tPRP_ii=glm_tPRP_ii+length(these_delta_tPRP_post);
+
+        %Enter the data for t-test/ranksum
+        % ii_tPRP=ii_tPRP+1;
+        % tPRP_data(ii_tPRP).data=these_delta_tPRP_pre;
+        % tPRP_data(ii_tPRP).description=[group_label{groupNo} ' Pre  ' week_group_label{week_group}];
+ 
+        ii_tPRP=ii_tPRP+1;
+        tPRP_data(ii_tPRP).data=these_delta_tPRP_post;
+        tPRP_data(ii_tPRP).description=[group_label{groupNo} '  ' week_group_label{ii}];            
+
+    end
+    x_pos=x_pos+1;
+end 
+
+for ii=1:length(per_week(1).group(1).these_delta_tPRP_post)
+    for jj=1:3
+        plot(3*(jj-1),per_week(jj).group(1).these_delta_tPRP_post,'ok','MarkerSize',5,'MarkerFaceColor','k')
+    end
+
+    for jj=1:2
+        plot([3*(jj-1) 3*jj],[per_week(jj).group(1).these_delta_tPRP_post(ii) per_week(jj+1).group(1).these_delta_tPRP_post(ii)],'-','LineWidth',1,'Color',our_colors(1).color)
+    end
+end
+
+for ii=1:length(per_week(1).group(2).these_delta_tPRP_post)
+    for jj=1:3
+        plot(3*(jj-1)+1,per_week(jj).group(2).these_delta_tPRP_post,'ok','MarkerSize',5,'MarkerFaceColor','k')
+    end
+
+    for jj=1:2
+        plot([3*(jj-1)+1 3*jj+1],[per_week(jj).group(2).these_delta_tPRP_post(ii) per_week(jj+1).group(2).these_delta_tPRP_post(ii)],'-','LineWidth',1,'Color',our_colors(2).color)
+    end
+end
+xticks([0 1 2 3 5 6 7 ]);
+xticklabels({'Pre', 'Post', 'Pre', 'Post', 'Pre', 'Post'})
+% ylim([-1 9])
+for ii=1:3
+    text(-0.5+3*(ii-1), 8, week_group_label{ii}, 'FontSize', 14, 'FontWeight', 'bold')
+end
+% text(-0.5, 5.5, 'Exo Weeks 1&2', 'FontSize', 14, 'FontWeight', 'bold')
+% text(5, 5.5, 'Exo Week 3', 'FontSize', 14, 'FontWeight', 'bold')
+% text(9.5, 5.5, 'Poly dA:dT Week 4', 'FontSize', 14, 'FontWeight', 'bold')
+text(-0.5,7,'Mock', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(1).color)
+text(-0.5,6.5,'VZV', 'FontSize', 14, 'FontWeight', 'bold', 'Color',our_colors(2).color)
+
+%Now do the glm
+fprintf(1, ['\n\nglm for pre laser peak tPRP hippocampus\n'])
+tbl = table(glm_tPRP.data',glm_tPRP.group',glm_tPRP.week',...
+    'VariableNames',{'tPRP','group','week'});
+mdl = fitglm(tbl,'tPRP~group+week+group*week'...
+    ,'CategoricalVars',[2,3])
+
+
+fprintf(1, ['\n\nRanksum or t-test for peak delta tPRP hippocampus \n'])
+%Now do the ranksums
+output_data = drgMutiRanksumorTtest(tPRP_data);
+
+%--------------------------------------------------------------------------
+% Graph 1 & 2: Delta Peak/Trough tPRP by Trial (Pre/Post Weeks)
+%--------------------------------------------------------------------------
+
 %--------------------------------------------------------------------------
 % Graph 1 & 2: Delta Peak/Trough tPRP by Trial (Pre/Post Weeks)
 %--------------------------------------------------------------------------
@@ -1046,7 +3430,7 @@ if these_plots_shown(5) == 1
             subplot(1, 2,2 );
             title(['tPRP Trough by Trial pre Laser- ' handles.electrode_label{handles.peakLFPNo(ii_electrode)}]);
             hold on
-       
+       week_numbers=[1 1 2 2 3 3 4 4];
         for trial_idx = 1:length(trials)
             trial_name = trials{trial_idx};
 
@@ -1062,7 +3446,7 @@ if these_plots_shown(5) == 1
                 for fileNo = 1:handles.no_files
                       if (handles.group_no(fileNo) == groupNo)&(handles.session_no(fileNo) == trial_idx)
                         this_filename = handles.FileName{fileNo};
-                         file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                         file_week_number = week_numbers(trial_idx); %Assumes you have a week_number field in your handles.file struct
 
                         FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
 
@@ -1201,7 +3585,7 @@ if these_plots_shown(5) == 1
                 for fileNo = 1:handles.no_files
                       if (handles.group_no(fileNo) == groupNo)&(handles.session_no(fileNo) == trial_idx)
                         this_filename = handles.FileName{fileNo};
-                         file_week_number = handles.file(fileNo).week_number; %Assumes you have a week_number field in your handles.file struct
+                         file_week_number = week_numbers(trial_idx); %Assumes you have a week_number field in your handles.file struct
 
                         FileName_out = ['OBtoHIPtPRP_' this_filename(11:end)];
 

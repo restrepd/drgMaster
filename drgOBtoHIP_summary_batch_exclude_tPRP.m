@@ -4,7 +4,8 @@ function drgOBtoHIP_summary_batch_exclude_tPRP(choiceBatchPathName,choiceFileNam
 close all
 clear all
 
-PathName_out='/Users/restrepd/Documents/Projects/Joe_OB_to_hippo/Exosomes/';
+% PathName_out='/Users/restrepd/Documents/Projects/Joe_OB_to_hippo/Exosomes/';
+PathName_out='/Users/restrepd/Documents/Projects/JoeV/5xFADvsWT_1_hour_treatmentVsnone/OBtoHIP_out/';
 
 first_file=1;
 

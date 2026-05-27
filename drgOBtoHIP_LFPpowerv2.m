@@ -43,8 +43,8 @@ if exist('handles')==0
     % handles.ii_laser_start=770;
     % handles.ii_laser_end=5700;
 
-    %Used for the grant ChR2 WT
-    % handles.jtPathNames{1}='/Volumes/Diego HD/Joe/Optogenetics/5xFADvsWT_1_hour_treatmentVsnone/Curley_WT_Treated/20240206_WT_Curley_Tx_2/20240206_WT_Curley_Tx_2_240206_120854/';
+    % %Used for the 2024 grant progress report ChR2 WT
+    % handles.jtPathNames{1}='/Volumes/Diego HD/JoeV_Optogenetics/20240206_WT_Curley_Tx_2/20240206_WT_Curley_Tx_2_240206_120854/';
     % handles.jtFileNames{1}='jt_times_20240206_WT_Curley_Tx_2_240206_120854.mat';
 
     % %Used for the grant no ChR2 WT
@@ -62,10 +62,21 @@ if exist('handles')==0
     % handles.jtPathNames{1}='/Volumes/Diego Mac Drive/5xFADvsWT_1_hour_treatmentVsnone/N_4/Lyra 5xFAD WT Tx/20240819_Lyra_Day1_Tx/20240819_Lyra_Day1_Tx_1_240819_094218/';
     % handles.jtFileNames{1}='jt_times_20240819_Lyra_Day1_Tx_1_240819_094218.mat';
 
-    %Post week 2 202501117
-    %Lyra day 1
-    handles.jtPathNames{1}='/Users/restrepd/Documents/Projects/JoeV/Exosomes/20250117_Mouse4 VZV_250117_094111/';
-    handles.jtFileNames{1}='jt_times_20250117_Mouse4 VZV_250117_094111.mat';
+    %Exo Post Week 1 20250110_Mouse1 VZV
+    handles.jtPathNames{1}='/Users/restrepd/Documents/Projects/JoeV/Exosomes/Post Week 1/20250110_Mouse1_CC611312_VZV_250110_144045/';
+    handles.jtFileNames{1}='jt_times_20250110_Mouse1_CC611312_VZV_250110_144045.mat';
+
+    %Exo Post Week 3 20250124_Mouse1 VZV
+    handles.jtPathNames{2}='/Users/restrepd/Documents/Projects/JoeV/Exosomes/Post Week 3/20250124_Mouse1_CC611312_VZV_250124_095041/';
+    handles.jtFileNames{2}='jt_times_20250124_Mouse1_CC611312_VZV_250124_095041.mat';
+
+    %Exo Post Week 1 20250110_Mouse1 Mock
+    handles.jtPathNames{3}='/Users/restrepd/Documents/Projects/JoeV/Exosomes/Post Week 1/20250110_Mouse1_Mock_250110_131659/';
+    handles.jtFileNames{3}='jt_times_20250110_Mouse1_Mock_250110_131659.mat';
+
+    %Exo Post Week 3 20250124_Mouse1 Mock
+    handles.jtPathNames{4}='/Users/restrepd/Documents/Projects/JoeV/Exosomes/Post Week 3/20250124_Mouse1_Mock_250124_082333/';
+    handles.jtFileNames{4}='jt_times_20250124_Mouse1_Mock_250124_082333.mat';
 
     %
     % handles.laser_start_time=5; %Start time in minutes
@@ -82,6 +93,7 @@ if exist('handles')==0
     % handles.jtFileNames{1}=jtFileName;
 
     handles.showData=1;
+    handles.deltaLogP_for_caxis=40;
   
 end
 
@@ -242,12 +254,12 @@ if handles.showData==1
     
     if handles.autoscale==1
         maxLogPper=prctile(log_P_timecourse(:),99);
-        minLogPper=prctile(log_P_timecourse(:),1);
+        % minLogPper=prctile(log_P_timecourse(:),1);
         %Note: Diego added this on purpose to limit the range to 10 dB
         %This results in emphasizing changes in the top 10 dB
-        if maxLogPper-minLogPper>16
-            minLogPper=maxLogPper-16;
-        end
+        
+        minLogPper=maxLogPper-handles.deltaLogP_for_caxis;
+        
     else
         maxLogPper=handles.maxLogP;
         minLogPper=handles.minLogP;
@@ -281,6 +293,9 @@ if handles.showData==1
 
     fig_file_name=[jtPathName 'figures/spectrogram' num2str(handles.peakLFPNo) '.fig'];
     savefig(fig_file_name)
+
+    save_file_name=[jtPathName 'figures/spectrogram' num2str(handles.peakLFPNo) '.mat'];
+    save(save_file_name,'minLogPper','maxLogPper')
     
     figNo=figNo+1;
     try

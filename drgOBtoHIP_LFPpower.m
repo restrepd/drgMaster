@@ -12,7 +12,8 @@ if exist('handles')==0
     %     handles.peakLFPNo=1;%This is the LFP number that will be processed
     %     electrode_label='Right CA1';
 
-    handles.peakLFPNo=9;%This is the LFP number that will be processed
+    handles.peakLFPNo=8;%This is the LFP number that will be processed
+
     handles.electrode_label{1}='Right HIP';
     handles.electrode_label{8}='Left HIP';
     handles.electrode_label{9}='Right OB';
@@ -59,10 +60,13 @@ if exist('handles')==0
     % handles.jtFileNames{1}='jt_times_20240306_Donatello_Closed_Loop_Test_withBandPass_4_240306_112305.mat';
 
     %Lyra day 1
-    handles.jtPathNames{1}='/Volumes/Diego Mac Drive/5xFADvsWT_1_hour_treatmentVsnone/N_4/Lyra 5xFAD WT Tx/20240819_Lyra_Day1_Tx/20240819_Lyra_Day1_Tx_1_240819_094218/';
-    handles.jtFileNames{1}='jt_times_20240819_Lyra_Day1_Tx_1_240819_094218.mat';
+    % handles.jtPathNames{1}='/Volumes/Diego Mac Drive/5xFADvsWT_1_hour_treatmentVsnone/N_4/Lyra 5xFAD WT Tx/20240819_Lyra_Day1_Tx/20240819_Lyra_Day1_Tx_1_240819_094218/';
+    % handles.jtFileNames{1}='jt_times_20240819_Lyra_Day1_Tx_1_240819_094218.mat';
 
-  
+    %Lennie_5xFAD_Treated
+    handles.jtPathNames{1}='/Users/restrepd/Documents/Projects/JoeV/5xFADvsWT_1_hour_treatmentVsnone/N_1/Lennie_5xFAD_Treated/20240205_5xFAD_Lennie_Tx_1/';
+    handles.jtFileNames{1}='jt_times_20240205_5xFAD_Lennie_Tx_1_240205_085644.mat';
+
 
     handles.laser_start_time=5; %Start time in minutes
     handles.laser_end_time=65; %Start time in minutes
